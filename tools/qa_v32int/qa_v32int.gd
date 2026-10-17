@@ -150,9 +150,10 @@ func run_d2(mode: String) -> void:
 	await w(0.4); await snap("d2%s_home_car_top" % ("h" if hosp_first else "w")); cam.queue_free()
 	ok(await wait_until(func(): return Objectives.has("Go inside and talk to my family."), 30.0), "d2: 'Go inside and talk to my family.' objective")
 	await w(2.0); await snap("d2%s_go_inside" % ("h" if hosp_first else "w"))
+	ok(not Objectives.has("Go to the car.") and not Objectives.has("Walk to the street."), "d2: no stale morning objectives after both visits %s" % str(Objectives.items.map(func(it): return it.get("en", "") if it is Dictionary else str(it))))
 	if not hosp_first:
 		await wait_until(func(): return wsc.player != null and not wsc.player.busy, 30.0)
-		wsc.caption("Go inside and talk to my family.", false); wsc.hud.open_phone(); await w(1.8)
+		wsc.hud.open_phone(); await wait_until(func(): return wsc.hud.phone.visible, 15.0); await w(1.5); wsc.caption("Go inside and talk to my family.", false); await w(0.6)
 		await _phone_check("d2w_phone_caption_street", wsc.hud.phone)
 		wsc.hud.phone.close(); await w(1.0)
 	var home = wsc.grid.find_lot("home")

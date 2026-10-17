@@ -24,7 +24,7 @@ func _go() -> void:
 			for b in h.find_children("*", "Button", true, false): if String(b.text).strip_edges() == "TR" and b.is_visible_in_tree(): trb = b
 			print("QA TR button inside the caption box: ", trb != null and h.ui.panel.is_ancestor_of(trb), " (", trb.get_path() if trb else "none", ")")
 		var nbox := 0
-		for n in root.get_nodes_in_group("caption_box"): if n is Control and n.is_visible_in_tree(): nbox += 1
+		for bx in root.get_nodes_in_group("caption_box"): if bx is Control and bx.is_visible_in_tree(): nbox += 1
 		if nbox > 1: print("QA BOXES >1: ", nbox, " cap=", h.ui.en_l.text)
 		if cap != last:
 			last = cap; print("CAP ", cap, " | TR ", h.ui.tr_l.text)
