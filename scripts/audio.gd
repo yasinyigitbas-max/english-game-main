@@ -198,9 +198,9 @@ func say(text: String, interrupt := true) -> void:
 	var queued := false
 	if narrator == "f" or alt_index.has(key): st = _clip(key)   # the chosen narrator's own pack clip
 	else: queued = _queue_narrator_tts(text, text)              # v32-voices: m/c/g line not in its pack -> its own model
-	if not st and not queued:
-		st = _clip(key)   # m/c/g with no usable model: the old default-clip fallback
-		if not st: queued = _queue_narrator_tts(text, text)
+	if not st and not queued and narrator == "f":
+		queued = _queue_narrator_tts(text, text)
+	# v32.1: m/c/g with no usable model -> caption only; NEVER the default (female) clip = never another narrator's voice
 	if st:
 		queue.append({"stream": st, "what": text})
 		stats.clip += 1
@@ -341,9 +341,11 @@ func _say_named(lead: String, name: String) -> void:
 	var line := "%s %s" % [lead, name]
 	if name == "": say(lead); return
 	if _dup(line): return
-	var st := _clip(norm(line))
+	var st := _clip(norm(line)) if narrator == "f" else _alt_clip(norm(line))   # v32.1: only the chosen narrator's own clip
 	if st: queue.append({"stream": st, "what": line}); spoke.emit(line); _kick(); return
-	if _queue_narrator_tts(line + ".", line): spoke.emit(line); _kick(); return
+	if _queue_narrator_tts(line + ".", line):
+		print("Audio: name via generateNarrator narrator=%s line=%s" % [narrator, line]); spoke.emit(line); _kick(); return
+	print("Audio: name caption-only (no model) narrator=%s line=%s" % [narrator, line])
 	say(lead)   # name not voiced in a different voice; the caption shows it
 
 func letter(l: String) -> void:
