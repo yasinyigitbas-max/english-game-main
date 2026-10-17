@@ -3,7 +3,7 @@ class_name StoryUI
 extends CanvasLayer
 
 const TR := {
-	"How are your legs?": "Bacakların nasıl?", "My legs are fine.": "Bacaklarım iyi.", "How are your arms?": "Kolların nasıl?", "My arm hurts a little.": "Kolum biraz acıyor.", "How is your chest?": "Göğsün nasıl?", "My chest is fine.": "Göğsüm iyi.", "How are your ears?": "Kulakların nasıl?", "My ears are fine.": "Kulaklarım iyi.", "How are your eyes?": "Gözlerin nasıl?", "My eyes are fine.": "Gözlerim iyi.", "Good. You are fine. You can go home.": "Güzel. İyisin. Eve gidebilirsin.",   # v28 body check
+	"How are your legs?": "Bacakların nasıl?", "How are your arms?": "Kolların nasıl?", "My arm hurts a little.": "Kolum biraz acıyor.", "How is your chest?": "Göğsün nasıl?", "How are your ears?": "Kulakların nasıl?", "How are your eyes?": "Gözlerin nasıl?", "Good. You are fine. You can go home.": "Güzel. İyisin. Eve gidebilirsin.",   # v28 body check
 	"Wow, such a nice day!": "Vay, ne güzel bir gün!", "Look! A cat is sitting on the road.": "Bak! Yolda bir kedi oturuyor.", "Go away, kitty! Move!": "Git buradan, pisi! Kaç!", "I am running to the cat!": "Kediye doğru koşuyorum!",
 	"Look! A cat is on the road.": "Bak! Yolda bir kedi var.", "Oh no! A bus is coming!": "Olamaz! Bir otobüs geliyor!",
 	"Where am I?": "Neredeyim?", "Can you hear me?": "Beni duyabiliyor musun?", "Yes, I can.": "Evet, duyabiliyorum.",
