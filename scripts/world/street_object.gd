@@ -297,13 +297,14 @@ func _build_tap() -> void:
 	fx.initial_velocity_min = 2.0; fx.initial_velocity_max = 2.6; fx.gravity = Vector3(0, -9.8, 0); fx.position = Vector3(0.5, 0.2, 2.1)
 	var dm := SphereMesh.new(); dm.radius = 0.02; dm.height = 0.04; dm.radial_segments = 4; dm.rings = 2; fx.mesh = dm
 	var wm := StandardMaterial3D.new(); wm.albedo_color = Color(0.55, 0.78, 1.0, 0.8); wm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA; fx.material_override = wm
+	fx.visible = false; fx.one_shot = false   # ui33: the idle tap drew its water stream as a stray light-blue pane in the front yard; shown only while the tap is on
 	add_child(fx); parts.fx = fx
 	col(Vector3(0.8, 0.6, 0.5), Vector3(0.4, 0.3, 0.1)); it.position = Vector3(0, 0, 0.75); it.focus = to_global(Vector3(0, 0.75, 0))
 
 func _v_tap() -> Array:
-	if not S.on: return [["Turn on the tap", func(): S.on = true; swing(parts.handle, "rotation:z", 1.5); parts.fx.emitting = true; say("I am turning on the tap.")]]
+	if not S.on: return [["Turn on the tap", func(): S.on = true; swing(parts.handle, "rotation:z", 1.5); parts.fx.visible = true; parts.fx.emitting = true; say("I am turning on the tap.")]]
 	return [["Water the flowers", func(): say("I am watering the flowers.")],
-		["Turn off the tap", func(): S.on = false; swing(parts.handle, "rotation:z", 0.0); parts.fx.emitting = false; say("I am turning off the tap.")]]
+		["Turn off the tap", func(): S.on = false; swing(parts.handle, "rotation:z", 0.0); parts.fx.emitting = false; get_tree().create_timer(1.0).timeout.connect(func(): if is_instance_valid(parts.fx) and not S.on: parts.fx.visible = false); say("I am turning off the tap.")]]
 
 # ------------------------------------------------------------------ traffic light + crosswalk button
 ## centre = middle of the zebra crossing, the road runs along local X. Poles on both curbs.

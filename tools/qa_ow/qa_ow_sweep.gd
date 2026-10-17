@@ -468,9 +468,12 @@ func _walk_all(n: Node, out: Array) -> void:
 func hosp33(only2 := false) -> void:
 	if not only2: await _hosp1()
 	OwLink.enter("hospital_day2", ""); await w(6.0)
-	for i in 12:
+	var shots := 0
+	for i in 40:
 		await w(3.0); P("HOSP2 t=%d caps=%s tr=%s" % [i * 3, _caps_vis(), _trcol()])
-		if i in [4, 7, 10]: await _snap("H2_hosp2_%02d" % i)
+		var lr = get_tree().root.find_child("LessonRows", true, false)
+		if lr and (lr as Control).is_visible_in_tree() and shots < 3: shots += 1; await _snap("H2_hosp2_lesson_%02d" % i)
+		if shots >= 3: break
 func _hosp1() -> void:
 	OwLink.enter("hospital", ""); await w(6.0)
 	for i in 14:
@@ -478,7 +481,7 @@ func _hosp1() -> void:
 		if i in [3, 5, 7, 10]: await _snap("H1_hosp_%02d" % i)
 
 func glass33() -> void:
-	await OwLink.to_street("front"); await w(5.0)
+	OwLink.to_street("front"); await w(10.0)
 	var W = OwLink.inst.world; var all: Array = []; _walk_all(W, all)
 	var tap := Vector3(5.1, 0, -1.5)
 	for c in all:
