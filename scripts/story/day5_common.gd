@@ -219,6 +219,7 @@ func choice(c: Dictionary) -> Dictionary:
 	for i in opts.size():
 		var b := Button.new(); b.name = "D56Opt%d" % i; b.text = String(opts[i].en); b.custom_minimum_size = Vector2(620, 58); b.add_theme_font_size_override("font_size", 22)
 		b.focus_mode = Control.FOCUS_NONE; b.disabled = true; b.set_meta("ok", bool(opts[i].get("ok", false))); b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_style(b, Color(0.33, 0.47, 0.78))   # answers in blue; a wrong pick turns red and stays greyed, the right one green
 		var ii := i; b.pressed.connect(func(): _picked.emit(ii)); v.add_child(b); btns.append(b)
 		if String(opts[i].get("tr", "")) != "":
 			var bt := Label.new(); bt.text = String(opts[i].tr); bt.add_theme_font_size_override("font_size", 15); bt.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8))
@@ -256,7 +257,7 @@ func choice(c: Dictionary) -> Dictionary:
 			Audio.say("That is right!")
 			right = o.duplicate(); right["first_ok"] = first_ok
 		else:
-			Audio.bad(); _style(bt, Color(0.95, 0.55, 0.5)); bt.set_meta("wrong", true)
+			Audio.bad(); _style(bt, Color(0.95, 0.55, 0.5)); bt.set_meta("wrong", true); bt.modulate = Color(1, 1, 1, 0.6)
 			if bool(c.get("remove_wrong", false)): bt.visible = false
 			fb.add_theme_color_override("font_color", Color(0.8, 0.3, 0.25))
 			fb.text = "Not quite.  " + String(o.get("fb", "")); fbt.text = "Tam değil.  " + String(o.get("fb_tr", "")); tr_vis.call()
