@@ -11,6 +11,11 @@ func _dump(ph: Node, tag: String) -> void:
 		for c in n.get_children(): st.append(c)
 	print("PROBE ", tag, " TR=", App.tr_on(), " :: ", " ; ".join(out.slice(0, 60)))
 func _ready() -> void:
+	for sp in ["res://scripts/main.gd", "res://scripts/livingroom.gd", "res://scripts/bathroom.gd", "res://scripts/phone.gd", "res://scripts/room_phone.gd",
+			"res://scripts/core/objectives.gd", "res://scripts/props/wall_fade.gd", "res://scripts/story/story_ui.gd", "res://scripts/story/story_home.gd",
+			"res://scripts/story/day2_morning.gd", "res://scripts/story/hospital.gd", "res://scripts/story/hospital_day2.gd", "res://ui/shared/hud.gd", "res://scripts/qa.gd"]:
+		var g = load(sp)
+		print("PROBE parse ", sp, " ok=", g is GDScript and (g as GDScript).can_instantiate())
 	var cl := CanvasLayer.new(); add_child(cl)
 	var ph = load("res://scripts/phone.gd").new(); ph.visible = true; ph.set_anchors_preset(Control.PRESET_FULL_RECT); cl.add_child(ph)
 	await get_tree().process_frame
