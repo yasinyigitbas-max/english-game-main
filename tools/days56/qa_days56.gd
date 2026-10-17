@@ -12,6 +12,14 @@ var wrong_fb := 0
 var t_start := 0
 var shots := "/tmp/qa_d56/shots/"
 var stop_day := 6
+var world := true          # fix33: run through the open world (scenes/world.tscn); --rooms = the old scene-per-room run
+var gt := 0.0              # game seconds since start
+var _last_top := ""
+var _was_guide := false
+var _last_cam: Camera3D = null
+var _burst_until := -1.0
+var _pan_n := 0
+const House := preload("res://scripts/core/house.gd")
 
 func ok(c: bool, t: String) -> void:
 	log.append(("PASS " if c else "FAIL ") + t); print("D56QA ", log[-1])
@@ -20,7 +28,10 @@ func w(t: float) -> void: await get_tree().create_timer(t, true).timeout
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	for a in OS.get_cmdline_user_args(): if a.begins_with("--stop-day="): stop_day = int(a.substr(11))
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--stop-day="): stop_day = int(a.substr(11))
+		if a == "--rooms": world = false
+		if a.begins_with("--shots="): shots = a.substr(8)
 	DirAccess.make_dir_recursive_absolute(shots)
 	Engine.time_scale = 4.0; AudioServer.playback_speed_scale = 4.0
 	Audio.spoke.connect(func(t): said.append(t))
@@ -38,10 +49,53 @@ func snap(n: String) -> void:
 func cur() -> Node: return get_tree().current_scene
 func kind() -> String:
 	var p := String(cur().scene_file_path) if cur() else ""
-	return p.get_file()
+	return "world_exterior.tscn" if p.get_file() == "world.tscn" else p.get_file()
+
+## fix33: objective timeline (top entry, game seconds) + pan bursts (several frames per pan, with camera facts)
+func _process(dt: float) -> void:
+	gt += dt
+	var top := String(Objectives.items[0].en) if not Objectives.items.is_empty() else ""
+	if top != _last_top:
+		print("D56QA TOP t=%.1f day%d %s | %s | list=%s" % [gt, WorldState.day, top, kind(), JSON.stringify(Objectives.items.map(func(i): return i.en))])
+		_last_top = top
+		if top != "": _snap_async("top_%s" % top.left(28))
+	var sh = get_tree().root.get_node_or_null("ShoulderCam")
+	var g: bool = sh != null and sh.get("_guide_on") == true
+	var c := get_viewport().get_camera_3d()
+	if g and not _was_guide: _burst("guide")
+	elif c != _last_cam and c != null and _last_cam != null: _burst("cam")
+	_was_guide = g; _last_cam = c
+
+var _sn := 0
+func _snap_async(n: String) -> void:
+	_sn += 1; await snap("%03d_%s" % [_sn, n.replace(" ", "_").replace("/", "_").replace("?", "").replace("'", "")])
+
+func _burst(why: String) -> void:
+	if gt < _burst_until: return
+	_burst_until = gt + 3.0
+	_pan_n += 1
+	var tag := "pan%02d_%s_%s" % [_pan_n, why, _last_top.left(22)]
+	for i in 8:
+		_cam_diag("%s_f%d" % [tag, i]); await _snap_async("%s_f%d" % [tag, i]); await get_tree().create_timer(0.4, true).timeout
+
+func _cam_diag(tag: String) -> void:
+	var c := get_viewport().get_camera_3d(); var sc := cur()
+	var hero = sc.get("hero") if sc and sc.get("hero") is Node3D else (sc.get("player") if sc else null)
+	var sh = get_tree().root.get_node_or_null("ShoulderCam")
+	print("D56QA CAM %s t=%.1f scene=%s cam=%s pos=%s hero=%s sh=%s" % [tag, gt, kind(), str(c.get_path()) if c else "-",
+		str(c.global_position.snapped(Vector3.ONE * 0.01)) if c else "-", str((hero as Node3D).global_position.snapped(Vector3.ONE * 0.01)) if hero is Node3D else "-", str(sh.get("dbg")) if sh else "-"])
 
 func go(path: String, from: String) -> void:
 	App.came_from = from
+	if world and cur() != null:
+		var s := cur()
+		print("D56QA WGO t=%.1f %s -> %s" % [gt, kind(), path])
+		if House.is_room(path) and House.is_room(String(s.scene_file_path)): StoryNav.room(s, path)
+		elif House.is_room(path): await WorldTrip.go("front_door"); await w(0.6); await World.goto("livingroom", "front")
+		elif path == Game.WORLD_SCENE: StoryNav.goto(Game.WORLD_SCENE, "lot:home")
+		elif path.ends_with("shop.tscn"): await WorldTrip.go("shop_door"); await w(0.6); await World.goto("shop", "shop")
+		await w(1.5)
+		return
 	if path == "res://main.tscn": App.continue_requested = true
 	get_tree().change_scene_to_file(path)
 	await w(1.0)
@@ -50,8 +104,12 @@ func run() -> void:
 	t_start = Time.get_ticks_msec()
 	await w(1.0)
 	ok(Day56Routine.active_day() == 5, "save prepared: day-5 stage alarm (%s)" % Day56.stage(5))
-	await go("res://main.tscn", "")
+	if world:
+		App.continue_requested = true
+		get_tree().change_scene_to_file("res://scenes/world.tscn"); await w(3.0)
+	else: await go("res://main.tscn", "")
 	ok(await _until(func(): return get_tree().root.has_node("Day56Routine"), 20.0), "main.gd hook attached Day56Routine")
+	if not get_tree().root.has_node("Day56Routine"): Day56Routine.attach(get_tree())
 	var phase := {}
 	var last_obj_act := ""
 	var t := 0
@@ -81,10 +139,19 @@ func run() -> void:
 			["bathroom.tscn", "Take a shower."]: _verb(s, "bath", "takeshower")
 			["livingroom.tscn", "Go to the bathroom."]: await go("res://bathroom.tscn", "livingroom")
 			["bathroom.tscn", "Go to the living room."], ["main.tscn", "Go to the living room."]: await go("res://livingroom.tscn", "bathroom" if k == "bathroom.tscn" else "bedroom")
-			["livingroom.tscn", "Go outside."]: await snap("d%d_%s_living_out" % [d, Day56.stage(d)]); App.came_from = "livingroom"; Game.go_to(Game.WORLD_SCENE, "lot:home"); await w(2.0)
-			["world_exterior.tscn", "Walk to the corner shop."]: await snap("d5_world_shop_obj"); WorldState.player_pos = Vector3(-3, 0, 27.6); Game.go_to("res://scenes/places/shop.tscn", "front_door"); await w(2.0)
+			["livingroom.tscn", "Go outside."]:
+				await snap("d%d_%s_living_out" % [d, Day56.stage(d)]); App.came_from = "livingroom"
+				if world: await go(Game.WORLD_SCENE, "livingroom")
+				else: Game.go_to(Game.WORLD_SCENE, "lot:home"); await w(2.0)
+			["world_exterior.tscn", "Walk to the corner shop."]:
+				await snap("d5_world_shop_obj")
+				if world: await go("res://scenes/places/shop.tscn", "street")
+				else: WorldState.player_pos = Vector3(-3, 0, 27.6); Game.go_to("res://scenes/places/shop.tscn", "front_door"); await w(2.0)
 			["shop.tscn", "Go outside."]:
-				if Day56.stage(5) == "home": s.qa_use("exit"); await w(1.0); App.came_from = "shop"; Game.go_to(Game.WORLD_SCENE, "lot:corner_shop"); await w(2.0)
+				if Day56.stage(5) == "home":
+					s.qa_use("exit"); await w(1.0); App.came_from = "shop"
+					if world: await w(4.0)
+					else: Game.go_to(Game.WORLD_SCENE, "lot:corner_shop"); await w(2.0)
 				else: did = false
 			["world_exterior.tscn", "Go to the bus stop."]:
 				await snap("d6_world_stop_obj")

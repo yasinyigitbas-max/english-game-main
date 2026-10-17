@@ -425,8 +425,13 @@ func _build_room() -> void:
 	# south (camera-side) wall: low cut wall (0.35 m, white cap) either side of the living-room door
 	for seg in [[LX - 0.1, SD.x - 0.025], [SD.y + 0.025, RX + 0.1]]:
 		var w: float = seg[1] - seg[0]
+		if House.SHOULDER_CAM:   # fix33: full-height south wall (the low cut wall showed the lawn / street from inside)
+			walls_s.append(box(Vector3(w, WALL_H, 0.1), Vector3(seg[0] + w / 2, WALL_H / 2, FZ + 0.05), TILE))
+			continue
 		walls_s.append(box(Vector3(w, 0.35, 0.1), Vector3(seg[0] + w / 2, 0.175, FZ + 0.05), TILE))   # v32-polish: south walls -> WallFade
 		walls_s.append(box(Vector3(w, 0.03, 0.12), Vector3(seg[0] + w / 2, 0.365, FZ + 0.05), Color(1, 1, 1)))
+	if House.SHOULDER_CAM:
+		walls_s.append(box(Vector3(SD.y - SD.x + 0.05, WALL_H - 2.12, 0.1), Vector3((SD.x + SD.y) / 2, (WALL_H + 2.12) / 2, FZ + 0.05), TILE))
 	# invisible roof + front wall: shadows only (same as bedroom)
 	for bx in [[Vector3(4.9, 0.1, 3.9), Vector3(0, WALL_H + 0.05, 0), Color(0.97, 0.97, 0.96)]]:
 		box(bx[0], bx[1], bx[2]).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY

@@ -122,6 +122,7 @@ func _enter(id: String, from: String) -> void:
 		var pl: Node = world.places.get(id)
 		if pl == null: return
 		live = pl; live_id = id
+		if pl.get_parent() != get_tree().root: pl.reparent(get_tree().root, true)   # fix33 (blue): current_scene must be a root child (as the rooms): the shop never went live (set_current_scene error) -> no day-4/5 shop story, player frozen
 		get_tree().current_scene = pl
 		pl.process_mode = Node.PROCESS_MODE_INHERIT
 		if pl.has_meta("ow_shell"): pl.remove_meta("ow_shell"); pl.call("_ow_live", world)

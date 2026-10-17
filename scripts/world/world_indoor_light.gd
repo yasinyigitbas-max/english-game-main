@@ -48,6 +48,7 @@ func _live() -> Array:   # [id, node]
 const ROOM_AMB_K := 0.62     # room ambient x this
 const ROOM_EXP := 0.78       # tonemap exposure in rooms (v33 rooms: 0.95)
 const ROOM_SUN_K := 0.55     # room sun x this (it comes through the window)
+const ROOM_EXP_BY := {"bathroom": 0.6}   # fix33: white tiles + the ceiling lamp blew the bathroom out to white at 0.78
 const PLACE_AMB := 0.42
 const PLACE_EXP := 0.8
 const STREET_AMB := 0.5
@@ -100,7 +101,7 @@ func _process(_dt: float) -> void:
 		if _room_sun and is_instance_valid(_room_sun): _room_sun.visible = false; _room_sun = null
 		_rs_e = -1.0
 	if house:
-		_derive(renv if renv is Environment else _house_env, ROOM_AMB_K, 0.0, ROOM_EXP, d)
+		_derive(renv if renv is Environment else _house_env, ROOM_AMB_K, 0.0, float(ROOM_EXP_BY.get(id, ROOM_EXP)), d)
 		if rsun is DirectionalLight3D and is_instance_valid(rsun):
 			_room_sun = rsun; _room_sun.visible = true
 			# the room writes its sun energy on state changes (curtains / clock): scale what it asked for, once

@@ -101,9 +101,22 @@ func _process(dt: float) -> void:
 	var tgt := Vector3.INF
 	var vc := get_viewport().get_camera_3d()
 	var scripted := false
+	if vc and vc != rc and _foreign(vc, sc):
+		# fix33 (black 8): House._sleep of the room we left un-currents the shared room camera, so the viewport fell back to
+		# the World's street CameraRig (top-down from outside: bath -> living, bedtime polaroids, D7 wake); that camera
+		# then counted as a "scripted" shot and froze the view. A camera of ANOTHER room / the street rig is never ours:
+		# take the room camera back into this room and make it current.
+		if room and OwLink.active() and (rc as Node).get_parent() != sc and sc.is_inside_tree(): (rc as Node).reparent(sc, true)
+		rc.current = true; vc = rc
 	if vc and vc != rc and not (vc.get_viewport() is SubViewport):
-		if vc.has_meta("guide_cam"): tgt = vc.get_meta("guide_at", _aim_point(vc)); rc.current = true
+		if vc.has_meta("guide_cam"): _gcam = vc; rc.current = true
 		else: scripted = true
+	# fix33: a guide camera hands the view straight back to this camera, so it was framed for ONE frame only: keep
+	# framing hero + its target for as long as that guide camera exists (Life.guide_to / World.pan / place cine free it)
+	if is_instance_valid(_gcam) and _gcam.is_inside_tree() and not _gcam.is_queued_for_deletion() and not scripted:
+		tgt = _gcam.get_meta("guide_at", _aim_point(_gcam))
+		if _gcam.current: rc.current = true
+	else: _gcam = null
 	var shot = sc.get("cam_shot")
 	if shot is Dictionary and not (shot as Dictionary).is_empty() and shot.has("at"):
 		if bool(shot.get("guide", false)): tgt = (sc as Node3D).to_global(shot.at) if sc is Node3D else shot.at   # v34 (blue): cam_shot values are room-local (rooms sit off the origin in the open world)
@@ -206,6 +219,7 @@ func _process(dt: float) -> void:
 	if pos.distance_to(look) > 0.05: cam.global_transform = Transform3D(Basis.looking_at(look - pos, Vector3.UP), pos)
 
 var _swing := INF
+var _gcam: Camera3D = null   # fix33: the live guide camera (objective pan) we frame for
 var _trail: Array = []      # fix33: the hero's recent path (world, newest last, 0.15 m steps)
 var _tp := Vector3.INF      # fix33: camera spot on that path when every off-shoulder spot is blocked
 ## a camera spot on the hero's own recent path, MIN_D..DIST behind him along it, with a clear line to the chest
@@ -260,6 +274,18 @@ func _unclip_scripted(oc: Camera3D, sc: Node, hero) -> void:
 			var q := p + f * (0.05 * (i + 1))
 			if not _in_wall(q, boxes): p = q; break
 	if not p.is_equal_approx(oc.global_position): oc.global_position = p
+
+## fix33: vc is the World's street rig (while a room / place is live) or a camera inside a house room that is not live
+static func _foreign(vc: Camera3D, sc: Node) -> bool:
+	if vc.get_viewport() is SubViewport or vc.has_meta("guide_cam") or sc.is_ancestor_of(vc): return false
+	var w = World.inst if World.inst and is_instance_valid(World.inst) else null
+	if w == null: return false
+	if sc != w and vc == w.get("cam"): return true
+	var n: Node = vc.get_parent()
+	while n:
+		if n != sc and House.is_room(String(n.scene_file_path)): return true
+		n = n.get_parent()
+	return false
 
 func _spot(h: Vector3, y: float, sd: float, p: float) -> Vector3:
 	var back := Vector3(sin(y), 0, cos(y)); var right := Vector3(cos(y), 0, -sin(y))
@@ -333,7 +359,7 @@ var _boxes: Array = []
 func _frame_both(h: Vector3, chest: Vector3, tgt: Vector3, y: float, sd: float, fov: float) -> Vector3:
 	var half := deg_to_rad(maxf(fov, FOV)) * 0.5 * 0.8
 	var mid := chest.lerp(tgt, 0.5)
-	var top := h.y + (2.45 if _indoors(h) else 6.0)
+	var top := h.y + (2.15 if _indoors(h) else 5.0)   # fix33: a pan stays at eye-ish height (2.45 looked straight down on the hero)
 	var best := Vector3.INF; var best_need := INF
 	for dy in [0.0, 0.6, -0.6, 1.2, -1.2]:
 		var yy: float = y + dy

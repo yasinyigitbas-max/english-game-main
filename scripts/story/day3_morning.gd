@@ -34,7 +34,7 @@ func _kind(sc: Node) -> String:
 	if p.ends_with("menu.tscn") or p == "": return ""
 	if p.contains("/places/cafe"): return "cafe"   # v32 (red): blue's interiors are not "outside"
 	if p.contains("/places/shop"): return "shop"
-	if p.ends_with("world_exterior.tscn"): return "outside"
+	if p.ends_with("world_exterior.tscn") or p.ends_with("/world.tscn"): return "outside"   # fix33: the open world's street is "outside" too
 	return "other"   # v32 (red): hospital / work / QA scenes get no day-3 town cues or pans (was "outside")
 
 var _t := 0.0
@@ -189,6 +189,7 @@ func _hold(sc: Node, line: String) -> bool:
 ## stops: Array of _lot_view() dictionaries, visited in order, then back to the player's follow camera
 func _pan(sc: Node, stops: Array) -> void:
 	if stops.is_empty(): return
+	if OwLink.active(): await _pan_shoulder(sc, stops); return
 	var rig = sc.get("cam")
 	if not (rig is Camera3D): rig = get_viewport().get_camera_3d()
 	if not (rig is Camera3D): return
@@ -233,6 +234,26 @@ func _pan(sc: Node, stops: Array) -> void:
 				tmp.global_transform = x0.interpolate_with((rig as Camera3D).global_transform, smoothstep(0.0, 1.0, minf(el / 0.9, 1.0)))
 	if is_instance_valid(rig): (rig as Camera3D).current = true
 	if is_instance_valid(tmp): tmp.queue_free()
+	if restore and is_instance_valid(sc):
+		sc.mode = "play"
+		if sc.has_method("_update_hand"): sc._update_hand()
+
+## fix33 (blue, open world camera standard): the town pan is the ONE shoulder camera framing the hero AND the lot
+## (a guide camera: ShoulderCam backs off / widens until both are in view); no fly-over that loses the player.
+func _pan_shoulder(sc: Node, stops: Array) -> void:
+	var restore := "mode" in sc and String(sc.mode) == "play"
+	if restore: sc.mode = "busy"
+	for st in stops:
+		if not RoutineScope.alive(sc): break
+		var tmp := Camera3D.new(); tmp.set_meta("guide_cam", true); tmp.set_meta("guide_at", (st as Dictionary).at); sc.add_child(tmp)
+		var rig = get_viewport().get_camera_3d()
+		if rig is Camera3D: tmp.global_transform = (rig as Camera3D).global_transform
+		tmp.current = true
+		await get_tree().create_timer(0.9, false).timeout   # the camera eases round before the line
+		var ok := await _hold(sc, String((st as Dictionary).get("line", "")))
+		tmp.queue_free()
+		if not ok: break
+	await get_tree().create_timer(0.5, false).timeout
 	if restore and is_instance_valid(sc):
 		sc.mode = "play"
 		if sc.has_method("_update_hand"): sc._update_hand()

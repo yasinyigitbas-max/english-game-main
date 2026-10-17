@@ -100,8 +100,19 @@ func _burst(why: String) -> void:
 	_pan_n += 1
 	var tag := "pan%02d_%s_%s" % [_pan_n, why, _last_obj.left(24)]
 	for i in 9:
+		_cam_diag("%s_f%d" % [tag, i])
 		await snap("%s_f%d" % [tag, i])
 		await w(0.35)
+
+## fix33: per-frame camera facts for the pan bursts (which camera, where, hero, the shoulder camera's branch / target)
+func _cam_diag(tag: String) -> void:
+	var c := get_viewport().get_camera_3d(); var sc := cur()
+	var hero = sc.get("hero") if sc and sc.get("hero") is Node3D else (sc.get("player") if sc else null)
+	var sh = get_tree().root.get_node_or_null("ShoulderCam")
+	var cs = sc.get("cam_shot") if sc else null
+	print("D47QA CAM %s t=%.1f scene=%s cam=%s pos=%s fov=%.0f hero=%s sh=%s guide=%s shot=%s" % [tag, gt, kind(), str(c.get_path()) if c else "-",
+		str(c.global_position.snapped(Vector3.ONE * 0.01)) if c else "-", c.fov if c else 0.0, str((hero as Node3D).global_position.snapped(Vector3.ONE * 0.01)) if hero is Node3D else "-",
+		str(sh.get("dbg")) if sh else "-", str(sh.get("_guide_on")) if sh else "-", str(cs) if cs is Dictionary and not cs.is_empty() else "-"])
 
 func _obj_shot(o: String) -> void:
 	await w(1.4)
