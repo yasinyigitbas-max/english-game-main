@@ -126,6 +126,10 @@ func _process(dt: float) -> void:
 	if scripted:
 		var oc: Camera3D = vc if vc else rc
 		if room or _indoors(hero.global_position): _unclip_scripted(oc, sc, hero)
+		if oc is CameraRig:   # fix33: the street rig on its own (not a story camera) never looks (nearly) straight down
+			var fw := -oc.global_transform.basis.z
+			var cf := _pitch_cap(fw)
+			if not cf.is_equal_approx(fw): oc.global_transform = Transform3D(Basis.looking_at(cf, Vector3.UP), oc.global_position)
 		if oc.has_meta("sc_fov0") and dt > 0.0: oc.fov = lerpf(oc.fov, float(oc.get_meta("sc_fov0")), 1.0 - exp(-dt / 0.3))   # story shots keep their own fov
 		pos = oc.global_position; look = oc.global_position - oc.global_transform.basis.z * 3.0; _aside = true
 		dbg = "scripted:%s ov=%s shot=%s" % [oc.name, str(sc.get("cam_override")), str(shot is Dictionary and not (shot as Dictionary).is_empty())]
@@ -175,9 +179,12 @@ func _process(dt: float) -> void:
 		for sd in [side, -side]:
 			for p in PULLS:
 				if DIST * p < MIN_D: continue
-				if not _blocked(_spot(h, yaw, sd, p), chest, boxes): best = [sd, p]; found = true; break
+				var cp := _spot(h, yaw, sd, p)
+				if not _blocked(cp, chest, boxes) and (room or not _other_region(cp, h)): best = [sd, p]; found = true; break
 			if found: break
-		_tp = Vector3.INF if found or tgt != Vector3.INF else _trail_spot(h, chest, boxes)
+		# the trail (back through the door just used) only between house rooms; out on the street / into a place the camera
+		# swings round to a clear side instead (fix33: it stayed INSIDE the shop for seconds after the hero left)
+		_tp = Vector3.INF if found or tgt != Vector3.INF or not room else _trail_spot(h, chest, boxes)
 		if found:
 			# hysteresis: closing in / swapping happens at once, easing back out only after 0.35 s of clear view
 			if best[0] != side or best[1] < k - 0.01: side = best[0]; k = best[1]; _out_since = -1.0
@@ -189,7 +196,8 @@ func _process(dt: float) -> void:
 			k = PULLS[-1]   # nothing clear: close in on the hero, the room wall fade covers the rest
 			# fix33: but never INSIDE a wall (hero backed up against it = the solid grey / pale-green screen): swing to
 			# the nearest clear heading instead (unless the player is steering the camera)
-			if _tp == Vector3.INF and _in_wall(_spot(h, yaw, side, k), boxes) and _manual <= 0.0 and tgt == Vector3.INF: _swing = _clear_yaw(h, chest, yaw, boxes)
+			var sp0 := _spot(h, yaw, side, k)
+			if _tp == Vector3.INF and (_in_wall(sp0, boxes) or (not room and _other_region(sp0, h))) and _manual <= 0.0 and tgt == Vector3.INF: _swing = _clear_yaw(h, chest, yaw, boxes)
 	if _swing != INF:
 		yaw = lerp_angle(yaw, _swing, 1.0 - exp(-dt * 4.0)) if dt > 0.0 else yaw
 		if absf(wrapf(_swing - yaw, -PI, PI)) < 0.05 or _manual > 0.0: _swing = INF
@@ -216,7 +224,7 @@ func _process(dt: float) -> void:
 	if not cam.has_meta("sc_fov0"): cam.set_meta("sc_fov0", cam.fov)
 	var want_fov := _guide_fov if tgt != Vector3.INF else FOV
 	cam.fov = lerpf(cam.fov, want_fov, 1.0 - exp(-dt / 0.3)) if dt > 0.0 else cam.fov
-	if pos.distance_to(look) > 0.05: cam.global_transform = Transform3D(Basis.looking_at(look - pos, Vector3.UP), pos)
+	if pos.distance_to(look) > 0.05: cam.global_transform = Transform3D(Basis.looking_at(_pitch_cap(look - pos), Vector3.UP), pos)
 
 var _swing := INF
 var _gcam: Camera3D = null   # fix33: the live guide camera (objective pan) we frame for
@@ -240,7 +248,8 @@ func _clear_yaw(h: Vector3, chest: Vector3, y: float, boxes: Array) -> float:
 		for sd in [side, -side]:
 			for p in PULLS:
 				if DIST * p < MIN_D: continue
-				if not _blocked(_spot(h, y + dy, sd, p), chest, boxes):
+				var cp := _spot(h, y + dy, sd, p)
+				if not _blocked(cp, chest, boxes) and not _other_region(cp, h):
 					side = sd; side_s = sd; k = p
 					return wrapf(y + dy, -PI, PI)
 	return y
@@ -274,6 +283,16 @@ func _unclip_scripted(oc: Camera3D, sc: Node, hero) -> void:
 			var q := p + f * (0.05 * (i + 1))
 			if not _in_wall(q, boxes): p = q; break
 	if not p.is_equal_approx(oc.global_position): oc.global_position = p
+
+## fix33 (Yasin: the "lying" street posts / NPCs were the near top-down view): the view never pitches below MAX_PITCH
+const MAX_PITCH := deg_to_rad(42.0)
+static func _pitch_cap(d: Vector3) -> Vector3:
+	var hl := Vector2(d.x, d.z).length()
+	if d.length() < 0.001: return Vector3(0, 0, -1)
+	if hl < 0.001: return Vector3(0, -tan(MAX_PITCH), -1).normalized()
+	var pitch := atan2(-d.y, hl)
+	if pitch <= MAX_PITCH: return d
+	return Vector3(d.x / hl, -tan(MAX_PITCH), d.z / hl).normalized()
 
 ## fix33: vc is the World's street rig (while a room / place is live) or a camera inside a house room that is not live
 static func _foreign(vc: Camera3D, sc: Node) -> bool:
@@ -316,6 +335,14 @@ func _blockers(sc: Node, chest: Vector3) -> Array:
 		if n is VisualInstance3D and ((n as VisualInstance3D).is_visible_in_tree() or n.has_meta("wf_a")):
 			var ab2: AABB = (n as VisualInstance3D).global_transform * (n as VisualInstance3D).get_aabb()
 			if _is_wall(ab2) and ab2.get_center().distance_to(chest) < 8.0: out.append(ab2)
+	for n in get_tree().get_nodes_in_group("cam_solid"):   # fix33: big movable solids (the day-6 storm bus): one box of all their meshes
+		if not (n is Node3D) or not (n as Node3D).is_visible_in_tree(): continue
+		var ab4 := AABB(); var any := false
+		for g in (n as Node).find_children("*", "MeshInstance3D", true, false):
+			if not (g as MeshInstance3D).is_visible_in_tree() or (g as MeshInstance3D).mesh == null: continue
+			var gb: AABB = (g as MeshInstance3D).global_transform * (g as MeshInstance3D).get_aabb()
+			ab4 = gb if not any else ab4.merge(gb); any = true
+		if any and ab4.get_center().distance_to(chest) < 25.0: out.append(ab4)
 	for n in get_tree().get_nodes_in_group("fade"):   # street buildings (one merged mesh each): their outer walls block
 		if n is VisualInstance3D and (n as Node3D).is_inside_tree():
 			var ab3: AABB = (n as VisualInstance3D).global_transform * (n as VisualInstance3D).get_aabb()
@@ -361,20 +388,44 @@ func _frame_both(h: Vector3, chest: Vector3, tgt: Vector3, y: float, sd: float, 
 	var mid := chest.lerp(tgt, 0.5)
 	var top := h.y + (2.15 if _indoors(h) else 5.0)   # fix33: a pan stays at eye-ish height (2.45 looked straight down on the hero)
 	var best := Vector3.INF; var best_need := INF
-	for dy in [0.0, 0.6, -0.6, 1.2, -1.2]:
+	for dy in [0.0, 0.6, -0.6, 1.2, -1.2, 1.8, -1.8, 2.4, -2.4]:
 		var yy: float = y + dy
-		var p := _spot(h, yy, sd, 1.0)
-		if _blocked(p, chest, _boxes): p = _spot(h, yy, sd, 0.55)
+		# fix33: the first clear pull on this heading, never behind a wall nor inside another room / the place the hero
+		# just left (the old fallback took 0.55 even when blocked: the camera sat inside the shop / against the living-room wall)
+		var p := Vector3.INF
+		for sd2 in [sd, -sd]:
+			for pl in PULLS:
+				if DIST * pl < MIN_D: continue
+				var c := _spot(h, yy, sd2, pl)
+				if not _blocked(c, chest, _boxes) and not _other_region(c, h): p = c; break
+			if p != Vector3.INF: break
+		if p == Vector3.INF: continue
 		for i in 13:
 			var need := _need_half(p, mid, chest, tgt)
 			if need <= half: _guide_fov = maxf(fov, FOV); return p
 			if need < best_need: best_need = need; best = p
 			var q := p + Vector3(sin(yy), 0, cos(yy)) * 0.5 + Vector3(0, 0.25, 0)
 			q.y = minf(q.y, top)
-			if _blocked(q, chest, _boxes) or _blocked(q, tgt, _boxes): break   # next step would be behind a wall
+			if _blocked(q, chest, _boxes) or _blocked(q, tgt, _boxes) or _other_region(q, h): break   # next step would be behind a wall
 			p = q
-	_guide_fov = clampf(rad_to_deg(best_need / 0.8) * 2.0 + 2.0, FOV, 84.0)
-	return best if best != Vector3.INF else _spot(h, y, sd, 1.0)
+	_guide_fov = clampf(rad_to_deg(best_need / 0.8) * 2.0 + 2.0, FOV, 84.0) if best != Vector3.INF else FOV
+	return best if best != Vector3.INF else _spot(h, y, sd, PULLS[-1])
+
+## fix33: p lies inside a house room / place region the hero is NOT in (camera inside the shop / house behind a hero who stepped out)
+func _other_region(p: Vector3, h: Vector3) -> bool:
+	var w = World.inst if World.inst and is_instance_valid(World.inst) else null
+	if w == null or not (w.get("regions") is Dictionary): return false
+	# the house room boxes overlap each other (walls decide between rooms): they only count while the hero is outdoors
+	var out := true
+	for id in w.regions:
+		var ab0: AABB = w.regions[id]
+		if ab0.has_point(Vector3(h.x, ab0.position.y + 0.5, h.z)): out = false; break
+	for id in w.regions:
+		if not out and OwLink.ROOM_PATH.has(id): continue
+		var ab: AABB = w.regions[id]
+		var q := Vector3(p.x, ab.position.y + 0.5, p.z); var hq := Vector3(h.x, ab.position.y + 0.5, h.z)
+		if ab.has_point(q) and not ab.has_point(hq): return true
+	return false
 
 func _need_half(p: Vector3, mid: Vector3, a: Vector3, b: Vector3) -> float:
 	var f := (mid - p).normalized()

@@ -223,8 +223,12 @@ func wgo(path: String, from: String) -> void:
 	if House.is_room(path) and House.is_room(String(s.scene_file_path)): StoryNav.room(s, path)
 	elif House.is_room(path):   # street -> house: to the front door, walk in (World.entered -> OwLink)
 		await WorldTrip.go("front_door"); await w(0.6); await World.goto("livingroom", "front")
-	elif path == Game.WORLD_SCENE: StoryNav.goto(Game.WORLD_SCENE, "lot:home")
-	elif path.ends_with("shop.tscn"): await WorldTrip.go("shop_door"); await w(0.6); await World.goto("shop", "shop")
+	elif path == Game.WORLD_SCENE:   # fix33: out through the real front door (the old shim left the hero standing in the hall)
+			if House.is_room(String(s.scene_file_path)): await OwLink.to_street("front")
+			else: StoryNav.goto(Game.WORLD_SCENE, "lot:home")
+	elif path.ends_with("shop.tscn"):
+		await WorldTrip.go("shop_door"); print("D47QA WGO trip done t=%.1f busy=%s" % [gt, str(WorldTrip.busy)]); await w(0.6)
+		await World.goto("shop", "shop"); print("D47QA WGO walked in t=%.1f scene=%s" % [gt, kind()])
 	await w(1.5)
 
 const House := preload("res://scripts/core/house.gd")

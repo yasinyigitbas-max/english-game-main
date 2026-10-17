@@ -57,7 +57,8 @@ const SKY_DAY := Color(0.72, 0.82, 0.92)
 const SKY_DUSK := Color(0.85, 0.62, 0.48)
 const SKY_NIGHT := Color(0.05, 0.07, 0.14)
 var _out: Environment
-var _rs_e := -1.0   # last room sun energy the room itself wrote (we scale what the room wants)
+var _rs_e := -1.0
+var _rs_raw := 0.0   # last room sun energy the room itself wrote (we scale what the room wants)
 
 static func sky_for(d: float) -> Color:
 	return SKY_NIGHT.lerp(SKY_DUSK, clampf(d * 2.5, 0.0, 1.0)).lerp(SKY_DAY, clampf((d - 0.35) / 0.4, 0.0, 1.0))
@@ -101,12 +102,17 @@ func _process(_dt: float) -> void:
 		if _room_sun and is_instance_valid(_room_sun): _room_sun.visible = false; _room_sun = null
 		_rs_e = -1.0
 	if house:
-		_derive(renv if renv is Environment else _house_env, ROOM_AMB_K, 0.0, float(ROOM_EXP_BY.get(id, ROOM_EXP)), d)
+		# the clock: ambient eases down to 60 % at night (the room's lamps carry the evening), the window sun goes to 0
+		_derive(renv if renv is Environment else _house_env, ROOM_AMB_K * (0.6 + 0.4 * d), 0.0, float(ROOM_EXP_BY.get(id, ROOM_EXP)), d)
 		if rsun is DirectionalLight3D and is_instance_valid(rsun):
 			_room_sun = rsun; _room_sun.visible = true
 			# the room writes its sun energy on state changes (curtains / clock): scale what it asked for, once
-			if not is_equal_approx(_room_sun.light_energy, _rs_e):   # the room wrote a new energy (curtains / clock): scale it
-				_rs_e = _room_sun.light_energy * ROOM_SUN_K; _room_sun.light_energy = _rs_e
+			var le := _room_sun.light_energy
+			if not is_equal_approx(le, float(_room_sun.get_meta("ow_set", -1.0))): _room_sun.set_meta("ow_raw", le)   # the room wrote a new energy (curtains / clock)
+			_rs_raw = float(_room_sun.get_meta("ow_raw", le))
+			_rs_e = minf(_rs_raw * ROOM_SUN_K, 1.3 * ROOM_SUN_K * d)   # fix33: 18:00 dusk / 23:30 night (rooms built at 07:00 kept a day sun)
+			_room_sun.light_energy = _rs_e; _room_sun.set_meta("ow_set", _rs_e)
+			_room_sun.visible = _rs_e > 0.01
 			if wsun: wsun.visible = false
 		elif wsun: wsun.visible = true; wsun.light_energy = _sun_e * 0.5 * d
 	elif n != null and (n.is_in_group("world_places") or id in ["cafe", "shop", "work", "school"]):

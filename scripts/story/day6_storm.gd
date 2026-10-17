@@ -120,6 +120,7 @@ func act(tag: String) -> void:
 		"bus_arrives":
 			_park_buses(true)
 			bus = Vehicle.new(); bus.is_bus = true; sc.add_child(bus)
+			bus.add_to_group("cam_solid")   # fix33 (black 9): the shoulder camera never sits inside / behind the bus
 			bus.setup(Vehicle.lane_loop([Vector2(60, 20), Vector2(-20, 20), Vector2(-20, 60), Vector2(60, 60)]), 0.0)
 			bus.set_physics_process(false)
 			var s_stop := bus.project(_stop()) - 0.5

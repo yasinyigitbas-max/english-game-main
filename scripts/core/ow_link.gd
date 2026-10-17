@@ -157,10 +157,16 @@ func _enter(id: String, from: String) -> void:
 		h.visible = true
 		# fix33 (black): the ONE room camera may still hang under another (slept) room, or the extra (hospital) just turned
 		# every camera off -> the street CameraRig stayed current inside the bedroom. The entered room owns it, current.
-		if is_instance_valid(room_cam):
+		# fix33 (blue, merge): ONLY when the room drives the shared camera (bedroom / living room); the bathroom has its own
+		# CameraRig (= its `cam`): making the shared one current there froze the view in the bedroom (ShoulderCam drives `cam`)
+		var rcam = r.get("cam")
+		if is_instance_valid(room_cam) and (rcam == null or rcam == room_cam):
 			if room_cam.get_parent() != r: room_cam.reparent(r, true)
 			if room_cam.has_meta("wh_cur"): room_cam.remove_meta("wh_cur")
 			room_cam.current = true
+		elif rcam is Camera3D and is_instance_valid(rcam):
+			if (rcam as Camera3D).has_meta("wh_cur"): (rcam as Camera3D).remove_meta("wh_cur")
+			(rcam as Camera3D).current = true
 		if from != "":
 			var sp: Array = r.call("_wh_spawn", from) if r.has_method("_wh_spawn") else []
 			if sp.size() == 2: House._walk_in(r, r.to_local(hp), hy, sp[0], sp[1])

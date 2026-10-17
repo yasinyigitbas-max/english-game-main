@@ -92,7 +92,9 @@ func go(path: String, from: String) -> void:
 		print("D56QA WGO t=%.1f %s -> %s" % [gt, kind(), path])
 		if House.is_room(path) and House.is_room(String(s.scene_file_path)): StoryNav.room(s, path)
 		elif House.is_room(path): await WorldTrip.go("front_door"); await w(0.6); await World.goto("livingroom", "front")
-		elif path == Game.WORLD_SCENE: StoryNav.goto(Game.WORLD_SCENE, "lot:home")
+		elif path == Game.WORLD_SCENE:   # fix33: out through the real front door (the old shim left the hero standing in the hall)
+			if House.is_room(String(s.scene_file_path)): await OwLink.to_street("front")
+			else: StoryNav.goto(Game.WORLD_SCENE, "lot:home")
 		elif path.ends_with("shop.tscn"): await WorldTrip.go("shop_door"); await w(0.6); await World.goto("shop", "shop")
 		await w(1.5)
 		return
