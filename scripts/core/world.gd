@@ -1,6 +1,7 @@
 class_name World
 extends UniversalScene
 const _WorldPlacesS := preload("res://scripts/world/world_places.gd")
+const TestScreen := preload("res://scripts/core/test_screen.gd")
 ## v34 open world (phase 1 skeleton, black): ONE gameplay scene. Every place is built once at load at a fixed world
 ## position and never freed, rebuilt or shifted: the street (all city blocks), the house (bedroom, bathroom, living
 ## room inside the home lot), the cafe and the shop interiors inside their street lots. One hero (WorldPlayer), one
@@ -151,7 +152,9 @@ func _tap_hint() -> void:
 		(h3 as VisualInstance3D).layers = 0   # rendered by no camera (the room keeps its visible / position as the hint anchor)
 	var show := false; var sp := Vector2.ZERO
 	var c3 := get_viewport().get_camera_3d()
-	if h3 and is_instance_valid(h3) and h3.is_visible_in_tree() and c3 and not c3.is_position_behind(h3.global_position):
+	var ui_up: bool = String(live.get("mode")) != "play" if live and live.get("mode") != null else false   # busy / cut-scene: no hint
+	if not ui_up: ui_up = Objectives._phone_open() or TestScreen.active(get_tree())   # phone pages / tests / puzzles cover the room
+	if not ui_up and h3 and is_instance_valid(h3) and h3.is_visible_in_tree() and c3 and not c3.is_position_behind(h3.global_position):
 		sp = c3.unproject_position(h3.global_position)
 		var vr := get_viewport().get_visible_rect()
 		show = vr.grow(-24).has_point(sp)

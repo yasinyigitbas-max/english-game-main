@@ -122,7 +122,9 @@ func _enter(id: String, from: String) -> void:
 		var pl: Node = world.places.get(id)
 		if pl == null: return
 		live = pl; live_id = id
-		get_tree().current_scene = pl
+		# fix33 (black) K: a café / shop is a child of World (built in place, never a root child), so it can never be
+		# current_scene (the engine refused it with an error on every entry and kept World). World stays current_scene.
+		if get_tree().current_scene != world: get_tree().current_scene = world
 		pl.process_mode = Node.PROCESS_MODE_INHERIT
 		for c in pl.find_children("*", "CanvasLayer", true, false):
 			if c.has_meta("ow_hidden"): c.remove_meta("ow_hidden"); (c as CanvasLayer).visible = true
