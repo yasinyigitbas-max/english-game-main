@@ -14,7 +14,7 @@ var busy := false
 
 func _ready() -> void:
 	var cl := CanvasLayer.new(); cl.layer = 100; add_child(cl)
-	_fade = ColorRect.new(); _fade.color = Color(0.86, 0.89, 0.93, 0.0); _fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_fade = ColorRect.new(); _fade.color = Color(0, 0, 0, 0.0); _fade.mouse_filter = Control.MOUSE_FILTER_IGNORE   # fix33 (black): trips (the only gameplay fade) are TRUE black, never light grey
 	_fade.set_anchors_preset(Control.PRESET_FULL_RECT); cl.add_child(_fade)
 
 func go_to(path: String, spawn_id := "") -> void:

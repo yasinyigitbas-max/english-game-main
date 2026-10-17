@@ -128,8 +128,8 @@ func _process(_dt: float) -> void:
 	var p: Vector3 = (pl as Node3D).global_position if pl is Node3D and is_instance_valid(pl) else (c.global_position if c else Vector3.INF)
 	if p == Vector3.INF: return
 	for e in _occ.duplicate():
+		if not is_instance_valid(e[0]): _occ.erase(e); continue   # fix33 (black): check before the typed assign (freed bus occluders)
 		var oi: OccluderInstance3D = e[0]
-		if not is_instance_valid(oi): _occ.erase(e); continue
 		var ab: AABB = e[1]
 		var d := (ab.get_center() - p).length() - ab.size.length() * 0.5
 		var f: Node = oi.get_parent()

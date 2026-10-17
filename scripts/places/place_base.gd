@@ -571,8 +571,14 @@ func _room() -> void:
 	if world_mode:   # v34: a real door on a hinge (left jamb), swings outwards when the player comes close
 		door_hinge = Node3D.new(); door_hinge.name = "FrontDoor"; door_hinge.position = Vector3(-DOOR_W / 2.0, 0, hz + 0.02); add_child(door_hinge)
 		door_hinge.add_to_group("doors")
-		for b in [[Vector3(DOOR_W, 2.2, 0.06), Vector3(DOOR_W / 2.0, 1.1, 0), Color(0.35, 0.25, 0.18), 0.0], [Vector3(0.9, 1.5, 0.02), Vector3(DOOR_W / 2.0, 1.3, 0.035), Color(0.7, 0.85, 0.95), 0.25]]:
-			var mi := MeshInstance3D.new(); var bm := BoxMesh.new(); bm.size = b[0]; mi.mesh = bm; mi.material_override = mat(b[2], b[3]); mi.position = b[1]; door_hinge.add_child(mi)
+		# fix33 (black): the glass was an emissive pale-blue box (0.25 glow) on BOTH faces -> under the street light it read as a
+		# plain white slab. Now: wooden leaf, a darker tinted non-emissive glass pane inset on each face, a handle.
+		var gm := StandardMaterial3D.new(); gm.albedo_color = Color(0.42, 0.58, 0.68); gm.roughness = 0.15; gm.metallic = 0.3
+		var hm := StandardMaterial3D.new(); hm.albedo_color = Color(0.78, 0.66, 0.3); hm.metallic = 0.8; hm.roughness = 0.35
+		for b in [[Vector3(DOOR_W, 2.2, 0.06), Vector3(DOOR_W / 2.0, 1.1, 0), mat(Color(0.35, 0.25, 0.18))],
+				[Vector3(DOOR_W - 0.36, 1.3, 0.01), Vector3(DOOR_W / 2.0, 1.35, 0.034), gm], [Vector3(DOOR_W - 0.36, 1.3, 0.01), Vector3(DOOR_W / 2.0, 1.35, -0.034), gm],
+				[Vector3(0.04, 0.22, 0.05), Vector3(DOOR_W - 0.14, 1.05, 0.06), hm], [Vector3(0.04, 0.22, 0.05), Vector3(DOOR_W - 0.14, 1.05, -0.06), hm]]:
+			var mi := MeshInstance3D.new(); var bm := BoxMesh.new(); bm.size = b[0]; mi.mesh = bm; mi.material_override = b[2]; mi.position = b[1]; door_hinge.add_child(mi)
 	else:
 		var dm := box(Vector3(1.2, 2.2, 0.06), Vector3(0, 1.1, hz - 0.09), Color(0.35, 0.25, 0.18), false); walls.append([dm, Vector3(0, 0, 1)])
 		var gl := box(Vector3(0.9, 1.5, 0.02), Vector3(0, 1.3, hz - 0.125), Color(0.7, 0.85, 0.95), false, 0.0, 0.25); walls.append([gl, Vector3(0, 0, 1)])

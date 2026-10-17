@@ -143,7 +143,7 @@ func run() -> void:
 	# then fades out once the hospital has drawn; its usual tint is restored afterwards
 	var gf: ColorRect = Game._fade
 	gf.color = Color(0, 0, 0, 1)
-	w.get_tree().create_timer(1.6).timeout.connect(gf.set.bind("color", Color(0.86, 0.89, 0.93, 0.0)))
+	w.get_tree().create_timer(1.6).timeout.connect(gf.set.bind("color", Color(0, 0, 0, 0.0)))   # fix33 (black): the trip tint stays black
 	# open world (black, build 3): the World is never freed, so this black layer (and the cutscene camera) used to stay on
 	# top forever after the crash = Yasin's black screen. The Game fade (black, set above) now covers the trip instead.
 	w.get_tree().create_timer(0.3).timeout.connect(cl.queue_free)

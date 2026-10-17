@@ -1,5 +1,6 @@
 class_name World
 extends UniversalScene
+const _WorldPlacesS := preload("res://scripts/world/world_places.gd")
 ## v34 open world (phase 1 skeleton, black): ONE gameplay scene. Every place is built once at load at a fixed world
 ## position and never freed, rebuilt or shifted: the street (all city blocks), the house (bedroom, bathroom, living
 ## room inside the home lot), the cafe and the shop interiors inside their street lots. One hero (WorldPlayer), one
@@ -131,12 +132,55 @@ func _build_place(id: String) -> void:
 		if c is DirectionalLight3D: (c as DirectionalLight3D).visible = false
 		if c is Camera3D and not (c.get_viewport() is SubViewport): (c as Camera3D).current = false
 		if c is CanvasLayer: (c as CanvasLayer).visible = false
-	if house: _room_colliders(n)
+	if house: _room_colliders(n); _room_ceiling(n)
 	places[id] = n
 	if n.get("room") is Vector2:   # cafe / shop: their floor rect (their terrace / props stay street)
 		var rm: Vector2 = n.get("room"); var c0 := n.to_global(Vector3(-rm.x / 2, 0, -rm.y / 2)); var c1 := n.to_global(Vector3(rm.x / 2, 3, rm.y / 2))
 		regions[id] = AABB(Vector3(minf(c0.x, c1.x), 0, minf(c0.z, c1.z)), Vector3(absf(c1.x - c0.x), 3, absf(c1.z - c0.z)))
 	else: regions[id] = _bounds(n)
+
+## fix33 (black): the rooms' tap hint was a 3D billboard hand (fixed world size, no depth test): under the close shoulder
+## camera it filled the screen. The 3D sprite now renders on no layer (the rooms keep driving its visible/position) and a
+## small 2D HUD hand is drawn where it projects, bobbing, hidden when it is behind the camera or off-screen.
+var _hint_layer: CanvasLayer
+var _hint: Control
+func _tap_hint() -> void:
+	var live = OwLink.inst.live if OwLink.inst else null
+	var h3: Node3D = live.get("hand3d") if live and is_instance_valid(live) and "hand3d" in live else null
+	if h3 and is_instance_valid(h3) and h3 is VisualInstance3D and (h3 as VisualInstance3D).layers != 0:
+		(h3 as VisualInstance3D).layers = 0   # rendered by no camera (the room keeps its visible / position as the hint anchor)
+	var show := false; var sp := Vector2.ZERO
+	var c3 := get_viewport().get_camera_3d()
+	if h3 and is_instance_valid(h3) and h3.is_visible_in_tree() and c3 and not c3.is_position_behind(h3.global_position):
+		sp = c3.unproject_position(h3.global_position)
+		var vr := get_viewport().get_visible_rect()
+		show = vr.grow(-24).has_point(sp)
+	if _hint == null:
+		if not show: return
+		_hint_layer = CanvasLayer.new(); _hint_layer.layer = 4; _hint_layer.name = "TapHint2D"; add_child(_hint_layer)
+		var badge := Panel.new(); badge.size = Vector2(52, 52); badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var sb := StyleBoxFlat.new(); sb.bg_color = Color(0.36, 0.45, 0.86, 0.92); sb.set_corner_radius_all(26); sb.set_border_width_all(3); sb.border_color = Color(1, 1, 1, 0.95)
+		sb.shadow_color = Color(0, 0, 0, 0.25); sb.shadow_size = 4; badge.add_theme_stylebox_override("panel", sb)
+		var hr := TextureRect.new(); hr.texture = load("res://ui/hand.png"); hr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		hr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED; hr.position = Vector2(10, 9); hr.size = Vector2(32, 32); hr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		badge.add_child(hr); _hint = badge; _hint_layer.add_child(badge)
+	_hint.visible = show
+	if show: _hint.position = sp - Vector2(26, 60 + 5.0 * sin(Time.get_ticks_msec() * 0.005))   # canvas coords (unproject_position is in the stretched viewport space)
+
+## fix33 (black): the house rooms had NO visible ceiling (their roof slab is SHADOWS_ONLY, built for the old top-down
+## camera), so blue's shoulder camera looked up into the black. Each roof slab gets a down-facing ceiling quad just under
+## it: visible from inside, back-face culled from above (overhead / cine cameras still see in), casts no shadow (daylight unchanged).
+func _room_ceiling(n: Node3D) -> void:
+	var cm := StandardMaterial3D.new(); cm.albedo_color = Color(0.96, 0.96, 0.95); cm.roughness = 0.95
+	for g in n.find_children("*", "MeshInstance3D", true, false):
+		var mi := g as MeshInstance3D
+		if mi.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY or not (mi.mesh is BoxMesh): continue
+		var sz: Vector3 = (mi.mesh as BoxMesh).size
+		if sz.y > 0.15 or sz.x < 2.0 or sz.z < 2.0: continue
+		var q := MeshInstance3D.new(); q.name = "OWCeiling"; var qm := QuadMesh.new(); qm.size = Vector2(sz.x - 0.1, sz.z - 0.1); q.mesh = qm
+		q.material_override = cm; q.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		q.transform = Transform3D(mi.transform.basis * Basis(Vector3.RIGHT, PI / 2), mi.transform.origin - mi.transform.basis.y * (sz.y / 2.0 + 0.004))
+		q.set_meta("no_fade", true); mi.get_parent().add_child(q)
 
 func _walk(n: Node, out: Array) -> void:
 	for c in n.get_children(): out.append(c); _walk(c, out)
@@ -242,7 +286,7 @@ func _build_doors() -> void:
 
 ## cafe / shop (world mode) built in their deferred _world_init: region = floor rect, door = their FrontDoor hinge
 func _late_places() -> void:
-	var wp = WorldPlaces.get_place("work")
+	var wp = _WorldPlacesS.get_place("work")   # fix33 (black): preload, not the global class name (stale .godot class cache -> parse error)
 	if wp and not places.has("work"): places["work"] = wp
 	for id in ["cafe", "shop", "work"]:
 		if not places.has(id): continue
@@ -340,6 +384,7 @@ func _cull_setup() -> void:
 	for l in _lights: (l as Light3D).shadow_enabled = false
 
 func _process(dt: float) -> void:
+	_tap_hint()
 	_t -= dt
 	if _t > 0.0 or player == null: return
 	_t = 0.2
@@ -527,17 +572,37 @@ static func pan(at: Vector3, secs := 2.6) -> void:
 const ALIAS := {"lot:home": "front", "front_door": "front", "lot:cafe": "cafe", "cafe_door": "cafe", "lot:corner_shop": "shop", "shop_door": "shop", "work_door": "work"}
 static func spot(id: String) -> Vector3:
 	if inst == null: return Vector3.ZERO
-	if ALIAS.has(id) and inst.doors.has(ALIAS[id]):   # street-side of that door, 1.5 m out
-		var dr: WorldDoor = inst.doors[ALIAS[id]]; var c := dr.center()
-		var inside: String = dr.a
-		var ic: Vector3 = (inst.regions[inside] as AABB).get_center() if inst.regions.has(inside) else c
-		var out := Vector3(c.x - ic.x, 0, c.z - ic.z); out = out.normalized() if out.length() > 0.05 else Vector3(0, 0, 1)
-		return c + out * 1.5
+	var ss := _street_side(id)
+	if not ss.is_empty(): return ss[0]
 	if inst.spots.has(id): return inst.spots[id][0]
 	if inst.doors.has(id): return (inst.doors[id] as WorldDoor).center()
 	if inst.places.has(id) and inst.regions.has(id): return (inst.regions[id] as AABB).get_center()
 	return Vector3.INF   # unknown id: place_at leaves the hero where he is
-static func spot_yaw(id: String) -> float: return float(inst.spots[id][1]) if inst and inst.spots.has(id) else INF
+static func spot_yaw(id: String) -> float:
+	if inst == null: return INF
+	var ss := _street_side(id)
+	if not ss.is_empty(): return ss[1]
+	return float(inst.spots[id][1]) if inst.spots.has(id) else INF
+
+## fix33 (black): the street side of a street door (alias or the door id itself, e.g. "front" / "cafe" / "shop"):
+## [pos 1.6 m out from the door centre on the street, yaw facing the street (away from the door)]. A trip home used to land on
+## the door CENTRE ("front" was not an alias), i.e. inside the living-room region: the room went live with its stale mission.
+static func _street_side(id: String) -> Array:
+	var did: String = ALIAS.get(id, id)
+	if not inst.doors.has(did): return []
+	var dr: WorldDoor = inst.doors[did]
+	if dr.b != "street" and dr.a != "street": return []
+	var inside: String = dr.a if dr.b == "street" else dr.b
+	var c := dr.center()
+	var ic: Vector3 = (inst.regions[inside] as AABB).get_center() if inst.regions.has(inside) else c
+	var out := Vector3(c.x - ic.x, 0, c.z - ic.z); out = out.normalized() if out.length() > 0.05 else Vector3(0, 0, 1)
+	var p := c + out * 1.6
+	if inst.regions.has(inside):   # make sure the spot is really outside the room box
+		var ab: AABB = inst.regions[inside]
+		var k := 0
+		while ab.has_point(Vector3(p.x, 1.0, p.z)) and k < 10: p += out * 0.3; k += 1
+	p.y = 0.07
+	return [p, atan2(out.x, out.z)]
 
 ## Game.go_to shim (temporary, until red's port drops the scene paths): old scene path -> World walk / skip_travel
 const SHIM := {"res://main.tscn": "bedroom", "res://bathroom.tscn": "bathroom", "res://livingroom.tscn": "livingroom",
