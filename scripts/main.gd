@@ -1083,6 +1083,7 @@ func _pin_hips(y: float, w := 1.0) -> void:
 	var hy: float = to_local(sk.global_transform * sk.get_bone_global_pose(sk.find_bone("Hips")).origin).y
 	hero.position.y += (y - hy) * w
 
+const LIE_DROP := 0.15
 func edge_to_bedsit() -> void:  # exact reverse of bedsit_to_edge
 	# build 3.2 (Yasin 21:33): one continuous, eased move - the body scoots back onto the mattress WHILE it turns and the legs
 	# swing up (pose crossfade 1.3 s), instead of three separate rigid steps
@@ -1098,7 +1099,7 @@ func edge_to_bedsit() -> void:  # exact reverse of bedsit_to_edge
 		hero.position = Vector3(xz.x, hero.position.y, xz.z)
 		hero.rotation.y = lerp_angle(y0, PI / 2, clampf((e - 0.1) / 0.9, 0.0, 1.0))
 		# the pelvis stays ON the mattress the whole time (the root follows the pose crossfade, no float)
-		_pin_hips(lerpf(_seat_hips_y(), M + 0.1 * hero.model.scale.y, e), 1.0)
+		_pin_hips(lerpf(_seat_hips_y(), M + 0.1 * hero.model.scale.y, e) - LIE_DROP * e, 1.0)   # Yasin 22:58: body 15 cm lower from the bed-sit on (eased in, kept through lying + sleep)
 	await wait(0.05)
 
 func bedsit_to_lie() -> void:
