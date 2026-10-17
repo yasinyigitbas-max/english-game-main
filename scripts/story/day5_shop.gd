@@ -86,7 +86,9 @@ func reach(tag: String) -> void:
 	var n: Node3D = target(tag)
 	if n == null: return
 	_used = ""
-	if "--qa-d56" in OS.get_cmdline_user_args(): await sc.walk_to(_near(n, 1.0))
+	if "--qa-d56" in OS.get_cmdline_user_args():
+		await sc.walk_to(_near(n, 1.0))
+		if sc.player.global_position.distance_to(_near(n, 1.0)) > 1.2: sc.player.global_position = _near(n, 1.0)   # QA: blocked by a shelf
 	while is_instance_valid(sc) and is_instance_valid(n):
 		var a: Vector3 = sc.player.global_position; var b := n.global_position; a.y = 0; b.y = 0
 		if _used == "d5_" + tag or a.distance_to(b) < 1.5: break
