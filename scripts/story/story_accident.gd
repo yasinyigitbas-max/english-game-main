@@ -144,6 +144,10 @@ func run() -> void:
 	var gf: ColorRect = Game._fade
 	gf.color = Color(0, 0, 0, 1)
 	w.get_tree().create_timer(1.6).timeout.connect(gf.set.bind("color", Color(0.86, 0.89, 0.93, 0.0)))
+	# open world (black, build 3): the World is never freed, so this black layer (and the cutscene camera) used to stay on
+	# top forever after the crash = Yasin's black screen. The Game fade (black, set above) now covers the trip instead.
+	w.get_tree().create_timer(0.3).timeout.connect(cl.queue_free)
+	if is_instance_valid(cam) and cam.get_parent() == w and not cam.has_meta("keep"): w.get_tree().create_timer(0.3).timeout.connect(func(): if is_instance_valid(cam): cam.current = false)
 	if Game.busy: StoryNav.travel(w.get_tree(), "res://scenes/hospital.tscn", "", true)
 	else: StoryNav.travel(w.get_tree(), "res://scenes/hospital.tscn")
 
