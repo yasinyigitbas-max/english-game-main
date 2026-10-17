@@ -1,0 +1,9 @@
+before bedroom fps=2.6 draw_calls=3114 primitives=520204
+before street fps=2.8 draw_calls=5130 primitives=915044
+before cafe_front fps=2.9 draw_calls=4309 primitives=877420
+before in_shop fps=2.1 draw_calls=3879 primitives=638560
+installed culling={ "props": 2614, "interior": 232, "lights": 11, "occluders": 229, &"mid": 989, &"far": 317 } fronts=true/true walls=151
+after  bedroom fps=3.2 draw_calls=2458 primitives=476154
+after  street fps=4.1 draw_calls=4583 primitives=885326
+after  cafe_front fps=5.6 draw_calls=2594 primitives=489504
+after  in_shop fps=3.4 draw_calls=2973 primitives=553462
