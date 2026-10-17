@@ -68,7 +68,7 @@ func open_phone() -> void:
 	if "hand3d" in host and host.hand3d: host.hand3d.visible = false
 	await Audio.wait_idle(12.0)   # house.17: wait for the current announcement
 	caption("I am looking at my phone.")
-	var first: String = "jobs" if S.job == "" else ("calendar" if is_child() and not S.calendar_seen else ("family" if S.family.is_empty() else ("calendar" if notify_app == "calendar" else "home")))
+	var first: String = "jobs" if S.job == "" else ("calendar" if is_child() and not S.calendar_seen else ("family" if not _family_ok() else ("calendar" if notify_app == "calendar" else "home")))
 	pocket.open_ui = func(r: Rect2):
 		_closed_wait()
 		await phone.open(r, first)
@@ -98,14 +98,15 @@ func extra_tr(t: String) -> String:
 
 func is_child() -> bool: return S.get("age", "adult") == "child"
 func member_saved() -> void: save()
-func door_rule() -> bool: return not (S.created and S.job != "" and not S.family.is_empty())
+func door_rule() -> bool: return not (S.created and S.job != "" and _family_ok())
+func _family_ok() -> bool: return not S.family.is_empty() and (not is_child() or ChildDrive.has_parent(S.family))   # v33 child-drive
 
 func _objective_app() -> String:
 	if not S.created: return ""
 	if WorldState.day > 1 and not S.calendar_seen: S.calendar_seen = true
 	if S.job == "": return "jobs"
 	if is_child() and not S.calendar_seen: return "calendar"
-	if not S.lesson_done or S.family.is_empty(): return "family"
+	if not S.lesson_done or not _family_ok(): return "family"
 	if not S.calendar_seen: return "calendar"
 	return ""
 
@@ -126,7 +127,7 @@ func phone_event(p: String) -> void:
 
 func todo() -> Array:
 	return [["Turn off the alarm.", true], ["Look in the mirror.", S.created], ] + ([] if is_child() else [["Choose a job.", S.job != ""]]) + [
-		["Learn he, she and it.", S.lesson_done], ["Add your family.", not S.family.is_empty()], ["Open the Calendar.", S.calendar_seen],
+		["Learn he, she and it.", S.lesson_done], ["Add your family.", _family_ok()], ["Open the Calendar.", S.calendar_seen],
 		["Open the door.", S.door_opened], ["Explore the house.", false]] + \
 		(phone.tasks(S.job).map(func(t): return [t.do, false]) if S.job != "" else [])
 

@@ -1778,7 +1778,7 @@ func phone_pickup() -> void:
 	var orect := _phone_rect()
 	# v13: the phone leaves the table for good; the player carries it from now on
 	S.has_phone = true; App.family_breakfast = true; N.phone_body.visible = false; N.phone_screen.visible = false; save_game()
-	await phone.open(orect, "jobs" if S.job == "" else ("calendar" if is_child() and not S.calendar_seen else ("family" if S.family.is_empty() else "home")))
+	await phone.open(orect, "jobs" if S.job == "" else ("calendar" if is_child() and not S.calendar_seen else ("family" if not _family_ok() else "home")))
 	await phone_done
 	_advance(false)
 	cam_shot = {}; phone_lit = false; await wait(0.8)
@@ -1798,7 +1798,7 @@ func open_phone_hud() -> void:
 	mode = "busy"; _hide_chips(); hand3d.visible = false; touch.visible = false; stick = Vector2.ZERO
 	await Audio.wait_idle(12.0)   # house.17
 	caption("I am looking at my phone.")
-	var first: String = "jobs" if S.job == "" else ("calendar" if is_child() and not S.calendar_seen else ("family" if S.family.is_empty() else ("calendar" if notify_app == "calendar" else "home")))
+	var first: String = "jobs" if S.job == "" else ("calendar" if is_child() and not S.calendar_seen else ("family" if not _family_ok() else ("calendar" if notify_app == "calendar" else "home")))
 	if S.has_phone:   # v13: the phone lives in the pocket: take out -> zoom -> UI -> zoom out -> pocket
 		if pocket == null:
 			pocket = load("res://scripts/pocket_phone.gd").new(); add_child(pocket); pocket.character = hero; pocket.camera = cam
@@ -1832,7 +1832,7 @@ func phone_event(p: String) -> void:
 			if phone.les.is_empty(): caption("I am answering a question.")
 		"family":
 			caption("I am adding my family.")
-			if S.lesson_done and S.family.is_empty(): _set_mission("Add your family.")
+			if S.lesson_done and not _family_ok(): _set_mission("Add your family.")
 		"member": caption("I am adding a family member.")
 		"calendar": caption("I am looking at my calendar.")
 
@@ -1891,7 +1891,11 @@ func _reveal_room_deferred() -> void:
 		for b in N.closed: b.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 
 func door_rule() -> bool:
-	return not (S.created and S.job != "" and not S.family.is_empty())
+	return not (S.created and S.job != "" and _family_ok())
+
+## v33 child-drive: a family exists (adults, as before) and, for a child, it has a mom or a dad
+func _family_ok() -> bool:
+	return not S.family.is_empty() and (not is_child() or ChildDrive.has_parent(S.family))
 
 ## [mission, phone app to badge] for the current state
 func objective() -> Array:
@@ -1900,7 +1904,7 @@ func objective() -> Array:
 	if S.job == "": return ["Choose a job on your phone." if S.has_phone else "Pick up your phone.", "jobs"]
 	if is_child() and not S.calendar_seen: return ["Open the Calendar." if S.has_phone else "Pick up your phone.", "calendar"]
 	if not S.lesson_done: return ["Learn he, she and it.", "family"]
-	if S.family.is_empty(): return ["Add your family.", "family"]
+	if not _family_ok(): return ["Add your family.", "family"]
 	if not S.calendar_seen: return ["Open the Calendar.", "calendar"]
 	var d2 := _day2_stage()
 	if d2 == "living": return ["Go to the living room.", ""]   # v31: day-2 morning
@@ -1935,7 +1939,7 @@ func notify(app: String) -> void:
 
 func todo() -> Array:
 	return [["Turn off the alarm.", S.alarm != "ringing" and started], ["Look in the mirror.", S.created], ] + ([] if is_child() else [["Choose a job.", S.job != ""]]) + [
-		["Learn he, she and it.", S.lesson_done], ["Add your family.", not S.family.is_empty()], ["Open the Calendar.", S.calendar_seen],
+		["Learn he, she and it.", S.lesson_done], ["Add your family.", _family_ok()], ["Open the Calendar.", S.calendar_seen],
 		["Open the door.", S.door_opened], ["Explore the house.", false]] + \
 		(phone.tasks(S.job).map(func(t): return [t.do, false]) if S.job != "" else [])
 
