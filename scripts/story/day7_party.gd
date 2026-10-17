@@ -59,7 +59,7 @@ func _do(what: String, e: Dictionary) -> void:
 		_: await super._do(what, e)
 
 func _reveal() -> void:
-	_dark = false
+	_dark = false; _dim_others(false)
 	lr.S.ceiling = "on"; lr.S.curtains = "open"; _light_env(); Audio.sfx("metalClick", 2.0)
 	_decor()
 	var spots := [Vector3(3.5, 0, -0.9), Vector3(3.5, 0, 0.0), Vector3(3.5, 0, 0.9), Vector3(3.3, 0, 1.7)]

@@ -118,12 +118,13 @@ func _enter(sc: Node) -> void:
 			await _breakfast(sc)
 			if RoutineScope.alive(sc):
 				st_set(key, "outing")
-				await _guide(sc, _front_shot(sc), out_goal[0], out_goal[0], out_goal[1])
+				await _guide(sc, _front_shot(sc), _og()[0], _og()[0], _og()[1])
 		["outing", "bedroom"], ["outing", "bathroom"]:
-			await _guide(sc, _door_shot(sc, k), out_goal[0], out_goal[0], out_goal[1])
+			await _guide(sc, _door_shot(sc, k), _og()[0], _og()[0], _og()[1])
 		["outing", "living"]:
-			await _guide(sc, _front_shot(sc), out_goal[0], out_goal[0], out_goal[1])
+			await _guide(sc, _front_shot(sc), _og()[0], _og()[0], _og()[1])
 		["outing", "outside"]:
+			if await DayWork.gate(sc) and not RoutineScope.alive(sc): _busy = false; return
 			if _flag_on(key + "_shop"): await _home_cue(sc)
 			else:
 				var first := not _guided.has(out_goal[0] + "|" + str(sc.get_instance_id()))
@@ -160,3 +161,8 @@ func _evening(sc: Node) -> void:
 	var e = load(evening_script).new(); e.lr = sc; e.data_path = data_path; sc.add_child(e)
 	await e.run()
 	_cur = {"id": "Go to bed.", "en": "Go to bed.", "tr": "Yatmaya git."}
+
+
+## build 3.2 (Yasin 21:26): while the work / school trip is owed the house points at the front door with it
+func _og() -> Array:
+	return DayWork.goal() if DayWork.pending() else out_goal

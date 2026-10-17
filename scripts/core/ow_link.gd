@@ -171,6 +171,7 @@ func _extra(id: String) -> Node:
 	var ps := load(EXTRA[id]) as PackedScene
 	var n: Node3D = ps.instantiate()
 	n.position = world.RESERVED.get(EXTRA_SLOT[id], Vector3(0, 0, -120))
+	n.add_to_group("interiors")   # build 3.2: an indoor story set (WorldCulling: interior ranges, keeps its lamps on its props)
 	get_tree().root.add_child(n)   # its _ready starts its story (as when v33 loaded the scene)
 	extras[id] = n
 	return n
@@ -197,6 +198,7 @@ static func to_street(door := "") -> void:
 	if active(): await inst._to_street(door)
 
 func _to_street(door: String) -> void:
+	if live_id in PLACES: Objectives.clear()   # build 3.2 (v33.1): the shop / cafe list ("Take a basket." ...) never follows the hero onto the street
 	if world.has_method("street_objective"): world.street_objective(door)   # black 3.1: the street objective from the first step out
 	var h := the_hero()
 	var p := world.player as Node3D
@@ -240,18 +242,19 @@ static func travel(dest: String, door := "", covered := false) -> void:
 	if not active(): return
 	if not covered: await Game.fade(1.0, 0.45)
 	Game.busy = true
-	if dest == "street" or dest == "town":
+	if dest == "street" or dest == "town" or dest in PLACES:   # build 3.2 (red): a street place (cafe/shop) - the hero leaves the room first (he stayed in the bedroom under the cafe)
 		inst._sleep_live(); inst.get_tree().current_scene = inst.world
 		var h := the_hero(); var p := inst.world.player as Node3D
 		if h.get_parent() != p: h.reparent(p, false)
 		_reset_hero(h); h.transform = Transform3D.IDENTITY; h.visible = true
 		p.process_mode = Node.PROCESS_MODE_INHERIT; inst.world.cam.current = true
-		p.place_at(_door_id(door))   # fix33 (black): street side of the door, facing the street (World._street_side)
+		p.place_at(_door_id(door if door != "" else dest))   # fix33 (black): street side of the door, facing the street (World._street_side)
 		var cam = inst.world.cam
 		if cam and "focus" in cam: cam.focus = p.global_position
 		var shc = inst.get_tree().root.get_node_or_null("ShoulderCam")
 		if shc and shc.has_method("snap"): shc.snap()
-		inst._street_hooks.call_deferred(door)
+		if dest in PLACES: await inst._enter(dest, "")   # build 3.2 (red): cafe/shop go live after the hero is at their door
+		else: inst._street_hooks.call_deferred(door)
 	else:
 		if ROOM_PATH.has(dest):
 			var r: Node = inst.world.places[dest]

@@ -368,6 +368,11 @@ func play(anim: String, blend: float = 0.2, speed: float = 1.0) -> void:
 	if player and player.has_animation(anim):
 		if player.current_animation == anim and player.is_playing():
 			return
+		# build 3.2 (v33.1 universal rule): "talk" / "typing" are SEATED clips - a standing person never switches to them
+		# (NPCs / family sat down on the ground to talk, then got up). Allowed only as a spawn pose or when already seated.
+		if anim in ["talk", "typing"] and player.current_animation != "" and not String(player.current_animation).begins_with("sit") \
+				and not (player.current_animation in ["talk", "typing"]) and String(get_meta("seat", "")) == "":
+			return
 		player.play(anim, blend, speed)
 
 func restart(anim: String) -> void:

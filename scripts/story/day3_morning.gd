@@ -4,6 +4,7 @@
 ## ENTRY: Day3Morning.attach(get_tree())  (static, idempotent; bedtime.gd calls it, and Bedtime.hook_bedroom on a day-3 continue)
 class_name Day3Morning
 extends Node
+const DayWork := preload("res://scripts/story/day_work.gd")
 
 var _sc: Node = null
 var _guided := {}      # stage|scene -> true (one pan per objective per room visit)
@@ -34,7 +35,7 @@ func _kind(sc: Node) -> String:
 	if p.ends_with("menu.tscn") or p == "": return ""
 	if p.contains("/places/cafe"): return "cafe"   # v32 (red): blue's interiors are not "outside"
 	if p.contains("/places/shop"): return "shop"
-	if p.ends_with("world_exterior.tscn"): return "outside"
+	if p.ends_with("world_exterior.tscn") or p.ends_with("/world.tscn"): return "outside"   # build 3.2: the open world
 	return "other"   # v32 (red): hospital / work / QA scenes get no day-3 town cues or pans (was "outside")
 
 var _t := 0.0
@@ -49,6 +50,9 @@ func _process(d: float) -> void:
 	var sc := RoutineScope.current(get_tree())
 	if sc != _sc:
 		_sc = sc; _cur = {}
+		# build 3.2 (black #22): a "go to X" step is done the moment we are in X (no stale "Go to the living room." in the living room)
+		var reached: Array = {"living": ["Go to the living room.", "Go back home."], "bathroom": ["Go to the bathroom.", "Go back home."], "bedroom": ["Go to bed.", "Go back home."], "shop": ["Go to the shop."], "cafe": ["Go to the café.", "Go to the cafe."]}.get(_kind(sc), [])
+		if not reached.is_empty(): Objectives.set_list(Objectives.items.filter(func(it): return not (it is Dictionary and String(it.get("en", "")) in reached)))
 		if sc and sc.has_signal("action_done") and _kind(sc) == "bathroom": sc.action_done.connect(_on_bath_action.bind(sc))
 		# v32 (red): read the exit marker now (before anything else rewrites it): back on the street from blue's cafe / shop
 		_from = String(App.came_from) if String(App.came_from) in ["cafe", "shop"] else ""
@@ -71,6 +75,9 @@ func _guide(sc: Node, target, id: String, en: String, tr: String, speak := true)
 	var key := id + "|" + str(sc.get_instance_id())
 	if _guided.has(key): Objectives.set_list([_cur]); return
 	_guided[key] = true
+	var said := "said|" + id + "|" + str(maxi(WorldState.day, App.day))   # build 3.2 (d4/034): an objective is voiced ONCE (not again on the street)
+	if _guided.has(said): await Life.guide_to(target, en, {"id": id, "tr": tr, "list": [_cur], "speak": false}); return
+	_guided[said] = true
 	if not speak and is_instance_valid(sc) and sc.has_method("caption"): _cap_out(sc, en)   # outdoors: say it first, then the 2.6 s pan
 	await Life.guide_to(target, en, {"id": id, "tr": tr, "list": [_cur], "speak": speak})
 
@@ -105,13 +112,14 @@ func _enter(sc: Node) -> void:
 			var f: Vector3 = sc.OBJ.door_s.focus
 			await _guide(sc, {"pos": f + Vector3(0.4, 1.0, -2.4), "at": f}, "Go to the living room.", "Go to the living room.", "Oturma odasına git.")
 		["living", "living"], ["outside", "living"]:
-			set_stage("outside")
+			set_stage("outside"); DayWork.due()   # build 3.2 (Yasin 21:26): work / school before exploring the town
 			var dx: float = (sc.DOOR_FRONT.x + sc.DOOR_FRONT.y) / 2
 			await _guide(sc, {"pos": Vector3(dx - 1.6, 2.0, 0.2), "at": Vector3(dx, 1.1, 3.0)}, "Go outside.", "Go outside.", "Dışarı çık.")
 		["outside", "bedroom"], ["outside", "bathroom"]:
 			var f: Vector3 = sc.OBJ.door_s.focus if k == "bedroom" else sc.OBJ.door.focus
 			await _guide(sc, {"pos": f + Vector3(0.4, 1.0, -2.4), "at": f}, "Go to the living room.", "Go to the living room.", "Oturma odasına git.")
 		["outside", "outside"], ["living", "outside"]:
+			if await DayWork.gate(sc) and not RoutineScope.alive(sc): _busy = false; return
 			# v32 (red): objective + sound via Life.guide_to (no target = no Life pan), then our own two-stop pan:
 			# the cafe, then the shop, then back to the player. The old single pan aimed 6 m "ahead" of the player, which at the
 			# home spawn is our own house, and Life's straight lerp went through its walls.

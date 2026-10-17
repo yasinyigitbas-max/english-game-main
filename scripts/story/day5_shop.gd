@@ -17,7 +17,7 @@ func run() -> void:
 	var t0 := Time.get_ticks_msec()
 	while is_instance_valid(sc):
 		var ex = sc.its.get("exit") if sc.get("its") is Dictionary else null
-		if ex and ex.enabled and String(sc.mode) == "play" and not Audio.is_speaking(): break
+		if (sc.has_meta("ow_exit_ready") or (ex and ex.enabled)) and not Audio.is_speaking(): break   # build 3.2: shop.gd parks on story_hold before "Go outside."
 		if qa and Time.get_ticks_msec() - t0 > 4000: break
 		await _w(0.3)
 	if not is_instance_valid(sc): return
@@ -35,6 +35,8 @@ func run() -> void:
 ## back to the shop's own exit objective (its objective() loop is still waiting for "exit")
 func exit_prompt() -> void:
 	if not is_instance_valid(sc) or not sc.its.has("exit"): return
+	if sc.has_meta("story_hold"):   # build 3.2 (v33.1): shop.gd's own loop sets "Go outside." once (no second voiced prompt)
+		sc.remove_meta("story_hold"); sc.busy(false); return
 	var ex: Interactable = sc.its.exit
 	ex.enabled = true; sc._mark_target = ex
 	await Life.guide_to(ex.focus, "Go outside.", {"id": "Go outside.", "tr": "Dışarı çık.", "list": [{"id": "Go outside.", "en": "Go outside.", "tr": "Dışarı çık."}]})
@@ -70,7 +72,7 @@ func play_mode(on: bool) -> void:
 		if n:
 			var it: Interactable = sc.its.get("d5_" + _tag)
 			if it == null: it = sc.target("d5_" + _tag, Vector3.ZERO, Vector3.ZERO, "Talk")
-			it.position = _near(n, 0.9); it.focus = n.global_position + Vector3(0, 1.1, 0); it.enabled = true
+			it.position = sc.to_local(_near(n, 0.9)); it.focus = n.global_position + Vector3(0, 1.1, 0); it.enabled = true
 			sc._mark_target = it
 	else:
 		sc._mark_target = null

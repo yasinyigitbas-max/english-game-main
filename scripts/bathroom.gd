@@ -537,7 +537,7 @@ func _build_towel() -> void:
 	N.towel = Node3D.new(); N.towel.position = Vector3(x, 1.32, BZ + 0.07); add_child(N.towel)
 	# v30.5: blue's verlet cloth towel (scripts/props/cloth_towel.gd) hanging on the rail; gentle indoor breeze
 	var ct := ClothTowel.new(); ct.size = Vector2(0.46, 0.62); ct.colour = BLUE; ct.breeze = 0.08; N.towel.add_child(ct)
-	ct.hang_at(Transform3D(Basis(), Vector3(x, 1.31, BZ + 0.07))); N.towel_cloth = ct
+	ct.attach_to(self, Transform3D(Basis(), Vector3(x, 1.31, BZ + 0.07))); ct.snap.call_deferred()   # build 3.2: room-local pin; N.towel_cloth = ct
 	N.towel_used = Node3D.new(); N.towel_used.position = Vector3(x, 1.32, BZ + 0.07); add_child(N.towel_used)
 	sheet(Vector2(0.4, 0.5), Vector3(0.03, -0.24, 0.02), BLUE, 0.03, 9, N.towel_used).rotation.z = 0.25
 	reg("towel", "towel", Vector3(x, 1.1, BZ + 0.1), Vector3(x, 0, BZ + 0.62), Vector3(0, 0, -1))
@@ -1369,7 +1369,7 @@ func _update_cam(dt: float) -> void:
 	if not cam_shot.is_empty():
 		var k := 1.0 - exp(-2.2 * dt)
 		if shot_at == Vector3.INF: shot_at = cam.position - cam.transform.basis.z * 6.0
-		cam.position = _over_walls(cam.position.lerp(cam_shot.pos, k)); shot_at = shot_at.lerp(cam_shot.at, k)
+		cam.position = _over_walls(cam.position.lerp(_shot_l("pos"), k)); shot_at = shot_at.lerp(_shot_l("at"), k)
 		cam.look_at(to_global(shot_at), Vector3.UP); _fade_walls(dt); exit_xf = cam.transform; exit_t = 0.0; return
 	shot_at = Vector3.INF
 	if exit_t < 1.0:
@@ -1568,3 +1568,9 @@ func _mirror_prompt(todo: Array) -> void:
 	await Life.guide_to({"pos": pos, "at": at}, "Go to the mirror.",
 		{"tr": "Aynaya git.", "list": [{"id": "Go to the mirror.", "en": "Go to the mirror.", "tr": "Aynaya git."}] + todo})
 	_set_mission("Go to the mirror.")
+
+## build 3.2: Life.guide_to objective shots (cam_shot.guide) are WORLD space (ShoulderCam frames hero + target with them);
+## story cam_shots stay room-local
+func _shot_l(k: String) -> Vector3:
+	var v: Vector3 = cam_shot[k]
+	return to_local(v) if bool(cam_shot.get("guide", false)) else v

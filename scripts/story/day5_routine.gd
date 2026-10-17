@@ -64,7 +64,7 @@ func _kind(s: Node) -> String:
 	return "other"
 
 func _process(dt: float) -> void:
-	if bed_lock and m and is_instance_valid(m) and is_instance_valid(m.hero):
+	if bed_lock and m and is_instance_valid(m) and is_instance_valid(m.hero) and not m.get("sleep_clip"):   # build 3.2 (v33.1): the sleep clip moves the body on purpose (the lock killed it: no sleep anim on days 5-6)
 		if not m.breathing or m.hero.transform.origin.distance_to(_bed_xf.origin) > 0.05 or not m.hero.visible:
 			m.hero.transform = _bed_xf; m.hero.visible = true; m._pose_sleep()
 	_t += dt
@@ -148,15 +148,19 @@ func _enter(s: Node) -> void:
 			elif k == "bathroom": await _guide(s, _obj_shot(s, "door"), GO_LIVING[0], GO_LIVING[1])
 			elif k == "living": await _guide(s, _living_door(s, "front"), GO_OUT[0], GO_OUT[1]); s.mode = "play"
 			elif k == "outside":
+				if await DayWork.gate(s): _cur = {}
+				if not RoutineScope.alive(s): return
 				var o: Dictionary = D.outing
 				await _guide(s, _world_target(s, String(o.obj)), String(o.en), String(o.tr))
 			elif k == "shop" and day == 5:
 				set_stage(day, "event")
+				s.set_meta("story_hold", true)   # build 3.2 (v33.1): shop.gd holds its "Go outside." until the lost-child event is over
 				var ev = load("res://scripts/story/day5_shop.gd").new(); ev.name = "Day5Shop"; ev.day = day; ev.D = D; ev.sc = s; s.add_child(ev)
 				await ev.run()
 				if stage(day) == "home":
 					_cur = {"id": "Go outside.", "en": "Go outside.", "tr": "Dışarı çık."}
 					await ev.exit_prompt()
+				if is_instance_valid(s) and s.has_meta("story_hold"): s.remove_meta("story_hold")   # never leave the shop parked
 		"home":
 			if k == "outside":
 				var gh: Array = ["Go inside.", "İçeri gir."] if day == 6 else GO_HOME
@@ -205,7 +209,11 @@ func _world_target(w: Node, what: String) -> Dictionary:
 	var at: Vector3 = _world_pos(w, what) + Vector3(0, 1.0, 0)
 	var away: Vector3 = at - w.player.global_position; away.y = 0
 	if away.length() < 0.05: away = Vector3(0, 0, 1)
-	return {"pos": at + away.normalized() * 6.0 + Vector3(0, 3.0, 0), "at": at}
+	# build 3.2 (black #13): frame the player AND the target: look at their midpoint from the side, far enough for both
+	var hp: Vector3 = w.player.global_position + Vector3(0, 1.0, 0)
+	var mid := (hp + at) * 0.5; var sep := Vector2(at.x - hp.x, at.z - hp.z).length()
+	var side := Vector3(away.z, 0, -away.x).normalized()
+	return {"pos": mid + side * maxf(4.5, sep * 0.85 + 2.0) - away.normalized() * 1.5 + Vector3(0, 2.6 + sep * 0.15, 0), "at": mid}
 
 var _storm_on := false
 func _stop_check(w: Node) -> void:
@@ -229,7 +237,7 @@ func _alarm(b: Node) -> void:
 	Life.event("wake")
 	b.S.alarm = "ringing"; b._apply_states(); Audio.sfx("alarm", -4.0)
 	await speak(b, "", "", "My alarm is ringing.", "Alarmım çalıyor.")
-	await _guide(b, _obj_shot(b, "alarm"), "Turn off the alarm.", "Alarmı kapat.")
+	await _guide(b, _obj_shot(b, "alarm"), "Turn off the alarm clock.", "Çalar saati kapat.")
 	if lying or "--qa-d56" in OS.get_cmdline_user_args():
 		b.S.alarm = "off"; b._apply_states(); Audio.sfx("metalClick")
 		await speak(b, "", "", "I am turning off the alarm.", "Alarmı kapatıyorum.")
@@ -240,7 +248,7 @@ func _alarm(b: Node) -> void:
 		await Audio.wait_idle(8.0)
 	if not is_instance_valid(b): return
 	flag("d56_lying", false)
-	Objectives.complete("Turn off the alarm.")
+	Objectives.complete("Turn off the alarm clock.")
 	b.mode = "busy"
 	var a: Dictionary = D.alarm_after
 	await say("me", String(a.en), String(a.tr))
@@ -303,6 +311,7 @@ func _breakfast(lr: Node) -> void:
 	lr.cam_shot = {}
 	if not hs.is_empty(): await lr.family_to_tv()
 	set_stage(day, "out")
+	DayWork.due()   # build 3.2 (Yasin 21:26): work / school first, then the day's outing
 	await _guide(lr, _living_door(lr, "front"), GO_OUT[0], GO_OUT[1])
 	lr.mode = "play"; lr._update_hand()
 
@@ -342,7 +351,7 @@ func _couch(lr: Node) -> void:
 	lr.mode = "play"; lr._update_hand()
 	var t0 := Time.get_ticks_msec()
 	while is_instance_valid(lr):
-		var h: Vector3 = lr.hero.global_position
+		var h: Vector3 = lr.hero.position   # room-local like SOFA_X
 		if String(lr.S.seat).begins_with("sofa") or Vector2(h.x, h.z).distance_to(Vector2(lr.SOFA_X, 0)) < 1.9: break
 		if "--qa-d56" in OS.get_cmdline_user_args() and Time.get_ticks_msec() - t0 > 3000: break
 		await _w(0.25)
@@ -443,10 +452,13 @@ func _sleep(b: Node, cl: CanvasLayer) -> void:
 	b.cam_shot = {"pos": b.OBJ.bed.focus + Vector3(0.9, 1.3, 0.9), "at": b.OBJ.bed.focus + Vector3(-0.4, -0.15, 0)}
 	await speak(b, "", "", "Good night!", "İyi geceler!")
 	b.S.lamp = "off"; b.S.ceiling = "off"; b.S.desklamp = "off"; b._apply_states(); Audio.sfx("metalClick", -6.0)
+	bed_lock = false; b.sleep_pose()   # build 3.2 (v33.1): the real sleep clip at the day-5 / day-6 bedtime too
 	await speak(b, "", "", "I am sleeping.", "Uyuyorum.")
+	await _w(2.5)
 	b.cap_panel.visible = false
 	var black := ColorRect.new(); black.color = Color(0.05, 0.05, 0.12, 0.0); black.set_anchors_preset(Control.PRESET_FULL_RECT); cl.add_child(black)
 	var tw := create_tween(); tw.tween_property(black, "color:a", 1.0, 2.0); await tw.finished
+	b.end_sleep_pose(); _bed_xf = b.hero.transform; bed_lock = true
 	set_stage(day, "done")
 	var nxt := day + 1
 	Life.advance_day(true)
