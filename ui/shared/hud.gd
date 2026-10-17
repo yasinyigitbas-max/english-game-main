@@ -216,6 +216,7 @@ func _hide_chips() -> void:
 
 func caption(en: String, secs := 4.5) -> void:
 	cap_text = en; cap_panel.visible = en != ""
+	if cap_panel.visible: StoryUI.claim(cap_panel)   # v32-polish: also when the box was already up (no visibility_changed) -> any other box hides
 	cap_serial += 1; var my := cap_serial
 	if is_inside_tree(): get_tree().create_timer(secs, false).timeout.connect( func(): if my == cap_serial: cap_panel.visible = false)
 	_refresh()

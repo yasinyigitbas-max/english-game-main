@@ -1291,6 +1291,7 @@ func _start_game() -> void:
 var cap_serial := 0
 func caption(t: String, speak := true) -> void:
 	cap_text = t; cap_panel.visible = t != ""
+	if cap_panel.visible: StoryUI.claim(cap_panel)   # v32-polish: also when the box was already up (no visibility_changed) -> any other box hides
 	if t != "": captioned.emit(t)
 	cap_serial += 1
 	var my := cap_serial

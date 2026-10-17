@@ -103,3 +103,10 @@ The day-2 car (scripts/world/street_object.gd car_destinations/_drive) offers wh
 - No new player lines and no voice needs.
 - Not run in Godot: the lock was held by another agent's run (qa_v32, PIDs 166153-166167) at 14:10, so the run was skipped. #12, #13 and #14 are not parse-checked yet.
 - (follow-up) scripts/main.gd:638 and :641: the bedside "Charge my phone" verb and the "Charge the phone" / "Unplug the phone" verbs are hidden while Life.NEEDS_ENABLED is false. "Pick up the phone" stays. Toilet verbs are untouched. These are the only charge-phone interactions (checked by grep). Not run in Godot: black's QA owns the box until v32 ships.
+
+## 15. Black audit (inventory.md section D), bottom-box duplicates
+1. StoryCaption without TR, stacking with the bedroom caption: already covered by #4 (story_ui.gd:26-90: standard style, TR inside, group "caption_box", claim on show and in line()). Hardened: every caption() now also claims when its box was already visible (no visibility_changed): scripts/main.gd:1294, scripts/livingroom.gd:1828 (+ caption_live :243), ui/shared/hud.gd:219, scripts/story/hospital.gd:80.
+2. hospital.gd TR button bottom-left: already covered (hospital.gd:61-63 uses the StoryUI box's own TR button; no separate layer/button).
+3. story_home.gd bottom bar: already covered (story_home.gd:182, Decline/Answer bar at -360..-220, above the caption box which tops out around -190).
+4. All caption builders: main.gd:1198-1199, livingroom.gd:1721-1722, ui/shared/hud.gd:75-76 and story_ui.gd:49 all join the one linked group (claim -> the others hide). bathroom, world, work, places and crash use the hud box; hospital, hospital_day2, story_home, bedtime and work_summary use StoryUI. They are still separate builders sharing one style and one slot; merging them into one node is not done.
+Not run in Godot (box reserved for black's QA).
