@@ -3,6 +3,7 @@
 ## No card text. Doors and walking never use this (they are real, continuous).
 ##   await WorldTrip.go("house_front")            # any node in group "world_doors" whose name or meta "door_id" matches
 ##   await WorldTrip.go(Vector3(..), yaw)         # or a world point + facing
+## Black's World.skip_travel(dest) does the same with Game.fade (that overlay is light grey, not black); this one is black.
 ## Outside the open world (no door found) it falls back to the old scene change: WorldTrip.go(id, 0, fallback_scene, spawn).
 class_name WorldTrip
 extends RefCounted
@@ -43,6 +44,12 @@ static func go(dest, yaw := INF, fallback_scene := "", fallback_spawn := "") -> 
 		if d:
 			pos = d.global_transform * Vector3(0, 0, 1.2); pos.y = d.global_position.y
 			if yaw == INF: yaw = d.global_rotation.y
+		else:
+			var W = load("res://scripts/core/world.gd") if ResourceLoader.exists("res://scripts/core/world.gd") else null
+			if W and W.get_world() != null and W.spot(dest) != Vector3.ZERO:   # black's World door / spot ids (OPENWORLD_PLAN.md)
+				pos = W.spot(dest)
+				var hn = W.hero_node()
+				if hn: pos.y = float(hn.floor_y)
 	if pos == Vector3.INF:   # not in the open world: the old scene change
 		if fallback_scene != "": Game.go_to(fallback_scene, fallback_spawn)
 		return

@@ -20,7 +20,11 @@ const House := preload("res://scripts/core/house.gd")
 @export var prop_size := 1.2
 @export var prop_range := 24.0
 @export var interior_range := 38.0
-@export var far_range := 0.0
+@export var mid_size := 6.0        # diagonal: street furniture, cars parked, fences, small sheds
+@export var mid_range := 48.0
+@export var far_range := 95.0      # everything up to BIG_SIZE (building parts, road pieces); 0 = unlimited
+@export var big_size := 30.0
+@export var tighten := true        # also shorten World._cull_setup's 70 m / 30 m ranges (blue owns the tuning)
 @export var light_range := 24.0
 @export var shadow_range := 10.0
 @export var sun_shadow := 32.0
@@ -54,18 +58,21 @@ func _interior(n: Node) -> bool:
 	return false
 
 func _geo(g: GeometryInstance3D) -> void:
-	if not is_instance_valid(g) or g.has_meta("no_cull") or g.has_meta("wc_done") or g.visibility_range_end > 0.0: return
+	if not is_instance_valid(g) or g.has_meta("no_cull") or g.has_meta("wc_done"): return
+	if g.visibility_range_end > 0.0 and not tighten: return
 	if g is MeshInstance3D and (g as MeshInstance3D).mesh == null: return
 	g.set_meta("wc_done", true)
 	var ab: AABB = g.global_transform * g.get_aabb()
 	var big := maxf(ab.size.x, maxf(ab.size.y, ab.size.z))
 	var wall := ShoulderCam._is_wall(ab)
-	if big < prop_size:
-		g.visibility_range_end = prop_range; g.visibility_range_end_margin = 2.0; stats.props += 1
+	var r0 := g.visibility_range_end
+	var r := 0.0; var mg := 2.0
+	if big < prop_size: r = prop_range; stats.props += 1
 	elif not wall and ab.size.y < 2.6 and ab.size.x < 12.0 and ab.size.z < 12.0 and _interior(g):   # furniture, decor (not walls / floors)
-		g.visibility_range_end = interior_range; g.visibility_range_end_margin = 3.0; stats.interior += 1
-	elif far_range > 0.0:
-		g.visibility_range_end = far_range; g.visibility_range_end_margin = 5.0
+		r = interior_range; mg = 3.0; stats.interior += 1
+	elif ab.size.length() < mid_size: r = mid_range; mg = 4.0; stats.mid = int(stats.get("mid", 0)) + 1
+	elif far_range > 0.0 and big < big_size: r = far_range; mg = 6.0; stats.far = int(stats.get("far", 0)) + 1
+	if r > 0.0 and (r0 <= 0.0 or r < r0): g.visibility_range_end = r; g.visibility_range_end_margin = mg
 	if occluders and g is MeshInstance3D and (wall or (g.is_in_group("fade") and ab.size.y >= 2.0 and ab.size.x < 40.0 and ab.size.z < 40.0)):
 		_add_occluder(g as MeshInstance3D, ab, wall)
 

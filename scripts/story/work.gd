@@ -19,8 +19,7 @@ var step := -1
 var walls: Array = []            # [MeshInstance3D, outward normal]
 var room := Vector2(8.0, 7.0)
 signal task_done
-## v34 open world (blue): work / school as a world place (same rules as PlaceBase world mode): world_mode when the node is
-## not the scene root. The world's hud / player / cam are used; the room is built place-local at the node's transform with
+## v34 open world (blue): work / school as a world place (same rules as PlaceBase world mode): world_mode = true. The world's hud / player / cam are used; the room is built place-local at the node's transform with
 ## a real swinging door in the south wall; the routine starts when the player walks in (no scene change, no fade) and the
 ## drive home at the end is a WorldTrip (fade to black -> the house front door -> fade in, no card text).
 signal place_entered(id: String)
@@ -56,8 +55,7 @@ func _ready() -> void:
 		TRD[c.label] = c.label_tr; TRD[c.end] = c.end_tr
 		for t in c.tasks: TRD[t[0]] = t[1]; TRD[t[2]] = t[3]; if t[6] != "": TRD[t[6]] = t[7]
 	for k in W.common: TRD[W.common[k][0]] = W.common[k][1]
-	if world_mode or (get_parent() != null and get_parent() != get_tree().root):
-		world_mode = true; _world_init.call_deferred(); return
+	if world_mode: _world_init.call_deferred(); return   # v34: set world_mode before add_child (scenes/world/places/work_place.tscn does)
 	var we := WorldEnvironment.new(); var e := Environment.new(); e.background_mode = Environment.BG_COLOR
 	var outdoor: bool = C.setting == "garden"
 	e.background_color = Color(0.62, 0.8, 0.95) if outdoor else Color(0.86, 0.89, 0.93)

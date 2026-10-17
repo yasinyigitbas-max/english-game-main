@@ -55,7 +55,7 @@ static func attach(host: Node, camera = null, target = null) -> Node:
 func register(wall: Node, opt := {}) -> void:
 	if wall == null or not is_instance_valid(wall): return
 	for e in _walls: if e.node == wall: return
-	wall.set_meta("wf_reg", true)   # v34: owned by a manager (scripts/world/world_wall_fade.gd skips it)
+	wall.set_meta("wf_reg", get_instance_id())   # v34: owned by a manager (scripts/world/world_wall_fade.gd skips it)
 	var ms: Array = []
 	if wall is GeometryInstance3D: ms.append(wall)
 	for m in wall.find_children("*", "GeometryInstance3D", true, false): ms.append(m)

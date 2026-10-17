@@ -14,11 +14,12 @@ const SCENES := {
 	"shop": "res://scenes/world/places/shop_place.tscn",
 	"work": "res://scenes/world/places/work_place.tscn",
 }
-## placeholder spots (door = local +z faces the street); replace with OPENWORLD_PLAN.md positions when the skeleton lands
+## OPENWORLD_PLAN.md positions (World.PLACES: cafe / shop yaw PI; work = World.RESERVED.work). World already builds the
+## café and shop (phase-1 ow_shell); add_all() therefore adds only what World does not have yet (see add_all).
 const DEFAULT_AT := {
-	"cafe": Vector3(-30, 0, -20),
-	"shop": Vector3(0, 0, -20),
-	"work": Vector3(30, 0, -20),
+	"cafe": [Vector3(8.5, 0.07, 32.5), PI],
+	"shop": [Vector3(-3.0, 0.07, 33.5), PI],
+	"work": [Vector3(-120, 0.07, -120), 0.0],
 }
 
 static func add(world: Node, id: String, xf: Transform3D, parent: Node = null) -> Node3D:
@@ -39,8 +40,12 @@ static func add(world: Node, id: String, xf: Transform3D, parent: Node = null) -
 static func add_all(world: Node, at: Dictionary = {}) -> Dictionary:
 	var out := {}
 	for id in SCENES:
+		if not at.has(id) and world.get("places") is Dictionary and (world.places as Dictionary).has(id): continue   # World has it
 		var v = at.get(id, DEFAULT_AT[id])
-		var xf: Transform3D = v if v is Transform3D else Transform3D(Basis.IDENTITY, v)
+		var xf: Transform3D
+		if v is Transform3D: xf = v
+		elif v is Array: xf = Transform3D(Basis(Vector3.UP, float(v[1])), v[0])
+		else: xf = Transform3D(Basis.IDENTITY, v)
 		out[id] = add(world, id, xf)
 	return out
 

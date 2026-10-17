@@ -5,7 +5,8 @@
 ##   * every node in group "cam_occluder" or "world_walls" (one wall / building = one group, its meshes fade together)
 ##   * every street building in group "fade" (one merged mesh each) unless world_exterior.gd already fades it (meta wf_ext)
 ##   * thin + tall box meshes under any node in group "world_wall_roots" (e.g. the skeleton's house / building roots)
-## Skipped: anything another manager already owns (meta "wf_reg": the house rooms' own WallFade, which keeps the south-wall
+##   * thin + tall box meshes of every World.places room / place (black's World, OPENWORLD_PLAN.md)
+## Skipped: anything a RUNNING manager already owns (meta "wf_reg": the house rooms' own WallFade, which keeps the south-wall
 ## proximity fade and the breakfast force_fade exactly as before) and the world places (café / shop / work fade their own
 ## walls, scripts/places/place_base.gd + scripts/story/work.gd world mode). Ground, the outside box, props, trees and lamps
 ## never fade (not walls). Camera: the current viewport camera; player: host.player (or host.hero).
@@ -34,6 +35,8 @@ func _scan_all() -> void:
 		for n in get_tree().get_nodes_in_group(g): _try(n)
 	for n in get_tree().get_nodes_in_group("fade"): _try(n, true)
 	for r in get_tree().get_nodes_in_group("world_wall_roots"): _scan_root(r)
+	if host and host.get("places") is Dictionary:   # black's World: every room / place instance (OPENWORLD_PLAN.md)
+		for id in host.places: _scan_root(host.places[id])
 
 func _process(_dt: float) -> void:
 	if _pending.is_empty(): return
@@ -45,13 +48,19 @@ func _process(_dt: float) -> void:
 		elif n.is_in_group("world_wall_roots"): _scan_root(n)
 
 func _owned(n: Node) -> bool:
-	if n.has_meta("wf_reg") or n.has_meta("wf_ext"): return true
+	if n.has_meta("wf_ext") or _live_mgr(n): return true
 	var p := n.get_parent()
 	while p:
-		if p.is_in_group("world_places") or p.has_meta("wf_reg"): return true
+		if p.is_in_group("world_places") or _live_mgr(p): return true
 		if p is WallFade: return true
 		p = p.get_parent()
 	return false
+
+## owned by another WallFade manager that is actually running (World's phase-1 rooms run with process disabled: theirs don't)
+func _live_mgr(n: Node) -> bool:
+	if not n.has_meta("wf_reg"): return false
+	var m = instance_from_id(int(n.get_meta("wf_reg")))
+	return m != null and m != wf and m is Node and (m as Node).is_inside_tree() and (m as Node).can_process()
 
 func _try(n: Node, building := false) -> void:
 	if not (n is Node3D) or wf.is_registered(n) or _owned(n): return

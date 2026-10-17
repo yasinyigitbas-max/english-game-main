@@ -22,23 +22,24 @@ func _measure(tag: String, sc: Node, at: Vector3, yaw: float) -> void:
 	P("%s fps=%.1f draw_calls=%.0f objects=%.0f primitives=%.0f" % [tag, fps, dc / n, ob / n, pr / n])
 
 func _run() -> void:
-	var sc: Node = (load("res://scenes/world_exterior.tscn") as PackedScene).instantiate()
+	var sc: Node = (load("res://scenes/world.tscn") as PackedScene).instantiate()
 	get_tree().root.add_child(sc); get_tree().current_scene = sc
 	for i in 90: await get_tree().process_frame
 	var s0: Vector3 = sc.player.global_position
 	P("start %s" % s0)
-	var places := WorldPlaces.add_all(sc, {"cafe": s0 + Vector3(-14, 0, -16), "shop": s0 + Vector3(0, 0, -16), "work": s0 + Vector3(14, 0, -16)})
+	var places := WorldPlaces.add_all(sc)   # World has café + shop: adds work at the reserved slot
 	var wwf: Node = load("res://scripts/world/world_wall_fade.gd").new(); sc.add_child(wwf)
 	for i in 30: await get_tree().process_frame
-	var spots := [["street", s0, PI], ["street_turn", s0, 0.0], ["before_shop", s0 + Vector3(0, 0, -10.5), PI], ["in_shop", s0 + Vector3(0, 0, -16.5), PI], ["far", s0 + Vector3(40, 0, 30), PI]]
+	var W = load("res://scripts/core/world.gd")
+	var fr: Vector3 = W.spot("front"); var cf: Vector3 = W.spot("cafe"); var sh: Vector3 = W.spot("shop")
+	var shc: Vector3 = (sc.regions["shop"] as AABB).get_center() if sc.regions.has("shop") else sh
+	var spots := [["bedroom", s0, PI], ["front_door_street", fr + Vector3(0, 0, 2.5), PI], ["street_turn", fr + Vector3(0, 0, 6.0), 0.0],
+		["before_cafe", cf + Vector3(0, 0, -3.0), 0.0], ["in_shop", Vector3(shc.x, 0.07, shc.z), PI], ["far_street", fr + Vector3(30, 0, 18), PI]]
 	for sp in spots: await _measure("off " + sp[0], sc, sp[1], sp[2])
 	var wc: Node = load("res://scripts/world/world_culling.gd").new(); sc.add_child(wc)
 	for i in 10: await get_tree().process_frame
-	P("culling stats %s" % [wc.stats])
+	P("culling stats %s wallfade walls=%d" % [wc.stats, (wwf.wf._walls as Array).size()])
 	for sp in spots: await _measure("on  " + sp[0], sc, sp[1], sp[2])
-	wc.occluders = false; get_viewport().use_occlusion_culling = false
-	for o in wc._occ: if is_instance_valid(o[0]): o[0].visible = false
-	for sp in spots: await _measure("on-no-occl " + sp[0], sc, sp[1], sp[2])
-	for id in places: P("place %s ok=%s walls=%d door=%s" % [id, places[id] != null, (places[id].get("walls") as Array).size(), places[id].get("door_hinge") != null])
+	for id in places: P("place %s ok=%s walls=%d door=%s at=%s" % [id, places[id] != null, (places[id].get("walls") as Array).size(), places[id].get("door_hinge") != null, places[id].global_position])
 	var f := FileAccess.open("/tmp/blue_perf.txt", FileAccess.WRITE); f.store_string("\n".join(out)); f.close()
 	get_tree().quit()
