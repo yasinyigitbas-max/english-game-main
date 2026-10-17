@@ -10,17 +10,25 @@ const AT := {"hospital": Vector3(0, 0, -84), "school": Vector3(42, 0, -84), "wor
 
 static func build(w: Node3D) -> void:
 	_ground(w)
+	# ONE of each (build 3): the story uses red's hospital (OwLink EXTRA at World.RESERVED.hospital, spawned by the story)
+	# and blue's work / school place (WorldPlaces "work" at World.RESERVED.work, world mode, job category incl. study).
+	# This file only gives them ground + the fixed spot ids.
+	var hz: Vector3 = w.RESERVED.hospital; var wk: Vector3 = w.RESERVED.work
+	w.spots["hospital_ward"] = [hz + Vector3(-0.9, 0, -1.1), 0.0]
+	w.spots["hospital_car"] = [hz + Vector3(0, 0, 9.0), PI]
+	for k in ["work", "school"]:
+		w.spots[k + "_desk"] = [wk + Vector3(0, 0, -1.5), PI]
+		w.spots[k + "_car"] = [wk + Vector3(0, 0, 9.0), PI]
+
+static func _unused_build(w: Node3D) -> void:
 	_hospital(w)
 	_work(w, "school", "study")
-	var st := CharacterHook.state()
-	var cid := String(load(WORK).category_of(String(st.get("job", "")), false))
-	if cid in ["study", "teach", ""]: cid = "office"
-	_work(w, "work", cid)
+	_work(w, "work", "office")
 
 ## the strip north of the town: grass, a road along the fronts, a car spot in front of each place
 static func _ground(w: Node3D) -> void:
 	var g := Node3D.new(); g.name = "NorthStrip"; w.add_child(g)
-	_slab(g, Vector3(210, 0.1, 48), Vector3(0, -0.05, -86), Color(0.45, 0.64, 0.38))
+	_slab(g, Vector3(270, 0.1, 90), Vector3(0, -0.05, -106), Color(0.45, 0.64, 0.38))   # to z -151: the reserved slots stand on it
 	_slab(g, Vector3(210, 0.02, 7), Vector3(0, 0.01, -70), Color(0.32, 0.33, 0.36))           # road
 	for i in 30: _slab(g, Vector3(2.2, 0.025, 0.15), Vector3(-100 + i * 7, 0.02, -70), Color(0.95, 0.95, 0.9))
 	_slab(g, Vector3(210, 0.04, 3), Vector3(0, 0.02, -74.5), Color(0.78, 0.77, 0.74))          # pavement

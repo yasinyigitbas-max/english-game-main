@@ -60,7 +60,7 @@ func run() -> void:
 	m.mode = "busy"; m._hide_chips()
 	m.caption("I am going to bed.")
 	await m.walk_to(bed.spot, 0.0)
-	await m.sit_on_bed(); await m.edge_to_bedsit(); await m.bedsit_to_lie()
+	await m.lie_down()   # shared lie-down = straight into the sleep pose
 	m.S.bed = "unmade"; m._apply_states()
 	_bed_xf = m.hero.transform; bed_lock = true
 	Objectives.clear()
