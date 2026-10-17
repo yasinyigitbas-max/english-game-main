@@ -64,15 +64,15 @@ static func _clear_lots(world: Node) -> void:
 				(m as MeshInstance3D).visible = false; m.remove_from_group("fade"); m.set_meta("ow_removed", true)
 
 ## one merged mesh per street block (WorldGrid.loaded; later-streamed blocks too), per room / place, and for other
-## direct children (fences, ...). Rooms / places keep a 40 m range, street blocks 120 m.
+## direct children (fences, ...). Small things: 40 m range in rooms / places, 60 m on the street (14 m cells); big things none.
 static func merge_all(world: Node) -> Dictionary:
 	var tot := {"roots": 0, "meshes": 0, "surfaces_in": 0, "surfaces_out": 0}
 	var roots: Array = []
 	var grid = world.get("grid")
 	if grid and grid.get("loaded") is Dictionary:
-		for c in grid.loaded: roots.append([grid.loaded[c], 120.0])
+		for c in grid.loaded: roots.append([grid.loaded[c], 60.0])
 		if grid.has_signal("block_loaded"):
-			grid.block_loaded.connect(func(_c, b): (func(): Merge.merge_root(b, 120.0)).call_deferred())
+			grid.block_loaded.connect(func(_c, b): (func(): Merge.merge_root(b, 60.0)).call_deferred())
 	var places = world.get("places")
 	if places is Dictionary:
 		for id in places: roots.append([places[id], 40.0])

@@ -79,11 +79,11 @@ static func _opaque_ok(m: Material) -> bool:
 		return b.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED and not b.emission_enabled and m.next_pass == null
 	return false
 
-static func _append(buckets: Dictionary, mesh: Mesh, mats: Array, xf: Transform3D, tint: Color, st: Dictionary) -> void:
+static func _append(buckets: Dictionary, mesh: Mesh, mats: Array, xf: Transform3D, tint: Color, st: Dictionary, cell := "") -> void:
 	for s in mesh.get_surface_count():
 		var mt: Material = mats[s]
 		var plain := _plain(mt)
-		var key := "plain" if plain else str(mt.get_instance_id())
+		var key := cell + "|" + ("plain" if plain else str(mt.get_instance_id()))
 		if not buckets.has(key): buckets[key] = {"mat": plain_mat() if plain else mt, "plain": plain, "v": PackedVector3Array(), "n": PackedVector3Array(), "c": PackedColorArray(), "uv": PackedVector2Array(), "i": PackedInt32Array()}
 		var b: Dictionary = buckets[key]
 		var arr := mesh.surface_get_arrays(s)
@@ -119,6 +119,10 @@ static func _append(buckets: Dictionary, mesh: Mesh, mats: Array, xf: Transform3
 		b.i.append_array(ii)
 		st.surfaces_in += 1
 
+## small things (diagonal < SMALL) are chunked by an XZ grid of CELL m and get range_end; big things (floors, roads, shells)
+## go into one chunk per root without a range (they are the skyline)
+const SMALL := 6.0
+const CELL := 14.0
 static func merge_root(root: Node3D, range_end := 0.0, range_margin := 4.0) -> Dictionary:
 	var st := {"meshes": 0, "surfaces_in": 0, "surfaces_out": 0}
 	if root == null or not is_instance_valid(root) or root.has_meta("ow_merged"): return st
@@ -150,27 +154,41 @@ static func merge_root(root: Node3D, range_end := 0.0, range_margin := 4.0) -> D
 			mats.append(mt)
 		if not ok: continue
 		var xf := inv * gi.global_transform
+		var gab: AABB = gi.global_transform * gi.get_aabb()
+		var cell := "big"
+		if gab.size.length() < SMALL or mm:
+			var cc := gab.get_center(); cell = "%d_%d" % [floori(cc.x / CELL), floori(cc.z / CELL)]
 		if mm:
 			var n := mm.visible_instance_count if mm.visible_instance_count >= 0 else mm.instance_count
-			for k in n: _append(buckets, mesh, mats, xf * mm.get_instance_transform(k), mm.get_instance_color(k) if mm.use_colors else Color.WHITE, st)
-		else: _append(buckets, mesh, mats, xf, Color.WHITE, st)
+			for k in n:
+				var it := mm.get_instance_transform(k)
+				var wc := gi.global_transform * it.origin
+				_append(buckets, mesh, mats, xf * it, mm.get_instance_color(k) if mm.use_colors else Color.WHITE, st, "%d_%d" % [floori(wc.x / CELL), floori(wc.z / CELL)])
+		else: _append(buckets, mesh, mats, xf, Color.WHITE, st, cell)
 		used.append(gi)
 	if used.size() < 2:
 		root.remove_meta("ow_merged"); return st
-	var am := ArrayMesh.new()
+	var per := {}
 	for key in buckets:
-		var b: Dictionary = buckets[key]
-		if (b.i as PackedInt32Array).is_empty(): continue
-		var a := []; a.resize(Mesh.ARRAY_MAX)
-		a[Mesh.ARRAY_VERTEX] = b.v; a[Mesh.ARRAY_NORMAL] = b.n; a[Mesh.ARRAY_COLOR] = b.c; a[Mesh.ARRAY_INDEX] = b.i
-		if not b.plain: a[Mesh.ARRAY_TEX_UV] = b.uv
-		am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, a)
-		am.surface_set_material(am.get_surface_count() - 1, b.mat)
-		st.surfaces_out += 1
-	if am.get_surface_count() == 0: return st
-	var out := MeshInstance3D.new(); out.name = "OWMerged"; out.mesh = am; out.set_meta("no_merge", true); out.set_meta("ow_merged_mesh", true)
-	if range_end > 0.0: out.visibility_range_end = range_end; out.visibility_range_end_margin = range_margin
-	root.add_child(out)
+		var cell: String = String(key).split("|")[0]
+		if not per.has(cell): per[cell] = []
+		per[cell].append(buckets[key])
+	var made := 0
+	for cell in per:
+		var am := ArrayMesh.new()
+		for b in per[cell]:
+			if (b.i as PackedInt32Array).is_empty(): continue
+			var a := []; a.resize(Mesh.ARRAY_MAX)
+			a[Mesh.ARRAY_VERTEX] = b.v; a[Mesh.ARRAY_NORMAL] = b.n; a[Mesh.ARRAY_COLOR] = b.c; a[Mesh.ARRAY_INDEX] = b.i
+			if not b.plain: a[Mesh.ARRAY_TEX_UV] = b.uv
+			am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, a)
+			am.surface_set_material(am.get_surface_count() - 1, b.mat)
+			st.surfaces_out += 1
+		if am.get_surface_count() == 0: continue
+		var out := MeshInstance3D.new(); out.name = "OWMerged_" + String(cell); out.mesh = am; out.set_meta("no_merge", true); out.set_meta("ow_merged_mesh", true)
+		if cell != "big" and range_end > 0.0: out.visibility_range_end = range_end; out.visibility_range_end_margin = range_margin
+		root.add_child(out); made += 1
+	if made == 0: return st
 	for g in used: (g as GeometryInstance3D).visible = false; g.set_meta("ow_merged_src", true)
 	st.meshes = used.size()
 	return st
