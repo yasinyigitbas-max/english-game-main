@@ -635,10 +635,10 @@ func verbs(id: String) -> Array:
 			return [["Set the alarm", "I am setting the alarm clock.", "set"], ["Check the time", "I am checking the time.", "check"]]
 		"night":
 			var pv := [["Pick up the phone", "I am picking up my phone.", "pickup"]] if S.created and not S.has_phone else []
-			if S.has_phone and S.created: pv = [["Charge my phone", "I am charging my phone.", "charge"]]   # v30.5: place + plug in
+			if S.has_phone and S.created and Life.NEEDS_ENABLED: pv = [["Charge my phone", "I am charging my phone.", "charge"]]   # v30.5: place + plug in; v32-polish: hidden while Life.NEEDS_ENABLED is false
 			return pv + [["Turn off the lamp", "I am turning off the lamp.", "lamp"] if S.lamp == "on" else ["Turn on the lamp", "I am turning on the lamp.", "lamp"],
 				["Close the drawer", "I am closing the drawer.", "drawer"] if S.drawer == "open" else ["Open the drawer", "I am opening the drawer.", "drawer"],
-				] + ([] if S.has_phone else [["Unplug the phone", "I am unplugging my phone.", "phone"] if S.phone == "charging" else ["Charge the phone", "I am charging my phone.", "phone"]])
+				] + ([] if (S.has_phone or not Life.NEEDS_ENABLED) else [["Unplug the phone", "I am unplugging my phone.", "phone"] if S.phone == "charging" else ["Charge the phone", "I am charging my phone.", "phone"]])   # v32-polish: no charge / unplug verbs while needs+battery are off
 		"window":
 			var v := [["Close the curtains", "I am closing the curtains.", "curtains"] if S.curtains == "open" else ["Open the curtains", "I am opening the curtains.", "curtains"]]
 			if S.curtains == "open":
