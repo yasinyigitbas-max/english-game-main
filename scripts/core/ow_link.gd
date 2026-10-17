@@ -62,6 +62,13 @@ static func _adopt(n: Node3D, parent: Node) -> void:
 	n.global_transform = g
 	if n.has_meta("wh_hv"): n.remove_meta("wh_hv")
 	n.visible = true
+	_reset_hero(n)
+
+## undo a story place's pose / layer tweaks on the one hero (hospital bed lie / sit, first-person hide layer)
+static func _reset_hero(n: Node3D) -> void:
+	for v in n.find_children("*", "VisualInstance3D", true, false): if (v as VisualInstance3D).layers == 2: (v as VisualInstance3D).layers = 1
+	n.rotation = Vector3(0, n.rotation.y, 0)
+	if n is DemoCharacter: (n as DemoCharacter).play("idle", 0.2)
 
 # ------------------------------------------------------------ going live
 ## make place `id` live (house room or story place). from = room/place id the hero comes from ("" / "street")
@@ -80,11 +87,15 @@ func _enter(id: String, from: String) -> void:
 		if pl.has_meta("ow_shell"): pl.remove_meta("ow_shell"); pl.call("_ow_live", world)
 		else: pl.call_deferred("_start")
 		return
-	var r: Node = world.places.get(id) if ROOM_PATH.has(id) else _extra(id)
-	if r == null: push_warning("OwLink: no place " + id); return
+	if not ROOM_PATH.has(id) and not EXTRA.has(id): push_warning("OwLink: no place " + id); return
 	var h := the_hero()
 	var hp := h.global_position; var hy := h.global_rotation.y
 	_sleep_live()
+	var r: Node = world.places.get(id) if ROOM_PATH.has(id) else _extra(id)   # an extra's _ready borrows the hero (after the sleep)
+	if r == null: push_warning("OwLink: no place " + id); return
+	if not ROOM_PATH.has(id):
+		if h.has_meta("wh_hv"): h.remove_meta("wh_hv")
+		h.visible = true
 	var p := world.player as Node3D
 	p.process_mode = Node.PROCESS_MODE_DISABLED
 	world.hud.visible = false
@@ -104,8 +115,6 @@ func _enter(id: String, from: String) -> void:
 		if from != "":
 			var sp: Array = r.call("_wh_spawn", from) if r.has_method("_wh_spawn") else []
 			if sp.size() == 2: House._walk_in(r, r.to_local(hp), hy, sp[0], sp[1])
-	else:
-		h.visible = false   # first-person story places (hospital): the player is the camera / bed body
 
 func _extra(id: String) -> Node:
 	if extras.has(id) and is_instance_valid(extras[id]): return extras[id]
@@ -142,6 +151,7 @@ func _to_street(door: String) -> void:
 	_sleep_live()
 	get_tree().current_scene = world
 	if h.get_parent() != p: h.reparent(p, false)
+	_reset_hero(h)
 	h.transform = Transform3D(Basis(Vector3.UP, g.basis.get_euler().y), Vector3.ZERO); h.visible = true
 	p.global_position = Vector3(g.origin.x, p.floor_y, g.origin.z)
 	p.process_mode = Node.PROCESS_MODE_INHERIT
@@ -179,7 +189,7 @@ static func travel(dest: String, door := "", covered := false) -> void:
 		inst._sleep_live(); inst.get_tree().current_scene = inst.world
 		var h := the_hero(); var p := inst.world.player as Node3D
 		if h.get_parent() != p: h.reparent(p, false)
-		h.transform = Transform3D.IDENTITY; h.visible = true
+		_reset_hero(h); h.transform = Transform3D.IDENTITY; h.visible = true
 		p.process_mode = Node.PROCESS_MODE_INHERIT; inst.world.cam.current = true
 		p.place_at(_door_id(door))
 		inst._street_hooks.call_deferred(door)
