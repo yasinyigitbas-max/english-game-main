@@ -29,6 +29,7 @@ func _run() -> void:
 	for sp in spots: await _measure("before " + sp[0], sc, sp[1], sp[2])
 	var r: Dictionary = load("res://scripts/world/world_blue.gd").install(sc)
 	for i in 20: await get_tree().process_frame
+	P("merge %s" % [r.get("merge")])
 	P("installed culling=%s fronts=%s/%s walls=%d" % [r.culling.stats, r.get("front_cafe") != null, r.get("front_shop") != null, (r.wall_fade.wf._walls as Array).size()])
 	for sp in spots: await _measure("after  " + sp[0], sc, sp[1], sp[2])
 	DirAccess.make_dir_recursive_absolute("/workspace/blue_ow_shots")
