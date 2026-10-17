@@ -131,7 +131,7 @@ static func scramble_panel(parent: Node, box_name: String, pool: Array, ask_en :
 	for wd in pool:
 		var b := Button.new(); b.text = String(wd); b.custom_minimum_size = Vector2(96, 64); b.add_theme_font_size_override("font_size", 30); b.focus_mode = Control.FOCUS_NONE
 		var ui := (Engine.get_main_loop() as SceneTree).root.get_node_or_null("UI")
-		if ui and ui.get("font_b"): b.add_theme_font_override("font", ui.font_b)
+		if ui and ui.get("font_b"): b.add_theme_font_override("font", ui.get("font_b"))
 		row.add_child(b); btns.append(b)
 	# no doubled line: the instruction now on the card leaves the caption box (it was just said there)
 	for o in parent.get_tree().get_nodes_in_group(CAP_GROUP):
