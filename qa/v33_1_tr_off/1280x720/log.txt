@@ -8,7 +8,7 @@ SHOT 03_cafe_lesson3 CAPTION_VISIBLE
 SHOT 04_body_lesson1_9rows CAPTION_VISIBLE
 SHOT 05_family_lesson2_glosses CAPTION_VISIBLE
 SHOT 06_family_lesson3_am_is_are CAPTION_VISIBLE
-SHOT 07_breakfast_lesson3
+SHOT 07_breakfast_lesson3 CAPTION_VISIBLE
 SHOT 07b_breakfast_lesson_last_do_does
 SHOT 05a_family_lesson1 CAPTION_VISIBLE
 SHOT 05d_family_lesson4 CAPTION_VISIBLE
