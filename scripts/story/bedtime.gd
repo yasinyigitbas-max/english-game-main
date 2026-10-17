@@ -33,8 +33,12 @@ static func hook_bedroom(main: Node) -> void:
 	elif maxi(WorldState.day, App.day) == 3 and bool(sv.get("d3_bed_pending", false)) and not bool(sv.get("d3_bedtime_done", false)):   # v32c (red)
 		if main.has_node("Bedtime"): return
 		var b3 = load("res://scripts/story/bedtime.gd").new(); b3.name = "Bedtime"; b3.night = 3; b3.m = main; main.add_child(b3); b3.run()
+	elif maxi(WorldState.day, App.day) in [4, 7] and bool(sv.get("d%d_bed_pending" % maxi(WorldState.day, App.day), false)) and not bool(sv.get("d%d_bedtime_done" % maxi(WorldState.day, App.day), false)):   # v33 (red): day-4 / day-7 bedtime
+		if main.has_node("Bedtime"): return
+		var b47 = load("res://scripts/story/day%d_bedtime.gd" % maxi(WorldState.day, App.day)).new(); b47.name = "Bedtime"; b47.m = main; main.add_child(b47); b47.run()
 	elif maxi(WorldState.day, App.day) >= 3:
 		load("res://scripts/story/day3_morning.gd").attach(main.get_tree())
+		load("res://scripts/story/day4_routine.gd").start(main.get_tree())   # v33 (red): day-4 / day-7 routine (no-op on other days)
 
 func _w(t: float) -> void: await get_tree().create_timer(t, false).timeout
 
@@ -211,7 +215,7 @@ func _sleep_to_day4(black: ColorRect) -> void:
 	bed_lock = false
 	await _wake_simple()
 	m.mode = "play"; m._update_hand()
-	await _day4_prompt()
+	load("res://scripts/story/day4_routine.gd").start(get_tree())   # v33 (red): the day-4 routine (was the _day4_prompt placeholder)
 
 ## main.gd get_up_sequence() without its extra lines: "I'm waking up." -> sit up -> edge -> "I'm getting up." -> stand
 func _wake_simple() -> void:

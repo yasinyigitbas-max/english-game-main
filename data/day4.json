@@ -1,0 +1,398 @@
+{
+ "_doc": "v33 (red): DAY 4 (power cut). day4_routine.gd / day4_breakfast.gd / day4_shop.gd / day4_evening.gd / day4_bedtime.gd. lines = every EN line of day 4 -> TR (merged into data/extra_lines.json).",
+ "day": 4,
+ "review_day": 3,
+ "breakfast_photo": "d4_breakfast",
+ "shop_photo": "d4_shop",
+ "shop_flag": "d4_shop",
+ "shop_price": 450,
+ "shop_reason": "shop: candles, batteries",
+ "shop_items": {
+  "candle": 3,
+  "battery": 4
+ },
+ "breakfast": [
+  {
+   "who": "fam1",
+   "en": "Listen! The news says there is a big storm tonight.",
+   "tr": "Dinle! Haberlere göre bu gece büyük bir fırtına var."
+  },
+  {
+   "who": "fam0",
+   "en": "Maybe the power will go off.",
+   "tr": "Belki elektrik kesilir."
+  },
+  {
+   "who": "fam0",
+   "en": "We need candles and batteries for the torch.",
+   "tr": "El feneri için mumlara ve pillere ihtiyacımız var."
+  },
+  {
+   "who": "nar",
+   "en": "A torch is a flashlight.",
+   "tr": "Torch, el feneri demektir (flashlight ile aynı)."
+  },
+  {
+   "who": "fam1",
+   "en": "Can you go to the shop, please?",
+   "tr": "Dükkâna gidebilir misin, lütfen?"
+  },
+  {
+   "who": "me",
+   "en": "Yes, of course!",
+   "tr": "Evet, tabii ki!"
+  }
+ ],
+ "shop": [
+  {
+   "who": "me",
+   "en": "I need candles and batteries.",
+   "tr": "Mum ve pile ihtiyacım var."
+  },
+  {
+   "do": "counter"
+  },
+  {
+   "who": "assistant",
+   "en": "Hello again! Can I help you?",
+   "tr": "Yine merhaba! Yardımcı olabilir miyim?"
+  },
+  {
+   "who": "me",
+   "en": "Yes, please. Are there any candles?",
+   "tr": "Evet, lütfen. Hiç mum var mı?"
+  },
+  {
+   "who": "assistant",
+   "en": "Yes, there are. Here you are.",
+   "tr": "Evet, var. Buyurun."
+  },
+  {
+   "who": "me",
+   "en": "And I need some batteries for my torch.",
+   "tr": "Bir de el fenerim için biraz pile ihtiyacım var."
+  },
+  {
+   "who": "assistant",
+   "en": "There are batteries under the counter. How many do you need?",
+   "tr": "Tezgâhın altında piller var. Kaç tane lazım?"
+  },
+  {
+   "who": "me",
+   "en": "Four, please.",
+   "tr": "Dört tane, lütfen."
+  },
+  {
+   "who": "assistant",
+   "en": "That's four pounds fifty, please.",
+   "tr": "Dört pound elli, lütfen."
+  },
+  {
+   "do": "pay"
+  },
+  {
+   "who": "me",
+   "en": "Here you are.",
+   "tr": "Buyurun."
+  },
+  {
+   "do": "bag"
+  },
+  {
+   "do": "snap"
+  },
+  {
+   "who": "assistant",
+   "en": "Thank you! Be careful in the storm.",
+   "tr": "Teşekkürler! Fırtınada dikkatli ol."
+  },
+  {
+   "who": "me",
+   "en": "Thank you. Goodbye!",
+   "tr": "Teşekkürler. Hoşça kal!"
+  }
+ ],
+ "evening": [
+  {
+   "do": "props"
+  },
+  {
+   "do": "couch"
+  },
+  {
+   "who": "fam0",
+   "en": "Did you buy the candles?",
+   "tr": "Mumları aldın mı?"
+  },
+  {
+   "who": "me",
+   "en": "Yes, I did. I bought candles and batteries.",
+   "tr": "Evet, aldım. Mum ve pil aldım."
+  },
+  {
+   "who": "nar",
+   "en": "Put the words in the right order.",
+   "tr": "Kelimeleri doğru sıraya koy."
+  },
+  {
+   "who": "fam1",
+   "en": "Where are the candles?",
+   "tr": "Mumlar nerede?"
+  },
+  {
+   "puzzle": "The candles are on the table.",
+   "tr": "Mumlar masanın üstünde."
+  },
+  {
+   "who": "fam0",
+   "en": "Thank you! Now we are ready for the storm.",
+   "tr": "Teşekkürler! Artık fırtınaya hazırız."
+  },
+  {
+   "who": "nar",
+   "en": "The wind is very strong tonight.",
+   "tr": "Bu gece rüzgâr çok sert."
+  },
+  {
+   "do": "power_cut"
+  },
+  {
+   "who": "nar",
+   "en": "Oh no! The lights went out.",
+   "tr": "Eyvah! Işıklar söndü."
+  },
+  {
+   "who": "nar",
+   "en": "It's a power cut.",
+   "tr": "Bu bir elektrik kesintisi."
+  },
+  {
+   "who": "fam1",
+   "en": "It's very dark. I can't see!",
+   "tr": "Çok karanlık. Göremiyorum!"
+  },
+  {
+   "who": "fam0",
+   "en": "Don't be afraid. Where is the torch?",
+   "tr": "Korkma. El feneri nerede?"
+  },
+  {
+   "do": "guide",
+   "en": "Find the torch.",
+   "at": "torch"
+  },
+  {
+   "puzzle": "The torch is next to the candles.",
+   "tr": "El feneri mumların yanında."
+  },
+  {
+   "do": "torch"
+  },
+  {
+   "who": "nar",
+   "en": "I am turning on the torch.",
+   "tr": "El fenerini açıyorum."
+  },
+  {
+   "who": "fam1",
+   "en": "Are there any matches?",
+   "tr": "Hiç kibrit var mı?"
+  },
+  {
+   "do": "guide",
+   "en": "Light the candles.",
+   "at": "candles"
+  },
+  {
+   "puzzle": "Yes, there is a box of matches.",
+   "tr": "Evet, bir kutu kibrit var."
+  },
+  {
+   "do": "candles"
+  },
+  {
+   "who": "nar",
+   "en": "We are lighting the candles.",
+   "tr": "Mumları yakıyoruz."
+  },
+  {
+   "who": "nar",
+   "en": "There are three candles on the table.",
+   "tr": "Masada üç mum var."
+  },
+  {
+   "who": "nar",
+   "en": "There is + one thing. There are + two or more things.",
+   "tr": "There is + tek bir şey. There are + iki ya da daha fazla şey."
+  },
+  {
+   "who": "fam0",
+   "en": "Are you afraid?",
+   "tr": "Korkuyor musun?"
+  },
+  {
+   "puzzle": "No, I'm not afraid.",
+   "tr": "Hayır, korkmuyorum."
+  },
+  {
+   "who": "fam1",
+   "en": "Look! It's nice and cosy now.",
+   "tr": "Bak! Şimdi güzel ve sıcacık."
+  },
+  {
+   "do": "snap",
+   "key": "d4_candles"
+  },
+  {
+   "do": "lights_on"
+  },
+  {
+   "who": "nar",
+   "en": "The lights came back on!",
+   "tr": "Işıklar geri geldi!"
+  },
+  {
+   "who": "fam0",
+   "en": "Hooray! The power is back.",
+   "tr": "Yaşasın! Elektrik geldi."
+  },
+  {
+   "who": "fam1",
+   "en": "Let's blow out the candles.",
+   "tr": "Hadi mumları üfleyelim."
+  },
+  {
+   "do": "candles_out"
+  },
+  {
+   "who": "fam0",
+   "en": "It's late. Time for bed.",
+   "tr": "Geç oldu. Yatma vakti."
+  },
+  {
+   "who": "me",
+   "en": "Good night!",
+   "tr": "İyi geceler!"
+  }
+ ],
+ "recap": [
+  [
+   "d4_shower",
+   "I took a shower."
+  ],
+  [
+   "d4_breakfast",
+   "I had breakfast with my family."
+  ],
+  [
+   "d4_shop",
+   "I bought candles and batteries.",
+   "d4_shop"
+  ],
+  [
+   "d4_candles",
+   "The lights went out. We lit candles.",
+   "d4_couch_done"
+  ]
+ ],
+ "dream_line": "Went, bought, lit: this is the past simple.",
+ "lines": {
+  "Good morning! Let's review yesterday's English.": "Günaydın! Hadi dünkü İngilizceyi tekrar edelim.",
+  "Good try! Let's practise more tonight.": "İyi denemeydi! Bu gece daha çok pratik yapalım.",
+  "Well done!": "Aferin!",
+  "Breakfast is over.": "Kahvaltı bitti.",
+  "Have breakfast.": "Kahvaltı yap.",
+  "Have breakfast with your family.": "Ailenle kahvaltı yap.",
+  "I am sitting at the table.": "Masaya oturuyorum.",
+  "I am having breakfast.": "Kahvaltı yapıyorum.",
+  "Choose the right words.": "Doğru kelimeleri seç.",
+  "Put the words in the right order.": "Kelimeleri doğru sıraya koy.",
+  "Talk to my family.": "Ailemle konuş.",
+  "I am sitting on the sofa.": "Kanepeye oturuyorum.",
+  "I am standing next to the sofa.": "Kanepenin yanında duruyorum.",
+  "Go to bed.": "Yatmaya git.",
+  "Take a photo.": "Bir fotoğraf çek.",
+  "Click! A photo for my album.": "Klik! Albümüm için bir fotoğraf.",
+  "Take a shower.": "Duş al.",
+  "I feel fresh and clean.": "Kendimi taze ve temiz hissediyorum.",
+  "Go to the living room.": "Oturma odasına git.",
+  "Go to the shop.": "Dükkâna git.",
+  "Here is the shop.": "İşte dükkân.",
+  "Go back home.": "Eve dön.",
+  "Here is my home.": "İşte evim.",
+  "Go outside.": "Dışarı çık.",
+  "I am dreaming about my day.": "Günümü rüyamda görüyorum.",
+  "Now a test about my day. Ten questions.": "Şimdi günüm hakkında bir test. On soru.",
+  "Good night!": "İyi geceler!",
+  "I am sleeping.": "Uyuyorum.",
+  "I'm waking up.": "Uyanıyorum.",
+  "I'm getting up.": "Kalkıyorum.",
+  "Start your day.": "Gününe başla.",
+  "Day 1": "1. Gün",
+  "Day 2": "2. Gün",
+  "Day 3": "3. Gün",
+  "Day 4": "4. Gün",
+  "Day 5": "5. Gün",
+  "Day 6": "6. Gün",
+  "Day 7": "7. Gün",
+  "Day 8": "8. Gün",
+  "Yes, of course!": "Evet, tabii ki!",
+  "Here you are.": "Buyurun.",
+  "Me: ...": "Ben: ...",
+  "Find the torch.": "El fenerini bul.",
+  "Light the candles.": "Mumları yak.",
+  "Turn on the light.": "Işığı aç.",
+  "Look at the cake.": "Pastaya bak.",
+  "Congratulations!": "Tebrikler!",
+  "Surprise!": "Sürpriz!",
+  "Everybody: Surprise!": "Herkes: Sürpriz!",
+  "I took a shower.": "Duş aldım.",
+  "I had breakfast with my family.": "Ailemle kahvaltı yaptım.",
+  "I bought candles and batteries.": "Mum ve pil aldım.",
+  "The lights went out. We lit candles.": "Işıklar söndü. Mum yaktık.",
+  "Went, bought, lit: this is the past simple.": "Went, bought, lit: bu geçmiş zaman (past simple).",
+  "I went to the shop.": "Dükkâna gittim.",
+  "My family had a party for me.": "Ailem benim için bir parti verdi.",
+  "Had, went, shouted: this is the past simple.": "Had, went, shouted: bu geçmiş zaman (past simple).",
+  "I had a good day.": "Güzel bir gün geçirdim.",
+  "Listen! The news says there is a big storm tonight.": "Dinle! Haberlere göre bu gece büyük bir fırtına var.",
+  "Maybe the power will go off.": "Belki elektrik kesilir.",
+  "We need candles and batteries for the torch.": "El feneri için mumlara ve pillere ihtiyacımız var.",
+  "A torch is a flashlight.": "Torch, el feneri demektir (flashlight ile aynı).",
+  "Can you go to the shop, please?": "Dükkâna gidebilir misin, lütfen?",
+  "I need candles and batteries.": "Mum ve pile ihtiyacım var.",
+  "Hello again! Can I help you?": "Yine merhaba! Yardımcı olabilir miyim?",
+  "Yes, please. Are there any candles?": "Evet, lütfen. Hiç mum var mı?",
+  "Yes, there are. Here you are.": "Evet, var. Buyurun.",
+  "And I need some batteries for my torch.": "Bir de el fenerim için biraz pile ihtiyacım var.",
+  "There are batteries under the counter. How many do you need?": "Tezgâhın altında piller var. Kaç tane lazım?",
+  "Four, please.": "Dört tane, lütfen.",
+  "That's four pounds fifty, please.": "Dört pound elli, lütfen.",
+  "Thank you! Be careful in the storm.": "Teşekkürler! Fırtınada dikkatli ol.",
+  "Thank you. Goodbye!": "Teşekkürler. Hoşça kal!",
+  "Did you buy the candles?": "Mumları aldın mı?",
+  "Yes, I did. I bought candles and batteries.": "Evet, aldım. Mum ve pil aldım.",
+  "Where are the candles?": "Mumlar nerede?",
+  "The candles are on the table.": "Mumlar masanın üstünde.",
+  "Thank you! Now we are ready for the storm.": "Teşekkürler! Artık fırtınaya hazırız.",
+  "The wind is very strong tonight.": "Bu gece rüzgâr çok sert.",
+  "Oh no! The lights went out.": "Eyvah! Işıklar söndü.",
+  "It's a power cut.": "Bu bir elektrik kesintisi.",
+  "It's very dark. I can't see!": "Çok karanlık. Göremiyorum!",
+  "Don't be afraid. Where is the torch?": "Korkma. El feneri nerede?",
+  "The torch is next to the candles.": "El feneri mumların yanında.",
+  "I am turning on the torch.": "El fenerini açıyorum.",
+  "Are there any matches?": "Hiç kibrit var mı?",
+  "Yes, there is a box of matches.": "Evet, bir kutu kibrit var.",
+  "We are lighting the candles.": "Mumları yakıyoruz.",
+  "There are three candles on the table.": "Masada üç mum var.",
+  "There is + one thing. There are + two or more things.": "There is + tek bir şey. There are + iki ya da daha fazla şey.",
+  "Are you afraid?": "Korkuyor musun?",
+  "No, I'm not afraid.": "Hayır, korkmuyorum.",
+  "Look! It's nice and cosy now.": "Bak! Şimdi güzel ve sıcacık.",
+  "The lights came back on!": "Işıklar geri geldi!",
+  "Hooray! The power is back.": "Yaşasın! Elektrik geldi.",
+  "Let's blow out the candles.": "Hadi mumları üfleyelim.",
+  "It's late. Time for bed.": "Geç oldu. Yatma vakti."
+ }
+}

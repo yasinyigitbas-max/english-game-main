@@ -179,6 +179,8 @@ func _ready() -> void:
 		_intro.call_deferred()
 
 func _intro() -> void:
+	load("res://scripts/story/day7_party.gd").prepare(self)   # v33 (red): day 7 coming home: dark room, the family hides (surprise)
+	load("res://scripts/story/day4_routine.gd").start(get_tree())   # v33 (red): day-4 / day-7 routine (idempotent)
 	await wait(0.6)
 	caption("I'm in the living room now.", false)   # house.17: silent room caption
 	_advance()
@@ -1674,6 +1676,7 @@ func _advance() -> void:
 		if not _out_guided and mission != nxt:
 			_out_guided = true; _set_mission(nxt)
 			_go_outside_guide.call_deferred(); return
+	if get_tree().root.has_node("Day4Routine") or get_tree().root.has_node("Day7Routine"): return   # v33 (red QA): the day-4 / day-7 routine owns the objective (no "Turn on the TV." flash)
 	_set_mission(nxt)
 	if tasks_panel and tasks_panel.visible: _fill_tasks()
 

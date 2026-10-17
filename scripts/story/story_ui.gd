@@ -82,7 +82,7 @@ func _process(_dt: float) -> void:
 	if panel and panel.visible:
 		var on := App.tr_on()
 		if tr_l.visible != (on and tr_l.text != ""): tr_l.visible = on and tr_l.text != ""
-		if tr_btn.get_meta("on", null) != on: tr_btn.set_meta("on", on); style_tr_btn(tr_btn, on)
+		if not tr_btn.has_meta("on") or tr_btn.get_meta("on") != on: tr_btn.set_meta("on", on); style_tr_btn(tr_btn, on)
 
 static func tr_of(en: String) -> String:
 	if TR.has(en): return TR[en]

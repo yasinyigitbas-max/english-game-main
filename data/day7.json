@@ -1,0 +1,434 @@
+{
+ "_doc": "v33 (red): DAY 7 (surprise party). day7_routine.gd / day7_party.gd / day7_bedtime.gd + the shared day4_* code. lines = every EN line of day 7 -> TR (merged into data/extra_lines.json).",
+ "day": 7,
+ "review_day": 6,
+ "breakfast_photo": "d7_breakfast",
+ "shop_photo": "d7_shop",
+ "shop_flag": "d7_shop",
+ "shop_price": 150,
+ "shop_reason": "shop: milk",
+ "shop_items": {
+  "milk": 1
+ },
+ "breakfast": [
+  {
+   "who": "fam0",
+   "en": "Today is day seven. It's your first week here!",
+   "tr": "Bugün yedinci gün. Burada ilk haftan!"
+  },
+  {
+   "who": "me",
+   "en": "Wow! A whole week!",
+   "tr": "Vay! Koca bir hafta!"
+  },
+  {
+   "who": "fam1",
+   "en": "Can you go to the shop, please? We need some milk.",
+   "tr": "Dükkâna gidebilir misin, lütfen? Biraz süte ihtiyacımız var."
+  },
+  {
+   "who": "me",
+   "en": "Yes, of course!",
+   "tr": "Evet, tabii ki!"
+  },
+  {
+   "who": "fam0",
+   "en": "Thank you! Take your time.",
+   "tr": "Teşekkürler! Acele etme."
+  }
+ ],
+ "shop": [
+  {
+   "who": "me",
+   "en": "I need a bottle of milk.",
+   "tr": "Bir şişe süte ihtiyacım var."
+  },
+  {
+   "do": "counter"
+  },
+  {
+   "who": "assistant",
+   "en": "Hello! What would you like today?",
+   "tr": "Merhaba! Bugün ne istersin?"
+  },
+  {
+   "who": "me",
+   "en": "Can I have a bottle of milk, please?",
+   "tr": "Bir şişe süt alabilir miyim, lütfen?"
+  },
+  {
+   "who": "assistant",
+   "en": "Here you are. That's one pound fifty.",
+   "tr": "Buyurun. Bir pound elli."
+  },
+  {
+   "do": "pay"
+  },
+  {
+   "who": "me",
+   "en": "Here you are. Thank you!",
+   "tr": "Buyurun. Teşekkürler!"
+  },
+  {
+   "do": "bag"
+  },
+  {
+   "do": "snap"
+  },
+  {
+   "who": "assistant",
+   "en": "Have a nice evening!",
+   "tr": "İyi akşamlar!"
+  },
+  {
+   "who": "me",
+   "en": "Thank you. Goodbye!",
+   "tr": "Teşekkürler. Hoşça kal!"
+  }
+ ],
+ "party": [
+  {
+   "who": "nar",
+   "en": "It is very dark in here.",
+   "tr": "Burası çok karanlık."
+  },
+  {
+   "who": "me",
+   "en": "Hello? Where is everybody?",
+   "tr": "Merhaba? Herkes nerede?"
+  },
+  {
+   "do": "guide",
+   "en": "Turn on the light.",
+   "at": "sofa"
+  },
+  {
+   "who": "nar",
+   "en": "I am turning on the light.",
+   "tr": "Işığı açıyorum."
+  },
+  {
+   "do": "reveal"
+  },
+  {
+   "who": "all",
+   "en": "Surprise!",
+   "tr": "Sürpriz!"
+  },
+  {
+   "who": "me",
+   "en": "Wow! A party for me?",
+   "tr": "Vay! Benim için bir parti mi?"
+  },
+  {
+   "who": "fam0",
+   "en": "Yes! You finished your first week. Congratulations!",
+   "tr": "Evet! İlk haftanı bitirdin. Tebrikler!"
+  },
+  {
+   "who": "fam1",
+   "en": "Look! These are our photos from this week.",
+   "tr": "Bak! Bunlar bu haftaki fotoğraflarımız."
+  },
+  {
+   "do": "photo_wall"
+  },
+  {
+   "who": "nar",
+   "en": "Went, bought, lit: we use the past simple for the past.",
+   "tr": "Went, bought, lit: geçmiş için past simple kullanırız."
+  },
+  {
+   "do": "cake"
+  },
+  {
+   "who": "fam0",
+   "en": "And there is a cake for you!",
+   "tr": "Ve senin için bir pasta var!"
+  },
+  {
+   "do": "guide",
+   "en": "Look at the cake.",
+   "at": "cake"
+  },
+  {
+   "who": "me",
+   "en": "Thank you! It looks delicious.",
+   "tr": "Teşekkürler! Çok lezzetli görünüyor."
+  }
+ ],
+ "evening": [
+  {
+   "who": "fam1",
+   "en": "Come and sit with us.",
+   "tr": "Gel, bizimle otur."
+  },
+  {
+   "do": "couch"
+  },
+  {
+   "who": "nar",
+   "en": "Put the words in the right order.",
+   "tr": "Kelimeleri doğru sıraya koy."
+  },
+  {
+   "who": "fam0",
+   "en": "Did you know about the party?",
+   "tr": "Partiden haberin var mıydı?"
+  },
+  {
+   "puzzle": "No, I didn't know about the party.",
+   "tr": "Hayır, partiden haberim yoktu."
+  },
+  {
+   "who": "fam1",
+   "en": "What did you do this week?",
+   "tr": "Bu hafta ne yaptın?"
+  },
+  {
+   "puzzle": "I learned a lot of English.",
+   "tr": "Çok İngilizce öğrendim."
+  },
+  {
+   "who": "fam0",
+   "en": "What was your favourite day?",
+   "tr": "En sevdiğin gün hangisiydi?"
+  },
+  {
+   "puzzle": "My favourite day was day four.",
+   "tr": "En sevdiğim gün dördüncü gündü."
+  },
+  {
+   "who": "fam1",
+   "en": "Why?",
+   "tr": "Neden?"
+  },
+  {
+   "puzzle": "The lights went out and we lit candles.",
+   "tr": "Işıklar söndü ve mum yaktık."
+  },
+  {
+   "who": "fam0",
+   "en": "Here is a present for you.",
+   "tr": "İşte sana bir hediye."
+  },
+  {
+   "who": "me",
+   "en": "Thank you! What is it?",
+   "tr": "Teşekkürler! Ne bu?"
+  },
+  {
+   "who": "fam1",
+   "en": "It's a photo album with our photos.",
+   "tr": "Fotoğraflarımızın olduğu bir fotoğraf albümü."
+  },
+  {
+   "who": "me",
+   "en": "I love it! Thank you for the party.",
+   "tr": "Bayıldım! Parti için teşekkürler."
+  },
+  {
+   "who": "fam0",
+   "en": "Let's take a photo together!",
+   "tr": "Hadi birlikte bir fotoğraf çekelim!"
+  },
+  {
+   "do": "snap",
+   "key": "d7_party"
+  },
+  {
+   "who": "fam1",
+   "en": "It's late. Time for bed.",
+   "tr": "Geç oldu. Yatma vakti."
+  },
+  {
+   "who": "me",
+   "en": "Good night!",
+   "tr": "İyi geceler!"
+  }
+ ],
+ "week": [
+  {
+   "day": 1,
+   "keys": [
+    "breakfast",
+    "wake",
+    "home"
+   ],
+   "q": "What did you do on day 1?",
+   "en": "I had breakfast with my family.",
+   "tr": "Ailemle kahvaltı yaptım."
+  },
+  {
+   "day": 2,
+   "keys": [
+    "d2_couch",
+    "d2_breakfast",
+    "d2_work",
+    "d2_hospital"
+   ],
+   "q": "What did you do on day 2?",
+   "en": "I learned will, going to and have to.",
+   "tr": "will, going to ve have to öğrendim."
+  },
+  {
+   "day": 3,
+   "keys": [
+    "d3_cafe",
+    "d3_shop",
+    "d3_couch"
+   ],
+   "q": "What did you do on day 3?",
+   "en": "I went to the café and the shop.",
+   "tr": "Kafeye ve dükkâna gittim."
+  },
+  {
+   "day": 4,
+   "keys": [
+    "d4_candles",
+    "d4_shop",
+    "d4_breakfast"
+   ],
+   "q": "What did you do on day 4?",
+   "en": "I bought candles. Then the lights went out!",
+   "tr": "Mum aldım. Sonra ışıklar söndü!"
+  },
+  {
+   "day": 5,
+   "keys": [],
+   "blue": true,
+   "q": "What did you do on day 5?",
+   "en": "I had a good day.",
+   "tr": "Güzel bir gün geçirdim."
+  },
+  {
+   "day": 6,
+   "keys": [],
+   "blue": true,
+   "q": "What did you do on day 6?",
+   "en": "I had a good day.",
+   "tr": "Güzel bir gün geçirdim."
+  }
+ ],
+ "recap": [
+  [
+   "d7_shower",
+   "I took a shower."
+  ],
+  [
+   "d7_shop",
+   "I went to the shop.",
+   "d7_shop"
+  ],
+  [
+   "d7_party",
+   "My family had a party for me.",
+   "d7_couch_done"
+  ]
+ ],
+ "dream_line": "Had, went, shouted: this is the past simple.",
+ "lines": {
+  "Good morning! Let's review yesterday's English.": "Günaydın! Hadi dünkü İngilizceyi tekrar edelim.",
+  "Good try! Let's practise more tonight.": "İyi denemeydi! Bu gece daha çok pratik yapalım.",
+  "Well done!": "Aferin!",
+  "Breakfast is over.": "Kahvaltı bitti.",
+  "Have breakfast.": "Kahvaltı yap.",
+  "Have breakfast with your family.": "Ailenle kahvaltı yap.",
+  "I am sitting at the table.": "Masaya oturuyorum.",
+  "I am having breakfast.": "Kahvaltı yapıyorum.",
+  "Choose the right words.": "Doğru kelimeleri seç.",
+  "Put the words in the right order.": "Kelimeleri doğru sıraya koy.",
+  "Talk to my family.": "Ailemle konuş.",
+  "I am sitting on the sofa.": "Kanepeye oturuyorum.",
+  "I am standing next to the sofa.": "Kanepenin yanında duruyorum.",
+  "Go to bed.": "Yatmaya git.",
+  "Take a photo.": "Bir fotoğraf çek.",
+  "Click! A photo for my album.": "Klik! Albümüm için bir fotoğraf.",
+  "Take a shower.": "Duş al.",
+  "I feel fresh and clean.": "Kendimi taze ve temiz hissediyorum.",
+  "Go to the living room.": "Oturma odasına git.",
+  "Go to the shop.": "Dükkâna git.",
+  "Here is the shop.": "İşte dükkân.",
+  "Go back home.": "Eve dön.",
+  "Here is my home.": "İşte evim.",
+  "Go outside.": "Dışarı çık.",
+  "I am dreaming about my day.": "Günümü rüyamda görüyorum.",
+  "Now a test about my day. Ten questions.": "Şimdi günüm hakkında bir test. On soru.",
+  "Good night!": "İyi geceler!",
+  "I am sleeping.": "Uyuyorum.",
+  "I'm waking up.": "Uyanıyorum.",
+  "I'm getting up.": "Kalkıyorum.",
+  "Start your day.": "Gününe başla.",
+  "Day 1": "1. Gün",
+  "Day 2": "2. Gün",
+  "Day 3": "3. Gün",
+  "Day 4": "4. Gün",
+  "Day 5": "5. Gün",
+  "Day 6": "6. Gün",
+  "Day 7": "7. Gün",
+  "Day 8": "8. Gün",
+  "Yes, of course!": "Evet, tabii ki!",
+  "Here you are.": "Buyurun.",
+  "Me: ...": "Ben: ...",
+  "Find the torch.": "El fenerini bul.",
+  "Light the candles.": "Mumları yak.",
+  "Turn on the light.": "Işığı aç.",
+  "Look at the cake.": "Pastaya bak.",
+  "Congratulations!": "Tebrikler!",
+  "Surprise!": "Sürpriz!",
+  "Everybody: Surprise!": "Herkes: Sürpriz!",
+  "I took a shower.": "Duş aldım.",
+  "I had breakfast with my family.": "Ailemle kahvaltı yaptım.",
+  "I bought candles and batteries.": "Mum ve pil aldım.",
+  "The lights went out. We lit candles.": "Işıklar söndü. Mum yaktık.",
+  "Went, bought, lit: this is the past simple.": "Went, bought, lit: bu geçmiş zaman (past simple).",
+  "I went to the shop.": "Dükkâna gittim.",
+  "My family had a party for me.": "Ailem benim için bir parti verdi.",
+  "Had, went, shouted: this is the past simple.": "Had, went, shouted: bu geçmiş zaman (past simple).",
+  "I had a good day.": "Güzel bir gün geçirdim.",
+  "Today is day seven. It's your first week here!": "Bugün yedinci gün. Burada ilk haftan!",
+  "Wow! A whole week!": "Vay! Koca bir hafta!",
+  "Can you go to the shop, please? We need some milk.": "Dükkâna gidebilir misin, lütfen? Biraz süte ihtiyacımız var.",
+  "Thank you! Take your time.": "Teşekkürler! Acele etme.",
+  "I need a bottle of milk.": "Bir şişe süte ihtiyacım var.",
+  "Hello! What would you like today?": "Merhaba! Bugün ne istersin?",
+  "Can I have a bottle of milk, please?": "Bir şişe süt alabilir miyim, lütfen?",
+  "Here you are. That's one pound fifty.": "Buyurun. Bir pound elli.",
+  "Here you are. Thank you!": "Buyurun. Teşekkürler!",
+  "Have a nice evening!": "İyi akşamlar!",
+  "Thank you. Goodbye!": "Teşekkürler. Hoşça kal!",
+  "Come and sit with us.": "Gel, bizimle otur.",
+  "Did you know about the party?": "Partiden haberin var mıydı?",
+  "No, I didn't know about the party.": "Hayır, partiden haberim yoktu.",
+  "What did you do this week?": "Bu hafta ne yaptın?",
+  "I learned a lot of English.": "Çok İngilizce öğrendim.",
+  "What was your favourite day?": "En sevdiğin gün hangisiydi?",
+  "My favourite day was day four.": "En sevdiğim gün dördüncü gündü.",
+  "Why?": "Neden?",
+  "The lights went out and we lit candles.": "Işıklar söndü ve mum yaktık.",
+  "Here is a present for you.": "İşte sana bir hediye.",
+  "Thank you! What is it?": "Teşekkürler! Ne bu?",
+  "It's a photo album with our photos.": "Fotoğraflarımızın olduğu bir fotoğraf albümü.",
+  "I love it! Thank you for the party.": "Bayıldım! Parti için teşekkürler.",
+  "Let's take a photo together!": "Hadi birlikte bir fotoğraf çekelim!",
+  "It's late. Time for bed.": "Geç oldu. Yatma vakti.",
+  "It is very dark in here.": "Burası çok karanlık.",
+  "Hello? Where is everybody?": "Merhaba? Herkes nerede?",
+  "I am turning on the light.": "Işığı açıyorum.",
+  "Wow! A party for me?": "Vay! Benim için bir parti mi?",
+  "Yes! You finished your first week. Congratulations!": "Evet! İlk haftanı bitirdin. Tebrikler!",
+  "Look! These are our photos from this week.": "Bak! Bunlar bu haftaki fotoğraflarımız.",
+  "Went, bought, lit: we use the past simple for the past.": "Went, bought, lit: geçmiş için past simple kullanırız.",
+  "And there is a cake for you!": "Ve senin için bir pasta var!",
+  "Thank you! It looks delicious.": "Teşekkürler! Çok lezzetli görünüyor.",
+  "I learned will, going to and have to.": "will, going to ve have to öğrendim.",
+  "I went to the café and the shop.": "Kafeye ve dükkâna gittim.",
+  "I bought candles. Then the lights went out!": "Mum aldım. Sonra ışıklar söndü!",
+  "What did you do on day 1?": "1. günde ne yaptın?",
+  "What did you do on day 2?": "2. günde ne yaptın?",
+  "What did you do on day 3?": "3. günde ne yaptın?",
+  "What did you do on day 4?": "4. günde ne yaptın?",
+  "What did you do on day 5?": "5. günde ne yaptın?",
+  "What did you do on day 6?": "6. günde ne yaptın?"
+ }
+}
