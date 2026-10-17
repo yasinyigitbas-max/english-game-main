@@ -18,6 +18,7 @@ func _measure(tag: String, sc: Node, at: Vector3, yaw: float) -> void:
 	P("%s fps=%.1f draw_calls=%.0f primitives=%.0f" % [tag, n / ((Time.get_ticks_msec() - t0) / 1000.0), dc / n, pr / n])
 
 func _run() -> void:
+	var WB = load("res://scripts/world/world_blue.gd"); WB.disabled = true
 	var sc: Node = (load("res://scenes/world.tscn") as PackedScene).instantiate()
 	get_tree().root.add_child(sc); get_tree().current_scene = sc
 	for i in 60: await get_tree().process_frame
@@ -27,7 +28,10 @@ func _run() -> void:
 	var shc: Vector3 = (sc.regions["shop"] as AABB).get_center()
 	var spots := [["bedroom", s0, PI], ["street", fr + Vector3(0, 0, 4.0), PI], ["cafe_front", cf + Vector3(0, 0, -4.5), PI], ["in_shop", Vector3(shc.x, 0.07, shc.z), PI]]
 	for sp in spots: await _measure("before " + sp[0], sc, sp[1], sp[2])
-	var r: Dictionary = load("res://scripts/world/world_blue.gd").install(sc)
+	var t0 := Time.get_ticks_msec()
+	var r: Dictionary = WB.install(sc, {"force": true})
+	while not r.get("ready", false): await get_tree().process_frame
+	P("install took %d ms" % (Time.get_ticks_msec() - t0))
 	for i in 20: await get_tree().process_frame
 	P("merge %s" % [r.get("merge")])
 	P("installed culling=%s fronts=%s/%s walls=%d" % [r.culling.stats, r.get("front_cafe") != null, r.get("front_shop") != null, (r.wall_fade.wf._walls as Array).size()])

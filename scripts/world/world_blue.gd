@@ -13,24 +13,39 @@ const Places := preload("res://scripts/world/world_places.gd")
 const Merge := preload("res://scripts/world/world_merge.gd")
 const LOTS := {"cafe": "cafe", "corner_shop": "shop"}
 
+static var disabled := false   # tools/qa_ow/perf_ow.gd: measure the bare World first, then install(world, {"force": true})
+static var last := {}
+
+## sync part: the wall-fade manager (World / red's OwLink may use it at once); everything that needs the built places runs
+## a few frames later (the world-mode café / shop build in their deferred _world_init, World._late_places after that)
 static func install(world: Node, opts := {}) -> Dictionary:
+	if disabled and not bool(opts.get("force", false)): return {}
 	var out := {}
+	var wwf: Node = load("res://scripts/world/world_wall_fade.gd").new(); wwf.set("host", world); world.add_child(wwf); out.wall_fade = wwf
+	last = out
+	_late(world, opts, out)
+	return out
+
+static func _late(world: Node, opts: Dictionary, out: Dictionary) -> void:
+	for i in 3: await world.get_tree().process_frame
+	if not is_instance_valid(world): return
 	var doors = world.get("doors")
 	if doors is Dictionary:
 		for id in doors:
 			var lf = doors[id].get("leaf")
 			if lf is Node: (lf as Node).set_meta("no_fade", true); (lf as Node).add_to_group("doors")
-	var wwf: Node = load("res://scripts/world/world_wall_fade.gd").new(); wwf.set("host", world); world.add_child(wwf); out.wall_fade = wwf
 	var places = world.get("places")
 	if places is Dictionary:
 		for id in ["cafe", "shop"]:
-			if places.has(id): out["front_" + id] = Facades.build(places[id], id, wwf.wf)
+			if places.has(id): out["front_" + id] = Facades.build(places[id], id, out.wall_fade.wf)
 	_clear_lots(world)
-	if bool(opts.get("work", true)): out.places = Places.add_all(world)
+	if bool(opts.get("work", false)): out.places = Places.add_all(world)   # off: black's north strip has the work place
 	if bool(opts.get("merge", true)): out.merge = merge_all(world)
 	if bool(opts.get("culling", true)):
 		var wc: Node = load("res://scripts/world/world_culling.gd").new(); wc.set("host", world); world.add_child(wc); out.culling = wc
-	return out
+	if bool(opts.get("zones", true)):
+		var z: Node = load("res://scripts/world/world_zones.gd").new(); z.set("host", world); world.add_child(z); out.zones = z
+	out.ready = true
 
 ## the old street lot fronts under the new interiors: their Label3D sign and the building box (World._open_lot only hides
 ## a box narrower than 20 m: the corner shop's is wider, so its pale front showed instead of the green one)

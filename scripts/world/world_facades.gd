@@ -31,7 +31,9 @@ static func build(n: Node3D, id: String, wf: Node = null) -> Node3D:
 	var S: Dictionary = STYLE[id]
 	var rm: Vector2 = n.get("room") if n.get("room") is Vector2 else Vector2(10, 8)
 	var hx := rm.x / 2.0; var hz := rm.y / 2.0
-	var gap := 0.65                       # World._cut_place_door: 1.3 m opening
+	var wm := bool(n.get("world_mode"))  # blue world-mode place: its own door gap / lintel, and it fades its own walls
+	var gap := float(n.get("DOOR_GAP")) / 2.0 if wm and n.get("DOOR_GAP") != null else 0.65   # else World._cut_place_door: 1.3 m
+	var lin := 2.3 if wm else 2.2
 	var z := hz + 0.07 + 0.02             # just outside the 0.14 m front wall
 	var root := Node3D.new(); root.name = "OWFacade"; n.add_child(root)
 	var flat := Node3D.new(); flat.name = "OnWall"; root.add_child(flat)     # fades with the front wall
@@ -46,9 +48,9 @@ static func build(n: Node3D, id: String, wf: Node = null) -> Node3D:
 			_box(flat, Vector3(ww + 0.16, 1.46, 0.04), Vector3(cx, 1.45, z + 0.02), S.trim)   # window frame
 			_box(flat, Vector3(ww, 1.3, 0.05), Vector3(cx, 1.45, z + 0.03), GLASS)            # glass
 			_box(flat, Vector3(ww + 0.3, 0.08, 0.14), Vector3(cx, 0.72, z + 0.07), S.trim)    # sill
-	_box(flat, Vector3(gap * 2.0, 0.8, 0.03), Vector3(0, 2.6, z), S.wall)                    # over the door
-	for sx in [-1.0, 1.0]: _box(flat, Vector3(0.1, 2.25, 0.06), Vector3(sx * (gap + 0.05), 1.125, z + 0.02), S.trim)   # door frame
-	_box(flat, Vector3(gap * 2.0 + 0.2, 0.1, 0.06), Vector3(0, 2.25, z + 0.02), S.trim)
+	_box(flat, Vector3(gap * 2.0, 3.0 - lin, 0.03), Vector3(0, lin + (3.0 - lin) / 2.0, z), S.wall)   # over the door
+	for sx in [-1.0, 1.0]: _box(flat, Vector3(0.1, lin, 0.06), Vector3(sx * (gap + 0.05), lin / 2.0, z + 0.02), S.trim)   # door frame
+	_box(flat, Vector3(gap * 2.0 + 0.2, 0.1, 0.06), Vector3(0, lin + 0.05, z + 0.02), S.trim)
 	_box(flat, Vector3(rm.x + 0.1, 0.22, 0.18), Vector3(0, 3.0, z + 0.06), S.trim)          # cornice
 	# awning: 7 stripes, sloping down and out over the door + windows
 	var aw := minf(rm.x - 0.6, 6.0); var k := 7; var sw := aw / k
@@ -60,7 +62,10 @@ static func build(n: Node3D, id: String, wf: Node = null) -> Node3D:
 	var lb := Label3D.new(); lb.text = String(S.text); lb.font_size = 96; lb.pixel_size = 0.0032; lb.modulate = S.tc
 	lb.outline_size = 0; lb.position = Vector3(0, 2.78, z + 0.09); lb.visibility_range_end = 45.0; lb.shaded = false
 	hang.add_child(lb)
-	if wf and wf.has_method("register_occluder"):
+	if wm and n.get("walls") is Array:   # the place fades its own walls: the front parts join its front wall entries
+		for g in flat.get_children(): (n.walls as Array).append([g, Vector3(0, 0, 1)])
+		flat.set_meta("no_merge", true)
+	elif wf and wf.has_method("register_occluder"):
 		var key := "ow_front_" + id
 		for g in n.get_children():   # the front wall pieces (thin tall boxes at local z = hz), never the door leaf
 			if g is MeshInstance3D and (g as MeshInstance3D).visible and (g as MeshInstance3D).mesh is BoxMesh and absf((g as Node3D).position.z - hz) < 0.15:
