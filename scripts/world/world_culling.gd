@@ -57,14 +57,24 @@ func _interior(n: Node) -> bool:
 		p = p.get_parent()
 	return false
 
+func _under_body(n: Node) -> bool:
+	var p := n
+	while p and p != host:
+		if p is CharacterBody3D: return true
+		p = p.get_parent()
+	return false
+
 func _geo(g: GeometryInstance3D) -> void:
-	if not is_instance_valid(g) or g.has_meta("no_cull") or g.has_meta("wc_done"): return
+	if not is_instance_valid(g) or g.has_meta("no_cull") or g.has_meta("wc_done") or _under_body(g): return
 	if g.visibility_range_end > 0.0 and not tighten: return
 	if g is MeshInstance3D and (g as MeshInstance3D).mesh == null: return
 	g.set_meta("wc_done", true)
 	var ab: AABB = g.global_transform * g.get_aabb()
 	var big := maxf(ab.size.x, maxf(ab.size.y, ab.size.z))
 	var wall := ShoulderCam._is_wall(ab)
+	# sun shadows only from big things (shells, floors, big chunks) and the hero (never touched: CharacterBody3D subtree)
+	if ab.size.length() < 6.0 and not _under_body(g): g.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	if big < prop_size and not _interior(g) and not _under_body(g): g.layers = 1 << (WorldMerge.NO_LAMP_LAYER - 1)
 	var r0 := g.visibility_range_end
 	var r := 0.0; var mg := 2.0
 	if big < prop_size:
@@ -97,6 +107,7 @@ func _light(l: Light3D) -> void:
 			d.directional_shadow_max_distance = minf(d.directional_shadow_max_distance, sun_shadow)
 			d.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL   # one shadow pass instead of 2 splits
 		return
+	if l is OmniLight3D or l is SpotLight3D: l.light_cull_mask &= ~(1 << (WorldMerge.NO_LAMP_LAYER - 1))   # no lamp passes on street small chunks / props
 	if not l.distance_fade_enabled:
 		l.distance_fade_enabled = true; l.distance_fade_begin = light_range; l.distance_fade_length = 6.0
 		l.distance_fade_shadow = shadow_range; stats.lights += 1

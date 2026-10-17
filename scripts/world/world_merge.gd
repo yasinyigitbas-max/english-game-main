@@ -122,6 +122,8 @@ static func _append(buckets: Dictionary, mesh: Mesh, mats: Array, xf: Transform3
 ## small things (diagonal < SMALL) are chunked by an XZ grid of CELL m and get range_end; big things (floors, roads, shells)
 ## go into one chunk per root without a range (they are the skyline)
 const SMALL := 6.0
+## render layer 2: lamps (omni / spot, WorldCulling clears it from their cull_mask) skip these; the sun lights all layers
+const NO_LAMP_LAYER := 2
 const CELL := 14.0
 ## script-held nodes (room furniture in N / OBJ ...) are merged as their OWN roots: the merged mesh is their child, so a
 ## script moving / hiding / swapping that node still moves / hides it (only their own unreferenced static children merge)
@@ -215,6 +217,7 @@ static func merge_root(root: Node3D, range_end := 0.0, range_margin := 4.0, prot
 		if cell != "big":
 			if range_end > 0.0: out.visibility_range_end = range_end; out.visibility_range_end_margin = range_margin
 			out.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF   # small things: no sun-shadow pass (draw calls)
+			if not _indoor(root): out.layers = NO_LAMP_LAYER   # street small chunks: lit by the sun only (no lamp passes)
 		root.add_child(out); made += 1
 		if fade_group: _join_fade(root, out)
 	if made == 0: return st
@@ -229,3 +232,35 @@ static func _join_fade(group: Node, mi: MeshInstance3D) -> void:
 	if m == null or m.get("_walls") == null: return
 	for e in m._walls:
 		if e.node == group: (e.meshes as Array).append(mi)
+
+static func _indoor(n: Node) -> bool:
+	var p := n
+	while p:
+		if p.is_in_group("world_places") or String(p.name).begins_with("Place_") or p.has_meta("SHELL"): return true
+		p = p.get_parent()
+	return false
+
+## diagnostics (tools/qa_ow/perf_ow.gd): why a visible mesh under root was not merged
+static func explain(gi: GeometryInstance3D, root: Node, prot: Dictionary) -> String:
+	if gi.has_meta("ow_merged_mesh"): return "merged"
+	var p: Node = gi
+	while p and p != root:
+		if prot.has(p) and p != gi: return "under_script_ref:" + String(p.name)
+		if p != gi and _skip_node(p): return "under_skip:" + p.get_class() + ":" + String(p.name)
+		for cc in p.get_children(): if cc is AnimationPlayer and p != gi: return "under_anim:" + String(p.name)
+		p = p.get_parent()
+	if prot.has(gi): return "script_ref"
+	if _skip_node(gi): return "skip_node"
+	if gi.visibility_range_begin > 0.0 or gi.material_overlay != null or gi.transparency > 0.0: return "range_begin/overlay/transp"
+	if gi is MeshInstance3D:
+		var m := gi as MeshInstance3D
+		if m.mesh == null: return "no_mesh"
+		if m.skin != null: return "skin"
+		if m.mesh is BoxMesh and ShoulderCam._is_wall(m.global_transform * m.get_aabb()): return "wall"
+		for s in m.mesh.get_surface_count():
+			var mt: Material = m.material_override
+			if mt == null: mt = m.get_surface_override_material(s)
+			if mt == null: mt = m.mesh.surface_get_material(s)
+			if not _opaque_ok(mt): return "material:" + (mt.get_class() if mt else "null") + (":transp" if mt is BaseMaterial3D and (mt as BaseMaterial3D).transparency != 0 else "") + (":emis" if mt is BaseMaterial3D and (mt as BaseMaterial3D).emission_enabled else "")
+	elif not (gi is MultiMeshInstance3D): return "type:" + gi.get_class()
+	return "eligible(late/added after merge?)"

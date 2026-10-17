@@ -42,6 +42,43 @@ func _breakdown(tag: String) -> void:
 	for k in ks.slice(0, 12): s.append("%s=%d" % [k, cnt[k]])
 	P("%s top: %s" % [tag, ", ".join(s)])
 
+## live view: the game's own camera (ShoulderCam on the live room / World rig) with the hero at the spot
+func _measure_live(tag: String, sc: Node, at: Vector3, yaw: float) -> void:
+	if tcam: tcam.current = false
+	if sc.cam: sc.cam.current = true
+	var hero = sc.player
+	if hero: hero.global_position = at; hero.face(yaw)
+	var sh = get_tree().root.get_node_or_null("ShoulderCam")
+	if sh: sh.snap()
+	for i in 30: await get_tree().process_frame
+	var n := 0; var dc := 0.0; var pr := 0.0
+	var t0 := Time.get_ticks_msec()
+	while Time.get_ticks_msec() - t0 < 1200:
+		await get_tree().process_frame
+		n += 1; dc += Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME); pr += Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)
+	var vc := get_viewport().get_camera_3d()
+	P("%s fps=%.1f draw_calls=%.0f primitives=%.0f cam=%s" % [tag, n / ((Time.get_ticks_msec() - t0) / 1000.0), dc / n, pr / n, vc.get_path() if vc else "none"])
+
+## the unmerged visible meshes of the house rooms (why they stayed)
+func _unmerged(sc: Node) -> void:
+	var M = load("res://scripts/world/world_merge.gd")
+	for id in ["bathroom", "livingroom", "bedroom", "cafe", "shop"]:
+		var r: Node = sc.places.get(id)
+		if r == null: continue
+		var prot: Dictionary = M._protected(r)
+		var why := {}; var ex := {}
+		for g in r.find_children("*", "GeometryInstance3D", true, false):
+			var gi := g as GeometryInstance3D
+			if not gi.is_visible_in_tree() or gi.has_meta("ow_merged_mesh"): continue
+			var k: String = M.explain(gi, r, prot)
+			if k.begins_with("under_script_ref:") or k.begins_with("under_skip:") or k.begins_with("under_anim:"): k = k.substr(0, 60)
+			var srf := 1
+			if gi is MeshInstance3D and (gi as MeshInstance3D).mesh: srf = (gi as MeshInstance3D).mesh.get_surface_count()
+			why[k] = int(why.get(k, 0)) + srf
+			if not ex.has(k): ex[k] = "%s(%s)" % [str(r.get_path_to(gi)).substr(0, 70), gi.get_class()]
+		var ks := why.keys(); ks.sort_custom(func(a, b): return why[a] > why[b])
+		for k in ks.slice(0, 10): P("unmerged %s %s=%d e.g. %s" % [id, k, why[k], ex[k]])
+
 func _run() -> void:
 	var WB = load("res://scripts/world/world_blue.gd"); WB.disabled = true
 	var sc: Node = (load("res://scenes/world.tscn") as PackedScene).instantiate()
@@ -53,14 +90,17 @@ func _run() -> void:
 	var shc: Vector3 = (sc.regions["shop"] as AABB).get_center()
 	var spots := [["bedroom", s0, PI], ["street", fr + Vector3(0, 0, 4.0), PI], ["cafe_front", cf + Vector3(0, 0, -4.5), PI], ["in_shop", Vector3(shc.x, 0.07, shc.z), PI]]
 	for sp in spots: await _measure("before " + sp[0], sc, sp[1], sp[2])
+	for sp in spots: await _measure_live("live-before " + sp[0], sc, sp[1], sp[2])
 	var t0 := Time.get_ticks_msec()
-	var r: Dictionary = WB.install(sc, {"force": true})
+	var r: Dictionary = WB.install(sc, {"force": true, "culling": false})
 	while not r.get("ready", false): await get_tree().process_frame
 	P("install took %d ms" % (Time.get_ticks_msec() - t0))
 	for i in 20: await get_tree().process_frame
 	P("merge %s" % [r.get("merge")])
-	P("installed culling=%s fronts=%s/%s walls=%d" % [r.culling.stats, r.get("front_cafe") != null, r.get("front_shop") != null, (r.wall_fade.wf._walls as Array).size()])
+	P("installed fronts=%s/%s walls=%d" % [ r.get("front_cafe") != null, r.get("front_shop") != null, (r.wall_fade.wf._walls as Array).size()])
 	for sp in spots: await _measure("after  " + sp[0], sc, sp[1], sp[2])
+	_unmerged(sc)
+	for sp in spots: await _measure_live("live   " + sp[0], sc, sp[1], sp[2])
 	DirAccess.make_dir_recursive_absolute("/workspace/blue_ow_shots")
 	for k in [["cafe", cf], ["shop", W.spot("shop")]]:
 		sc.player.global_position = k[1] + Vector3(0, 0, -5.0); sc.player.face(0.0)

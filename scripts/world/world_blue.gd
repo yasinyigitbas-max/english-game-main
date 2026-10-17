@@ -12,6 +12,7 @@ const Facades := preload("res://scripts/world/world_facades.gd")
 const Places := preload("res://scripts/world/world_places.gd")
 const Merge := preload("res://scripts/world/world_merge.gd")
 const LOTS := {"cafe": "cafe", "corner_shop": "shop"}
+const CHUNK_RANGE := 30.0   # merged small-thing chunks (World build 3: far 35 m + fog, ~28 m ranges)
 
 static var disabled := false   # tools/qa_ow/perf_ow.gd: measure the bare World first, then install(world, {"force": true})
 static var last := {}
@@ -39,11 +40,11 @@ static func _late(world: Node, opts: Dictionary, out: Dictionary) -> void:
 		for id in ["cafe", "shop"]:
 			if places.has(id): out["front_" + id] = Facades.build(places[id], id, out.wall_fade.wf)
 	_clear_lots(world)
-	if bool(opts.get("work", false)): out.places = Places.add_all(world)   # off: black's north strip has the work place
+	if bool(opts.get("work", true)): out.places = Places.add_all(world)   # the ONE work / school place (World.RESERVED.work)
 	if bool(opts.get("merge", true)): out.merge = merge_all(world)
 	if bool(opts.get("culling", true)):
 		var wc: Node = load("res://scripts/world/world_culling.gd").new(); wc.set("host", world); world.add_child(wc); out.culling = wc
-	if bool(opts.get("zones", true)):
+	if bool(opts.get("zones", false)):   # off: World (build 3) shows only the current room + rooms seen through open doors
 		var z: Node = load("res://scripts/world/world_zones.gd").new(); z.set("host", world); world.add_child(z); out.zones = z
 	out.ready = true
 
@@ -64,18 +65,18 @@ static func _clear_lots(world: Node) -> void:
 				(m as MeshInstance3D).visible = false; m.remove_from_group("fade"); m.set_meta("ow_removed", true)
 
 ## one merged mesh per street block (WorldGrid.loaded; later-streamed blocks too), per room / place, and for other
-## direct children (fences, ...). Small things: 40 m range in rooms / places, 60 m on the street (14 m cells); big things none.
+## direct children (fences, ...). Small things: CHUNK_RANGE (30 m) in 14 m cells; big things none (the 35 m far plane cuts them).
 static func merge_all(world: Node) -> Dictionary:
 	var tot := {"roots": 0, "meshes": 0, "surfaces_in": 0, "surfaces_out": 0}
 	var roots: Array = []
 	var grid = world.get("grid")
 	if grid and grid.get("loaded") is Dictionary:
-		for c in grid.loaded: roots.append([grid.loaded[c], 60.0])
+		for c in grid.loaded: roots.append([grid.loaded[c], CHUNK_RANGE])
 		if grid.has_signal("block_loaded"):
-			grid.block_loaded.connect(func(_c, b): (func(): Merge.merge_root(b, 60.0)).call_deferred())
+			grid.block_loaded.connect(func(_c, b): (func(): Merge.merge_tree(b, CHUNK_RANGE)).call_deferred())
 	var places = world.get("places")
 	if places is Dictionary:
-		for id in places: roots.append([places[id], 40.0])
+		for id in places: roots.append([places[id], CHUNK_RANGE])
 	for c in world.get_children():
 		if c is Node3D and c != grid and not (places is Dictionary and c in (places as Dictionary).values()) and not (c is CharacterBody3D) and c.get_script() == null:
 			roots.append([c, 0.0])
