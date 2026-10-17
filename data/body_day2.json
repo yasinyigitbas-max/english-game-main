@@ -1,0 +1,329 @@
+{
+ "label": "Body and can / should",
+ "quiz_after": true,
+ "grammar_ref": "res://data/grammar.json#can,should",
+ "lesson": [
+  {
+   "title": "My body",
+   "title_tr": "My body (vücudum)",
+   "tr": "Vücudum",
+   "rows": [
+    [
+     "head",
+     "baş"
+    ],
+    [
+     "neck",
+     "boyun"
+    ],
+    [
+     "shoulders",
+     "omuzlar"
+    ],
+    [
+     "back",
+     "sırt"
+    ],
+    [
+     "stomach",
+     "karın / mide"
+    ],
+    [
+     "hands, fingers",
+     "eller, parmaklar"
+    ],
+    [
+     "knees",
+     "dizler"
+    ],
+    [
+     "feet",
+     "ayaklar"
+    ],
+    [
+     "nose, mouth, teeth",
+     "burun, ağız, dişler"
+    ]
+   ],
+   "say": [
+    "head",
+    "neck",
+    "shoulders",
+    "back",
+    "stomach",
+    "hands, fingers",
+    "knees",
+    "feet",
+    "nose, mouth, teeth"
+   ]
+  },
+  {
+   "title": "can / should",
+   "title_tr": "can (-ebilmek) / should (-meli)",
+   "tr": "can = -ebilmek, should = -meli",
+   "rows": [
+    [
+     "We can hear with our ears.",
+     "Kulaklarımızla duyabiliriz."
+    ],
+    [
+     "We can smell with our nose.",
+     "Burnumuzla koklayabiliriz."
+    ],
+    [
+     "We should wash our hands.",
+     "Ellerimizi yıkamalıyız."
+    ],
+    [
+     "We should brush our teeth every day.",
+     "Her gün dişlerimizi fırçalamalıyız."
+    ],
+    [
+     "We shouldn't eat with our feet.",
+     "Ayaklarımızla yememeliyiz."
+    ]
+   ],
+   "say": [
+    "We can hear with our ears.",
+    "We can smell with our nose.",
+    "We should wash our hands.",
+    "We should brush our teeth every day.",
+    "We shouldn't eat with our feet."
+   ]
+  }
+ ],
+ "quiz": [
+  {
+   "q": "We can hear with our ears.",
+   "opts": [
+    "True",
+    "False"
+   ],
+   "a": 0,
+   "say": "We can hear with our ears."
+  },
+  {
+   "q": "We can hear with our eyes.",
+   "opts": [
+    "True",
+    "False"
+   ],
+   "a": 1,
+   "say": "We cannot hear with our eyes."
+  },
+  {
+   "q": "We should wash our hands.",
+   "opts": [
+    "True",
+    "False"
+   ],
+   "a": 0,
+   "say": "We should wash our hands."
+  },
+  {
+   "q": "We should eat with our feet.",
+   "opts": [
+    "True",
+    "False"
+   ],
+   "a": 1,
+   "say": "We should not eat with our feet."
+  },
+  {
+   "q": "We can smell with our ___.",
+   "opts": [
+    "nose",
+    "knee",
+    "back"
+   ],
+   "a": 0,
+   "say": "We can smell with our nose."
+  },
+  {
+   "q": "We should ___ our teeth every day.",
+   "opts": [
+    "brush",
+    "eat",
+    "hear"
+   ],
+   "a": 0,
+   "say": "We should brush our teeth every day."
+  },
+  {
+   "q": "We can see with our ___.",
+   "opts": [
+    "eyes",
+    "ears",
+    "feet"
+   ],
+   "a": 0,
+   "say": "We can see with our eyes."
+  },
+  {
+   "q": "We ___ walk with our feet.",
+   "opts": [
+    "can",
+    "can't",
+    "should not"
+   ],
+   "a": 0,
+   "say": "We can walk with our feet."
+  }
+ ],
+ "quiz_b": [
+  {
+   "q": "We should brush our teeth every day.",
+   "opts": [
+    "True",
+    "False"
+   ],
+   "a": 0,
+   "say": "We should brush our teeth every day."
+  },
+  {
+   "q": "We can smell with our nose.",
+   "opts": [
+    "True",
+    "False"
+   ],
+   "a": 0,
+   "say": "We can smell with our nose."
+  },
+  {
+   "q": "We can see with our knees.",
+   "opts": [
+    "True",
+    "False"
+   ],
+   "a": 1,
+   "say": "We cannot see with our knees."
+  },
+  {
+   "q": "We should eat with our feet.",
+   "opts": [
+    "True",
+    "False"
+   ],
+   "a": 1,
+   "say": "We should not eat with our feet."
+  },
+  {
+   "q": "We can hear with our ___.",
+   "opts": [
+    "ears",
+    "teeth",
+    "hands"
+   ],
+   "a": 0,
+   "say": "We can hear with our ears."
+  },
+  {
+   "q": "We should ___ our hands before we eat.",
+   "opts": [
+    "wash",
+    "smell",
+    "walk"
+   ],
+   "a": 0,
+   "say": "We should wash our hands before we eat."
+  },
+  {
+   "q": "We can write with our ___.",
+   "opts": [
+    "fingers",
+    "shoulders",
+    "nose"
+   ],
+   "a": 0,
+   "say": "We can write with our fingers."
+  },
+  {
+   "q": "My back hurts. I ___ rest.",
+   "opts": [
+    "should",
+    "can't",
+    "shouldn't"
+   ],
+   "a": 0,
+   "say": "My back hurts. I should rest."
+  }
+ ],
+ "quiz_c": [
+  {
+   "q": "We can hear with our eyes.",
+   "opts": [
+    "True",
+    "False"
+   ],
+   "a": 1,
+   "say": "We cannot hear with our eyes."
+  },
+  {
+   "q": "We should wash our hands.",
+   "opts": [
+    "True",
+    "False"
+   ],
+   "a": 0,
+   "say": "We should wash our hands."
+  },
+  {
+   "q": "We can walk with our feet.",
+   "opts": [
+    "True",
+    "False"
+   ],
+   "a": 0,
+   "say": "We can walk with our feet."
+  },
+  {
+   "q": "We should sleep on our head.",
+   "opts": [
+    "True",
+    "False"
+   ],
+   "a": 1,
+   "say": "We should not sleep on our head."
+  },
+  {
+   "q": "We can eat with our ___.",
+   "opts": [
+    "mouth",
+    "ears",
+    "back"
+   ],
+   "a": 0,
+   "say": "We can eat with our mouth."
+  },
+  {
+   "q": "We can smell with our ___.",
+   "opts": [
+    "nose",
+    "feet",
+    "neck"
+   ],
+   "a": 0,
+   "say": "We can smell with our nose."
+  },
+  {
+   "q": "We should ___ our teeth every day.",
+   "opts": [
+    "brush",
+    "hear",
+    "carry"
+   ],
+   "a": 0,
+   "say": "We should brush our teeth every day."
+  },
+  {
+   "q": "We ___ eat with our feet.",
+   "opts": [
+    "shouldn't",
+    "should",
+    "can"
+   ],
+   "a": 0,
+   "say": "We shouldn't eat with our feet."
+  }
+ ]
+}

@@ -1,0 +1,144 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://7bb8ql5ku7p" path="res://scripts/world/city_block.gd" id="1"]
+[ext_resource type="Script" uid="uid://deiijjbors2dw" path="res://scripts/world/lot.gd" id="2"]
+[ext_resource type="Script" uid="uid://cpfff1t3w2wkq" path="res://scripts/world/street_object.gd" id="3"]
+[ext_resource type="Script" uid="uid://bhp4hv5iut72d" path="res://scripts/world/npc_spot.gd" id="4"]
+
+[node name="BlockShops" type="Node3D" unique_id=463314686]
+script = ExtResource("1")
+block_name = "Market Square"
+
+[node name="CornerShop" type="Node3D" parent="." unique_id=1004005685]
+transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, -3, 0, -7.5)
+script = ExtResource("2")
+lot_id = "corner_shop"
+kind = "shop"
+size = Vector2(10, 8)
+body_color = Color(0.93, 0.81, 0.62, 1)
+roof_color = Color(0.83, 0.36, 0.3, 1)
+accent_color = Color(0.54, 0.7, 0.63, 1)
+path_length = 2
+interior_scene = "res://scenes/places/shop.tscn"
+display_name = "SHOP"
+display_name_tr = "dükkân"
+shop_id = "corner_shop"
+
+[node name="Cafe" type="Node3D" parent="." unique_id=1214853083]
+transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, 8.5, 0, -8)
+script = ExtResource("2")
+lot_id = "cafe"
+kind = "shop"
+size = Vector2(7, 7)
+body_color = Color(0.54, 0.7, 0.63, 1)
+roof_color = Color(0.36, 0.52, 0.76, 1)
+accent_color = Color(0.72, 0.56, 0.4, 1)
+path_length = 2
+interior_scene = "res://scenes/places/cafe.tscn"
+display_name = "CAFE"
+display_name_tr = "kafe"
+shop_id = "cafe"
+
+[node name="House1" type="Node3D" parent="." unique_id=1814721487]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 0, 6)
+script = ExtResource("2")
+lot_id = "house_s1"
+body_color = Color(0.95, 0.93, 0.9, 1)
+roof_color = Color(0.83, 0.36, 0.3, 1)
+accent_color = Color(0.36, 0.52, 0.76, 1)
+
+[node name="House2" type="Node3D" parent="." unique_id=2058713795]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 0, 6)
+script = ExtResource("2")
+lot_id = "house_s2"
+body_color = Color(0.93, 0.81, 0.62, 1)
+roof_color = Color(0.25, 0.25, 0.28, 1)
+accent_color = Color(0.83, 0.36, 0.3, 1)
+
+[node name="ShopDoor" type="Node3D" parent="." unique_id=1823808778]
+transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, -3, 0.07, -11.6)
+script = ExtResource("3")
+kind = "shop_door"
+shop_id = "corner_shop"
+color = Color(0.54, 0.7, 0.63, 1)
+
+[node name="CafeMenu" type="Node3D" parent="." unique_id=2021089167]
+transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, 8.5, 0.07, -12.9)
+script = ExtResource("3")
+kind = "cafe"
+
+[node name="Shopkeeper" type="Node3D" parent="." unique_id=1618479923]
+transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, -6.4, 0.07, -12.3)
+script = ExtResource("4")
+line = "Good morning! I am selling fruit."
+look_seed = 21
+
+[node name="CafeCustomer" type="Node3D" parent="." unique_id=1288293617]
+transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, 5.7, 0.07, -12.3)
+script = ExtResource("4")
+anim = "sit_idle"
+line = "Hello! I am drinking coffee."
+look_seed = 23
+
+[node name="CafeCustomer2" type="Node3D" parent="." unique_id=1153357474]
+transform = Transform3D(6.12323e-17, 0, -1, 0, 1, 0, 1, 0, 6.12323e-17, 11.2, 0.07, -12.3)
+script = ExtResource("4")
+anim = "sit_idle"
+line = "Good morning! I am eating a sandwich."
+look_seed = 24
+
+[node name="ShopBrowser" type="Node3D" parent="." unique_id=263567333]
+transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, -1.2, 0.07, -12.6)
+script = ExtResource("4")
+line = "Hi! I am looking at the apples."
+look_seed = 26
+
+[node name="ShopBrowser2" type="Node3D" parent="." unique_id=916000652]
+transform = Transform3D(-0.809017, 0, 0.587785, 0, 1, 0, -0.587785, 0, -0.809017, -4.6, 0.07, -13)
+script = ExtResource("4")
+line = "Hello! I am going to the shop."
+look_seed = 27
+
+[node name="Walker" type="Node3D" parent="." unique_id=2089573982]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+script = ExtResource("4")
+mode = "walk"
+line = "Hi! I am walking to the park."
+loop_inset = 14.75
+look_seed = 25
+
+[node name="Crowd0" type="Node3D" parent="." unique_id=2034816990]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+script = ExtResource("4")
+mode = "walk"
+line = "Hi! I am walking to the park."
+loop_inset = 14.2
+look_seed = 11
+loop_phase = 0.13
+
+[node name="Crowd1" type="Node3D" parent="." unique_id=182079382]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+script = ExtResource("4")
+mode = "walk"
+line = "Hello! I am going home."
+loop_inset = 15.3
+look_seed = 18
+loop_phase = 0.4
+
+[node name="Crowd2" type="Node3D" parent="." unique_id=261140386]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+script = ExtResource("4")
+mode = "walk"
+line = "Hi! I am going to school."
+loop_inset = 14.2
+look_seed = 25
+loop_phase = 0.67
+
+[node name="Crowd3" type="Node3D" parent="." unique_id=90933379]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+script = ExtResource("4")
+mode = "walk"
+line = "Hi! I am going to work."
+loop_inset = 15.3
+look_seed = 32
+loop_phase = 0.94

@@ -1,0 +1,118 @@
+"""v31: day-2 work routines -> data/work.json. One routine per job category: setting, people, 4 tasks.
+Task: [chip EN, chip TR, my line EN, my line TR, anim, npc index or -1, npc line EN, npc line TR, spot index]
+Lines are A1, present continuous for actions + a short exchange. Voices: tools/build_voice_work.py"""
+import json
+C = {}
+def cat(cid, label, label_tr, setting, jobs, people, tasks, end, end_tr):
+    C[cid] = {"label": label, "label_tr": label_tr, "setting": setting, "jobs": jobs, "people": people, "tasks": tasks, "end": end, "end_tr": end_tr}
+# people: [gender, child, voice, x, z, anim]
+cat("teach", "Go to school", "Okula git", "classroom", ["teacher", "lecturer", "nursery teacher"],
+    [["men", True, "child_m", -1.0, 0.6, "sit_idle"], ["women", True, "child_f", 0.0, 0.6, "sit_idle"], ["men", True, "child_m", 1.0, 0.6, "sit_idle"]],
+    [["Say hello", "Merhaba de", "Good morning, class!", "Günaydın, sınıf!", "wave", 1, "Good morning, teacher!", "Günaydın, öğretmenim!", 0],
+     ["Write on the board", "Tahtaya yaz", "I am writing on the board.", "Tahtaya yazıyorum.", "typing", -1, "", "", 1],
+     ["Ask a question", "Bir soru sor", "What colour is the sky?", "Gökyüzü ne renk?", "talk", 0, "It is blue!", "Mavi!", 0],
+     ["Check the homework", "Ödevi kontrol et", "I am checking the homework. Well done!", "Ödevi kontrol ediyorum. Aferin!", "pick_up", 2, "Thank you!", "Teşekkürler!", 2]],
+    "The lesson is over. See you tomorrow, class!", "Ders bitti. Yarın görüşürüz, sınıf!")
+cat("study", "Go to school", "Okula git", "classroom_student", ["student", "schoolchild"],
+    [["women", False, "amy", 0.0, -1.3, "idle"], ["men", True, "child_m", -1.0, 0.6, "sit_idle"]],
+    [["Say hello", "Merhaba de", "Good morning, teacher!", "Günaydın, öğretmenim!", "wave", 0, "Good morning! Sit down, please.", "Günaydın! Lütfen otur.", 0],
+     ["Open your book", "Kitabını aç", "I am opening my book.", "Kitabımı açıyorum.", "pick_up", 0, "Read page ten, please.", "Lütfen onuncu sayfayı oku.", 0],
+     ["Answer the question", "Soruyu cevapla", "Two and two is four.", "İki artı iki dört eder.", "talk", 0, "Very good!", "Çok iyi!", 0],
+     ["Write in your notebook", "Defterine yaz", "I am writing in my notebook.", "Defterime yazıyorum.", "typing", -1, "", "", 0]],
+    "School is over. Time to go home.", "Okul bitti. Eve gitme zamanı.")
+cat("health", "Go to work", "İşe git", "clinic", ["doctor", "nurse", "paramedic", "dentist", "pharmacist", "vet", "care worker", "babysitter"],
+    [["men", False, "ryan", 0.9, 0.2, "sit_idle"]],
+    [["Say hello", "Merhaba de", "Hello! How are you today?", "Merhaba! Bugün nasılsınız?", "wave", 0, "I have got a headache.", "Başım ağrıyor.", 0],
+     ["Check the patient", "Hastayı kontrol et", "I am checking the patient.", "Hastayı kontrol ediyorum.", "pick_up", -1, "", "", 0],
+     ["Give advice", "Tavsiye ver", "You should drink water and rest.", "Su içmeli ve dinlenmelisiniz.", "talk", 0, "Thank you very much!", "Çok teşekkür ederim!", 0],
+     ["Write a note", "Not yaz", "I am writing a note on the computer.", "Bilgisayara not yazıyorum.", "typing", -1, "", "", 1]],
+    "My work is over. Time to go home.", "İşim bitti. Eve gitme zamanı.")
+cat("food", "Go to work", "İşe git", "kitchen", ["cook", "chef", "baker", "butcher", "waiter", "barista"],
+    [["women", False, "amy", 1.4, 0.9, "idle"]],
+    [["Say hello", "Merhaba de", "Good morning! What would you like?", "Günaydın! Ne istersiniz?", "wave", 0, "A coffee and a sandwich, please.", "Bir kahve ve bir sandviç, lütfen.", 0],
+     ["Make the food", "Yemeği hazırla", "I am making a sandwich.", "Sandviç hazırlıyorum.", "pick_up", -1, "", "", 1],
+     ["Make the coffee", "Kahveyi yap", "I am making a coffee.", "Kahve yapıyorum.", "typing", -1, "", "", 2],
+     ["Serve the customer", "Müşteriye servis yap", "Here you are. Enjoy your meal!", "Buyurun. Afiyet olsun!", "talk", 0, "Thank you! It looks great.", "Teşekkürler! Harika görünüyor.", 0]],
+    "My work is over. Time to go home.", "İşim bitti. Eve gitme zamanı.")
+cat("shop", "Go to work", "İşe git", "shop", ["shop assistant", "cashier", "market seller", "florist", "bookseller"],
+    [["men", False, "ryan", 1.2, 0.9, "idle"]],
+    [["Open the shop", "Dükkanı aç", "I am opening the shop.", "Dükkanı açıyorum.", "open_door", -1, "", "", 2],
+     ["Put things on the shelf", "Ürünleri rafa koy", "I am putting things on the shelf.", "Ürünleri rafa koyuyorum.", "pick_up", -1, "", "", 1],
+     ["Help the customer", "Müşteriye yardım et", "Hello! Can I help you?", "Merhaba! Yardım edebilir miyim?", "wave", 0, "Yes, please. How much is this?", "Evet, lütfen. Bu ne kadar?", 0],
+     ["Take the money", "Parayı al", "It is five pounds. Thank you!", "Beş pound. Teşekkürler!", "talk", 0, "Here you are. Goodbye!", "Buyurun. Hoşça kalın!", 0]],
+    "My work is over. Time to go home.", "İşim bitti. Eve gitme zamanı.")
+cat("office", "Go to work", "İşe git", "office", ["office worker", "secretary", "receptionist", "manager", "accountant", "bank clerk", "lawyer", "librarian", "writer", "journalist"],
+    [["women", False, "hfc_female", 1.3, -0.4, "idle"]],
+    [["Say hello", "Merhaba de", "Good morning! How are you?", "Günaydın! Nasılsın?", "wave", 0, "I am fine, thanks. We have a meeting at ten.", "İyiyim, teşekkürler. Saat onda toplantımız var.", 0],
+     ["Read the emails", "E-postaları oku", "I am reading my emails.", "E-postalarımı okuyorum.", "typing", -1, "", "", 1],
+     ["Make a phone call", "Telefon et", "Hello, this is the office. Can I help you?", "Merhaba, burası ofis. Yardım edebilir miyim?", "phone_call", -1, "", "", 1],
+     ["Go to the meeting", "Toplantıya git", "I am in the meeting. I am listening.", "Toplantıdayım. Dinliyorum.", "talk", 0, "Good work, everyone!", "Herkese iyi iş!", 0]],
+    "My work is over. Time to go home.", "İşim bitti. Eve gitme zamanı.")
+cat("tech", "Go to work", "İşe git", "office", ["software developer", "web designer", "IT technician", "engineer", "scientist"],
+    [["men", False, "hfc_male", 1.3, -0.4, "idle"]],
+    [["Say hello", "Merhaba de", "Good morning! What is our job today?", "Günaydın! Bugün işimiz ne?", "wave", 0, "We have to fix a problem.", "Bir sorunu çözmemiz gerekiyor.", 0],
+     ["Turn on the computer", "Bilgisayarı aç", "I am turning on my computer.", "Bilgisayarımı açıyorum.", "pick_up", -1, "", "", 1],
+     ["Work on the computer", "Bilgisayarda çalış", "I am working on the computer.", "Bilgisayarda çalışıyorum.", "typing", -1, "", "", 1],
+     ["Show your work", "İşini göster", "Look! It works now.", "Bak! Şimdi çalışıyor.", "talk", 0, "Great job!", "Harika iş!", 0]],
+    "My work is over. Time to go home.", "İşim bitti. Eve gitme zamanı.")
+cat("build", "Go to work", "İşe git", "workshop", ["builder", "carpenter", "painter", "electrician", "plumber", "mechanic", "cleaner"],
+    [["men", False, "joe", 1.3, 0.6, "idle"]],
+    [["Say hello", "Merhaba de", "Good morning! What is the job today?", "Günaydın! Bugünkü iş ne?", "wave", 0, "The door is broken. Can you fix it?", "Kapı bozuk. Tamir edebilir misin?", 0],
+     ["Get your tools", "Aletlerini al", "I am getting my tools.", "Aletlerimi alıyorum.", "pick_up", -1, "", "", 1],
+     ["Do the work", "İşi yap", "I am fixing the door.", "Kapıyı tamir ediyorum.", "crouch_idle", -1, "", "", 2],
+     ["Finish the job", "İşi bitir", "It is finished. The door is fine now.", "Bitti. Kapı artık sağlam.", "talk", 0, "Thank you! You are very good.", "Teşekkürler! Çok iyisin.", 0]],
+    "My work is over. Time to go home.", "İşim bitti. Eve gitme zamanı.")
+cat("transport", "Go to work", "İşe git", "station", ["bus driver", "taxi driver", "delivery driver", "pilot", "flight attendant", "train driver"],
+    [["women", False, "kristin", 1.2, 0.8, "idle"]],
+    [["Check the vehicle", "Aracı kontrol et", "I am checking the vehicle.", "Aracı kontrol ediyorum.", "crouch_idle", -1, "", "", 1],
+     ["Say hello", "Merhaba de", "Good morning! Where are you going?", "Günaydın! Nereye gidiyorsunuz?", "wave", 0, "To the city centre, please.", "Şehir merkezine, lütfen.", 0],
+     ["Start the trip", "Yolculuğa başla", "I am driving carefully.", "Dikkatli sürüyorum.", "sit_idle", -1, "", "", 2],
+     ["Say goodbye", "Hoşça kal de", "Here we are. Have a nice day!", "Geldik. İyi günler!", "talk", 0, "Thank you. Bye!", "Teşekkürler. Hoşça kal!", 0]],
+    "My work is over. Time to go home.", "İşim bitti. Eve gitme zamanı.")
+cat("safety", "Go to work", "İşe git", "station", ["police officer", "firefighter", "soldier", "security guard", "lifeguard"],
+    [["men", False, "ryan", 1.2, 0.8, "idle"]],
+    [["Say hello", "Merhaba de", "Good morning, team!", "Günaydın, ekip!", "wave", 0, "Good morning! Let's start.", "Günaydın! Hadi başlayalım.", 0],
+     ["Check your things", "Eşyalarını kontrol et", "I am checking my things.", "Eşyalarımı kontrol ediyorum.", "pick_up", -1, "", "", 1],
+     ["Watch the area", "Bölgeyi izle", "I am watching the area. Everything is fine.", "Bölgeyi izliyorum. Her şey yolunda.", "idle", -1, "", "", 2],
+     ["Help a person", "Birine yardım et", "Are you OK? Can I help you?", "İyi misiniz? Yardım edebilir miyim?", "talk", 0, "Yes, thank you. I am fine now.", "Evet, teşekkürler. Şimdi iyiyim.", 0]],
+    "My work is over. Time to go home.", "İşim bitti. Eve gitme zamanı.")
+cat("arts", "Go to work", "İşe git", "stage", ["artist", "photographer", "musician", "singer", "actor"],
+    [["women", False, "lessac", 0.0, 1.6, "idle"]],
+    [["Say hello", "Merhaba de", "Hello! Are you ready?", "Merhaba! Hazır mısın?", "wave", 0, "Yes, I am ready.", "Evet, hazırım.", 0],
+     ["Get ready", "Hazırlan", "I am getting ready.", "Hazırlanıyorum.", "pick_up", -1, "", "", 1],
+     ["Do your work", "İşini yap", "I am doing my best work today.", "Bugün en iyi işimi yapıyorum.", "dance", -1, "", "", 2],
+     ["Say thank you", "Teşekkür et", "Thank you very much!", "Çok teşekkür ederim!", "wave", 0, "That was wonderful!", "Harikaydı!", 0]],
+    "My work is over. Time to go home.", "İşim bitti. Eve gitme zamanı.")
+cat("sports", "Go to work", "İşe git", "gym", ["footballer", "coach", "fitness instructor", "tennis player", "swimming teacher"],
+    [["men", False, "hfc_male", 1.3, 0.6, "idle"]],
+    [["Say hello", "Merhaba de", "Good morning! Let's train.", "Günaydın! Hadi antrenman yapalım.", "wave", 0, "Good morning! I am ready.", "Günaydın! Hazırım.", 0],
+     ["Warm up", "Isın", "I am warming up.", "Isınıyorum.", "idle", -1, "", "", 1],
+     ["Train hard", "Sıkı çalış", "I am running fast.", "Hızlı koşuyorum.", "run", -1, "", "", 2],
+     ["Have a break", "Mola ver", "I am drinking some water.", "Biraz su içiyorum.", "drink", 0, "Well done! Good training.", "Aferin! İyi antrenman.", 0]],
+    "My work is over. Time to go home.", "İşim bitti. Eve gitme zamanı.")
+cat("nature", "Go to work", "İşe git", "garden", ["farmer", "gardener", "fisherman", "zookeeper"],
+    [["women", False, "amy", 1.3, 0.8, "idle"]],
+    [["Say hello", "Merhaba de", "Good morning! It is a nice day.", "Günaydın! Güzel bir gün.", "wave", 0, "Yes, it is. There is a lot of work.", "Evet, öyle. Çok iş var.", 0],
+     ["Water the plants", "Bitkileri sula", "I am watering the plants.", "Bitkileri suluyorum.", "pick_up", -1, "", "", 1],
+     ["Feed the animals", "Hayvanları besle", "I am feeding the animals.", "Hayvanları besliyorum.", "crouch_idle", -1, "", "", 2],
+     ["Have a break", "Mola ver", "I am drinking some water.", "Biraz su içiyorum.", "drink", 0, "Good work today!", "Bugün iyi iş çıkardın!", 0]],
+    "My work is over. Time to go home.", "İşim bitti. Eve gitme zamanı.")
+cat("beauty", "Go to work", "İşe git", "salon", ["hairdresser", "barber"],
+    [["women", False, "kristin", 0.0, 0.5, "sit_idle"]],
+    [["Say hello", "Merhaba de", "Hello! Please sit down.", "Merhaba! Lütfen oturun.", "wave", 0, "Hello! Short hair, please.", "Merhaba! Kısa saç, lütfen.", 0],
+     ["Wash the hair", "Saçı yıka", "I am washing the hair.", "Saçı yıkıyorum.", "pick_up", -1, "", "", 1],
+     ["Cut the hair", "Saçı kes", "I am cutting the hair.", "Saçı kesiyorum.", "typing", -1, "", "", 1],
+     ["Show the mirror", "Aynayı göster", "Look in the mirror. Do you like it?", "Aynaya bakın. Beğendiniz mi?", "talk", 0, "Yes! I love it. Thank you!", "Evet! Bayıldım. Teşekkürler!", 0]],
+    "My work is over. Time to go home.", "İşim bitti. Eve gitme zamanı.")
+cat("home", "Go shopping", "Alışverişe git", "shop", ["housewife", "househusband", "stay-at-home parent", "unemployed", "retired", ""],
+    [["men", False, "ryan", 1.2, 0.9, "idle"]],
+    [["Get a basket", "Sepet al", "I am getting a basket.", "Sepet alıyorum.", "pick_up", -1, "", "", 2],
+     ["Find the bread", "Ekmeği bul", "I am looking for the bread.", "Ekmeği arıyorum.", "idle", -1, "", "", 1],
+     ["Ask for help", "Yardım iste", "Excuse me. Where is the milk?", "Affedersiniz. Süt nerede?", "talk", 0, "It is next to the bread.", "Ekmeğin yanında.", 0],
+     ["Pay", "Öde", "How much is it?", "Ne kadar?", "talk", 0, "It is six pounds, please.", "Altı pound, lütfen.", 0]],
+    "I have got everything. Time to go home.", "Her şeyi aldım. Eve gitme zamanı.")
+COMMON = {"intro_work": ["I am at work now.", "Şimdi işteyim."], "intro_school": ["I am at school now.", "Şimdi okuldayım."],
+    "intro_shop": ["I am at the shop now.", "Şimdi dükkandayım."], "tap": ["Tap the button to work.", "Çalışmak için düğmeye dokun."],
+    "home": ["I am driving home.", "Eve sürüyorum."], "work_done": ["Work done!", "İş bitti!"]}
+json.dump({"categories": C, "common": COMMON}, open("data/work.json", "w"), ensure_ascii=False, indent=1)
+print(len(C), "categories")

@@ -1,0 +1,1548 @@
+{
+ "sectors": [
+  {
+   "id": "health",
+   "en": "Health",
+   "tr": "Sağlık",
+   "icon": "s_health"
+  },
+  {
+   "id": "education",
+   "en": "Education",
+   "tr": "Eğitim",
+   "icon": "s_education"
+  },
+  {
+   "id": "food",
+   "en": "Food",
+   "tr": "Yemek",
+   "icon": "s_food"
+  },
+  {
+   "id": "transport",
+   "en": "Transport",
+   "tr": "Ulaşım",
+   "icon": "s_transport"
+  },
+  {
+   "id": "safety",
+   "en": "Safety",
+   "tr": "Güvenlik",
+   "icon": "s_safety"
+  },
+  {
+   "id": "shops",
+   "en": "Shops & Sales",
+   "tr": "Mağaza ve satış",
+   "icon": "s_shops"
+  },
+  {
+   "id": "office",
+   "en": "Office & Business",
+   "tr": "Ofis ve iş dünyası",
+   "icon": "s_office"
+  },
+  {
+   "id": "tech",
+   "en": "Technology",
+   "tr": "Teknoloji",
+   "icon": "s_tech"
+  },
+  {
+   "id": "arts",
+   "en": "Arts & Media",
+   "tr": "Sanat ve medya",
+   "icon": "s_arts"
+  },
+  {
+   "id": "building",
+   "en": "Building & Repair",
+   "tr": "İnşaat ve tamir",
+   "icon": "s_building"
+  },
+  {
+   "id": "farming",
+   "en": "Farming & Nature",
+   "tr": "Tarım ve doğa",
+   "icon": "s_farming"
+  },
+  {
+   "id": "care",
+   "en": "Beauty & Care",
+   "tr": "Güzellik ve bakım",
+   "icon": "s_care"
+  },
+  {
+   "id": "sports",
+   "en": "Sports",
+   "tr": "Spor",
+   "icon": "s_sports"
+  },
+  {
+   "id": "notwork",
+   "en": "Not working",
+   "tr": "Çalışmıyorum",
+   "icon": "s_notwork"
+  }
+ ],
+ "jobs": [
+  {
+   "id": "doctor",
+   "en": "doctor",
+   "a": "a",
+   "tr": "doktor",
+   "sector": "health",
+   "line": "Doctor. I am a doctor. I work at a hospital.",
+   "now": "I am a doctor now.",
+   "start": "I start work at the hospital.",
+   "shift": "day",
+   "icon": "j_stethoscope_health",
+   "group": "health",
+   "sub": "hospital"
+  },
+  {
+   "id": "nurse",
+   "en": "nurse",
+   "a": "a",
+   "tr": "hemşire",
+   "sector": "health",
+   "line": "Nurse. I am a nurse. I work at a hospital.",
+   "now": "I am a nurse now.",
+   "start": "I start work at the hospital.",
+   "shift": "early",
+   "icon": "j_nursecap_health",
+   "group": "health",
+   "sub": "hospital"
+  },
+  {
+   "id": "dentist",
+   "en": "dentist",
+   "a": "a",
+   "tr": "diş hekimi",
+   "sector": "health",
+   "line": "Dentist. I am a dentist. I work at a dental clinic.",
+   "now": "I am a dentist now.",
+   "start": "I start work at the dental clinic.",
+   "shift": "day",
+   "icon": "j_tooth_health",
+   "group": "health",
+   "sub": "clinic"
+  },
+  {
+   "id": "pharmacist",
+   "en": "pharmacist",
+   "a": "a",
+   "tr": "eczacı",
+   "sector": "health",
+   "line": "Pharmacist. I am a pharmacist. I work in a pharmacy.",
+   "now": "I am a pharmacist now.",
+   "start": "I start work in the pharmacy.",
+   "shift": "day",
+   "icon": "j_pill_health",
+   "group": "health",
+   "sub": "clinic"
+  },
+  {
+   "id": "vet",
+   "en": "vet",
+   "a": "a",
+   "tr": "veteriner",
+   "sector": "health",
+   "line": "Vet. I am a vet. I work at an animal clinic.",
+   "now": "I am a vet now.",
+   "start": "I start work at the animal clinic.",
+   "shift": "day",
+   "icon": "j_paw_health",
+   "group": "health",
+   "sub": "clinic"
+  },
+  {
+   "id": "paramedic",
+   "en": "paramedic",
+   "a": "a",
+   "tr": "acil sağlık görevlisi",
+   "sector": "health",
+   "line": "Paramedic. I am a paramedic. I work in an ambulance.",
+   "now": "I am a paramedic now.",
+   "start": "I start work at the ambulance station.",
+   "shift": "early",
+   "icon": "j_ambulance_health",
+   "group": "health",
+   "sub": "hospital"
+  },
+  {
+   "id": "teacher",
+   "en": "teacher",
+   "a": "a",
+   "tr": "öğretmen",
+   "sector": "education",
+   "line": "Teacher. I am a teacher. I work at a school.",
+   "now": "I am a teacher now.",
+   "start": "I start work at the school.",
+   "shift": "day",
+   "icon": "j_board_education",
+   "group": "school",
+   "sub": "teaching"
+  },
+  {
+   "id": "lecturer",
+   "en": "lecturer",
+   "a": "a",
+   "tr": "öğretim görevlisi",
+   "sector": "education",
+   "line": "Lecturer. I am a lecturer. I work at a university.",
+   "now": "I am a lecturer now.",
+   "start": "I start work at the university.",
+   "shift": "day",
+   "icon": "j_gradcap_education",
+   "group": "school",
+   "sub": "teaching"
+  },
+  {
+   "id": "librarian",
+   "en": "librarian",
+   "a": "a",
+   "tr": "kütüphaneci",
+   "sector": "education",
+   "line": "Librarian. I am a librarian. I work in a library.",
+   "now": "I am a librarian now.",
+   "start": "I start work in the library.",
+   "shift": "day",
+   "icon": "j_books_education",
+   "group": "school",
+   "sub": "books"
+  },
+  {
+   "id": "nursery teacher",
+   "en": "nursery teacher",
+   "a": "a",
+   "tr": "anaokulu öğretmeni",
+   "sector": "education",
+   "line": "Nursery teacher. I am a nursery teacher. I work at a nursery school.",
+   "now": "I am a nursery teacher now.",
+   "start": "I start work at the nursery school.",
+   "shift": "day",
+   "icon": "j_blocks_education",
+   "group": "school",
+   "sub": "teaching"
+  },
+  {
+   "id": "cook",
+   "en": "cook",
+   "a": "a",
+   "tr": "aşçı",
+   "sector": "food",
+   "line": "Cook. I am a cook. I work in a restaurant kitchen.",
+   "now": "I am a cook now.",
+   "start": "I start work in the kitchen.",
+   "shift": "day",
+   "icon": "j_chefhat_food",
+   "group": "food",
+   "sub": "kitchen"
+  },
+  {
+   "id": "chef",
+   "en": "chef",
+   "a": "a",
+   "tr": "şef",
+   "sector": "food",
+   "line": "Chef. I am a chef. I work in a restaurant.",
+   "now": "I am a chef now.",
+   "start": "I start work in the restaurant.",
+   "shift": "late",
+   "icon": "j_pan_food",
+   "group": "food",
+   "sub": "kitchen"
+  },
+  {
+   "id": "waiter",
+   "en": "waiter",
+   "a": "a",
+   "tr": "garson",
+   "sector": "food",
+   "line": "Waiter. I am a waiter. I work in a café.",
+   "now": "I am a waiter now.",
+   "start": "I start work in the café.",
+   "shift": "late",
+   "icon": "j_cloche_food",
+   "group": "food",
+   "sub": "cafe"
+  },
+  {
+   "id": "baker",
+   "en": "baker",
+   "a": "a",
+   "tr": "fırıncı",
+   "sector": "food",
+   "line": "Baker. I am a baker. I work in a bakery.",
+   "now": "I am a baker now.",
+   "start": "I start work in the bakery.",
+   "shift": "early",
+   "icon": "j_bread_food",
+   "group": "food",
+   "sub": "kitchen"
+  },
+  {
+   "id": "barista",
+   "en": "barista",
+   "a": "a",
+   "tr": "barista",
+   "sector": "food",
+   "line": "Barista. I am a barista. I work in a coffee shop.",
+   "now": "I am a barista now.",
+   "start": "I start work in the coffee shop.",
+   "shift": "early",
+   "icon": "j_cup_food",
+   "group": "food",
+   "sub": "cafe"
+  },
+  {
+   "id": "butcher",
+   "en": "butcher",
+   "a": "a",
+   "tr": "kasap",
+   "sector": "food",
+   "line": "Butcher. I am a butcher. I work in a butcher's shop.",
+   "now": "I am a butcher now.",
+   "start": "I start work in the butcher's shop.",
+   "shift": "early",
+   "icon": "j_cleaver_food",
+   "group": "food",
+   "sub": "kitchen"
+  },
+  {
+   "id": "bus driver",
+   "en": "bus driver",
+   "a": "a",
+   "tr": "otobüs şoförü",
+   "sector": "transport",
+   "line": "Bus driver. I am a bus driver. I drive a bus.",
+   "now": "I am a bus driver now.",
+   "start": "I start work at the bus station.",
+   "shift": "early",
+   "icon": "j_bus_transport",
+   "group": "transport",
+   "sub": "road"
+  },
+  {
+   "id": "taxi driver",
+   "en": "taxi driver",
+   "a": "a",
+   "tr": "taksi şoförü",
+   "sector": "transport",
+   "line": "Taxi driver. I am a taxi driver. I drive a taxi.",
+   "now": "I am a taxi driver now.",
+   "start": "I start work in my taxi.",
+   "shift": "day",
+   "icon": "j_taxi_transport",
+   "group": "transport",
+   "sub": "road"
+  },
+  {
+   "id": "pilot",
+   "en": "pilot",
+   "a": "a",
+   "tr": "pilot",
+   "sector": "transport",
+   "line": "Pilot. I am a pilot. I fly planes.",
+   "now": "I am a pilot now.",
+   "start": "I start work at the airport.",
+   "shift": "early",
+   "icon": "j_plane_transport",
+   "group": "transport",
+   "sub": "airrail"
+  },
+  {
+   "id": "flight attendant",
+   "en": "flight attendant",
+   "a": "a",
+   "tr": "kabin memuru",
+   "sector": "transport",
+   "line": "Flight attendant. I am a flight attendant. I work on a plane.",
+   "now": "I am a flight attendant now.",
+   "start": "I start work at the airport.",
+   "shift": "early",
+   "icon": "j_suitcase_transport",
+   "group": "transport",
+   "sub": "airrail"
+  },
+  {
+   "id": "train driver",
+   "en": "train driver",
+   "a": "a",
+   "tr": "makinist",
+   "sector": "transport",
+   "line": "Train driver. I am a train driver. I drive a train.",
+   "now": "I am a train driver now.",
+   "start": "I start work at the train station.",
+   "shift": "early",
+   "icon": "j_train_transport",
+   "group": "transport",
+   "sub": "airrail"
+  },
+  {
+   "id": "delivery driver",
+   "en": "delivery driver",
+   "a": "a",
+   "tr": "kurye",
+   "sector": "transport",
+   "line": "Delivery driver. I am a delivery driver. I deliver parcels.",
+   "now": "I am a delivery driver now.",
+   "start": "I start work at the warehouse.",
+   "shift": "day",
+   "icon": "j_box_transport",
+   "group": "transport",
+   "sub": "road"
+  },
+  {
+   "id": "police officer",
+   "en": "police officer",
+   "a": "a",
+   "tr": "polis memuru",
+   "sector": "safety",
+   "line": "Police officer. I am a police officer. I work at a police station.",
+   "now": "I am a police officer now.",
+   "start": "I start work at the police station.",
+   "shift": "day",
+   "icon": "j_star_safety",
+   "group": "safety",
+   "sub": "safety"
+  },
+  {
+   "id": "firefighter",
+   "en": "firefighter",
+   "a": "a",
+   "tr": "itfaiyeci",
+   "sector": "safety",
+   "line": "Firefighter. I am a firefighter. I work at a fire station.",
+   "now": "I am a firefighter now.",
+   "start": "I start work at the fire station.",
+   "shift": "day",
+   "icon": "j_flame_safety",
+   "group": "safety",
+   "sub": "safety"
+  },
+  {
+   "id": "soldier",
+   "en": "soldier",
+   "a": "a",
+   "tr": "asker",
+   "sector": "safety",
+   "line": "Soldier. I am a soldier. I am in the army.",
+   "now": "I am a soldier now.",
+   "start": "I start work at the army base.",
+   "shift": "early",
+   "icon": "j_shieldstar_safety",
+   "group": "safety",
+   "sub": "safety"
+  },
+  {
+   "id": "security guard",
+   "en": "security guard",
+   "a": "a",
+   "tr": "güvenlik görevlisi",
+   "sector": "safety",
+   "line": "Security guard. I am a security guard. I work at a bank.",
+   "now": "I am a security guard now.",
+   "start": "I start work at the bank.",
+   "shift": "late",
+   "icon": "j_shield_safety",
+   "group": "safety",
+   "sub": "safety"
+  },
+  {
+   "id": "lifeguard",
+   "en": "lifeguard",
+   "a": "a",
+   "tr": "cankurtaran",
+   "sector": "safety",
+   "line": "Lifeguard. I am a lifeguard. I work at a swimming pool.",
+   "now": "I am a lifeguard now.",
+   "start": "I start work at the swimming pool.",
+   "shift": "day",
+   "icon": "j_buoy_safety",
+   "group": "safety",
+   "sub": "safety"
+  },
+  {
+   "id": "shop assistant",
+   "en": "shop assistant",
+   "a": "a",
+   "tr": "satış görevlisi",
+   "sector": "shops",
+   "line": "Shop assistant. I am a shop assistant. I work in a shop.",
+   "now": "I am a shop assistant now.",
+   "start": "I start work in the shop.",
+   "shift": "day",
+   "icon": "j_bag_shops",
+   "group": "food",
+   "sub": "shops"
+  },
+  {
+   "id": "cashier",
+   "en": "cashier",
+   "a": "a",
+   "tr": "kasiyer",
+   "sector": "shops",
+   "line": "Cashier. I am a cashier. I work in a supermarket.",
+   "now": "I am a cashier now.",
+   "start": "I start work in the supermarket.",
+   "shift": "day",
+   "icon": "j_cart_shops",
+   "group": "food",
+   "sub": "shops"
+  },
+  {
+   "id": "market seller",
+   "en": "market seller",
+   "a": "a",
+   "tr": "pazarcı",
+   "sector": "shops",
+   "line": "Market seller. I am a market seller. I work at a market.",
+   "now": "I am a market seller now.",
+   "start": "I start work at the market.",
+   "shift": "early",
+   "icon": "j_stall_shops",
+   "group": "food",
+   "sub": "shops"
+  },
+  {
+   "id": "florist",
+   "en": "florist",
+   "a": "a",
+   "tr": "çiçekçi",
+   "sector": "shops",
+   "line": "Florist. I am a florist. I work in a flower shop.",
+   "now": "I am a florist now.",
+   "start": "I start work in the flower shop.",
+   "shift": "day",
+   "icon": "j_flower_shops",
+   "group": "food",
+   "sub": "shops"
+  },
+  {
+   "id": "bookseller",
+   "en": "bookseller",
+   "a": "a",
+   "tr": "kitapçı",
+   "sector": "shops",
+   "line": "Bookseller. I am a bookseller. I work in a bookshop.",
+   "now": "I am a bookseller now.",
+   "start": "I start work in the bookshop.",
+   "shift": "day",
+   "icon": "j_book_shops",
+   "group": "school",
+   "sub": "books"
+  },
+  {
+   "id": "office worker",
+   "en": "office worker",
+   "a": "an",
+   "tr": "ofis çalışanı",
+   "sector": "office",
+   "line": "Office worker. I am an office worker. I work in an office.",
+   "now": "I am an office worker now.",
+   "start": "I start work in the office.",
+   "shift": "day",
+   "icon": "j_building_office",
+   "group": "office",
+   "sub": "office"
+  },
+  {
+   "id": "accountant",
+   "en": "accountant",
+   "a": "an",
+   "tr": "muhasebeci",
+   "sector": "office",
+   "line": "Accountant. I am an accountant. I work in an office.",
+   "now": "I am an accountant now.",
+   "start": "I start work in the office.",
+   "shift": "day",
+   "icon": "j_calculator_office",
+   "group": "office",
+   "sub": "money"
+  },
+  {
+   "id": "secretary",
+   "en": "secretary",
+   "a": "a",
+   "tr": "sekreter",
+   "sector": "office",
+   "line": "Secretary. I am a secretary. I work in an office.",
+   "now": "I am a secretary now.",
+   "start": "I start work in the office.",
+   "shift": "day",
+   "icon": "j_envelope_office",
+   "group": "office",
+   "sub": "office"
+  },
+  {
+   "id": "manager",
+   "en": "manager",
+   "a": "a",
+   "tr": "müdür",
+   "sector": "office",
+   "line": "Manager. I am a manager. I work for a big company.",
+   "now": "I am a manager now.",
+   "start": "I start work at the company.",
+   "shift": "day",
+   "icon": "j_tie_office",
+   "group": "office",
+   "sub": "office"
+  },
+  {
+   "id": "lawyer",
+   "en": "lawyer",
+   "a": "a",
+   "tr": "avukat",
+   "sector": "office",
+   "line": "Lawyer. I am a lawyer. I work at a law firm.",
+   "now": "I am a lawyer now.",
+   "start": "I start work at the law firm.",
+   "shift": "day",
+   "icon": "j_scales_office",
+   "group": "safety",
+   "sub": "law"
+  },
+  {
+   "id": "receptionist",
+   "en": "receptionist",
+   "a": "a",
+   "tr": "resepsiyonist",
+   "sector": "office",
+   "line": "Receptionist. I am a receptionist. I work at a hotel.",
+   "now": "I am a receptionist now.",
+   "start": "I start work at the hotel.",
+   "shift": "day",
+   "icon": "j_bell_office",
+   "group": "office",
+   "sub": "office"
+  },
+  {
+   "id": "bank clerk",
+   "en": "bank clerk",
+   "a": "a",
+   "tr": "banka memuru",
+   "sector": "office",
+   "line": "Bank clerk. I am a bank clerk. I work in a bank.",
+   "now": "I am a bank clerk now.",
+   "start": "I start work in the bank.",
+   "shift": "day",
+   "icon": "j_bank_office",
+   "group": "office",
+   "sub": "money"
+  },
+  {
+   "id": "software developer",
+   "en": "software developer",
+   "a": "a",
+   "tr": "yazılımcı",
+   "sector": "tech",
+   "line": "Software developer. I am a software developer. I write computer programs.",
+   "now": "I am a software developer now.",
+   "start": "I start work at the tech company.",
+   "shift": "day",
+   "icon": "j_code_tech",
+   "group": "build",
+   "sub": "tech"
+  },
+  {
+   "id": "engineer",
+   "en": "engineer",
+   "a": "an",
+   "tr": "mühendis",
+   "sector": "tech",
+   "line": "Engineer. I am an engineer. I work in a factory.",
+   "now": "I am an engineer now.",
+   "start": "I start work at the factory.",
+   "shift": "day",
+   "icon": "j_gear_tech",
+   "group": "build",
+   "sub": "tech"
+  },
+  {
+   "id": "web designer",
+   "en": "web designer",
+   "a": "a",
+   "tr": "web tasarımcısı",
+   "sector": "tech",
+   "line": "Web designer. I am a web designer. I make websites.",
+   "now": "I am a web designer now.",
+   "start": "I start work at home.",
+   "shift": "day",
+   "icon": "j_monitor_tech",
+   "group": "build",
+   "sub": "tech"
+  },
+  {
+   "id": "scientist",
+   "en": "scientist",
+   "a": "a",
+   "tr": "bilim insanı",
+   "sector": "tech",
+   "line": "Scientist. I am a scientist. I work in a laboratory.",
+   "now": "I am a scientist now.",
+   "start": "I start work in the laboratory.",
+   "shift": "day",
+   "icon": "j_flask_tech",
+   "group": "build",
+   "sub": "tech"
+  },
+  {
+   "id": "IT technician",
+   "en": "IT technician",
+   "a": "an",
+   "tr": "bilgi işlem teknisyeni",
+   "sector": "tech",
+   "line": "IT technician. I am an IT technician. I fix computers.",
+   "now": "I am an IT technician now.",
+   "start": "I start work in the office.",
+   "shift": "day",
+   "icon": "j_laptop_tech",
+   "group": "build",
+   "sub": "tech"
+  },
+  {
+   "id": "artist",
+   "en": "artist",
+   "a": "an",
+   "tr": "ressam",
+   "sector": "arts",
+   "line": "Artist. I am an artist. I work in a studio.",
+   "now": "I am an artist now.",
+   "start": "I start work in my studio.",
+   "shift": "day",
+   "icon": "j_palette_arts",
+   "group": "arts",
+   "sub": "art"
+  },
+  {
+   "id": "musician",
+   "en": "musician",
+   "a": "a",
+   "tr": "müzisyen",
+   "sector": "arts",
+   "line": "Musician. I am a musician. I play in a band.",
+   "now": "I am a musician now.",
+   "start": "I start work at the music studio.",
+   "shift": "late",
+   "icon": "j_note_arts",
+   "group": "arts",
+   "sub": "stage"
+  },
+  {
+   "id": "singer",
+   "en": "singer",
+   "a": "a",
+   "tr": "şarkıcı",
+   "sector": "arts",
+   "line": "Singer. I am a singer. I sing on stage.",
+   "now": "I am a singer now.",
+   "start": "I start work at the concert hall.",
+   "shift": "late",
+   "icon": "j_mic_arts",
+   "group": "arts",
+   "sub": "stage"
+  },
+  {
+   "id": "actor",
+   "en": "actor",
+   "a": "an",
+   "tr": "oyuncu",
+   "sector": "arts",
+   "line": "Actor. I am an actor. I work in a theatre.",
+   "now": "I am an actor now.",
+   "start": "I start work at the theatre.",
+   "shift": "late",
+   "icon": "j_masks_arts",
+   "group": "arts",
+   "sub": "stage"
+  },
+  {
+   "id": "photographer",
+   "en": "photographer",
+   "a": "a",
+   "tr": "fotoğrafçı",
+   "sector": "arts",
+   "line": "Photographer. I am a photographer. I take photos.",
+   "now": "I am a photographer now.",
+   "start": "I start work in my studio.",
+   "shift": "day",
+   "icon": "j_camera_arts",
+   "group": "arts",
+   "sub": "art"
+  },
+  {
+   "id": "journalist",
+   "en": "journalist",
+   "a": "a",
+   "tr": "gazeteci",
+   "sector": "arts",
+   "line": "Journalist. I am a journalist. I write for a newspaper.",
+   "now": "I am a journalist now.",
+   "start": "I start work at the newspaper office.",
+   "shift": "day",
+   "icon": "j_newspaper_arts",
+   "group": "arts",
+   "sub": "art"
+  },
+  {
+   "id": "writer",
+   "en": "writer",
+   "a": "a",
+   "tr": "yazar",
+   "sector": "arts",
+   "line": "Writer. I am a writer. I write books.",
+   "now": "I am a writer now.",
+   "start": "I start work at home.",
+   "shift": "day",
+   "icon": "j_pen_arts",
+   "group": "school",
+   "sub": "books"
+  },
+  {
+   "id": "builder",
+   "en": "builder",
+   "a": "a",
+   "tr": "inşaat işçisi",
+   "sector": "building",
+   "line": "Builder. I am a builder. I work on a building site.",
+   "now": "I am a builder now.",
+   "start": "I start work on the building site.",
+   "shift": "early",
+   "icon": "j_hardhat_building",
+   "group": "build",
+   "sub": "building"
+  },
+  {
+   "id": "electrician",
+   "en": "electrician",
+   "a": "an",
+   "tr": "elektrikçi",
+   "sector": "building",
+   "line": "Electrician. I am an electrician. I work in people's homes.",
+   "now": "I am an electrician now.",
+   "start": "I start work.",
+   "shift": "day",
+   "icon": "j_bolt_building",
+   "group": "build",
+   "sub": "repair"
+  },
+  {
+   "id": "plumber",
+   "en": "plumber",
+   "a": "a",
+   "tr": "tesisatçı",
+   "sector": "building",
+   "line": "Plumber. I am a plumber. I work in people's homes.",
+   "now": "I am a plumber now.",
+   "start": "I start work.",
+   "shift": "early",
+   "icon": "j_drop_building",
+   "group": "build",
+   "sub": "repair"
+  },
+  {
+   "id": "mechanic",
+   "en": "mechanic",
+   "a": "a",
+   "tr": "tamirci",
+   "sector": "building",
+   "line": "Mechanic. I am a mechanic. I work in a garage.",
+   "now": "I am a mechanic now.",
+   "start": "I start work at the garage.",
+   "shift": "day",
+   "icon": "j_wrench_building",
+   "group": "build",
+   "sub": "repair"
+  },
+  {
+   "id": "carpenter",
+   "en": "carpenter",
+   "a": "a",
+   "tr": "marangoz",
+   "sector": "building",
+   "line": "Carpenter. I am a carpenter. I work in a workshop.",
+   "now": "I am a carpenter now.",
+   "start": "I start work in the workshop.",
+   "shift": "day",
+   "icon": "j_hammer_building",
+   "group": "build",
+   "sub": "building"
+  },
+  {
+   "id": "painter",
+   "en": "painter",
+   "a": "a",
+   "tr": "boyacı",
+   "sector": "building",
+   "line": "Painter. I am a painter. I paint houses.",
+   "now": "I am a painter now.",
+   "start": "I start work.",
+   "shift": "day",
+   "icon": "j_roller_building",
+   "group": "build",
+   "sub": "building"
+  },
+  {
+   "id": "farmer",
+   "en": "farmer",
+   "a": "a",
+   "tr": "çiftçi",
+   "sector": "farming",
+   "line": "Farmer. I am a farmer. I work on a farm.",
+   "now": "I am a farmer now.",
+   "start": "I start work on the farm.",
+   "shift": "early",
+   "icon": "j_tractor_farming",
+   "group": "nature",
+   "sub": "farm"
+  },
+  {
+   "id": "gardener",
+   "en": "gardener",
+   "a": "a",
+   "tr": "bahçıvan",
+   "sector": "farming",
+   "line": "Gardener. I am a gardener. I work in a park.",
+   "now": "I am a gardener now.",
+   "start": "I start work in the park.",
+   "shift": "early",
+   "icon": "j_leaf_farming",
+   "group": "nature",
+   "sub": "farm"
+  },
+  {
+   "id": "fisherman",
+   "en": "fisherman",
+   "a": "a",
+   "tr": "balıkçı",
+   "sector": "farming",
+   "line": "Fisherman. I am a fisherman. I work on a boat.",
+   "now": "I am a fisherman now.",
+   "start": "I start work on my boat.",
+   "shift": "early",
+   "icon": "j_fish_farming",
+   "group": "nature",
+   "sub": "animals"
+  },
+  {
+   "id": "zookeeper",
+   "en": "zookeeper",
+   "a": "a",
+   "tr": "hayvan bakıcısı",
+   "sector": "farming",
+   "line": "Zookeeper. I am a zookeeper. I work at a zoo.",
+   "now": "I am a zookeeper now.",
+   "start": "I start work at the zoo.",
+   "shift": "early",
+   "icon": "j_paw_farming",
+   "group": "nature",
+   "sub": "animals"
+  },
+  {
+   "id": "hairdresser",
+   "en": "hairdresser",
+   "a": "a",
+   "tr": "kuaför",
+   "sector": "care",
+   "line": "Hairdresser. I am a hairdresser. I work at a hair salon.",
+   "now": "I am a hairdresser now.",
+   "start": "I start work at the hair salon.",
+   "shift": "day",
+   "icon": "j_scissors_care",
+   "group": "health",
+   "sub": "beauty"
+  },
+  {
+   "id": "barber",
+   "en": "barber",
+   "a": "a",
+   "tr": "berber",
+   "sector": "care",
+   "line": "Barber. I am a barber. I work in a barber's shop.",
+   "now": "I am a barber now.",
+   "start": "I start work in the barber's shop.",
+   "shift": "day",
+   "icon": "j_comb_care",
+   "group": "health",
+   "sub": "beauty"
+  },
+  {
+   "id": "care worker",
+   "en": "care worker",
+   "a": "a",
+   "tr": "bakım görevlisi",
+   "sector": "care",
+   "line": "Care worker. I am a care worker. I work in a care home.",
+   "now": "I am a care worker now.",
+   "start": "I start work in the care home.",
+   "shift": "early",
+   "icon": "j_heart_care",
+   "group": "health",
+   "sub": "care"
+  },
+  {
+   "id": "babysitter",
+   "en": "babysitter",
+   "a": "a",
+   "tr": "çocuk bakıcısı",
+   "sector": "care",
+   "line": "Babysitter. I am a babysitter. I look after children.",
+   "now": "I am a babysitter now.",
+   "start": "I start work.",
+   "shift": "day",
+   "icon": "j_pram_care",
+   "group": "health",
+   "sub": "care"
+  },
+  {
+   "id": "cleaner",
+   "en": "cleaner",
+   "a": "a",
+   "tr": "temizlikçi",
+   "sector": "care",
+   "line": "Cleaner. I am a cleaner. I clean offices.",
+   "now": "I am a cleaner now.",
+   "start": "I start work in the office building.",
+   "shift": "early",
+   "icon": "j_bucket_care",
+   "group": "health",
+   "sub": "care"
+  },
+  {
+   "id": "footballer",
+   "en": "footballer",
+   "a": "a",
+   "tr": "futbolcu",
+   "sector": "sports",
+   "line": "Footballer. I am a footballer. I play for a football team.",
+   "now": "I am a footballer now.",
+   "start": "I start work at the training ground.",
+   "shift": "day",
+   "icon": "j_ball_sports",
+   "group": "arts",
+   "sub": "sports"
+  },
+  {
+   "id": "coach",
+   "en": "coach",
+   "a": "a",
+   "tr": "antrenör",
+   "sector": "sports",
+   "line": "Coach. I am a coach. I work at a sports club.",
+   "now": "I am a coach now.",
+   "start": "I start work at the sports club.",
+   "shift": "day",
+   "icon": "j_whistle_sports",
+   "group": "arts",
+   "sub": "sports"
+  },
+  {
+   "id": "fitness instructor",
+   "en": "fitness instructor",
+   "a": "a",
+   "tr": "fitness eğitmeni",
+   "sector": "sports",
+   "line": "Fitness instructor. I am a fitness instructor. I work at a gym.",
+   "now": "I am a fitness instructor now.",
+   "start": "I start work at the gym.",
+   "shift": "early",
+   "icon": "j_dumbbell_sports",
+   "group": "arts",
+   "sub": "sports"
+  },
+  {
+   "id": "tennis player",
+   "en": "tennis player",
+   "a": "a",
+   "tr": "tenisçi",
+   "sector": "sports",
+   "line": "Tennis player. I am a tennis player. I play tennis every day.",
+   "now": "I am a tennis player now.",
+   "start": "I start work at the tennis club.",
+   "shift": "day",
+   "icon": "j_racket_sports",
+   "group": "arts",
+   "sub": "sports"
+  },
+  {
+   "id": "swimming teacher",
+   "en": "swimming teacher",
+   "a": "a",
+   "tr": "yüzme öğretmeni",
+   "sector": "sports",
+   "line": "Swimming teacher. I am a swimming teacher. I work at a swimming pool.",
+   "now": "I am a swimming teacher now.",
+   "start": "I start work at the swimming pool.",
+   "shift": "day",
+   "icon": "j_waves_sports",
+   "group": "school",
+   "sub": "teaching"
+  },
+  {
+   "id": "unemployed",
+   "en": "unemployed",
+   "a": "",
+   "tr": "işsiz",
+   "sector": "notwork",
+   "line": "Unemployed. I am unemployed. I am looking for a job.",
+   "now": "I am unemployed now.",
+   "start": "",
+   "shift": "unemployed",
+   "icon": "j_tie_notwork",
+   "group": "home",
+   "sub": "notworking"
+  },
+  {
+   "id": "retired",
+   "en": "retired",
+   "a": "",
+   "tr": "emekli",
+   "sector": "notwork",
+   "line": "Retired. I am retired. I do not work now.",
+   "now": "I am retired now.",
+   "start": "",
+   "shift": "retired",
+   "icon": "j_newspaper_notwork",
+   "group": "home",
+   "sub": "notworking"
+  },
+  {
+   "id": "student",
+   "en": "student",
+   "a": "a",
+   "tr": "öğrenci",
+   "sector": "notwork",
+   "line": "Student. I am a student. I study at a school.",
+   "now": "I am a student now.",
+   "start": "",
+   "shift": "student",
+   "icon": "j_gradcap_notwork",
+   "group": "home",
+   "sub": "study"
+  },
+  {
+   "id": "housewife",
+   "en": "housewife",
+   "a": "a",
+   "tr": "ev hanımı",
+   "sector": "notwork",
+   "line": "Housewife. I am a housewife. I work at home.",
+   "now": "I am a housewife now.",
+   "start": "",
+   "shift": "home",
+   "icon": "j_pan_notwork",
+   "group": "home",
+   "sub": "athome"
+  },
+  {
+   "id": "househusband",
+   "en": "househusband",
+   "a": "a",
+   "tr": "ev erkeği",
+   "sector": "notwork",
+   "line": "Househusband. I am a househusband. I work at home.",
+   "now": "I am a househusband now.",
+   "start": "",
+   "shift": "home",
+   "icon": "j_bucket_notwork",
+   "group": "home",
+   "sub": "athome"
+  },
+  {
+   "id": "stay-at-home parent",
+   "en": "stay-at-home parent",
+   "a": "a",
+   "tr": "evde çocuk bakan ebeveyn",
+   "sector": "notwork",
+   "line": "Stay-at-home parent. I am a stay-at-home parent. I look after my children at home.",
+   "now": "I am a stay-at-home parent now.",
+   "start": "",
+   "shift": "home",
+   "icon": "j_pram_notwork",
+   "group": "home",
+   "sub": "athome"
+  },
+  {
+   "id": "schoolchild",
+   "en": "student",
+   "a": "a",
+   "tr": "öğrenci",
+   "sector": "notwork",
+   "line": "I am a student. I go to school.",
+   "now": "I am a student.",
+   "start": "",
+   "shift": "child",
+   "icon": "j_gradcap_notwork",
+   "hidden": true
+  }
+ ],
+ "groups": [
+  {
+   "id": "health",
+   "en": "Health & Care",
+   "tr": "Sağlık ve bakım",
+   "icon": "grp_health",
+   "subs": [
+    {
+     "id": "hospital",
+     "en": "Hospital",
+     "tr": "Hastane",
+     "icon": "sub_hospital",
+     "jobs": [
+      "doctor",
+      "nurse",
+      "paramedic"
+     ]
+    },
+    {
+     "id": "clinic",
+     "en": "Clinic & Pharmacy",
+     "tr": "Klinik ve eczane",
+     "icon": "sub_clinic",
+     "jobs": [
+      "dentist",
+      "pharmacist",
+      "vet"
+     ]
+    },
+    {
+     "id": "care",
+     "en": "Care",
+     "tr": "Bakım",
+     "icon": "sub_care",
+     "jobs": [
+      "care worker",
+      "babysitter",
+      "cleaner"
+     ]
+    },
+    {
+     "id": "beauty",
+     "en": "Beauty",
+     "tr": "Güzellik",
+     "icon": "sub_beauty",
+     "jobs": [
+      "hairdresser",
+      "barber"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "school",
+   "en": "School & Books",
+   "tr": "Okul ve kitaplar",
+   "icon": "grp_school",
+   "subs": [
+    {
+     "id": "teaching",
+     "en": "Teaching",
+     "tr": "Öğretmenlik",
+     "icon": "sub_teaching",
+     "jobs": [
+      "teacher",
+      "lecturer",
+      "nursery teacher",
+      "swimming teacher"
+     ]
+    },
+    {
+     "id": "books",
+     "en": "Books",
+     "tr": "Kitaplar",
+     "icon": "sub_books",
+     "jobs": [
+      "librarian",
+      "bookseller",
+      "writer"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "food",
+   "en": "Food & Shops",
+   "tr": "Yemek ve mağazalar",
+   "icon": "grp_food",
+   "subs": [
+    {
+     "id": "kitchen",
+     "en": "Kitchen",
+     "tr": "Mutfak",
+     "icon": "sub_kitchen",
+     "jobs": [
+      "cook",
+      "chef",
+      "baker",
+      "butcher"
+     ]
+    },
+    {
+     "id": "cafe",
+     "en": "Café & Restaurant",
+     "tr": "Kafe ve restoran",
+     "icon": "sub_cafe",
+     "jobs": [
+      "waiter",
+      "barista"
+     ]
+    },
+    {
+     "id": "shops",
+     "en": "Shops",
+     "tr": "Mağazalar",
+     "icon": "sub_shops",
+     "jobs": [
+      "shop assistant",
+      "cashier",
+      "market seller",
+      "florist"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "transport",
+   "en": "Transport",
+   "tr": "Ulaşım",
+   "icon": "grp_transport",
+   "subs": [
+    {
+     "id": "road",
+     "en": "On the road",
+     "tr": "Yolda",
+     "icon": "sub_road",
+     "jobs": [
+      "bus driver",
+      "taxi driver",
+      "delivery driver"
+     ]
+    },
+    {
+     "id": "airrail",
+     "en": "Planes & Trains",
+     "tr": "Uçak ve tren",
+     "icon": "sub_airrail",
+     "jobs": [
+      "pilot",
+      "flight attendant",
+      "train driver"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "safety",
+   "en": "Safety & Law",
+   "tr": "Güvenlik ve hukuk",
+   "icon": "grp_safety",
+   "subs": [
+    {
+     "id": "safety",
+     "en": "Safety",
+     "tr": "Güvenlik",
+     "icon": "sub_safety",
+     "jobs": [
+      "police officer",
+      "firefighter",
+      "soldier",
+      "security guard",
+      "lifeguard"
+     ]
+    },
+    {
+     "id": "law",
+     "en": "Law",
+     "tr": "Hukuk",
+     "icon": "sub_law",
+     "jobs": [
+      "lawyer"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "office",
+   "en": "Office & Business",
+   "tr": "Ofis ve iş dünyası",
+   "icon": "grp_office",
+   "subs": [
+    {
+     "id": "office",
+     "en": "Office",
+     "tr": "Ofis",
+     "icon": "sub_office",
+     "jobs": [
+      "office worker",
+      "secretary",
+      "receptionist",
+      "manager"
+     ]
+    },
+    {
+     "id": "money",
+     "en": "Money",
+     "tr": "Para",
+     "icon": "sub_money",
+     "jobs": [
+      "accountant",
+      "bank clerk"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "build",
+   "en": "Building & Tech",
+   "tr": "İnşaat ve teknoloji",
+   "icon": "grp_build",
+   "subs": [
+    {
+     "id": "building",
+     "en": "Building",
+     "tr": "İnşaat",
+     "icon": "sub_building",
+     "jobs": [
+      "builder",
+      "carpenter",
+      "painter"
+     ]
+    },
+    {
+     "id": "repair",
+     "en": "Repair",
+     "tr": "Tamir",
+     "icon": "sub_repair",
+     "jobs": [
+      "electrician",
+      "plumber",
+      "mechanic"
+     ]
+    },
+    {
+     "id": "tech",
+     "en": "Technology",
+     "tr": "Teknoloji",
+     "icon": "sub_tech",
+     "jobs": [
+      "software developer",
+      "web designer",
+      "IT technician",
+      "engineer",
+      "scientist"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "arts",
+   "en": "Arts & Sports",
+   "tr": "Sanat ve spor",
+   "icon": "grp_arts",
+   "subs": [
+    {
+     "id": "art",
+     "en": "Art & Media",
+     "tr": "Sanat ve medya",
+     "icon": "sub_art",
+     "jobs": [
+      "artist",
+      "photographer",
+      "journalist"
+     ]
+    },
+    {
+     "id": "stage",
+     "en": "Music & Stage",
+     "tr": "Müzik ve sahne",
+     "icon": "sub_stage",
+     "jobs": [
+      "musician",
+      "singer",
+      "actor"
+     ]
+    },
+    {
+     "id": "sports",
+     "en": "Sports",
+     "tr": "Spor",
+     "icon": "sub_sports",
+     "jobs": [
+      "footballer",
+      "coach",
+      "fitness instructor",
+      "tennis player"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "nature",
+   "en": "Nature & Animals",
+   "tr": "Doğa ve hayvanlar",
+   "icon": "grp_nature",
+   "subs": [
+    {
+     "id": "farm",
+     "en": "Farm & Garden",
+     "tr": "Çiftlik ve bahçe",
+     "icon": "sub_farm",
+     "jobs": [
+      "farmer",
+      "gardener"
+     ]
+    },
+    {
+     "id": "animals",
+     "en": "Water & Animals",
+     "tr": "Su ve hayvanlar",
+     "icon": "sub_animals",
+     "jobs": [
+      "fisherman",
+      "zookeeper"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "home",
+   "en": "At home & Studying",
+   "tr": "Evde ve okulda",
+   "icon": "grp_home",
+   "subs": [
+    {
+     "id": "study",
+     "en": "Studying",
+     "tr": "Öğrenim",
+     "icon": "sub_study",
+     "jobs": [
+      "student"
+     ]
+    },
+    {
+     "id": "athome",
+     "en": "At home",
+     "tr": "Evde",
+     "icon": "sub_athome",
+     "jobs": [
+      "housewife",
+      "househusband",
+      "stay-at-home parent"
+     ]
+    },
+    {
+     "id": "notworking",
+     "en": "Not working",
+     "tr": "Çalışmıyorum",
+     "icon": "sub_notworking",
+     "jobs": [
+      "unemployed",
+      "retired"
+     ]
+    }
+   ]
+  }
+ ]
+}

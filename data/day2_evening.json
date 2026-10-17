@@ -1,0 +1,426 @@
+{
+ "lines": {
+  "How was your day?": "Günün nasıldı?",
+  "Tell your family about your day.": "Ailene gününü anlat.",
+  "My day was busy.": "Günüm yoğundu.",
+  "What a busy day! Well done.": "Ne yoğun bir gün! Aferin.",
+  "You must be tired. Go to bed.": "Yorgun olmalısın. Yatmaya git.",
+  "Good night!": "İyi geceler!",
+  "Go to bed.": "Yatmaya git.",
+  "Go to your bedroom.": "Yatak odana git.",
+  "I am going to bed.": "Yatağa gidiyorum.",
+  "I am lying in bed.": "Yatakta uzanıyorum.",
+  "I am dreaming about my day.": "Günümü rüyamda görüyorum.",
+  "I had breakfast and learned have to.": "Kahvaltı yaptım ve have to öğrendim.",
+  "I had breakfast with my family.": "Ailemle kahvaltı yaptım.",
+  "I went to work.": "İşe gittim.",
+  "I went to school.": "Okula gittim.",
+  "I went shopping.": "Alışverişe gittim.",
+  "I went to the hospital.": "Hastaneye gittim.",
+  "The doctor checked me.": "Doktor beni kontrol etti.",
+  "The doctor said I was fine.": "Doktor iyi olduğumu söyledi.",
+  "I talked to my family.": "Ailemle konuştum.",
+  "I came home.": "Eve geldim.",
+  "Went, had, talked: this is the past simple.": "Went, had, talked: bu geçmiş zaman.",
+  "Now a short test about my day.": "Şimdi günüm hakkında kısa bir test.",
+  "Skip the test": "Testi atla",
+  "I am sleeping.": "Uyuyorum.",
+  "My alarm is ringing.": "Alarmım çalıyor.",
+  "I am turning off the alarm.": "Alarmı kapatıyorum.",
+  "Take a shower.": "Duş al.",
+  "Go to the bathroom and take a shower.": "Banyoya git ve duş al.",
+  "I feel fresh and clean.": "Kendimi taze ve temiz hissediyorum.",
+  "Go to the living room.": "Oturma odasına git.",
+  "Go outside.": "Dışarı çık.",
+  "Explore the town.": "Kasabayı keşfet.",
+  "Day 3": "3. Gün",
+  "Put the words in the right order.": "Kelimeleri doğru sıraya koy.",
+  "Talk to your family.": "Ailenle konuş."
+ },
+ "work": {
+  "teach": [
+   [
+    "I wrote on the board.",
+    "Tahtaya yazdım."
+   ],
+   [
+    "I asked a question.",
+    "Bir soru sordum."
+   ]
+  ],
+  "study": [
+   [
+    "I opened my book.",
+    "Kitabımı açtım."
+   ],
+   [
+    "I answered the question.",
+    "Soruyu cevapladım."
+   ]
+  ],
+  "health": [
+   [
+    "I checked the patient.",
+    "Hastayı kontrol ettim."
+   ],
+   [
+    "I gave advice.",
+    "Tavsiye verdim."
+   ]
+  ],
+  "food": [
+   [
+    "I made the food.",
+    "Yemeği hazırladım."
+   ],
+   [
+    "I made the coffee.",
+    "Kahveyi yaptım."
+   ]
+  ],
+  "shop": [
+   [
+    "I opened the shop.",
+    "Dükkanı açtım."
+   ],
+   [
+    "I helped the customer.",
+    "Müşteriye yardım ettim."
+   ]
+  ],
+  "office": [
+   [
+    "I read the emails.",
+    "E-postaları okudum."
+   ],
+   [
+    "I made a phone call.",
+    "Telefon ettim."
+   ]
+  ],
+  "tech": [
+   [
+    "I turned on the computer.",
+    "Bilgisayarı açtım."
+   ],
+   [
+    "I worked on the computer.",
+    "Bilgisayarda çalıştım."
+   ]
+  ],
+  "build": [
+   [
+    "I got my tools.",
+    "Aletlerimi aldım."
+   ],
+   [
+    "I did the work.",
+    "İşi yaptım."
+   ]
+  ],
+  "transport": [
+   [
+    "I checked the vehicle.",
+    "Aracı kontrol ettim."
+   ],
+   [
+    "I started the trip.",
+    "Yolculuğa başladım."
+   ]
+  ],
+  "safety": [
+   [
+    "I checked my things.",
+    "Eşyalarımı kontrol ettim."
+   ],
+   [
+    "I watched the area.",
+    "Bölgeyi izledim."
+   ]
+  ],
+  "arts": [
+   [
+    "I got ready.",
+    "Hazırlandım."
+   ],
+   [
+    "I did my work.",
+    "İşimi yaptım."
+   ]
+  ],
+  "sports": [
+   [
+    "I warmed up.",
+    "Isındım."
+   ],
+   [
+    "I trained hard.",
+    "Sıkı çalıştım."
+   ]
+  ],
+  "nature": [
+   [
+    "I watered the plants.",
+    "Bitkileri suladım."
+   ],
+   [
+    "I fed the animals.",
+    "Hayvanları besledim."
+   ]
+  ],
+  "beauty": [
+   [
+    "I washed the hair.",
+    "Saçı yıkadım."
+   ],
+   [
+    "I cut the hair.",
+    "Saçı kestim."
+   ]
+  ],
+  "home": [
+   [
+    "I got a basket.",
+    "Bir sepet aldım."
+   ],
+   [
+    "I found the bread.",
+    "Ekmeği buldum."
+   ]
+  ]
+ },
+ "quiz": [
+  {
+   "q": "Yesterday I ___ to work.",
+   "opts": [
+    "went",
+    "go",
+    "goed"
+   ],
+   "a": 0,
+   "say": "Yesterday I went to work.",
+   "tr": "Dün işe gittim."
+  },
+  {
+   "q": "I ___ breakfast with my family.",
+   "opts": [
+    "had",
+    "have",
+    "haved"
+   ],
+   "a": 0,
+   "say": "I had breakfast with my family.",
+   "tr": "Ailemle kahvaltı yaptım."
+  },
+  {
+   "q": "The doctor ___ me.",
+   "opts": [
+    "checked",
+    "check",
+    "checks"
+   ],
+   "a": 0,
+   "say": "The doctor checked me.",
+   "tr": "Doktor beni kontrol etti."
+  },
+  {
+   "q": "I ___ fine.",
+   "opts": [
+    "was",
+    "were",
+    "am"
+   ],
+   "a": 0,
+   "say": "I was fine.",
+   "tr": "İyiydim."
+  },
+  {
+   "q": "I ___ to my family.",
+   "opts": [
+    "talked",
+    "talk",
+    "talks"
+   ],
+   "a": 0,
+   "say": "I talked to my family.",
+   "tr": "Ailemle konuştum."
+  },
+  {
+   "q": "I ___ home in the evening.",
+   "opts": [
+    "came",
+    "come",
+    "comed"
+   ],
+   "a": 0,
+   "say": "I came home in the evening.",
+   "tr": "Akşam eve geldim."
+  }
+ ],
+ "quiz_b": [
+  {
+   "q": "I ___ to the hospital.",
+   "opts": [
+    "went",
+    "goes",
+    "going"
+   ],
+   "a": 0,
+   "say": "I went to the hospital.",
+   "tr": "Hastaneye gittim."
+  },
+  {
+   "q": "My family ___ on the sofa.",
+   "opts": [
+    "were",
+    "was",
+    "is"
+   ],
+   "a": 0,
+   "say": "My family were on the sofa.",
+   "tr": "Ailem kanepedeydi."
+  },
+  {
+   "q": "I ___ have to.",
+   "opts": [
+    "learned",
+    "learn",
+    "learns"
+   ],
+   "a": 0,
+   "say": "I learned have to.",
+   "tr": "have to öğrendim."
+  },
+  {
+   "q": "The doctor ___ I was fine.",
+   "opts": [
+    "said",
+    "say",
+    "sayed"
+   ],
+   "a": 0,
+   "say": "The doctor said I was fine.",
+   "tr": "Doktor iyi olduğumu söyledi."
+  },
+  {
+   "q": "I ___ a busy day.",
+   "opts": [
+    "had",
+    "has",
+    "have"
+   ],
+   "a": 0,
+   "say": "I had a busy day.",
+   "tr": "Yoğun bir gün geçirdim."
+  },
+  {
+   "q": "I ___ my family about my day.",
+   "opts": [
+    "told",
+    "tell",
+    "telled"
+   ],
+   "a": 0,
+   "say": "I told my family about my day.",
+   "tr": "Aileme günümü anlattım."
+  }
+ ],
+ "quiz_c": [
+  {
+   "q": "I ___ up early.",
+   "opts": [
+    "woke",
+    "wake",
+    "waked"
+   ],
+   "a": 0,
+   "say": "I woke up early.",
+   "tr": "Erken uyandım."
+  },
+  {
+   "q": "I ___ the car.",
+   "opts": [
+    "drove",
+    "drive",
+    "drived"
+   ],
+   "a": 0,
+   "say": "I drove the car.",
+   "tr": "Arabayı sürdüm."
+  },
+  {
+   "q": "The doctor ___ kind.",
+   "opts": [
+    "was",
+    "were",
+    "be"
+   ],
+   "a": 0,
+   "say": "The doctor was kind.",
+   "tr": "Doktor nazikti."
+  },
+  {
+   "q": "I ___ all day.",
+   "opts": [
+    "worked",
+    "work",
+    "works"
+   ],
+   "a": 0,
+   "say": "I worked all day.",
+   "tr": "Bütün gün çalıştım."
+  },
+  {
+   "q": "My family ___ me a question.",
+   "opts": [
+    "asked",
+    "ask",
+    "asks"
+   ],
+   "a": 0,
+   "say": "My family asked me a question.",
+   "tr": "Ailem bana bir soru sordu."
+  },
+  {
+   "q": "I ___ tired in the evening.",
+   "opts": [
+    "was",
+    "were",
+    "am"
+   ],
+   "a": 0,
+   "say": "I was tired in the evening.",
+   "tr": "Akşam yorgundum."
+  }
+ ],
+ "lesson": [
+  {
+   "title": "My day: the past simple",
+   "tr": "Günüm: geçmiş zaman",
+   "rows": [
+    [
+     "I went to work.",
+     "İşe gittim. (go -> went)"
+    ],
+    [
+     "I had breakfast.",
+     "Kahvaltı yaptım. (have -> had)"
+    ],
+    [
+     "I talked to my family.",
+     "Ailemle konuştum. (talk -> talked)"
+    ],
+    [
+     "I was fine.",
+     "İyiydim. (am -> was)"
+    ]
+   ],
+   "say": [
+    "I went to work.",
+    "I had breakfast.",
+    "I talked to my family.",
+    "I was fine."
+   ]
+  }
+ ]
+}

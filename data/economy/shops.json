@@ -1,0 +1,8 @@
+{
+  "_doc": "Shops. stock: item_id -> price in cents, or null to use base_price * markup.",
+  "shops": {
+    "corner_shop": {"name": "Corner Shop", "name_tr": "Bakkal", "markup": 1.0,
+      "stock": {"apple": null, "bread": null, "milk": null, "water": null, "eggs": 230, "bus_ticket": null}},
+    "cafe": {"name": "Cafe", "name_tr": "Kafe", "markup": 1.5, "stock": {"water": null, "bread": null}}
+  }
+}

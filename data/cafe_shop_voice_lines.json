@@ -1,0 +1,572 @@
+{
+ "Objectives and script lines (both places)": [
+  [
+   "Go to the counter.",
+   "narrator/player"
+  ],
+  [
+   "Sit at a table.",
+   "narrator/player"
+  ],
+  [
+   "Take a basket.",
+   "narrator/player"
+  ],
+  [
+   "Get six apples.",
+   "narrator/player"
+  ],
+  [
+   "Get a bottle of milk.",
+   "narrator/player"
+  ],
+  [
+   "Get a loaf of bread.",
+   "narrator/player"
+  ],
+  [
+   "Pay at the checkout.",
+   "narrator/player"
+  ],
+  [
+   "Go outside.",
+   "narrator/player"
+  ],
+  [
+   "Now a short lesson and test on your phone.",
+   "narrator/player"
+  ],
+  [
+   "I'm taking a basket.",
+   "narrator/player"
+  ],
+  [
+   "Well done! You finished the cafe.",
+   "narrator/player"
+  ],
+  [
+   "Well done! You finished the shop.",
+   "narrator/player"
+  ]
+ ],
+ "Cafe story beats": [
+  [
+   "Let's learn how to order food and drinks.",
+   "narrator/player"
+  ],
+  [
+   "Say: I'd like a hot chocolate, please.",
+   "narrator/player"
+  ],
+  [
+   "Or: Can I have a cookie, please?",
+   "narrator/player"
+  ],
+  [
+   "Milk is uncountable, so we ask: How much milk?",
+   "narrator/player"
+  ],
+  [
+   "Cookies are countable, so we ask: How many cookies?",
+   "narrator/player"
+  ],
+  [
+   "What a lovely cafe!",
+   "narrator/player"
+  ],
+  [
+   "It smells like coffee and cake.",
+   "narrator/player"
+  ],
+  [
+   "Hi there! What can I get you?",
+   "NPC amy (barista)"
+  ],
+  [
+   "Hi! I'd like a hot chocolate, please.",
+   "narrator/player"
+  ],
+  [
+   "Sure. How much milk? A lot or a little?",
+   "NPC amy (barista)"
+  ],
+  [
+   "Just a little, please.",
+   "narrator/player"
+  ],
+  [
+   "And how many cookies would you like?",
+   "NPC amy (barista)"
+  ],
+  [
+   "Two cookies, please.",
+   "narrator/player"
+  ],
+  [
+   "Is that for here or to go?",
+   "NPC amy (barista)"
+  ],
+  [
+   "For here, please.",
+   "narrator/player"
+  ],
+  [
+   "That's four pounds fifty, please.",
+   "NPC amy (barista)"
+  ],
+  [
+   "Here you are.",
+   "narrator/player"
+  ],
+  [
+   "Thanks! Here's your hot chocolate. Enjoy!",
+   "NPC amy (barista)"
+  ],
+  [
+   "Thank you! It looks delicious.",
+   "narrator/player"
+  ],
+  [
+   "I'm sitting at the table. Mmm, it's really good!",
+   "narrator/player"
+  ],
+  [
+   "That was great. Time to go.",
+   "narrator/player"
+  ]
+ ],
+ "Cafe NPC chats": [
+  [
+   "Hi! The carrot cake here is amazing.",
+   "NPC kristin (c1)"
+  ],
+  [
+   "Really? How much is it?",
+   "narrator/player"
+  ],
+  [
+   "It's only three pounds. Try it!",
+   "NPC kristin (c1)"
+  ],
+  [
+   "Excuse me, how many sugars are in this?",
+   "NPC joe (c2)"
+  ],
+  [
+   "I don't know. Ask the barista.",
+   "narrator/player"
+  ],
+  [
+   "Good idea. Thanks!",
+   "NPC joe (c2)"
+  ],
+  [
+   "I'm reading and drinking tea. How much tea can one person drink?",
+   "NPC hfc_female (c3)"
+  ],
+  [
+   "A lot! I love tea too.",
+   "narrator/player"
+  ],
+  [
+   "Nice to see you again!",
+   "NPC amy (barista, repeat visits)"
+  ],
+  [
+   "Nice to see you again!",
+   "NPC kristin (c1, repeat visits)"
+  ],
+  [
+   "Nice to see you again!",
+   "NPC joe (c2, repeat visits)"
+  ],
+  [
+   "Nice to see you again!",
+   "NPC hfc_female (c3, repeat visits)"
+  ]
+ ],
+ "Cafe phone lesson": [
+  [
+   "a cup, two cups",
+   "narrator/player"
+  ],
+  [
+   "a cookie, three cookies",
+   "narrator/player"
+  ],
+  [
+   "a sandwich, two sandwiches",
+   "narrator/player"
+  ],
+  [
+   "coffee, tea, milk",
+   "narrator/player"
+  ],
+  [
+   "sugar, water, juice",
+   "narrator/player"
+  ],
+  [
+   "some milk, some cookies",
+   "narrator/player"
+  ],
+  [
+   "How much milk do you want?",
+   "narrator/player"
+  ],
+  [
+   "How many cookies do you want?",
+   "narrator/player"
+  ],
+  [
+   "Two, please.",
+   "narrator/player"
+  ],
+  [
+   "How much sugar? One spoon.",
+   "narrator/player"
+  ],
+  [
+   "How many cups? Three cups.",
+   "narrator/player"
+  ],
+  [
+   "What can I get you?",
+   "narrator/player"
+  ],
+  [
+   "I'd like a hot chocolate, please.",
+   "narrator/player"
+  ],
+  [
+   "Can I have a cookie, too?",
+   "narrator/player"
+  ],
+  [
+   "Is that for here or to go?",
+   "narrator/player"
+  ],
+  [
+   "That's four pounds fifty.",
+   "narrator/player"
+  ]
+ ],
+ "Cafe test (quiz)": [
+  [
+   "I'd like a coffee, please.",
+   "narrator/player"
+  ],
+  [
+   "Can I have some water?",
+   "narrator/player"
+  ],
+  [
+   "How much sugar? Just a little.",
+   "narrator/player"
+  ],
+  [
+   "That's four pounds, please.",
+   "narrator/player"
+  ]
+ ],
+ "Cafe test (quiz_b)": [
+  [
+   "How many cups do we need?",
+   "narrator/player"
+  ],
+  [
+   "How much tea is in the pot?",
+   "narrator/player"
+  ],
+  [
+   "Milk is uncountable.",
+   "narrator/player"
+  ],
+  [
+   "A cookie is countable.",
+   "narrator/player"
+  ],
+  [
+   "I'd like some orange juice.",
+   "narrator/player"
+  ],
+  [
+   "Three sandwiches, please.",
+   "narrator/player"
+  ]
+ ],
+ "Cafe test (quiz_c)": [
+  [
+   "How much water do you drink?",
+   "narrator/player"
+  ],
+  [
+   "How many muffins are there?",
+   "narrator/player"
+  ],
+  [
+   "Coffee is uncountable.",
+   "narrator/player"
+  ],
+  [
+   "We've got two muffins left.",
+   "narrator/player"
+  ],
+  [
+   "Just a little milk, please.",
+   "narrator/player"
+  ],
+  [
+   "I'd like a tea, please.",
+   "narrator/player"
+  ]
+ ],
+ "Shop story beats": [
+  [
+   "Apples are countable. How many apples? Six apples.",
+   "narrator/player"
+  ],
+  [
+   "Milk is uncountable. How much milk? One bottle of milk.",
+   "narrator/player"
+  ],
+  [
+   "Bread is uncountable too. We say: a loaf of bread.",
+   "narrator/player"
+  ],
+  [
+   "Countable: How many? Uncountable: How much?",
+   "narrator/player"
+  ],
+  [
+   "Wow, this shop is big!",
+   "narrator/player"
+  ],
+  [
+   "I need some food for home.",
+   "narrator/player"
+  ],
+  [
+   "Let's see my list: apples, milk and bread.",
+   "narrator/player"
+  ],
+  [
+   "How many apples do I need? Six apples.",
+   "narrator/player"
+  ],
+  [
+   "One bottle of milk. That's enough.",
+   "narrator/player"
+  ],
+  [
+   "And a loaf of bread. Done!",
+   "narrator/player"
+  ],
+  [
+   "Hello! Did you find everything?",
+   "NPC joe (assistant)"
+  ],
+  [
+   "Yes, thanks. How much is it?",
+   "narrator/player"
+  ],
+  [
+   "Six apples, milk and bread. That's six pounds forty, please.",
+   "NPC joe (assistant)"
+  ],
+  [
+   "Thank you. Would you like a bag?",
+   "NPC joe (assistant)"
+  ],
+  [
+   "Yes, please.",
+   "narrator/player"
+  ],
+  [
+   "Here's your change. Have a nice day!",
+   "NPC joe (assistant)"
+  ],
+  [
+   "Thanks! You too.",
+   "narrator/player"
+  ],
+  [
+   "My shopping is done. Let's go home.",
+   "narrator/player"
+  ]
+ ],
+ "Shop NPC chats": [
+  [
+   "Excuse me, where's the rice?",
+   "NPC kristin (c1)"
+  ],
+  [
+   "I think it's in aisle two.",
+   "narrator/player"
+  ],
+  [
+   "Thanks a lot!",
+   "NPC kristin (c1)"
+  ],
+  [
+   "Are there any eggs left?",
+   "NPC hfc_female (c2)"
+  ],
+  [
+   "Sorry, there aren't any.",
+   "narrator/player"
+  ],
+  [
+   "Oh no! I'll come back tomorrow.",
+   "NPC hfc_female (c2)"
+  ],
+  [
+   "Can I help you?",
+   "NPC joe (assistant)"
+  ],
+  [
+   "No, thanks. I'm just looking.",
+   "narrator/player"
+  ],
+  [
+   "Nice to see you again!",
+   "NPC joe (assistant, repeat visits)"
+  ],
+  [
+   "Nice to see you again!",
+   "NPC hfc_female (c2, repeat visits)"
+  ]
+ ],
+ "Shop phone lesson": [
+  [
+   "apples, bananas, oranges",
+   "narrator/player"
+  ],
+  [
+   "bread, cheese, milk",
+   "narrator/player"
+  ],
+  [
+   "eggs, tomatoes, carrots",
+   "narrator/player"
+  ],
+  [
+   "rice, water, juice",
+   "narrator/player"
+  ],
+  [
+   "a bottle of water",
+   "narrator/player"
+  ],
+  [
+   "a loaf of bread",
+   "narrator/player"
+  ],
+  [
+   "a box of eggs",
+   "narrator/player"
+  ],
+  [
+   "How many apples do you need?",
+   "narrator/player"
+  ],
+  [
+   "Six, please.",
+   "narrator/player"
+  ],
+  [
+   "How much cheese do you want?",
+   "narrator/player"
+  ],
+  [
+   "Not much. A small piece.",
+   "narrator/player"
+  ],
+  [
+   "How much is the milk?",
+   "narrator/player"
+  ],
+  [
+   "It's one pound twenty.",
+   "narrator/player"
+  ],
+  [
+   "How much are the bananas?",
+   "narrator/player"
+  ],
+  [
+   "Excuse me, where's the rice?",
+   "narrator/player"
+  ],
+  [
+   "It's in aisle two.",
+   "narrator/player"
+  ],
+  [
+   "Do you have any eggs?",
+   "narrator/player"
+  ],
+  [
+   "Would you like a bag?",
+   "narrator/player"
+  ],
+  [
+   "No, thanks.",
+   "narrator/player"
+  ],
+  [
+   "That's six pounds forty, please.",
+   "narrator/player"
+  ]
+ ],
+ "Shop test (quiz)": [
+  [
+   "How much rice do you want?",
+   "narrator/player"
+  ],
+  [
+   "Bread is uncountable.",
+   "narrator/player"
+  ]
+ ],
+ "Shop test (quiz_b)": [
+  [
+   "How many oranges are there?",
+   "narrator/player"
+  ],
+  [
+   "An apple is countable.",
+   "narrator/player"
+  ],
+  [
+   "That's six pounds forty.",
+   "narrator/player"
+  ],
+  [
+   "I need two tomatoes.",
+   "narrator/player"
+  ]
+ ],
+ "Shop test (quiz_c)": [
+  [
+   "How much water do we need?",
+   "narrator/player"
+  ],
+  [
+   "How many eggs do you need?",
+   "narrator/player"
+  ],
+  [
+   "Rice is uncountable.",
+   "narrator/player"
+  ],
+  [
+   "Excuse me, where's the milk?",
+   "narrator/player"
+  ],
+  [
+   "Can I have three bananas, please?",
+   "narrator/player"
+  ]
+ ]
+}

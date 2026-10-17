@@ -1,0 +1,645 @@
+{
+ "label": "Will, going to, have to",
+ "quiz_after": false,
+ "lesson": [
+  {
+   "title": "Have to: things I must do",
+   "tr": "have to: yapmam gereken şeyler (he / she / it -> has to)",
+   "rows": [
+    [
+     "I have to go to work.",
+     "İşe gitmem gerekiyor."
+    ],
+    [
+     "I have to go to school.",
+     "Okula gitmem gerekiyor."
+    ],
+    [
+     "She has to rest.",
+     "Dinlenmesi gerekiyor."
+    ],
+    [
+     "Do you have to work today?",
+     "Bugün çalışman gerekiyor mu?"
+    ]
+   ],
+   "say": [
+    "I have to go to work.",
+    "I have to go to school.",
+    "She has to rest.",
+    "Do you have to work today?"
+   ]
+  },
+  {
+   "title": "Going to: my plans",
+   "tr": "going to: planlar (am / is / are + going to)",
+   "rows": [
+    [
+     "I am going to visit the hospital.",
+     "Hastaneyi ziyaret edeceğim."
+    ],
+    [
+     "We are going to have breakfast.",
+     "Kahvaltı yapacağız."
+    ],
+    [
+     "He is going to drive the car.",
+     "Arabayı sürecek."
+    ],
+    [
+     "Are you going to see the doctor?",
+     "Doktora görünecek misin?"
+    ]
+   ],
+   "say": [
+    "I am going to visit the hospital.",
+    "We are going to have breakfast.",
+    "He is going to drive the car.",
+    "Are you going to see the doctor?"
+   ]
+  },
+  {
+   "title": "Will: future, promises, quick decisions",
+   "tr": "will: gelecek, sözler, ani kararlar",
+   "rows": [
+    [
+     "I will see the doctor today.",
+     "Bugün doktoru göreceğim."
+    ],
+    [
+     "I will call you later.",
+     "Seni sonra arayacağım."
+    ],
+    [
+     "It will be fine.",
+     "İyi olacak."
+    ],
+    [
+     "Will you be okay?",
+     "İyi olacak mısın?"
+    ]
+   ],
+   "say": [
+    "I will see the doctor today.",
+    "I will call you later.",
+    "It will be fine.",
+    "Will you be okay?"
+   ]
+  },
+  {
+   "title": "Short forms: will",
+   "tr": "Kısa biçimler: will -> 'll, will not -> won't",
+   "rows": [
+    [
+     "I'll call you.",
+     "I will -> I'll"
+    ],
+    [
+     "You'll be fine.",
+     "you will -> you'll"
+    ],
+    [
+     "He'll drive. She'll help.",
+     "he will -> he'll, she will -> she'll"
+    ],
+    [
+     "We'll eat. They'll come.",
+     "we will -> we'll, they will -> they'll"
+    ],
+    [
+     "It'll be okay.",
+     "it will -> it'll"
+    ],
+    [
+     "I won't be late.",
+     "will not -> won't"
+    ]
+   ],
+   "say": [
+    "I'll call you.",
+    "You'll be fine.",
+    "He'll drive. She'll help.",
+    "We'll eat. They'll come.",
+    "It'll be okay.",
+    "I won't be late."
+   ]
+  },
+  {
+   "title": "Short forms: going to",
+   "tr": "Kısa biçimler: am / is / are -> 'm / 's / 're",
+   "rows": [
+    [
+     "I'm going to rest.",
+     "I am -> I'm"
+    ],
+    [
+     "You're going to work.",
+     "you are -> you're"
+    ],
+    [
+     "He's going to drive. She's going to cook.",
+     "he is -> he's, she is -> she's"
+    ],
+    [
+     "We're going to eat. They're going to wait.",
+     "we are -> we're, they are -> they're"
+    ],
+    [
+     "She isn't going to work today.",
+     "is not -> isn't"
+    ],
+    [
+     "They aren't going to come.",
+     "are not -> aren't"
+    ]
+   ],
+   "say": [
+    "I'm going to rest.",
+    "You're going to work.",
+    "He's going to drive. She's going to cook.",
+    "We're going to eat. They're going to wait.",
+    "She isn't going to work today.",
+    "They aren't going to come."
+   ]
+  },
+  {
+   "title": "Short forms: have to",
+   "tr": "Kısa biçimler: do not -> don't, does not -> doesn't",
+   "rows": [
+    [
+     "I don't have to cook today.",
+     "Bugün yemek yapmam gerekmiyor. (do not -> don't)"
+    ],
+    [
+     "He doesn't have to work today.",
+     "Bugün çalışması gerekmiyor. (does not -> doesn't)"
+    ],
+    [
+     "Gonna = going to.",
+     "Sadece konuşmada, gündelik dil. Yazıda 'going to' yaz."
+    ],
+    [
+     "I'm gonna eat. (spoken only)",
+     "Gündelik konuşma: I'm going to eat."
+    ]
+   ],
+   "say": [
+    "I don't have to cook today.",
+    "He doesn't have to work today.",
+    "Gonna = going to.",
+    "I'm gonna eat. (spoken only)"
+   ]
+  }
+ ],
+ "dialogue": [
+  {
+   "who": "fam0",
+   "en": "Good morning! How are you today?",
+   "tr": "Günaydın! Bugün nasılsın?"
+  },
+  {
+   "who": "me",
+   "en": "I'm fine, thanks.",
+   "tr": "İyiyim, teşekkürler."
+  },
+  {
+   "who": "fam1",
+   "en": "What are you going to do today?",
+   "tr": "Bugün ne yapacaksın?"
+  },
+  {
+   "who": "me",
+   "en": "{have_to}"
+  },
+  {
+   "who": "fam0",
+   "en": "You have to rest too!",
+   "tr": "Dinlenmen de lazım!"
+  },
+  {
+   "who": "me",
+   "en": "I'm going to visit the hospital.",
+   "tr": "Hastaneye gideceğim."
+  },
+  {
+   "who": "fam1",
+   "en": "Will you be okay?",
+   "tr": "İyi olacak mısın?"
+  },
+  {
+   "who": "me",
+   "en": "Yes. I'll see the doctor today.",
+   "tr": "Evet. Bugün doktoru göreceğim."
+  },
+  {
+   "who": "fam0",
+   "en": "Good. Call us later!",
+   "tr": "Güzel. Sonra bizi ara!"
+  },
+  {
+   "who": "me",
+   "en": "I will. Don't worry. I won't be late.",
+   "tr": "Ararım. Merak etmeyin. Geç kalmayacağım."
+  }
+ ],
+ "have_to": {
+  "work": {
+   "en": "I have to go to work today.",
+   "tr": "Bugün işe gitmem gerekiyor."
+  },
+  "school": {
+   "en": "I have to go to school today.",
+   "tr": "Bugün okula gitmem gerekiyor."
+  },
+  "home": {
+   "en": "I have to do the housework today.",
+   "tr": "Bugün ev işlerini yapmam gerekiyor."
+  },
+  "unemployed": {
+   "en": "I have to look for a job today.",
+   "tr": "Bugün iş aramam gerekiyor."
+  },
+  "retired": {
+   "en": "I have to go to the market today.",
+   "tr": "Bugün pazara gitmem gerekiyor."
+  }
+ },
+ "job_group": {
+  "student": "school",
+  "schoolchild": "school",
+  "housewife": "home",
+  "househusband": "home",
+  "stay-at-home parent": "home",
+  "unemployed": "unemployed",
+  "retired": "retired"
+ },
+ "quiz": [
+  {
+   "q": "I ___ go to work today.",
+   "opts": [
+    "have to",
+    "has to",
+    "having to"
+   ],
+   "a": 0,
+   "say": "I have to go to work today.",
+   "tr": "Bugün işe gitmem gerekiyor."
+  },
+  {
+   "q": "She ___ rest.",
+   "opts": [
+    "has to",
+    "have to",
+    "haves to"
+   ],
+   "a": 0,
+   "say": "She has to rest.",
+   "tr": "Dinlenmesi gerekiyor."
+  },
+  {
+   "q": "___ going to visit the hospital.",
+   "opts": [
+    "I'm",
+    "I'll",
+    "I"
+   ],
+   "a": 0,
+   "say": "I'm going to visit the hospital.",
+   "tr": "Hastaneyi ziyaret edeceğim."
+  },
+  {
+   "q": "___ see the doctor today.",
+   "opts": [
+    "I'll",
+    "I'm",
+    "I won"
+   ],
+   "a": 0,
+   "say": "I'll see the doctor today.",
+   "tr": "Bugün doktoru göreceğim."
+  },
+  {
+   "q": "We ___ going to have breakfast.",
+   "opts": [
+    "are",
+    "is",
+    "am"
+   ],
+   "a": 0,
+   "say": "We are going to have breakfast.",
+   "tr": "Kahvaltı yapacağız."
+  },
+  {
+   "q": "___ be fine.",
+   "opts": [
+    "It'll",
+    "It's will",
+    "It"
+   ],
+   "a": 0,
+   "say": "It'll be fine.",
+   "tr": "İyi olacak."
+  },
+  {
+   "q": "He is going to ___ the car.",
+   "opts": [
+    "drive",
+    "drives",
+    "driving"
+   ],
+   "a": 0,
+   "say": "He is going to drive the car.",
+   "tr": "Arabayı sürecek."
+  },
+  {
+   "q": "I ___ be late.",
+   "opts": [
+    "won't",
+    "willn't",
+    "don't will"
+   ],
+   "a": 0,
+   "say": "I won't be late.",
+   "tr": "Geç kalmayacağım."
+  },
+  {
+   "q": "___ you going to see the doctor?",
+   "opts": [
+    "Are",
+    "Do",
+    "Will"
+   ],
+   "a": 0,
+   "say": "Are you going to see the doctor?",
+   "tr": "Doktora görünecek misin?"
+  },
+  {
+   "q": "He ___ have to work today.",
+   "opts": [
+    "doesn't",
+    "don't",
+    "isn't"
+   ],
+   "a": 0,
+   "say": "He doesn't have to work today.",
+   "tr": "Bugün çalışması gerekmiyor."
+  }
+ ],
+ "quiz_b": [
+  {
+   "q": "I ___ go to school today.",
+   "opts": [
+    "have to",
+    "has to",
+    "am have to"
+   ],
+   "a": 0,
+   "say": "I have to go to school today.",
+   "tr": "Bugün okula gitmem gerekiyor."
+  },
+  {
+   "q": "He ___ work today.",
+   "opts": [
+    "has to",
+    "have to",
+    "is have"
+   ],
+   "a": 0,
+   "say": "He has to work today.",
+   "tr": "Bugün çalışması gerekiyor."
+  },
+  {
+   "q": "I am going ___ visit my doctor.",
+   "opts": [
+    "to",
+    "for",
+    "at"
+   ],
+   "a": 0,
+   "say": "I am going to visit my doctor.",
+   "tr": "Doktorumu ziyaret edeceğim."
+  },
+  {
+   "q": "I will ___ you later.",
+   "opts": [
+    "call",
+    "calls",
+    "calling"
+   ],
+   "a": 0,
+   "say": "I will call you later.",
+   "tr": "Seni sonra arayacağım."
+  },
+  {
+   "q": "___ going to drive.",
+   "opts": [
+    "She's",
+    "She'll",
+    "She"
+   ],
+   "a": 0,
+   "say": "She's going to drive.",
+   "tr": "Araba sürecek."
+  },
+  {
+   "q": "___ help you.",
+   "opts": [
+    "We'll",
+    "We're",
+    "We"
+   ],
+   "a": 0,
+   "say": "We'll help you.",
+   "tr": "Sana yardım edeceğiz."
+  },
+  {
+   "q": "Do you ___ go to work?",
+   "opts": [
+    "have to",
+    "has to",
+    "having to"
+   ],
+   "a": 0,
+   "say": "Do you have to go to work?",
+   "tr": "İşe gitmen gerekiyor mu?"
+  },
+  {
+   "q": "I ___ have to cook today.",
+   "opts": [
+    "don't",
+    "doesn't",
+    "not"
+   ],
+   "a": 0,
+   "say": "I don't have to cook today.",
+   "tr": "Bugün yemek yapmam gerekmiyor."
+  },
+  {
+   "q": "They ___ going to come.",
+   "opts": [
+    "aren't",
+    "isn't",
+    "don't"
+   ],
+   "a": 0,
+   "say": "They aren't going to come.",
+   "tr": "Gelmeyecekler."
+  },
+  {
+   "q": "Will you ___ okay?",
+   "opts": [
+    "be",
+    "are",
+    "is"
+   ],
+   "a": 0,
+   "say": "Will you be okay?",
+   "tr": "İyi olacak mısın?"
+  }
+ ],
+ "quiz_c": [
+  {
+   "q": "You ___ rest too!",
+   "opts": [
+    "have to",
+    "has to",
+    "to have"
+   ],
+   "a": 0,
+   "say": "You have to rest too!",
+   "tr": "Dinlenmen de lazım!"
+  },
+  {
+   "q": "My mother ___ go to work.",
+   "opts": [
+    "has to",
+    "have to",
+    "haves"
+   ],
+   "a": 0,
+   "say": "My mother has to go to work.",
+   "tr": "Annemin işe gitmesi gerekiyor."
+  },
+  {
+   "q": "I'm going to ___ the hospital.",
+   "opts": [
+    "visit",
+    "visits",
+    "visiting"
+   ],
+   "a": 0,
+   "say": "I'm going to visit the hospital.",
+   "tr": "Hastaneyi ziyaret edeceğim."
+  },
+  {
+   "q": "___ see the doctor at ten.",
+   "opts": [
+    "They'll",
+    "They're",
+    "They"
+   ],
+   "a": 0,
+   "say": "They'll see the doctor at ten.",
+   "tr": "Saat onda doktoru görecekler."
+  },
+  {
+   "q": "___ going to eat breakfast.",
+   "opts": [
+    "We're",
+    "We'll",
+    "We"
+   ],
+   "a": 0,
+   "say": "We're going to eat breakfast.",
+   "tr": "Kahvaltı yapacağız."
+  },
+  {
+   "q": "Don't worry. ___ be fine.",
+   "opts": [
+    "I'll",
+    "I'm",
+    "I"
+   ],
+   "a": 0,
+   "say": "Don't worry. I'll be fine.",
+   "tr": "Merak etme. İyi olacağım."
+  },
+  {
+   "q": "We are ___ to drive to the hospital.",
+   "opts": [
+    "going",
+    "go",
+    "goes"
+   ],
+   "a": 0,
+   "say": "We are going to drive to the hospital.",
+   "tr": "Hastaneye arabayla gideceğiz."
+  },
+  {
+   "q": "She ___ going to work today.",
+   "opts": [
+    "isn't",
+    "aren't",
+    "won't"
+   ],
+   "a": 0,
+   "say": "She isn't going to work today.",
+   "tr": "Bugün çalışmayacak."
+  },
+  {
+   "q": "___ she have to work today?",
+   "opts": [
+    "Does",
+    "Do",
+    "Is"
+   ],
+   "a": 0,
+   "say": "Does she have to work today?",
+   "tr": "Bugün çalışması gerekiyor mu?"
+  },
+  {
+   "q": "He ___ be late.",
+   "opts": [
+    "won't",
+    "isn't will",
+    "don't"
+   ],
+   "a": 0,
+   "say": "He won't be late.",
+   "tr": "Geç kalmayacak."
+  }
+ ],
+ "lines": {
+  "Go to the living room.": "Oturma odasına git.",
+  "Have breakfast with your family.": "Ailenle kahvaltı yap.",
+  "Have breakfast.": "Kahvaltı yap.",
+  "I am going to the living room.": "Oturma odasına gidiyorum.",
+  "I am sitting at the table.": "Masada oturuyorum.",
+  "I am having breakfast.": "Kahvaltı yapıyorum.",
+  "Let's learn will, going to and have to.": "Hadi will, going to ve have to öğrenelim.",
+  "Now the test. Ten questions.": "Şimdi test. On soru.",
+  "Choose the right words.": "Doğru kelimeleri seç.",
+  "That is right!": "Doğru!",
+  "Not quite.": "Tam değil.",
+  "You should study the grammar again.": "Dilbilgisi konusunu tekrar çalışmalısın.",
+  "Breakfast is over.": "Kahvaltı bitti.",
+  "The table is clearing itself.": "Masa kendiliğinden toplanıyor.",
+  "Go outside to the car.": "Dışarı çık, arabaya git.",
+  "Go to the car.": "Arabaya git.",
+  "I am walking to my car.": "Arabama yürüyorum.",
+  "Good morning! How are you today?": "Günaydın! Bugün nasılsın?",
+  "I'm fine, thanks.": "İyiyim, teşekkürler.",
+  "What are you going to do today?": "Bugün ne yapacaksın?",
+  "You have to rest too!": "Dinlenmen de lazım!",
+  "I'm going to visit the hospital.": "Hastaneye gideceğim.",
+  "Will you be okay?": "İyi olacak mısın?",
+  "Yes. I'll see the doctor today.": "Evet. Bugün doktoru göreceğim.",
+  "Good. Call us later!": "Güzel. Sonra bizi ara!",
+  "I will. Don't worry. I won't be late.": "Ararım. Merak etmeyin. Geç kalmayacağım.",
+  "I have to go to work today.": "Bugün işe gitmem gerekiyor.",
+  "I have to go to school today.": "Bugün okula gitmem gerekiyor.",
+  "I have to do the housework today.": "Bugün ev işlerini yapmam gerekiyor.",
+  "I have to look for a job today.": "Bugün iş aramam gerekiyor.",
+  "I have to go to the market today.": "Bugün pazara gitmem gerekiyor."
+ }
+}

@@ -1,0 +1,90 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://7bb8ql5ku7p" path="res://scripts/world/city_block.gd" id="1"]
+[ext_resource type="Script" uid="uid://deiijjbors2dw" path="res://scripts/world/lot.gd" id="2"]
+[ext_resource type="Script" uid="uid://bhp4hv5iut72d" path="res://scripts/world/npc_spot.gd" id="3"]
+
+[node name="BlockResidential" type="Node3D" unique_id=1731970967]
+script = ExtResource("1")
+block_name = "Oak Avenue"
+
+[node name="House1" type="Node3D" parent="." unique_id=64465390]
+transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, -6.5, 0, -5.5)
+script = ExtResource("2")
+lot_id = "house_1"
+body_color = Color(0.93, 0.81, 0.62, 1)
+roof_color = Color(0.83, 0.36, 0.3, 1)
+accent_color = Color(0.36, 0.52, 0.76, 1)
+path_length = 4.5
+
+[node name="House2" type="Node3D" parent="." unique_id=832380541]
+transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, 6.5, 0, -5.5)
+script = ExtResource("2")
+lot_id = "house_2"
+body_color = Color(0.95, 0.93, 0.9, 1)
+roof_color = Color(0.25, 0.25, 0.28, 1)
+accent_color = Color(0.54, 0.7, 0.63, 1)
+path_length = 4.5
+driveway_x = 2.6
+
+[node name="House3" type="Node3D" parent="." unique_id=238677555]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 0, 5.5)
+script = ExtResource("2")
+lot_id = "house_3"
+body_color = Color(0.54, 0.7, 0.63, 1)
+roof_color = Color(0.96, 0.95, 0.93, 1)
+accent_color = Color(0.83, 0.36, 0.3, 1)
+path_length = 4.5
+
+[node name="House4" type="Node3D" parent="." unique_id=1729493075]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 0, 5.5)
+script = ExtResource("2")
+lot_id = "house_4"
+body_color = Color(0.88, 0.83, 0.76, 1)
+roof_color = Color(0.83, 0.36, 0.3, 1)
+accent_color = Color(0.72, 0.56, 0.4, 1)
+path_length = 4.5
+
+[node name="Walker" type="Node3D" parent="." unique_id=1717116590]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+script = ExtResource("3")
+mode = "walk"
+line = "Hi! I am going to work."
+loop_inset = 14.75
+look_seed = 7
+
+[node name="Crowd0" type="Node3D" parent="." unique_id=435157690]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+script = ExtResource("3")
+mode = "walk"
+line = "Hi! I am going to work."
+loop_inset = 14.2
+look_seed = 26
+loop_phase = 0.13
+
+[node name="Crowd1" type="Node3D" parent="." unique_id=1821800502]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+script = ExtResource("3")
+mode = "walk"
+line = "Hello! I am going to the shop."
+loop_inset = 15.3
+look_seed = 33
+loop_phase = 0.4
+
+[node name="Crowd2" type="Node3D" parent="." unique_id=1560076804]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+script = ExtResource("3")
+mode = "walk"
+line = "Good morning! I am walking my dog."
+loop_inset = 14.2
+look_seed = 40
+loop_phase = 0.67
+
+[node name="Crowd3" type="Node3D" parent="." unique_id=1272082869]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+script = ExtResource("3")
+mode = "walk"
+line = "Hi! I am walking to the park."
+loop_inset = 15.3
+look_seed = 47
+loop_phase = 0.94

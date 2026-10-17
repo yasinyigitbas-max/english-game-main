@@ -1,0 +1,64 @@
+{
+ "_doc": "Bus stops (approximate pos [x, z]; BusStop lots register their exact position when their block loads) and routes. Times are HH:MM, headway in minutes, leg_minutes = travel time between consecutive stops. fare in cents.",
+ "grid": {
+  "block_size": 40,
+  "min": [
+   -2,
+   -1
+  ],
+  "max": [
+   2,
+   2
+  ]
+ },
+ "stops": [
+  {
+   "id": "stop_home",
+   "name": "Maple Street",
+   "name_tr": "Maple Soka\u011f\u0131",
+   "pos": [
+    9.5,
+    14.7
+   ]
+  },
+  {
+   "id": "stop_market",
+   "name": "Birch Road",
+   "name_tr": "Birch Yolu",
+   "pos": [
+    -25.3,
+    40
+   ]
+  },
+  {
+   "id": "stop_park",
+   "name": "Park Road",
+   "name_tr": "Park Yolu",
+   "pos": [
+    65.3,
+    40
+   ]
+  }
+ ],
+ "routes": [
+  {
+   "id": "bus_1",
+   "name": "Bus 1",
+   "color": [
+    0.4,
+    0.56,
+    0.76
+   ],
+   "fare": 150,
+   "stops": [
+    "stop_home",
+    "stop_market",
+    "stop_park"
+   ],
+   "first": "06:00",
+   "last": "23:00",
+   "headway": 15,
+   "leg_minutes": 4
+  }
+ ]
+}

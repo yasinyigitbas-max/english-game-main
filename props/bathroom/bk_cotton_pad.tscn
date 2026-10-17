@@ -1,0 +1,18 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4etj6"]
+albedo_color = Color(0.99, 0.99, 0.98, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_e5mqb"]
+top_radius = 0.026
+bottom_radius = 0.026
+height = 0.006
+radial_segments = 16
+rings = 1
+
+[node name="BkCottonPad" type="Node3D" unique_id=358065338]
+
+[node name="@MeshInstance3D@10" type="MeshInstance3D" parent="." unique_id=247358078]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.003, 0)
+material_override = SubResource("StandardMaterial3D_4etj6")
+mesh = SubResource("CylinderMesh_e5mqb")

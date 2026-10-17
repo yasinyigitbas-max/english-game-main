@@ -1,0 +1,38 @@
+[gd_scene format=3]
+
+[sub_resource type="BoxMesh" id="m1"]
+size = Vector3(0.012, 0.01, 0.15)
+
+[sub_resource type="StandardMaterial3D" id="c1"]
+albedo_color = Color(0.31, 0.55, 0.93, 1)
+roughness = 0.7
+
+[sub_resource type="BoxMesh" id="m2"]
+size = Vector3(0.013, 0.016, 0.03)
+
+[sub_resource type="StandardMaterial3D" id="c2"]
+albedo_color = Color(0.97, 0.97, 0.97, 1)
+roughness = 0.7
+
+[sub_resource type="BoxMesh" id="m3"]
+size = Vector3(0.014, 0.006, 0.032)
+
+[sub_resource type="StandardMaterial3D" id="c3"]
+albedo_color = Color(0.31, 0.55, 0.93, 1)
+roughness = 0.7
+
+[node name="Toothbrush" type="Node3D" unique_id=1312971598]
+
+[node name="P1" type="MeshInstance3D" parent="." unique_id=1765854619]
+mesh = SubResource("m1")
+surface_material_override/0 = SubResource("c1")
+
+[node name="P2" type="MeshInstance3D" parent="." unique_id=260765766]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.012, 0.065)
+mesh = SubResource("m2")
+surface_material_override/0 = SubResource("c2")
+
+[node name="P3" type="MeshInstance3D" parent="." unique_id=1782097515]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.004, 0.065)
+mesh = SubResource("m3")
+surface_material_override/0 = SubResource("c3")

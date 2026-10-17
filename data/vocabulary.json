@@ -1,0 +1,1014 @@
+{
+ "version": 1,
+ "levels": {
+  "A1": {
+   "verbs": [
+    {
+     "en": "wake up",
+     "tr": "uyanmak",
+     "tr_more": [
+      "uyandırmak"
+     ]
+    },
+    {
+     "en": "get up",
+     "tr": "kalkmak",
+     "tr_more": [
+      "yataktan kalkmak, ayağa kalkmak"
+     ]
+    },
+    {
+     "en": "sleep",
+     "tr": "uyumak",
+     "tr_more": [
+      "(isim) uyku"
+     ]
+    },
+    {
+     "en": "make the bed",
+     "tr": "yatağı toplamak",
+     "tr_more": []
+    },
+    {
+     "en": "brush your teeth",
+     "tr": "dişlerini fırçalamak",
+     "tr_more": []
+    },
+    {
+     "en": "wash",
+     "tr": "yıkamak",
+     "tr_more": [
+      "yıkanmak"
+     ]
+    },
+    {
+     "en": "get dressed",
+     "tr": "giyinmek",
+     "tr_more": []
+    },
+    {
+     "en": "eat",
+     "tr": "yemek",
+     "tr_more": [
+      "yemek yemek"
+     ]
+    },
+    {
+     "en": "drink",
+     "tr": "içmek",
+     "tr_more": [
+      "(isim) içecek"
+     ]
+    },
+    {
+     "en": "cook",
+     "tr": "yemek pişirmek",
+     "tr_more": [
+      "pişirmek",
+      "(isim) aşçı"
+     ]
+    },
+    {
+     "en": "read",
+     "tr": "okumak",
+     "tr_more": [
+      "sesli okumak"
+     ]
+    },
+    {
+     "en": "write",
+     "tr": "yazmak",
+     "tr_more": []
+    },
+    {
+     "en": "open",
+     "tr": "açmak",
+     "tr_more": [
+      "açılmak"
+     ]
+    },
+    {
+     "en": "close",
+     "tr": "kapatmak",
+     "tr_more": [
+      "kapamak",
+      "kapanmak"
+     ]
+    },
+    {
+     "en": "turn on",
+     "tr": "açmak",
+     "tr_more": [
+      "(cihaz, ışık) çalıştırmak"
+     ]
+    },
+    {
+     "en": "turn off",
+     "tr": "kapatmak",
+     "tr_more": [
+      "(cihaz, ışık) söndürmek"
+     ]
+    },
+    {
+     "en": "sit",
+     "tr": "oturmak",
+     "tr_more": []
+    },
+    {
+     "en": "stand up",
+     "tr": "ayağa kalkmak",
+     "tr_more": []
+    },
+    {
+     "en": "walk",
+     "tr": "yürümek",
+     "tr_more": [
+      "(köpek) gezdirmek",
+      "(isim) yürüyüş"
+     ]
+    },
+    {
+     "en": "run",
+     "tr": "koşmak",
+     "tr_more": [
+      "(şirket, dükkân) işletmek, yönetmek",
+      "(makine) çalışmak"
+     ]
+    },
+    {
+     "en": "go",
+     "tr": "gitmek",
+     "tr_more": [
+      "(go to bed) yatmak"
+     ]
+    },
+    {
+     "en": "come",
+     "tr": "gelmek",
+     "tr_more": []
+    },
+    {
+     "en": "look at",
+     "tr": "-e bakmak",
+     "tr_more": [
+      "incelemek"
+     ]
+    },
+    {
+     "en": "listen",
+     "tr": "dinlemek",
+     "tr_more": [
+      "kulak vermek"
+     ]
+    },
+    {
+     "en": "speak",
+     "tr": "konuşmak",
+     "tr_more": [
+      "(dil) konuşmak, bilmek"
+     ]
+    },
+    {
+     "en": "like",
+     "tr": "sevmek",
+     "tr_more": [
+      "hoşlanmak",
+      "(edat) gibi"
+     ]
+    },
+    {
+     "en": "want",
+     "tr": "istemek",
+     "tr_more": []
+    },
+    {
+     "en": "have",
+     "tr": "sahip olmak, -si olmak",
+     "tr_more": [
+      "(yemek, içecek) yemek, içmek",
+      "(have to) -mek zorunda olmak"
+     ]
+    },
+    {
+     "en": "play",
+     "tr": "oynamak",
+     "tr_more": [
+      "(müzik aleti) çalmak",
+      "(müzik, film) çalmak, oynatmak",
+      "(isim) oyun"
+     ]
+    },
+    {
+     "en": "work",
+     "tr": "çalışmak",
+     "tr_more": [
+      "(makine) çalışmak, işlemek",
+      "(isim) iş"
+     ]
+    },
+    {
+     "en": "watch",
+     "tr": "izlemek",
+     "tr_more": [
+      "seyretmek",
+      "(isim) kol saati"
+     ]
+    },
+    {
+     "en": "water the plant",
+     "tr": "bitkiyi sulamak",
+     "tr_more": []
+    }
+   ],
+   "nouns": [
+    {
+     "en": "bed",
+     "tr": "yatak",
+     "tr_more": []
+    },
+    {
+     "en": "pillow",
+     "tr": "yastık",
+     "tr_more": []
+    },
+    {
+     "en": "blanket",
+     "tr": "battaniye",
+     "tr_more": []
+    },
+    {
+     "en": "alarm clock",
+     "tr": "çalar saat",
+     "tr_more": []
+    },
+    {
+     "en": "lamp",
+     "tr": "lamba",
+     "tr_more": []
+    },
+    {
+     "en": "bedside table",
+     "tr": "komodin",
+     "tr_more": []
+    },
+    {
+     "en": "drawer",
+     "tr": "çekmece",
+     "tr_more": []
+    },
+    {
+     "en": "wardrobe",
+     "tr": "gardırop",
+     "tr_more": [
+      "elbise dolabı"
+     ]
+    },
+    {
+     "en": "window",
+     "tr": "pencere",
+     "tr_more": []
+    },
+    {
+     "en": "curtains",
+     "tr": "perdeler",
+     "tr_more": []
+    },
+    {
+     "en": "door",
+     "tr": "kapı",
+     "tr_more": []
+    },
+    {
+     "en": "desk",
+     "tr": "çalışma masası",
+     "tr_more": [
+      "(okul) sıra"
+     ]
+    },
+    {
+     "en": "chair",
+     "tr": "sandalye",
+     "tr_more": []
+    },
+    {
+     "en": "laptop",
+     "tr": "dizüstü bilgisayar",
+     "tr_more": []
+    },
+    {
+     "en": "phone",
+     "tr": "telefon",
+     "tr_more": []
+    },
+    {
+     "en": "book",
+     "tr": "kitap",
+     "tr_more": []
+    },
+    {
+     "en": "bookshelf",
+     "tr": "kitaplık",
+     "tr_more": [
+      "kitap rafı"
+     ]
+    },
+    {
+     "en": "mirror",
+     "tr": "ayna",
+     "tr_more": []
+    },
+    {
+     "en": "plant",
+     "tr": "bitki",
+     "tr_more": []
+    },
+    {
+     "en": "rug",
+     "tr": "halı",
+     "tr_more": [
+      "kilim"
+     ]
+    },
+    {
+     "en": "floor",
+     "tr": "yer, zemin",
+     "tr_more": [
+      "(bina) kat"
+     ]
+    },
+    {
+     "en": "wall",
+     "tr": "duvar",
+     "tr_more": []
+    },
+    {
+     "en": "room",
+     "tr": "oda",
+     "tr_more": [
+      "yer, alan"
+     ]
+    },
+    {
+     "en": "house",
+     "tr": "ev",
+     "tr_more": []
+    },
+    {
+     "en": "breakfast",
+     "tr": "kahvaltı",
+     "tr_more": []
+    },
+    {
+     "en": "water",
+     "tr": "su",
+     "tr_more": []
+    },
+    {
+     "en": "bread",
+     "tr": "ekmek",
+     "tr_more": []
+    },
+    {
+     "en": "milk",
+     "tr": "süt",
+     "tr_more": []
+    },
+    {
+     "en": "friend",
+     "tr": "arkadaş",
+     "tr_more": [
+      "dost"
+     ]
+    },
+    {
+     "en": "family",
+     "tr": "aile",
+     "tr_more": []
+    },
+    {
+     "en": "teacher",
+     "tr": "öğretmen",
+     "tr_more": []
+    },
+    {
+     "en": "morning",
+     "tr": "sabah",
+     "tr_more": []
+    }
+   ],
+   "adjectives": [
+    {
+     "en": "big",
+     "tr": "büyük",
+     "tr_more": [
+      "iri"
+     ]
+    },
+    {
+     "en": "small",
+     "tr": "küçük",
+     "tr_more": []
+    },
+    {
+     "en": "new",
+     "tr": "yeni",
+     "tr_more": []
+    },
+    {
+     "en": "old",
+     "tr": "eski",
+     "tr_more": [
+      "yaşlı"
+     ]
+    },
+    {
+     "en": "good",
+     "tr": "iyi",
+     "tr_more": [
+      "güzel",
+      "(good at) -de iyi, başarılı"
+     ]
+    },
+    {
+     "en": "bad",
+     "tr": "kötü",
+     "tr_more": [
+      "(yiyecek) bozuk"
+     ]
+    },
+    {
+     "en": "happy",
+     "tr": "mutlu",
+     "tr_more": []
+    },
+    {
+     "en": "sad",
+     "tr": "üzgün",
+     "tr_more": [
+      "hüzünlü"
+     ]
+    },
+    {
+     "en": "tired",
+     "tr": "yorgun",
+     "tr_more": []
+    },
+    {
+     "en": "hungry",
+     "tr": "aç",
+     "tr_more": [
+      "acıkmış"
+     ]
+    },
+    {
+     "en": "hot",
+     "tr": "sıcak",
+     "tr_more": [
+      "(yemek) acı"
+     ]
+    },
+    {
+     "en": "cold",
+     "tr": "soğuk",
+     "tr_more": [
+      "(isim) soğuk algınlığı, nezle"
+     ]
+    },
+    {
+     "en": "clean",
+     "tr": "temiz",
+     "tr_more": []
+    },
+    {
+     "en": "dirty",
+     "tr": "kirli",
+     "tr_more": []
+    },
+    {
+     "en": "open",
+     "tr": "açık",
+     "tr_more": []
+    },
+    {
+     "en": "closed",
+     "tr": "kapalı",
+     "tr_more": []
+    },
+    {
+     "en": "early",
+     "tr": "erken",
+     "tr_more": [
+      "erkenci"
+     ]
+    },
+    {
+     "en": "late",
+     "tr": "geç",
+     "tr_more": [
+      "geç kalmış"
+     ]
+    },
+    {
+     "en": "beautiful",
+     "tr": "güzel",
+     "tr_more": [
+      "çok güzel, harika"
+     ]
+    },
+    {
+     "en": "easy",
+     "tr": "kolay",
+     "tr_more": []
+    },
+    {
+     "en": "difficult",
+     "tr": "zor",
+     "tr_more": [
+      "güç"
+     ]
+    },
+    {
+     "en": "messy",
+     "tr": "dağınık",
+     "tr_more": [
+      "karışık"
+     ]
+    }
+   ]
+  },
+  "A2": {
+   "verbs": [
+    {
+     "en": "tidy",
+     "tr": "toplamak",
+     "tr_more": [
+      "düzenlemek, derleyip toplamak"
+     ]
+    },
+    {
+     "en": "fold",
+     "tr": "katlamak",
+     "tr_more": []
+    },
+    {
+     "en": "hang up",
+     "tr": "asmak",
+     "tr_more": [
+      "(telefon) kapatmak"
+     ]
+    },
+    {
+     "en": "put on",
+     "tr": "giymek",
+     "tr_more": [
+      "takmak",
+      "(ışık, müzik) açmak"
+     ]
+    },
+    {
+     "en": "take off",
+     "tr": "(giysi) çıkarmak",
+     "tr_more": [
+      "(uçak) kalkmak"
+     ]
+    },
+    {
+     "en": "lie down",
+     "tr": "uzanmak",
+     "tr_more": [
+      "yatmak"
+     ]
+    },
+    {
+     "en": "check",
+     "tr": "kontrol etmek",
+     "tr_more": [
+      "bakmak"
+     ]
+    },
+    {
+     "en": "set the alarm",
+     "tr": "alarmı kurmak",
+     "tr_more": []
+    },
+    {
+     "en": "charge",
+     "tr": "şarj etmek",
+     "tr_more": [
+      "(para) almak, ücret istemek"
+     ]
+    },
+    {
+     "en": "plug in",
+     "tr": "prize takmak",
+     "tr_more": []
+    },
+    {
+     "en": "look out of",
+     "tr": "-den dışarı bakmak",
+     "tr_more": []
+    },
+    {
+     "en": "put back",
+     "tr": "yerine koymak",
+     "tr_more": [
+      "geri koymak"
+     ]
+    },
+    {
+     "en": "borrow",
+     "tr": "ödünç almak",
+     "tr_more": []
+    },
+    {
+     "en": "buy",
+     "tr": "satın almak",
+     "tr_more": []
+    },
+    {
+     "en": "pay",
+     "tr": "ödemek",
+     "tr_more": [
+      "(isim) maaş"
+     ]
+    },
+    {
+     "en": "travel",
+     "tr": "seyahat etmek",
+     "tr_more": []
+    },
+    {
+     "en": "visit",
+     "tr": "ziyaret etmek",
+     "tr_more": [
+      "(yer) gezmek, görmek"
+     ]
+    },
+    {
+     "en": "meet",
+     "tr": "tanışmak",
+     "tr_more": [
+      "buluşmak",
+      "karşılamak"
+     ]
+    },
+    {
+     "en": "forget",
+     "tr": "unutmak",
+     "tr_more": []
+    },
+    {
+     "en": "remember",
+     "tr": "hatırlamak",
+     "tr_more": []
+    },
+    {
+     "en": "decide",
+     "tr": "karar vermek",
+     "tr_more": []
+    },
+    {
+     "en": "try",
+     "tr": "denemek",
+     "tr_more": [
+      "çalışmak, uğraşmak",
+      "(yemek) tadına bakmak"
+     ]
+    },
+    {
+     "en": "finish",
+     "tr": "bitirmek",
+     "tr_more": [
+      "bitmek"
+     ]
+    },
+    {
+     "en": "arrive",
+     "tr": "varmak",
+     "tr_more": [
+      "ulaşmak, gelmek"
+     ]
+    },
+    {
+     "en": "leave",
+     "tr": "ayrılmak",
+     "tr_more": [
+      "bırakmak",
+      "(yer) -den çıkmak"
+     ]
+    },
+    {
+     "en": "win",
+     "tr": "kazanmak",
+     "tr_more": []
+    },
+    {
+     "en": "lose",
+     "tr": "kaybetmek",
+     "tr_more": [
+      "(maç) yenilmek"
+     ]
+    },
+    {
+     "en": "explain",
+     "tr": "açıklamak",
+     "tr_more": [
+      "anlatmak"
+     ]
+    }
+   ],
+   "nouns": [
+    {
+     "en": "ceiling",
+     "tr": "tavan",
+     "tr_more": []
+    },
+    {
+     "en": "light switch",
+     "tr": "ışık anahtarı",
+     "tr_more": []
+    },
+    {
+     "en": "cable",
+     "tr": "kablo",
+     "tr_more": []
+    },
+    {
+     "en": "charger",
+     "tr": "şarj aleti",
+     "tr_more": []
+    },
+    {
+     "en": "hanger",
+     "tr": "askı",
+     "tr_more": []
+    },
+    {
+     "en": "sheet",
+     "tr": "çarşaf",
+     "tr_more": [
+      "(kâğıt) yaprak"
+     ]
+    },
+    {
+     "en": "duvet",
+     "tr": "yorgan",
+     "tr_more": []
+    },
+    {
+     "en": "mattress",
+     "tr": "yatak şiltesi",
+     "tr_more": []
+    },
+    {
+     "en": "shelf",
+     "tr": "raf",
+     "tr_more": []
+    },
+    {
+     "en": "poster",
+     "tr": "poster",
+     "tr_more": [
+      "afiş"
+     ]
+    },
+    {
+     "en": "plug",
+     "tr": "fiş",
+     "tr_more": [
+      "(lavabo) tıpa"
+     ]
+    },
+    {
+     "en": "weekend",
+     "tr": "hafta sonu",
+     "tr_more": []
+    },
+    {
+     "en": "holiday",
+     "tr": "tatil",
+     "tr_more": [
+      "bayram"
+     ]
+    },
+    {
+     "en": "journey",
+     "tr": "yolculuk",
+     "tr_more": [
+      "seyahat"
+     ]
+    },
+    {
+     "en": "weather",
+     "tr": "hava",
+     "tr_more": [
+      "hava durumu"
+     ]
+    },
+    {
+     "en": "appointment",
+     "tr": "randevu",
+     "tr_more": []
+    },
+    {
+     "en": "advice",
+     "tr": "tavsiye",
+     "tr_more": []
+    },
+    {
+     "en": "experience",
+     "tr": "deneyim",
+     "tr_more": []
+    },
+    {
+     "en": "neighbour",
+     "tr": "komşu",
+     "tr_more": []
+    },
+    {
+     "en": "furniture",
+     "tr": "mobilya",
+     "tr_more": []
+    },
+    {
+     "en": "clothes",
+     "tr": "kıyafetler",
+     "tr_more": [
+      "giysiler"
+     ]
+    },
+    {
+     "en": "umbrella",
+     "tr": "şemsiye",
+     "tr_more": []
+    },
+    {
+     "en": "ticket",
+     "tr": "bilet",
+     "tr_more": []
+    },
+    {
+     "en": "museum",
+     "tr": "müze",
+     "tr_more": []
+    },
+    {
+     "en": "dentist",
+     "tr": "diş hekimi",
+     "tr_more": []
+    },
+    {
+     "en": "newspaper",
+     "tr": "gazete",
+     "tr_more": []
+    },
+    {
+     "en": "noise",
+     "tr": "gürültü",
+     "tr_more": []
+    },
+    {
+     "en": "habit",
+     "tr": "alışkanlık",
+     "tr_more": []
+    }
+   ],
+   "adjectives": [
+    {
+     "en": "comfortable",
+     "tr": "rahat",
+     "tr_more": [
+      "konforlu"
+     ]
+    },
+    {
+     "en": "uncomfortable",
+     "tr": "rahatsız",
+     "tr_more": []
+    },
+    {
+     "en": "tidy",
+     "tr": "düzenli",
+     "tr_more": [
+      "derli toplu"
+     ]
+    },
+    {
+     "en": "quiet",
+     "tr": "sessiz",
+     "tr_more": []
+    },
+    {
+     "en": "noisy",
+     "tr": "gürültülü",
+     "tr_more": []
+    },
+    {
+     "en": "bright",
+     "tr": "aydınlık",
+     "tr_more": [
+      "parlak",
+      "(kişi) zeki"
+     ]
+    },
+    {
+     "en": "dark",
+     "tr": "karanlık",
+     "tr_more": [
+      "(renk) koyu",
+      "(saç, ten) esmer"
+     ]
+    },
+    {
+     "en": "cheap",
+     "tr": "ucuz",
+     "tr_more": []
+    },
+    {
+     "en": "expensive",
+     "tr": "pahalı",
+     "tr_more": []
+    },
+    {
+     "en": "dangerous",
+     "tr": "tehlikeli",
+     "tr_more": []
+    },
+    {
+     "en": "safe",
+     "tr": "güvenli",
+     "tr_more": [
+      "(isim) kasa"
+     ]
+    },
+    {
+     "en": "famous",
+     "tr": "ünlü",
+     "tr_more": [
+      "meşhur"
+     ]
+    },
+    {
+     "en": "boring",
+     "tr": "sıkıcı",
+     "tr_more": []
+    },
+    {
+     "en": "interesting",
+     "tr": "ilginç",
+     "tr_more": []
+    },
+    {
+     "en": "exciting",
+     "tr": "heyecan verici",
+     "tr_more": [
+      "heyecanlı"
+     ]
+    },
+    {
+     "en": "worried",
+     "tr": "endişeli",
+     "tr_more": [
+      "kaygılı"
+     ]
+    },
+    {
+     "en": "bored",
+     "tr": "sıkılmış",
+     "tr_more": [
+      "canı sıkkın"
+     ]
+    },
+    {
+     "en": "surprised",
+     "tr": "şaşırmış",
+     "tr_more": []
+    },
+    {
+     "en": "healthy",
+     "tr": "sağlıklı",
+     "tr_more": []
+    },
+    {
+     "en": "crowded",
+     "tr": "kalabalık",
+     "tr_more": []
+    },
+    {
+     "en": "careful",
+     "tr": "dikkatli",
+     "tr_more": [
+      "özenli"
+     ]
+    },
+    {
+     "en": "wonderful",
+     "tr": "harika",
+     "tr_more": [
+      "muhteşem"
+     ]
+    }
+   ]
+  }
+ }
+}

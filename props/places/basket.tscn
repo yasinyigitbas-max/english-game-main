@@ -1,0 +1,36 @@
+[gd_scene format=3]
+
+[sub_resource type="BoxMesh" id="b1"]
+size = Vector3(0.4, 0.2, 0.28)
+
+[sub_resource type="StandardMaterial3D" id="m1"]
+albedo_color = Color(0.85, 0.2, 0.22, 1)
+roughness = 0.7
+
+[sub_resource type="BoxMesh" id="h1"]
+size = Vector3(0.03, 0.18, 0.03)
+
+[sub_resource type="BoxMesh" id="h2"]
+size = Vector3(0.03, 0.03, 0.26)
+
+[node name="Basket" type="Node3D" unique_id=1879572102]
+
+[node name="Body" type="MeshInstance3D" parent="." unique_id=19394116]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+mesh = SubResource("b1")
+surface_material_override/0 = SubResource("m1")
+
+[node name="HandleA" type="MeshInstance3D" parent="." unique_id=306450781]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.29, -0.12)
+mesh = SubResource("h1")
+surface_material_override/0 = SubResource("m1")
+
+[node name="HandleB" type="MeshInstance3D" parent="." unique_id=1555461341]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.29, 0.12)
+mesh = SubResource("h1")
+surface_material_override/0 = SubResource("m1")
+
+[node name="HandleTop" type="MeshInstance3D" parent="." unique_id=1187151646]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.38, 0)
+mesh = SubResource("h2")
+surface_material_override/0 = SubResource("m1")

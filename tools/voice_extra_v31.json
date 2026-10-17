@@ -1,0 +1,234 @@
+[
+[
+"Hello again! How are you today?",
+"hfc_male"
+],
+[
+"Yesterday we checked your legs, arms, chest, ears and eyes.",
+"hfc_male"
+],
+[
+"Today I want to check other parts of your body.",
+"hfc_male"
+],
+[
+"Your back hurts a little. You should not carry heavy bags.",
+"hfc_male"
+],
+[
+"You are healthy. Well done! Now a short quiz on your phone.",
+"hfc_male"
+],
+[
+"Good job! Take care of your body. See you soon!",
+"hfc_male"
+],
+[
+"How is your head?",
+"hfc_male"
+],
+[
+"How is your neck?",
+"hfc_male"
+],
+[
+"How are your shoulders?",
+"hfc_male"
+],
+[
+"How is your back?",
+"hfc_male"
+],
+[
+"How is your stomach?",
+"hfc_male"
+],
+[
+"Show me your hands and fingers.",
+"hfc_male"
+],
+[
+"How are your knees?",
+"hfc_male"
+],
+[
+"How are your feet?",
+"hfc_male"
+],
+[
+"Open your mouth, please. Your teeth look good.",
+"hfc_male"
+],
+[
+"How is your nose?",
+"hfc_male"
+],
+[
+"I am fine, thank you.",
+"ljspeech"
+],
+[
+"Thank you, doctor. Goodbye!",
+"ljspeech"
+],
+[
+"My head is fine.",
+"ljspeech"
+],
+[
+"My neck is fine.",
+"ljspeech"
+],
+[
+"My shoulders are fine.",
+"ljspeech"
+],
+[
+"My back hurts a little.",
+"ljspeech"
+],
+[
+"My stomach is fine.",
+"ljspeech"
+],
+[
+"My hands and fingers are fine.",
+"ljspeech"
+],
+[
+"My knees are fine.",
+"ljspeech"
+],
+[
+"My feet are fine.",
+"ljspeech"
+],
+[
+"I brush my teeth every day.",
+"ljspeech"
+],
+[
+"My nose is fine.",
+"ljspeech"
+],
+[
+"My back hurts. I should rest.",
+"ljspeech"
+],
+[
+"We can eat with our mouth.",
+"ljspeech"
+],
+[
+"We can hear with our ears.",
+"ljspeech"
+],
+[
+"We can see with our eyes.",
+"ljspeech"
+],
+[
+"We can smell with our nose.",
+"ljspeech"
+],
+[
+"We can walk with our feet.",
+"ljspeech"
+],
+[
+"We can write with our fingers.",
+"ljspeech"
+],
+[
+"We cannot hear with our eyes.",
+"ljspeech"
+],
+[
+"We cannot see with our knees.",
+"ljspeech"
+],
+[
+"We should brush our teeth every day.",
+"ljspeech"
+],
+[
+"We should not eat with our feet.",
+"ljspeech"
+],
+[
+"We should not sleep on our head.",
+"ljspeech"
+],
+[
+"We should wash our hands before we eat.",
+"ljspeech"
+],
+[
+"We should wash our hands.",
+"ljspeech"
+],
+[
+"We shouldn't eat with our feet.",
+"ljspeech"
+],
+[
+"back",
+"ljspeech"
+],
+[
+"feet",
+"ljspeech"
+],
+[
+"hands, fingers",
+"ljspeech"
+],
+[
+"head",
+"ljspeech"
+],
+[
+"knees",
+"ljspeech"
+],
+[
+"neck",
+"ljspeech"
+],
+[
+"nose, mouth, teeth",
+"ljspeech"
+],
+[
+"shoulders",
+"ljspeech"
+],
+[
+"stomach",
+"ljspeech"
+],
+[
+"The door is closed. Wash your face and brush your teeth first.",
+"ljspeech"
+],
+[
+"Where do you want to go?",
+"ljspeech"
+],
+[
+"Now the big test. Ten questions.",
+"ljspeech"
+],
+[
+"Wash your face.",
+"ljspeech"
+],
+[
+"Brush your teeth.",
+"ljspeech"
+],
+[
+"Go outside.",
+"ljspeech"
+]
+]

@@ -1,0 +1,98 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://7bb8ql5ku7p" path="res://scripts/world/city_block.gd" id="1"]
+[ext_resource type="Script" uid="uid://deiijjbors2dw" path="res://scripts/world/lot.gd" id="2"]
+[ext_resource type="Script" uid="uid://bhp4hv5iut72d" path="res://scripts/world/npc_spot.gd" id="3"]
+
+[node name="BlockResidentialC" type="Node3D" unique_id=214283488]
+script = ExtResource("1")
+block_name = "Park Road"
+
+[node name="House1" type="Node3D" parent="." unique_id=578158271]
+transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, -6.5, 0, -5.5)
+script = ExtResource("2")
+lot_id = "house_1"
+body_color = Color(0.93, 0.81, 0.62, 1)
+roof_color = Color(0.36, 0.52, 0.76, 1)
+accent_color = Color(0.54, 0.7, 0.63, 1)
+path_length = 4.5
+
+[node name="House2" type="Node3D" parent="." unique_id=1048739054]
+transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, 6.5, 0, -5.5)
+script = ExtResource("2")
+lot_id = "house_2"
+body_color = Color(0.54, 0.7, 0.63, 1)
+roof_color = Color(0.83, 0.36, 0.3, 1)
+accent_color = Color(0.95, 0.93, 0.9, 1)
+path_length = 4.5
+
+[node name="House3" type="Node3D" parent="." unique_id=500103694]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 0, 5.5)
+script = ExtResource("2")
+lot_id = "house_3"
+body_color = Color(0.95, 0.93, 0.9, 1)
+roof_color = Color(0.25, 0.25, 0.28, 1)
+accent_color = Color(0.83, 0.36, 0.3, 1)
+path_length = 4.5
+
+[node name="House4" type="Node3D" parent="." unique_id=623593437]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 0, 5.5)
+script = ExtResource("2")
+lot_id = "house_4"
+body_color = Color(0.88, 0.83, 0.76, 1)
+roof_color = Color(0.36, 0.52, 0.76, 1)
+accent_color = Color(0.72, 0.56, 0.4, 1)
+path_length = 4.5
+driveway_x = 2.6
+
+[node name="BusStop" type="Node3D" parent="." unique_id=1851958946]
+transform = Transform3D(6.12323e-17, 0, -1, 0, 1, 0, 1, 0, 6.12323e-17, -14.7, 0, 0)
+script = ExtResource("2")
+lot_id = "stop_park"
+kind = "bus_stop"
+size = Vector2(3.2, 1.4)
+path_length = 0
+display_name = "Park Road"
+stop_id = "stop_park"
+
+[node name="WaitingAtStop" type="Node3D" parent="." unique_id=1163686849]
+transform = Transform3D(6.12323e-17, 0, -1, 0, 1, 0, 1, 0, 6.12323e-17, -14.9, 0.06, 1.2)
+script = ExtResource("3")
+line = "Hello! I am waiting for the bus."
+look_seed = 11
+
+[node name="Crowd0" type="Node3D" parent="." unique_id=259926159]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+script = ExtResource("3")
+mode = "walk"
+line = "Hi! I am going to work."
+loop_inset = 14.2
+look_seed = 20
+loop_phase = 0.13
+
+[node name="Crowd1" type="Node3D" parent="." unique_id=185071312]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+script = ExtResource("3")
+mode = "walk"
+line = "Hello! I am going to the shop."
+loop_inset = 15.3
+look_seed = 27
+loop_phase = 0.4
+
+[node name="Crowd2" type="Node3D" parent="." unique_id=1081170286]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+script = ExtResource("3")
+mode = "walk"
+line = "Good morning! I am walking my dog."
+loop_inset = 14.2
+look_seed = 34
+loop_phase = 0.67
+
+[node name="Crowd3" type="Node3D" parent="." unique_id=2087069668]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+script = ExtResource("3")
+mode = "walk"
+line = "Hi! I am walking to the park."
+loop_inset = 15.3
+look_seed = 41
+loop_phase = 0.94

@@ -1,0 +1,313 @@
+{
+ "label": "Can / should",
+ "quiz_after": false,
+ "lesson": [
+  {
+   "title": "I can, you can",
+   "title_tr": "I can (-ebilirim), you can (-ebilirsin)",
+   "tr": "can = -ebilmek (yetenek / izin). Herkes için aynı: can.",
+   "rows": [
+    [
+     "I can see.",
+     "Görebiliyorum."
+    ],
+    [
+     "You can walk.",
+     "Yürüyebilirsin."
+    ],
+    [
+     "He can hear.",
+     "O duyabiliyor."
+    ],
+    [
+     "She can swim.",
+     "O yüzebilir."
+    ],
+    [
+     "We can go home.",
+     "Eve gidebiliriz."
+    ],
+    [
+     "They can help.",
+     "Onlar yardım edebilir."
+    ]
+   ],
+   "say": [
+    "I can see.",
+    "You can walk.",
+    "He can hear.",
+    "She can swim.",
+    "We can go home.",
+    "They can help."
+   ]
+  },
+  {
+   "title": "I can't",
+   "title_tr": "I can't (-emem / -amam)",
+   "tr": "can't (cannot) = -emez / -amaz",
+   "rows": [
+    [
+     "I can't run.",
+     "Koşamam."
+    ],
+    [
+     "She can't drive.",
+     "O araba süremez."
+    ],
+    [
+     "We can't play now.",
+     "Şimdi oynayamayız."
+    ]
+   ],
+   "say": [
+    "I can't run.",
+    "She can't drive.",
+    "We can't play now."
+   ]
+  },
+  {
+   "title": "Can you ...?",
+   "title_tr": "Can you ...? (-ebilir misin?)",
+   "tr": "Soru: Can + kişi + fiil?  Cevap: Yes, I can. / No, I can't.",
+   "rows": [
+    [
+     "Can you hear me?",
+     "Beni duyabiliyor musun?"
+    ],
+    [
+     "Yes, I can.",
+     "Evet, duyabiliyorum."
+    ],
+    [
+     "Can you get up?",
+     "Kalkabilir misin?"
+    ],
+    [
+     "No, I can't.",
+     "Hayır, kalkamam."
+    ]
+   ],
+   "say": [
+    "Can you hear me?",
+    "Yes, I can.",
+    "Can you get up?",
+    "No, I can't."
+   ]
+  },
+  {
+   "title": "You should ...",
+   "title_tr": "You should ... (-melisin / -malısın)",
+   "tr": "should = -meli / -malı (tavsiye). shouldn't = -memeli",
+   "rows": [
+    [
+     "You should rest.",
+     "Dinlenmelisin."
+    ],
+    [
+     "You should drink water.",
+     "Su içmelisin."
+    ],
+    [
+     "You shouldn't run on the road.",
+     "Yolda koşmamalısın."
+    ],
+    [
+     "Should I stay in bed?",
+     "Yatakta kalmalı mıyım?"
+    ]
+   ],
+   "say": [
+    "You should rest.",
+    "You should drink water.",
+    "You shouldn't run on the road.",
+    "Should I stay in bed?"
+   ]
+  }
+ ],
+ "quiz": [
+  {
+   "q": "I ___ see the light.",
+   "opts": [
+    "can",
+    "cans",
+    "am"
+   ],
+   "a": 0,
+   "say": "I can see the light."
+  },
+  {
+   "q": "___ you hear me?",
+   "opts": [
+    "Do",
+    "Can",
+    "Is"
+   ],
+   "a": 1,
+   "say": "Can you hear me?"
+  },
+  {
+   "q": "She ___ swim.",
+   "opts": [
+    "can",
+    "cans",
+    "is"
+   ],
+   "a": 0,
+   "say": "She can swim."
+  },
+  {
+   "q": "You ___ rest for one day.",
+   "opts": [
+    "should",
+    "shoulds",
+    "are"
+   ],
+   "a": 0,
+   "say": "You should rest for one day."
+  },
+  {
+   "q": "You ___ run on the road.",
+   "opts": [
+    "should",
+    "shouldn't",
+    "can"
+   ],
+   "a": 1,
+   "say": "You shouldn't run on the road."
+  },
+  {
+   "q": "Can you get up? Yes, I ___.",
+   "opts": [
+    "can",
+    "do",
+    "am"
+   ],
+   "a": 0,
+   "say": "Yes, I can."
+  }
+ ],
+ "quiz_b": [
+  {
+   "q": "He ___ ride a bike.",
+   "opts": [
+    "can",
+    "cans",
+    "is"
+   ],
+   "a": 0,
+   "say": "He can ride a bike."
+  },
+  {
+   "q": "___ she drive a car?",
+   "opts": [
+    "Does",
+    "Can",
+    "Is"
+   ],
+   "a": 1,
+   "say": "Can she drive a car?"
+  },
+  {
+   "q": "I ___ swim. I don't know how.",
+   "opts": [
+    "can",
+    "can't",
+    "should"
+   ],
+   "a": 1,
+   "say": "I can't swim."
+  },
+  {
+   "q": "You ___ eat fruit every day.",
+   "opts": [
+    "should",
+    "shoulds",
+    "are"
+   ],
+   "a": 0,
+   "say": "You should eat fruit every day."
+  },
+  {
+   "q": "You ___ watch TV all night.",
+   "opts": [
+    "should",
+    "shouldn't",
+    "can"
+   ],
+   "a": 1,
+   "say": "You shouldn't watch TV all night."
+  },
+  {
+   "q": "Can you see me? No, I ___.",
+   "opts": [
+    "can't",
+    "don't",
+    "am not"
+   ],
+   "a": 0,
+   "say": "No, I can't."
+  }
+ ],
+ "quiz_c": [
+  {
+   "q": "We ___ play in the garden.",
+   "opts": [
+    "can",
+    "cans",
+    "are"
+   ],
+   "a": 0,
+   "say": "We can play in the garden."
+  },
+  {
+   "q": "___ they speak English?",
+   "opts": [
+    "Do",
+    "Can",
+    "Are"
+   ],
+   "a": 1,
+   "say": "Can they speak English?"
+  },
+  {
+   "q": "She is ill. She ___ go to the doctor.",
+   "opts": [
+    "should",
+    "shouldn't",
+    "can't"
+   ],
+   "a": 0,
+   "say": "She should go to the doctor."
+  },
+  {
+   "q": "It is late. You ___ go to bed.",
+   "opts": [
+    "should",
+    "shoulds",
+    "can't"
+   ],
+   "a": 0,
+   "say": "You should go to bed."
+  },
+  {
+   "q": "You ___ cross the road on red.",
+   "opts": [
+    "should",
+    "shouldn't",
+    "can"
+   ],
+   "a": 1,
+   "say": "You shouldn't cross the road on red."
+  },
+  {
+   "q": "Can he walk? Yes, he ___.",
+   "opts": [
+    "can",
+    "does",
+    "is"
+   ],
+   "a": 0,
+   "say": "Yes, he can."
+  }
+ ]
+}

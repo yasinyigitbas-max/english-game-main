@@ -1,0 +1,11 @@
+{
+  "_doc": "Catalogue. base_price in cents. category is free text (food, drink, home, transport...).",
+  "items": {
+    "apple":  {"name": "apple",  "name_tr": "elma",    "base_price": 80,  "category": "food"},
+    "bread":  {"name": "bread",  "name_tr": "ekmek",   "base_price": 150, "category": "food"},
+    "milk":   {"name": "milk",   "name_tr": "süt",     "base_price": 120, "category": "drink"},
+    "water":  {"name": "water",  "name_tr": "su",      "base_price": 60,  "category": "drink"},
+    "eggs":   {"name": "eggs",   "name_tr": "yumurta", "base_price": 250, "category": "food"},
+    "bus_ticket": {"name": "bus ticket", "name_tr": "otobüs bileti", "base_price": 150, "category": "transport"}
+  }
+}

@@ -1,0 +1,35 @@
+0.1s wake_up
+0.5s wake_up
+0.9s wake_up
+1.3s wake_up
+1.7s wake_up
+2.1s wake_up
+2.6s wake_up
+2.9s wake_up
+3.3s wake_up
+3.7s wake_up
+4.1s wake_up
+4.5s wake_up
+5.0s wake_up
+5.3s wake_up
+5.7s wake_up
+6.1s wake_up
+6.5s wake_up
+6.9s wake_up
+7.3s wake_up
+7.7s wake_up
+8.1s 
+8.5s 
+8.9s 
+9.3s 
+9.7s sit_idle
+10.1s sit_idle
+10.5s sit_idle
+10.9s sit_idle
+11.3s sit_to_stand
+11.7s sit_to_stand
+12.0s sit_to_stand
+12.4s sit_to_stand
+12.8s sit_to_stand
+13.2s sit_to_stand
+13.6s sit_to_stand

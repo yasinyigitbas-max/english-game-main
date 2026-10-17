@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[sub_resource type="CylinderMesh" id="m1"]
+top_radius = 0.036
+bottom_radius = 0.03
+height = 0.1
+
+[sub_resource type="StandardMaterial3D" id="c1"]
+albedo_color = Color(0.62, 0.74, 0.7, 1)
+roughness = 0.7
+
+[node name="Cup" type="Node3D" unique_id=724156118]
+
+[node name="P1" type="MeshInstance3D" parent="." unique_id=1239235524]
+mesh = SubResource("m1")
+surface_material_override/0 = SubResource("c1")

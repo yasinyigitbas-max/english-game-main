@@ -1,0 +1,1657 @@
+{
+ "frames": {
+  "day": [
+   [
+    "07:00",
+    "I wake up.",
+    "Uyanırım."
+   ],
+   [
+    "07:30",
+    "I have breakfast with my family.",
+    "Ailemle kahvaltı yaparım."
+   ],
+   [
+    "08:15",
+    "I go to work.",
+    "İşe giderim."
+   ],
+   [
+    "09:00",
+    "START",
+    ""
+   ],
+   [
+    "10:00",
+    "TASK0",
+    ""
+   ],
+   [
+    "11:30",
+    "TASK1",
+    ""
+   ],
+   [
+    "12:30",
+    "I have lunch.",
+    "Öğle yemeği yerim."
+   ],
+   [
+    "14:00",
+    "TASK2",
+    ""
+   ],
+   [
+    "17:00",
+    "I finish work.",
+    "İşi bitiririm."
+   ],
+   [
+    "17:30",
+    "I go home.",
+    "Eve giderim."
+   ],
+   [
+    "19:00",
+    "I have dinner with my family.",
+    "Ailemle akşam yemeği yerim."
+   ],
+   [
+    "20:00",
+    "I watch TV.",
+    "Televizyon izlerim."
+   ],
+   [
+    "22:30",
+    "I go to bed.",
+    "Yatarım."
+   ]
+  ],
+  "early": [
+   [
+    "05:00",
+    "I wake up.",
+    "Uyanırım."
+   ],
+   [
+    "05:30",
+    "I have breakfast.",
+    "Kahvaltı yaparım."
+   ],
+   [
+    "06:00",
+    "I go to work.",
+    "İşe giderim."
+   ],
+   [
+    "06:30",
+    "START",
+    ""
+   ],
+   [
+    "07:30",
+    "TASK0",
+    ""
+   ],
+   [
+    "09:30",
+    "TASK1",
+    ""
+   ],
+   [
+    "11:30",
+    "I have lunch.",
+    "Öğle yemeği yerim."
+   ],
+   [
+    "12:30",
+    "TASK2",
+    ""
+   ],
+   [
+    "14:30",
+    "I finish work.",
+    "İşi bitiririm."
+   ],
+   [
+    "15:00",
+    "I go home.",
+    "Eve giderim."
+   ],
+   [
+    "18:30",
+    "I have dinner with my family.",
+    "Ailemle akşam yemeği yerim."
+   ],
+   [
+    "19:30",
+    "I read a book.",
+    "Kitap okurum."
+   ],
+   [
+    "21:30",
+    "I go to bed.",
+    "Yatarım."
+   ]
+  ],
+  "late": [
+   [
+    "08:30",
+    "I wake up.",
+    "Uyanırım."
+   ],
+   [
+    "09:00",
+    "I have breakfast with my family.",
+    "Ailemle kahvaltı yaparım."
+   ],
+   [
+    "12:30",
+    "I have lunch at home.",
+    "Evde öğle yemeği yerim."
+   ],
+   [
+    "13:30",
+    "I go to work.",
+    "İşe giderim."
+   ],
+   [
+    "14:00",
+    "START",
+    ""
+   ],
+   [
+    "15:00",
+    "TASK0",
+    ""
+   ],
+   [
+    "16:30",
+    "TASK1",
+    ""
+   ],
+   [
+    "18:00",
+    "I have dinner at work.",
+    "İşte akşam yemeği yerim."
+   ],
+   [
+    "19:00",
+    "TASK2",
+    ""
+   ],
+   [
+    "22:00",
+    "I finish work.",
+    "İşi bitiririm."
+   ],
+   [
+    "22:30",
+    "I go home.",
+    "Eve giderim."
+   ],
+   [
+    "23:00",
+    "I watch TV.",
+    "Televizyon izlerim."
+   ],
+   [
+    "23:30",
+    "I go to bed.",
+    "Yatarım."
+   ]
+  ],
+  "unemployed": [
+   [
+    "07:30",
+    "I wake up.",
+    "Uyanırım."
+   ],
+   [
+    "08:00",
+    "I have breakfast with my family.",
+    "Ailemle kahvaltı yaparım."
+   ],
+   [
+    "09:00",
+    "TASK0",
+    ""
+   ],
+   [
+    "10:30",
+    "TASK1",
+    ""
+   ],
+   [
+    "12:30",
+    "I have lunch.",
+    "Öğle yemeği yerim."
+   ],
+   [
+    "14:00",
+    "TASK2",
+    ""
+   ],
+   [
+    "16:00",
+    "I go to the gym.",
+    "Spor salonuna giderim."
+   ],
+   [
+    "19:00",
+    "I have dinner with my family.",
+    "Ailemle akşam yemeği yerim."
+   ],
+   [
+    "22:30",
+    "I go to bed.",
+    "Yatarım."
+   ]
+  ],
+  "retired": [
+   [
+    "08:00",
+    "I wake up.",
+    "Uyanırım."
+   ],
+   [
+    "08:30",
+    "I have breakfast.",
+    "Kahvaltı yaparım."
+   ],
+   [
+    "09:30",
+    "TASK0",
+    ""
+   ],
+   [
+    "11:00",
+    "TASK1",
+    ""
+   ],
+   [
+    "12:30",
+    "I have lunch.",
+    "Öğle yemeği yerim."
+   ],
+   [
+    "15:00",
+    "TASK2",
+    ""
+   ],
+   [
+    "17:00",
+    "I water my plants.",
+    "Bitkilerimi sularım."
+   ],
+   [
+    "19:00",
+    "I have dinner with my family.",
+    "Ailemle akşam yemeği yerim."
+   ],
+   [
+    "22:00",
+    "I go to bed.",
+    "Yatarım."
+   ]
+  ],
+  "student": [
+   [
+    "07:00",
+    "I wake up.",
+    "Uyanırım."
+   ],
+   [
+    "07:30",
+    "I have breakfast with my family.",
+    "Ailemle kahvaltı yaparım."
+   ],
+   [
+    "08:00",
+    "I go to school.",
+    "Okula giderim."
+   ],
+   [
+    "08:30",
+    "TASK0",
+    ""
+   ],
+   [
+    "12:30",
+    "I have lunch.",
+    "Öğle yemeği yerim."
+   ],
+   [
+    "15:30",
+    "I go home.",
+    "Eve giderim."
+   ],
+   [
+    "16:30",
+    "TASK1",
+    ""
+   ],
+   [
+    "18:00",
+    "TASK2",
+    ""
+   ],
+   [
+    "19:30",
+    "I have dinner with my family.",
+    "Ailemle akşam yemeği yerim."
+   ],
+   [
+    "22:00",
+    "I go to bed.",
+    "Yatarım."
+   ]
+  ],
+  "home": [
+   [
+    "06:30",
+    "I wake up.",
+    "Uyanırım."
+   ],
+   [
+    "07:00",
+    "I make breakfast for my family.",
+    "Ailem için kahvaltı hazırlarım."
+   ],
+   [
+    "08:00",
+    "TASK0",
+    ""
+   ],
+   [
+    "09:30",
+    "TASK1",
+    ""
+   ],
+   [
+    "11:00",
+    "TASK2",
+    ""
+   ],
+   [
+    "12:30",
+    "I have lunch.",
+    "Öğle yemeği yerim."
+   ],
+   [
+    "15:30",
+    "I pick up the children.",
+    "Çocukları alırım."
+   ],
+   [
+    "18:00",
+    "TASK3",
+    ""
+   ],
+   [
+    "19:00",
+    "I have dinner with my family.",
+    "Ailemle akşam yemeği yerim."
+   ],
+   [
+    "22:30",
+    "I go to bed.",
+    "Yatarım."
+   ]
+  ],
+  "child": [
+   [
+    "07:00",
+    "I wake up.",
+    "Uyanırım."
+   ],
+   [
+    "07:30",
+    "I have breakfast with my family.",
+    "Ailemle kahvaltı yaparım."
+   ],
+   [
+    "08:00",
+    "I go to school.",
+    "Okula giderim."
+   ],
+   [
+    "08:30",
+    "TASK0",
+    ""
+   ],
+   [
+    "12:00",
+    "I have lunch.",
+    "Öğle yemeği yerim."
+   ],
+   [
+    "12:30",
+    "TASK1",
+    ""
+   ],
+   [
+    "15:00",
+    "I go home.",
+    "Eve giderim."
+   ],
+   [
+    "16:00",
+    "TASK2",
+    ""
+   ],
+   [
+    "19:00",
+    "I have dinner with my family.",
+    "Ailemle akşam yemeği yerim."
+   ],
+   [
+    "20:30",
+    "I go to bed.",
+    "Yatarım."
+   ]
+  ]
+ },
+ "sectors": {
+  "health": [
+   {
+    "i": "I see patients.",
+    "do": "See patients.",
+    "i_tr": "Hastalara bakarım.",
+    "do_tr": "Hastalara bak."
+   },
+   {
+    "i": "I help sick people.",
+    "do": "Help sick people.",
+    "i_tr": "Hasta insanlara yardım ederim.",
+    "do_tr": "Hasta insanlara yardım et."
+   },
+   {
+    "i": "I write notes.",
+    "do": "Write notes.",
+    "i_tr": "Notlar yazarım.",
+    "do_tr": "Notlar yaz."
+   }
+  ],
+  "education": [
+   {
+    "i": "I teach a lesson.",
+    "do": "Teach a lesson.",
+    "i_tr": "Ders veririm.",
+    "do_tr": "Ders ver."
+   },
+   {
+    "i": "I check homework.",
+    "do": "Check homework.",
+    "i_tr": "Ödevleri kontrol ederim.",
+    "do_tr": "Ödevleri kontrol et."
+   },
+   {
+    "i": "I meet parents.",
+    "do": "Meet parents.",
+    "i_tr": "Velilerle görüşürüm.",
+    "do_tr": "Velilerle görüş."
+   }
+  ],
+  "food": [
+   {
+    "i": "I cook lunch.",
+    "do": "Cook lunch.",
+    "i_tr": "Öğle yemeği pişiririm.",
+    "do_tr": "Öğle yemeği pişir."
+   },
+   {
+    "i": "I wash the dishes.",
+    "do": "Wash the dishes.",
+    "i_tr": "Bulaşıkları yıkarım.",
+    "do_tr": "Bulaşıkları yıka."
+   },
+   {
+    "i": "I clean the kitchen.",
+    "do": "Clean the kitchen.",
+    "i_tr": "Mutfağı temizlerim.",
+    "do_tr": "Mutfağı temizle."
+   }
+  ],
+  "transport": [
+   {
+    "i": "I check the timetable.",
+    "do": "Check the timetable.",
+    "i_tr": "Tarifeyi kontrol ederim.",
+    "do_tr": "Tarifeyi kontrol et."
+   },
+   {
+    "i": "I drive to the city.",
+    "do": "Drive to the city.",
+    "i_tr": "Şehre sürerim.",
+    "do_tr": "Şehre sür."
+   },
+   {
+    "i": "I take a break.",
+    "do": "Take a break.",
+    "i_tr": "Mola veririm.",
+    "do_tr": "Mola ver."
+   }
+  ],
+  "safety": [
+   {
+    "i": "I put on my uniform.",
+    "do": "Put on my uniform.",
+    "i_tr": "Üniformamı giyerim.",
+    "do_tr": "Üniformanı giy."
+   },
+   {
+    "i": "I help people.",
+    "do": "Help people.",
+    "i_tr": "İnsanlara yardım ederim.",
+    "do_tr": "İnsanlara yardım et."
+   },
+   {
+    "i": "I write a report.",
+    "do": "Write a report.",
+    "i_tr": "Bir rapor yazarım.",
+    "do_tr": "Bir rapor yaz."
+   }
+  ],
+  "shops": [
+   {
+    "i": "I open the shop.",
+    "do": "Open the shop.",
+    "i_tr": "Dükkânı açarım.",
+    "do_tr": "Dükkânı aç."
+   },
+   {
+    "i": "I help customers.",
+    "do": "Help customers.",
+    "i_tr": "Müşterilere yardım ederim.",
+    "do_tr": "Müşterilere yardım et."
+   },
+   {
+    "i": "I close the shop.",
+    "do": "Close the shop.",
+    "i_tr": "Dükkânı kapatırım.",
+    "do_tr": "Dükkânı kapat."
+   }
+  ],
+  "office": [
+   {
+    "i": "I write emails.",
+    "do": "Write emails.",
+    "i_tr": "E-posta yazarım.",
+    "do_tr": "E-posta yaz."
+   },
+   {
+    "i": "I go to a meeting.",
+    "do": "Go to a meeting.",
+    "i_tr": "Bir toplantıya giderim.",
+    "do_tr": "Bir toplantıya git."
+   },
+   {
+    "i": "I answer the phone.",
+    "do": "Answer the phone.",
+    "i_tr": "Telefona cevap veririm.",
+    "do_tr": "Telefona cevap ver."
+   }
+  ],
+  "tech": [
+   {
+    "i": "I check my emails.",
+    "do": "Check my emails.",
+    "i_tr": "E-postalarımı kontrol ederim.",
+    "do_tr": "E-postalarını kontrol et."
+   },
+   {
+    "i": "I work on the computer.",
+    "do": "Work on the computer.",
+    "i_tr": "Bilgisayarda çalışırım.",
+    "do_tr": "Bilgisayarda çalış."
+   },
+   {
+    "i": "I go to a meeting.",
+    "do": "Go to a meeting.",
+    "i_tr": "Bir toplantıya giderim.",
+    "do_tr": "Bir toplantıya git."
+   }
+  ],
+  "arts": [
+   {
+    "i": "I practise.",
+    "do": "Practise.",
+    "i_tr": "Pratik yaparım.",
+    "do_tr": "Pratik yap."
+   },
+   {
+    "i": "I meet my team.",
+    "do": "Meet my team.",
+    "i_tr": "Ekibimle buluşurum.",
+    "do_tr": "Ekibinle buluş."
+   },
+   {
+    "i": "I show my work.",
+    "do": "Show my work.",
+    "i_tr": "İşimi gösteririm.",
+    "do_tr": "İşini göster."
+   }
+  ],
+  "building": [
+   {
+    "i": "I check my tools.",
+    "do": "Check my tools.",
+    "i_tr": "Aletlerimi kontrol ederim.",
+    "do_tr": "Aletlerini kontrol et."
+   },
+   {
+    "i": "I go to a house.",
+    "do": "Go to a house.",
+    "i_tr": "Bir eve giderim.",
+    "do_tr": "Bir eve git."
+   },
+   {
+    "i": "I fix things.",
+    "do": "Fix things.",
+    "i_tr": "Bir şeyleri tamir ederim.",
+    "do_tr": "Bir şeyleri tamir et."
+   }
+  ],
+  "farming": [
+   {
+    "i": "I feed the animals.",
+    "do": "Feed the animals.",
+    "i_tr": "Hayvanları beslerim.",
+    "do_tr": "Hayvanları besle."
+   },
+   {
+    "i": "I work outside.",
+    "do": "Work outside.",
+    "i_tr": "Dışarıda çalışırım.",
+    "do_tr": "Dışarıda çalış."
+   },
+   {
+    "i": "I water the plants.",
+    "do": "Water the plants.",
+    "i_tr": "Bitkileri sularım.",
+    "do_tr": "Bitkileri sula."
+   }
+  ],
+  "care": [
+   {
+    "i": "I meet my first customer.",
+    "do": "Meet my first customer.",
+    "i_tr": "İlk müşterimle buluşurum.",
+    "do_tr": "İlk müşterinle buluş."
+   },
+   {
+    "i": "I help people.",
+    "do": "Help people.",
+    "i_tr": "İnsanlara yardım ederim.",
+    "do_tr": "İnsanlara yardım et."
+   },
+   {
+    "i": "I clean the room.",
+    "do": "Clean the room.",
+    "i_tr": "Odayı temizlerim.",
+    "do_tr": "Odayı temizle."
+   }
+  ],
+  "sports": [
+   {
+    "i": "I warm up.",
+    "do": "Warm up.",
+    "i_tr": "Isınırım.",
+    "do_tr": "Isın."
+   },
+   {
+    "i": "I train.",
+    "do": "Train.",
+    "i_tr": "Antrenman yaparım.",
+    "do_tr": "Antrenman yap."
+   },
+   {
+    "i": "I have a shower.",
+    "do": "Have a shower.",
+    "i_tr": "Duş alırım.",
+    "do_tr": "Duş al."
+   }
+  ],
+  "notwork": [
+   {
+    "i": "I look for a job.",
+    "do": "Look for a job.",
+    "i_tr": "İş ararım.",
+    "do_tr": "İş ara."
+   },
+   {
+    "i": "I write a CV.",
+    "do": "Write a CV.",
+    "i_tr": "Bir özgeçmiş yazarım.",
+    "do_tr": "Bir özgeçmiş yaz."
+   },
+   {
+    "i": "I go to an interview.",
+    "do": "Go to an interview.",
+    "i_tr": "Bir iş görüşmesine giderim.",
+    "do_tr": "Bir iş görüşmesine git."
+   }
+  ]
+ },
+ "jobs": {
+  "doctor": [
+   {
+    "i": "I see patients.",
+    "do": "See patients.",
+    "i_tr": "Hastalara bakarım.",
+    "do_tr": "Hastalara bak."
+   },
+   {
+    "i": "I check blood tests.",
+    "do": "Check blood tests.",
+    "i_tr": "Kan tahlillerini kontrol ederim.",
+    "do_tr": "Kan tahlillerini kontrol et."
+   },
+   {
+    "i": "I write prescriptions.",
+    "do": "Write prescriptions.",
+    "i_tr": "Reçete yazarım.",
+    "do_tr": "Reçete yaz."
+   }
+  ],
+  "nurse": [
+   {
+    "i": "I check on patients.",
+    "do": "Check on patients.",
+    "i_tr": "Hastaları kontrol ederim.",
+    "do_tr": "Hastaları kontrol et."
+   },
+   {
+    "i": "I give medicine.",
+    "do": "Give medicine.",
+    "i_tr": "İlaç veririm.",
+    "do_tr": "İlaç ver."
+   },
+   {
+    "i": "I help the doctor.",
+    "do": "Help the doctor.",
+    "i_tr": "Doktora yardım ederim.",
+    "do_tr": "Doktora yardım et."
+   }
+  ],
+  "dentist": [
+   {
+    "i": "I check teeth.",
+    "do": "Check teeth.",
+    "i_tr": "Dişleri kontrol ederim.",
+    "do_tr": "Dişleri kontrol et."
+   },
+   {
+    "i": "I clean teeth.",
+    "do": "Clean teeth.",
+    "i_tr": "Dişleri temizlerim.",
+    "do_tr": "Dişleri temizle."
+   },
+   {
+    "i": "I see patients.",
+    "do": "See patients.",
+    "i_tr": "Hastalara bakarım.",
+    "do_tr": "Hastalara bak."
+   }
+  ],
+  "pharmacist": [
+   {
+    "i": "I open the pharmacy.",
+    "do": "Open the pharmacy.",
+    "i_tr": "Eczaneyi açarım.",
+    "do_tr": "Eczaneyi aç."
+   },
+   {
+    "i": "I sell medicine.",
+    "do": "Sell medicine.",
+    "i_tr": "İlaç satarım.",
+    "do_tr": "İlaç sat."
+   },
+   {
+    "i": "I help customers.",
+    "do": "Help customers.",
+    "i_tr": "Müşterilere yardım ederim.",
+    "do_tr": "Müşterilere yardım et."
+   }
+  ],
+  "vet": [
+   {
+    "i": "I check animals.",
+    "do": "Check animals.",
+    "i_tr": "Hayvanları kontrol ederim.",
+    "do_tr": "Hayvanları kontrol et."
+   },
+   {
+    "i": "I help a sick dog.",
+    "do": "Help a sick dog.",
+    "i_tr": "Hasta bir köpeğe yardım ederim.",
+    "do_tr": "Hasta bir köpeğe yardım et."
+   },
+   {
+    "i": "I talk to pet owners.",
+    "do": "Talk to pet owners.",
+    "i_tr": "Hayvan sahipleriyle konuşurum.",
+    "do_tr": "Hayvan sahipleriyle konuş."
+   }
+  ],
+  "teacher": [
+   {
+    "i": "I teach a lesson.",
+    "do": "Teach a lesson.",
+    "i_tr": "Ders veririm.",
+    "do_tr": "Ders ver."
+   },
+   {
+    "i": "I check homework.",
+    "do": "Check homework.",
+    "i_tr": "Ödevleri kontrol ederim.",
+    "do_tr": "Ödevleri kontrol et."
+   },
+   {
+    "i": "I meet parents.",
+    "do": "Meet parents.",
+    "i_tr": "Velilerle görüşürüm.",
+    "do_tr": "Velilerle görüş."
+   }
+  ],
+  "lecturer": [
+   {
+    "i": "I teach a class.",
+    "do": "Teach a class.",
+    "i_tr": "Ders veririm.",
+    "do_tr": "Ders ver."
+   },
+   {
+    "i": "I read essays.",
+    "do": "Read essays.",
+    "i_tr": "Ödevleri okurum.",
+    "do_tr": "Ödevleri oku."
+   },
+   {
+    "i": "I meet students.",
+    "do": "Meet students.",
+    "i_tr": "Öğrencilerle görüşürüm.",
+    "do_tr": "Öğrencilerle görüş."
+   }
+  ],
+  "librarian": [
+   {
+    "i": "I put books on the shelves.",
+    "do": "Put books on the shelves.",
+    "i_tr": "Kitapları raflara koyarım.",
+    "do_tr": "Kitapları raflara koy."
+   },
+   {
+    "i": "I help readers.",
+    "do": "Help readers.",
+    "i_tr": "Okuyuculara yardım ederim.",
+    "do_tr": "Okuyuculara yardım et."
+   },
+   {
+    "i": "I read a story to children.",
+    "do": "Read a story to children.",
+    "i_tr": "Çocuklara hikâye okurum.",
+    "do_tr": "Çocuklara hikâye oku."
+   }
+  ],
+  "nursery teacher": [
+   {
+    "i": "I play with the children.",
+    "do": "Play with the children.",
+    "i_tr": "Çocuklarla oynarım.",
+    "do_tr": "Çocuklarla oyna."
+   },
+   {
+    "i": "I sing songs.",
+    "do": "Sing songs.",
+    "i_tr": "Şarkı söylerim.",
+    "do_tr": "Şarkı söyle."
+   },
+   {
+    "i": "I read a story.",
+    "do": "Read a story.",
+    "i_tr": "Bir hikâye okurum.",
+    "do_tr": "Bir hikâye oku."
+   }
+  ],
+  "cook": [
+   {
+    "i": "I cut vegetables.",
+    "do": "Cut vegetables.",
+    "i_tr": "Sebze doğrarım.",
+    "do_tr": "Sebze doğra."
+   },
+   {
+    "i": "I cook lunch.",
+    "do": "Cook lunch.",
+    "i_tr": "Öğle yemeği pişiririm.",
+    "do_tr": "Öğle yemeği pişir."
+   },
+   {
+    "i": "I clean the kitchen.",
+    "do": "Clean the kitchen.",
+    "i_tr": "Mutfağı temizlerim.",
+    "do_tr": "Mutfağı temizle."
+   }
+  ],
+  "chef": [
+   {
+    "i": "I plan the menu.",
+    "do": "Plan the menu.",
+    "i_tr": "Menüyü planlarım.",
+    "do_tr": "Menüyü planla."
+   },
+   {
+    "i": "I cook dinner.",
+    "do": "Cook dinner.",
+    "i_tr": "Akşam yemeği pişiririm.",
+    "do_tr": "Akşam yemeği pişir."
+   },
+   {
+    "i": "I check the kitchen.",
+    "do": "Check the kitchen.",
+    "i_tr": "Mutfağı kontrol ederim.",
+    "do_tr": "Mutfağı kontrol et."
+   }
+  ],
+  "waiter": [
+   {
+    "i": "I set the tables.",
+    "do": "Set the tables.",
+    "i_tr": "Masaları hazırlarım.",
+    "do_tr": "Masaları hazırla."
+   },
+   {
+    "i": "I take orders.",
+    "do": "Take orders.",
+    "i_tr": "Sipariş alırım.",
+    "do_tr": "Sipariş al."
+   },
+   {
+    "i": "I serve food.",
+    "do": "Serve food.",
+    "i_tr": "Yemek servis ederim.",
+    "do_tr": "Yemek servis et."
+   }
+  ],
+  "baker": [
+   {
+    "i": "I make bread.",
+    "do": "Make bread.",
+    "i_tr": "Ekmek yaparım.",
+    "do_tr": "Ekmek yap."
+   },
+   {
+    "i": "I bake cakes.",
+    "do": "Bake cakes.",
+    "i_tr": "Kek pişiririm.",
+    "do_tr": "Kek pişir."
+   },
+   {
+    "i": "I sell bread.",
+    "do": "Sell bread.",
+    "i_tr": "Ekmek satarım.",
+    "do_tr": "Ekmek sat."
+   }
+  ],
+  "barista": [
+   {
+    "i": "I make coffee.",
+    "do": "Make coffee.",
+    "i_tr": "Kahve yaparım.",
+    "do_tr": "Kahve yap."
+   },
+   {
+    "i": "I serve customers.",
+    "do": "Serve customers.",
+    "i_tr": "Müşterilere servis yaparım.",
+    "do_tr": "Müşterilere servis yap."
+   },
+   {
+    "i": "I clean the machine.",
+    "do": "Clean the machine.",
+    "i_tr": "Makineyi temizlerim.",
+    "do_tr": "Makineyi temizle."
+   }
+  ],
+  "bus driver": [
+   {
+    "i": "I drive the bus.",
+    "do": "Drive the bus.",
+    "i_tr": "Otobüsü sürerim.",
+    "do_tr": "Otobüsü sür."
+   },
+   {
+    "i": "I stop at the bus stops.",
+    "do": "Stop at the bus stops.",
+    "i_tr": "Duraklarda dururum.",
+    "do_tr": "Duraklarda dur."
+   },
+   {
+    "i": "I help passengers.",
+    "do": "Help passengers.",
+    "i_tr": "Yolculara yardım ederim.",
+    "do_tr": "Yolculara yardım et."
+   }
+  ],
+  "taxi driver": [
+   {
+    "i": "I drive my taxi.",
+    "do": "Drive my taxi.",
+    "i_tr": "Taksimi sürerim.",
+    "do_tr": "Taksini sür."
+   },
+   {
+    "i": "I take people to the airport.",
+    "do": "Take people to the airport.",
+    "i_tr": "İnsanları havalimanına götürürüm.",
+    "do_tr": "İnsanları havalimanına götür."
+   },
+   {
+    "i": "I wash my car.",
+    "do": "Wash my car.",
+    "i_tr": "Arabamı yıkarım.",
+    "do_tr": "Arabanı yıka."
+   }
+  ],
+  "pilot": [
+   {
+    "i": "I check the plane.",
+    "do": "Check the plane.",
+    "i_tr": "Uçağı kontrol ederim.",
+    "do_tr": "Uçağı kontrol et."
+   },
+   {
+    "i": "I fly the plane.",
+    "do": "Fly the plane.",
+    "i_tr": "Uçağı uçururum.",
+    "do_tr": "Uçağı uçur."
+   },
+   {
+    "i": "I talk to the passengers.",
+    "do": "Talk to the passengers.",
+    "i_tr": "Yolcularla konuşurum.",
+    "do_tr": "Yolcularla konuş."
+   }
+  ],
+  "flight attendant": [
+   {
+    "i": "I welcome the passengers.",
+    "do": "Welcome the passengers.",
+    "i_tr": "Yolcuları karşılarım.",
+    "do_tr": "Yolcuları karşıla."
+   },
+   {
+    "i": "I serve drinks.",
+    "do": "Serve drinks.",
+    "i_tr": "İçecek servis ederim.",
+    "do_tr": "İçecek servis et."
+   },
+   {
+    "i": "I help the passengers.",
+    "do": "Help the passengers.",
+    "i_tr": "Yolculara yardım ederim.",
+    "do_tr": "Yolculara yardım et."
+   }
+  ],
+  "train driver": [
+   {
+    "i": "I check the train.",
+    "do": "Check the train.",
+    "i_tr": "Treni kontrol ederim.",
+    "do_tr": "Treni kontrol et."
+   },
+   {
+    "i": "I drive the train.",
+    "do": "Drive the train.",
+    "i_tr": "Treni sürerim.",
+    "do_tr": "Treni sür."
+   },
+   {
+    "i": "I stop at the stations.",
+    "do": "Stop at the stations.",
+    "i_tr": "İstasyonlarda dururum.",
+    "do_tr": "İstasyonlarda dur."
+   }
+  ],
+  "delivery driver": [
+   {
+    "i": "I pick up parcels.",
+    "do": "Pick up parcels.",
+    "i_tr": "Paketleri alırım.",
+    "do_tr": "Paketleri al."
+   },
+   {
+    "i": "I drive the van.",
+    "do": "Drive the van.",
+    "i_tr": "Kamyoneti sürerim.",
+    "do_tr": "Kamyoneti sür."
+   },
+   {
+    "i": "I deliver parcels.",
+    "do": "Deliver parcels.",
+    "i_tr": "Paketleri teslim ederim.",
+    "do_tr": "Paketleri teslim et."
+   }
+  ],
+  "police officer": [
+   {
+    "i": "I put on my uniform.",
+    "do": "Put on my uniform.",
+    "i_tr": "Üniformamı giyerim.",
+    "do_tr": "Üniformanı giy."
+   },
+   {
+    "i": "I walk in the streets.",
+    "do": "Walk in the streets.",
+    "i_tr": "Sokaklarda yürürüm.",
+    "do_tr": "Sokaklarda yürü."
+   },
+   {
+    "i": "I help people.",
+    "do": "Help people.",
+    "i_tr": "İnsanlara yardım ederim.",
+    "do_tr": "İnsanlara yardım et."
+   }
+  ],
+  "firefighter": [
+   {
+    "i": "I check the fire engine.",
+    "do": "Check the fire engine.",
+    "i_tr": "İtfaiye aracını kontrol ederim.",
+    "do_tr": "İtfaiye aracını kontrol et."
+   },
+   {
+    "i": "I practise with my team.",
+    "do": "Practise with my team.",
+    "i_tr": "Ekibimle pratik yaparım.",
+    "do_tr": "Ekibinle pratik yap."
+   },
+   {
+    "i": "I put out fires.",
+    "do": "Put out fires.",
+    "i_tr": "Yangın söndürürüm.",
+    "do_tr": "Yangın söndür."
+   }
+  ],
+  "shop assistant": [
+   {
+    "i": "I open the shop.",
+    "do": "Open the shop.",
+    "i_tr": "Dükkânı açarım.",
+    "do_tr": "Dükkânı aç."
+   },
+   {
+    "i": "I help customers.",
+    "do": "Help customers.",
+    "i_tr": "Müşterilere yardım ederim.",
+    "do_tr": "Müşterilere yardım et."
+   },
+   {
+    "i": "I put clothes on the shelves.",
+    "do": "Put clothes on the shelves.",
+    "i_tr": "Kıyafetleri raflara koyarım.",
+    "do_tr": "Kıyafetleri raflara koy."
+   }
+  ],
+  "cashier": [
+   {
+    "i": "I open my till.",
+    "do": "Open my till.",
+    "i_tr": "Kasamı açarım.",
+    "do_tr": "Kasanı aç."
+   },
+   {
+    "i": "I take money.",
+    "do": "Take money.",
+    "i_tr": "Para alırım.",
+    "do_tr": "Para al."
+   },
+   {
+    "i": "I say thank you to customers.",
+    "do": "Say thank you to customers.",
+    "i_tr": "Müşterilere teşekkür ederim.",
+    "do_tr": "Müşterilere teşekkür et."
+   }
+  ],
+  "office worker": [
+   {
+    "i": "I write emails.",
+    "do": "Write emails.",
+    "i_tr": "E-posta yazarım.",
+    "do_tr": "E-posta yaz."
+   },
+   {
+    "i": "I go to a meeting.",
+    "do": "Go to a meeting.",
+    "i_tr": "Bir toplantıya giderim.",
+    "do_tr": "Bir toplantıya git."
+   },
+   {
+    "i": "I work on the computer.",
+    "do": "Work on the computer.",
+    "i_tr": "Bilgisayarda çalışırım.",
+    "do_tr": "Bilgisayarda çalış."
+   }
+  ],
+  "secretary": [
+   {
+    "i": "I answer the phone.",
+    "do": "Answer the phone.",
+    "i_tr": "Telefona cevap veririm.",
+    "do_tr": "Telefona cevap ver."
+   },
+   {
+    "i": "I go to a meeting.",
+    "do": "Go to a meeting.",
+    "i_tr": "Bir toplantıya giderim.",
+    "do_tr": "Bir toplantıya git."
+   },
+   {
+    "i": "I write emails.",
+    "do": "Write emails.",
+    "i_tr": "E-posta yazarım.",
+    "do_tr": "E-posta yaz."
+   }
+  ],
+  "accountant": [
+   {
+    "i": "I check numbers.",
+    "do": "Check numbers.",
+    "i_tr": "Rakamları kontrol ederim.",
+    "do_tr": "Rakamları kontrol et."
+   },
+   {
+    "i": "I work on the computer.",
+    "do": "Work on the computer.",
+    "i_tr": "Bilgisayarda çalışırım.",
+    "do_tr": "Bilgisayarda çalış."
+   },
+   {
+    "i": "I meet a client.",
+    "do": "Meet a client.",
+    "i_tr": "Bir müşteriyle görüşürüm.",
+    "do_tr": "Bir müşteriyle görüş."
+   }
+  ],
+  "manager": [
+   {
+    "i": "I go to a meeting.",
+    "do": "Go to a meeting.",
+    "i_tr": "Bir toplantıya giderim.",
+    "do_tr": "Bir toplantıya git."
+   },
+   {
+    "i": "I talk to my team.",
+    "do": "Talk to my team.",
+    "i_tr": "Ekibimle konuşurum.",
+    "do_tr": "Ekibinle konuş."
+   },
+   {
+    "i": "I make a plan.",
+    "do": "Make a plan.",
+    "i_tr": "Bir plan yaparım.",
+    "do_tr": "Bir plan yap."
+   }
+  ],
+  "receptionist": [
+   {
+    "i": "I answer the phone.",
+    "do": "Answer the phone.",
+    "i_tr": "Telefona cevap veririm.",
+    "do_tr": "Telefona cevap ver."
+   },
+   {
+    "i": "I welcome visitors.",
+    "do": "Welcome visitors.",
+    "i_tr": "Ziyaretçileri karşılarım.",
+    "do_tr": "Ziyaretçileri karşıla."
+   },
+   {
+    "i": "I write emails.",
+    "do": "Write emails.",
+    "i_tr": "E-posta yazarım.",
+    "do_tr": "E-posta yaz."
+   }
+  ],
+  "software developer": [
+   {
+    "i": "I write code.",
+    "do": "Write code.",
+    "i_tr": "Kod yazarım.",
+    "do_tr": "Kod yaz."
+   },
+   {
+    "i": "I test the app.",
+    "do": "Test the app.",
+    "i_tr": "Uygulamayı test ederim.",
+    "do_tr": "Uygulamayı test et."
+   },
+   {
+    "i": "I go to a meeting.",
+    "do": "Go to a meeting.",
+    "i_tr": "Bir toplantıya giderim.",
+    "do_tr": "Bir toplantıya git."
+   }
+  ],
+  "journalist": [
+   {
+    "i": "I read the news.",
+    "do": "Read the news.",
+    "i_tr": "Haberleri okurum.",
+    "do_tr": "Haberleri oku."
+   },
+   {
+    "i": "I talk to people.",
+    "do": "Talk to people.",
+    "i_tr": "İnsanlarla konuşurum.",
+    "do_tr": "İnsanlarla konuş."
+   },
+   {
+    "i": "I write a story.",
+    "do": "Write a story.",
+    "i_tr": "Bir haber yazarım.",
+    "do_tr": "Bir haber yaz."
+   }
+  ],
+  "musician": [
+   {
+    "i": "I practise my music.",
+    "do": "Practise my music.",
+    "i_tr": "Müziğimi çalışırım.",
+    "do_tr": "Müziğini çalış."
+   },
+   {
+    "i": "I meet the band.",
+    "do": "Meet the band.",
+    "i_tr": "Grupla buluşurum.",
+    "do_tr": "Grupla buluş."
+   },
+   {
+    "i": "I play a concert.",
+    "do": "Play a concert.",
+    "i_tr": "Konser veririm.",
+    "do_tr": "Konser ver."
+   }
+  ],
+  "mechanic": [
+   {
+    "i": "I check cars.",
+    "do": "Check cars.",
+    "i_tr": "Arabaları kontrol ederim.",
+    "do_tr": "Arabaları kontrol et."
+   },
+   {
+    "i": "I fix a car.",
+    "do": "Fix a car.",
+    "i_tr": "Bir araba tamir ederim.",
+    "do_tr": "Bir araba tamir et."
+   },
+   {
+    "i": "I talk to customers.",
+    "do": "Talk to customers.",
+    "i_tr": "Müşterilerle konuşurum.",
+    "do_tr": "Müşterilerle konuş."
+   }
+  ],
+  "plumber": [
+   {
+    "i": "I check my van.",
+    "do": "Check my van.",
+    "i_tr": "Kamyonetimi kontrol ederim.",
+    "do_tr": "Kamyonetini kontrol et."
+   },
+   {
+    "i": "I go to a house.",
+    "do": "Go to a house.",
+    "i_tr": "Bir eve giderim.",
+    "do_tr": "Bir eve git."
+   },
+   {
+    "i": "I fix a pipe.",
+    "do": "Fix a pipe.",
+    "i_tr": "Bir boru tamir ederim.",
+    "do_tr": "Bir boru tamir et."
+   }
+  ],
+  "farmer": [
+   {
+    "i": "I feed the animals.",
+    "do": "Feed the animals.",
+    "i_tr": "Hayvanları beslerim.",
+    "do_tr": "Hayvanları besle."
+   },
+   {
+    "i": "I drive the tractor.",
+    "do": "Drive the tractor.",
+    "i_tr": "Traktörü sürerim.",
+    "do_tr": "Traktörü sür."
+   },
+   {
+    "i": "I milk the cows.",
+    "do": "Milk the cows.",
+    "i_tr": "İnekleri sağarım.",
+    "do_tr": "İnekleri sağ."
+   }
+  ],
+  "hairdresser": [
+   {
+    "i": "I wash hair.",
+    "do": "Wash hair.",
+    "i_tr": "Saç yıkarım.",
+    "do_tr": "Saç yıka."
+   },
+   {
+    "i": "I cut hair.",
+    "do": "Cut hair.",
+    "i_tr": "Saç keserim.",
+    "do_tr": "Saç kes."
+   },
+   {
+    "i": "I talk to customers.",
+    "do": "Talk to customers.",
+    "i_tr": "Müşterilerle konuşurum.",
+    "do_tr": "Müşterilerle konuş."
+   }
+  ],
+  "footballer": [
+   {
+    "i": "I go to training.",
+    "do": "Go to training.",
+    "i_tr": "Antrenmana giderim.",
+    "do_tr": "Antrenmana git."
+   },
+   {
+    "i": "I run.",
+    "do": "Run.",
+    "i_tr": "Koşarım.",
+    "do_tr": "Koş."
+   },
+   {
+    "i": "I play a match.",
+    "do": "Play a match.",
+    "i_tr": "Maç yaparım.",
+    "do_tr": "Maç yap."
+   }
+  ],
+  "coach": [
+   {
+    "i": "I plan the training.",
+    "do": "Plan the training.",
+    "i_tr": "Antrenmanı planlarım.",
+    "do_tr": "Antrenmanı planla."
+   },
+   {
+    "i": "I train the team.",
+    "do": "Train the team.",
+    "i_tr": "Takımı çalıştırırım.",
+    "do_tr": "Takımı çalıştır."
+   },
+   {
+    "i": "I watch a match.",
+    "do": "Watch a match.",
+    "i_tr": "Bir maç izlerim.",
+    "do_tr": "Bir maç izle."
+   }
+  ],
+  "unemployed": [
+   {
+    "i": "I look for a job.",
+    "do": "Look for a job.",
+    "i_tr": "İş ararım.",
+    "do_tr": "İş ara."
+   },
+   {
+    "i": "I write a CV.",
+    "do": "Write a CV.",
+    "i_tr": "Bir özgeçmiş yazarım.",
+    "do_tr": "Bir özgeçmiş yaz."
+   },
+   {
+    "i": "I go to an interview.",
+    "do": "Go to an interview.",
+    "i_tr": "Bir iş görüşmesine giderim.",
+    "do_tr": "Bir iş görüşmesine git."
+   }
+  ],
+  "retired": [
+   {
+    "i": "I read the newspaper.",
+    "do": "Read the newspaper.",
+    "i_tr": "Gazete okurum.",
+    "do_tr": "Gazete oku."
+   },
+   {
+    "i": "I walk in the park.",
+    "do": "Walk in the park.",
+    "i_tr": "Parkta yürürüm.",
+    "do_tr": "Parkta yürü."
+   },
+   {
+    "i": "I visit my grandchildren.",
+    "do": "Visit my grandchildren.",
+    "i_tr": "Torunlarımı ziyaret ederim.",
+    "do_tr": "Torunlarını ziyaret et."
+   }
+  ],
+  "student": [
+   {
+    "i": "I go to class.",
+    "do": "Go to class.",
+    "i_tr": "Derse giderim.",
+    "do_tr": "Derse git."
+   },
+   {
+    "i": "I do my homework.",
+    "do": "Do my homework.",
+    "i_tr": "Ödevimi yaparım.",
+    "do_tr": "Ödevini yap."
+   },
+   {
+    "i": "I study for an exam.",
+    "do": "Study for an exam.",
+    "i_tr": "Sınava çalışırım.",
+    "do_tr": "Sınava çalış."
+   }
+  ],
+  "housewife": [
+   {
+    "i": "I take the children to school.",
+    "do": "Take the children to school.",
+    "i_tr": "Çocukları okula götürürüm.",
+    "do_tr": "Çocukları okula götür."
+   },
+   {
+    "i": "I go shopping.",
+    "do": "Go shopping.",
+    "i_tr": "Alışverişe giderim.",
+    "do_tr": "Alışverişe git."
+   },
+   {
+    "i": "I clean the house.",
+    "do": "Clean the house.",
+    "i_tr": "Evi temizlerim.",
+    "do_tr": "Evi temizle."
+   },
+   {
+    "i": "I cook dinner.",
+    "do": "Cook dinner.",
+    "i_tr": "Akşam yemeği pişiririm.",
+    "do_tr": "Akşam yemeği pişir."
+   }
+  ],
+  "househusband": [
+   {
+    "i": "I take the children to school.",
+    "do": "Take the children to school.",
+    "i_tr": "Çocukları okula götürürüm.",
+    "do_tr": "Çocukları okula götür."
+   },
+   {
+    "i": "I go shopping.",
+    "do": "Go shopping.",
+    "i_tr": "Alışverişe giderim.",
+    "do_tr": "Alışverişe git."
+   },
+   {
+    "i": "I clean the house.",
+    "do": "Clean the house.",
+    "i_tr": "Evi temizlerim.",
+    "do_tr": "Evi temizle."
+   },
+   {
+    "i": "I cook dinner.",
+    "do": "Cook dinner.",
+    "i_tr": "Akşam yemeği pişiririm.",
+    "do_tr": "Akşam yemeği pişir."
+   }
+  ],
+  "stay-at-home parent": [
+   {
+    "i": "I take the children to school.",
+    "do": "Take the children to school.",
+    "i_tr": "Çocukları okula götürürüm.",
+    "do_tr": "Çocukları okula götür."
+   },
+   {
+    "i": "I go shopping.",
+    "do": "Go shopping.",
+    "i_tr": "Alışverişe giderim.",
+    "do_tr": "Alışverişe git."
+   },
+   {
+    "i": "I clean the house.",
+    "do": "Clean the house.",
+    "i_tr": "Evi temizlerim.",
+    "do_tr": "Evi temizle."
+   },
+   {
+    "i": "I cook dinner.",
+    "do": "Cook dinner.",
+    "i_tr": "Akşam yemeği pişiririm.",
+    "do_tr": "Akşam yemeği pişir."
+   }
+  ],
+  "schoolchild": [
+   {
+    "i": "I have lessons.",
+    "do": "Have lessons.",
+    "i_tr": "Derslere girerim.",
+    "do_tr": "Derslere gir."
+   },
+   {
+    "i": "I play with my friends.",
+    "do": "Play with my friends.",
+    "i_tr": "Arkadaşlarımla oynarım.",
+    "do_tr": "Arkadaşlarınla oyna."
+   },
+   {
+    "i": "I do my homework.",
+    "do": "Do my homework.",
+    "i_tr": "Ödevimi yaparım.",
+    "do_tr": "Ödevini yap."
+   }
+  ]
+ }
+}

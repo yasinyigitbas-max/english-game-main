@@ -1,0 +1,287 @@
+{
+ "label": "Past simple",
+ "quiz_after": true,
+ "grammar_ref": "res://data/grammar.json#past_simple,past_be",
+ "lesson": [
+  {
+   "title": "My day: regular verbs (-ed)",
+   "tr": "Günüm: düzenli fiiller (-ed alır)",
+   "rows": [
+    [
+     "I woke up.",
+     "Uyandım. (wake up -> woke up)"
+    ],
+    [
+     "I washed my face.",
+     "Yüzümü yıkadım. (wash -> washed)"
+    ],
+    [
+     "I brushed my teeth.",
+     "Dişlerimi fırçaladım. (brush -> brushed)"
+    ],
+    [
+     "I walked outside.",
+     "Dışarıda yürüdüm. (walk -> walked)"
+    ]
+   ],
+   "say": [
+    "I woke up.",
+    "I washed my face.",
+    "I brushed my teeth.",
+    "I walked outside."
+   ]
+  },
+  {
+   "title": "My day: irregular verbs",
+   "tr": "Günüm: düzensiz fiiller (ezberlenir)",
+   "rows": [
+    [
+     "I had breakfast.",
+     "Kahvaltı yaptım. (have -> had)"
+    ],
+    [
+     "I ate an egg.",
+     "Bir yumurta yedim. (eat -> ate)"
+    ],
+    [
+     "I saw a cat.",
+     "Bir kedi gördüm. (see -> saw)"
+    ],
+    [
+     "I fell down.",
+     "Düştüm. (fall -> fell)"
+    ],
+    [
+     "A bus hit me.",
+     "Bir otobüs bana çarptı. (hit -> hit)"
+    ],
+    [
+     "I went to the hospital.",
+     "Hastaneye gittim. (go -> went)"
+    ]
+   ],
+   "say": [
+    "I had breakfast.",
+    "I ate an egg.",
+    "I saw a cat.",
+    "I fell down.",
+    "A bus hit me.",
+    "I went to the hospital."
+   ]
+  },
+  {
+   "title": "was / were",
+   "tr": "am / is -> was, are -> were",
+   "rows": [
+    [
+     "I was at the hospital.",
+     "Hastanedeydim."
+    ],
+    [
+     "The doctor was kind.",
+     "Doktor nazikti."
+    ],
+    [
+     "My family were there.",
+     "Ailem oradaydı."
+    ],
+    [
+     "I was fine in the end.",
+     "Sonunda iyiydim."
+    ]
+   ],
+   "say": [
+    "I was at the hospital.",
+    "The doctor was kind.",
+    "My family were there.",
+    "I was fine in the end."
+   ]
+  }
+ ],
+ "quiz": [
+  {
+   "q": "I ___ my face.",
+   "opts": [
+    "washed",
+    "wash",
+    "washs"
+   ],
+   "a": 0,
+   "say": "I washed my face."
+  },
+  {
+   "q": "I ___ breakfast.",
+   "opts": [
+    "haved",
+    "had",
+    "have"
+   ],
+   "a": 1,
+   "say": "I had breakfast."
+  },
+  {
+   "q": "I ___ a cat.",
+   "opts": [
+    "see",
+    "seed",
+    "saw"
+   ],
+   "a": 2,
+   "say": "I saw a cat."
+  },
+  {
+   "q": "I ___ to the hospital.",
+   "opts": [
+    "went",
+    "goed",
+    "go"
+   ],
+   "a": 0,
+   "say": "I went to the hospital."
+  },
+  {
+   "q": "I ___ at the hospital.",
+   "opts": [
+    "were",
+    "was",
+    "am"
+   ],
+   "a": 1,
+   "say": "I was at the hospital."
+  },
+  {
+   "q": "I ___ down.",
+   "opts": [
+    "falled",
+    "fall",
+    "fell"
+   ],
+   "a": 2,
+   "say": "I fell down."
+  }
+ ],
+ "quiz_b": [
+  {
+   "q": "I ___ up.",
+   "opts": [
+    "woke",
+    "waked",
+    "wake"
+   ],
+   "a": 0,
+   "say": "I woke up."
+  },
+  {
+   "q": "I ___ my teeth.",
+   "opts": [
+    "brush",
+    "brushed",
+    "brusht"
+   ],
+   "a": 1,
+   "say": "I brushed my teeth."
+  },
+  {
+   "q": "I ___ an egg.",
+   "opts": [
+    "eated",
+    "eat",
+    "ate"
+   ],
+   "a": 2,
+   "say": "I ate an egg."
+  },
+  {
+   "q": "A bus ___ me.",
+   "opts": [
+    "hit",
+    "hitted",
+    "hits"
+   ],
+   "a": 0,
+   "say": "A bus hit me."
+  },
+  {
+   "q": "My family ___ there.",
+   "opts": [
+    "was",
+    "were",
+    "is"
+   ],
+   "a": 1,
+   "say": "My family were there."
+  },
+  {
+   "q": "I ___ home.",
+   "opts": [
+    "goed",
+    "go",
+    "went"
+   ],
+   "a": 2,
+   "say": "I went home."
+  }
+ ],
+ "quiz_c": [
+  {
+   "q": "I ___ outside.",
+   "opts": [
+    "walked",
+    "walk",
+    "walkt"
+   ],
+   "a": 0,
+   "say": "I walked outside."
+  },
+  {
+   "q": "The doctor ___ kind.",
+   "opts": [
+    "were",
+    "was",
+    "be"
+   ],
+   "a": 1,
+   "say": "The doctor was kind."
+  },
+  {
+   "q": "I ___ an accident.",
+   "opts": [
+    "haved",
+    "has",
+    "had"
+   ],
+   "a": 2,
+   "say": "I had an accident."
+  },
+  {
+   "q": "I ___ a bus.",
+   "opts": [
+    "saw",
+    "seed",
+    "see"
+   ],
+   "a": 0,
+   "say": "I saw a bus."
+  },
+  {
+   "q": "I ___ up.",
+   "opts": [
+    "wake",
+    "woke",
+    "waked"
+   ],
+   "a": 1,
+   "say": "I woke up."
+  },
+  {
+   "q": "I ___ fine in the end.",
+   "opts": [
+    "am",
+    "were",
+    "was"
+   ],
+   "a": 2,
+   "say": "I was fine in the end."
+  }
+ ]
+}

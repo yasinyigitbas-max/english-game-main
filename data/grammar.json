@@ -1,0 +1,2100 @@
+{
+ "version": 1,
+ "topics": [
+  {
+   "id": "to_be",
+   "level": "A1",
+   "title": "to be (am / is / are) + subject pronouns",
+   "title_tr": "to be fiili ve özne zamirleri",
+   "use_tr": "“to be” Türkçedeki “-(y)Im, -sIn, -(y)Iz” gibi ek-fiilin karşılığıdır. Kim olduğumuzu, nerede olduğumuzu, yaşımızı, mesleğimizi ve durumumuzu anlatırız: I am a teacher. (Ben öğretmenim.) Türkçede ek kelimeye eklenir; İngilizcede ise am / is / are ayrı bir kelimedir ve cümleden atlanmaz. Türkçede özne zamiri (ben, sen, o...) çoğu zaman söylenmez, çünkü fiil eki kişiyi gösterir; İngilizcede ise özne (I, you, he...) her zaman söylenmelidir.",
+   "form_tr": "Özne + am / is / are + isim / sıfat / yer. Olumsuz: am not / isn't / aren't. Soru: Am / Is / Are başa gelir.",
+   "table": [
+    [
+     "Subject",
+     "Positive",
+     "Negative"
+    ],
+    [
+     "I",
+     "I am (I'm)",
+     "I'm not"
+    ],
+    [
+     "you / we / they",
+     "are ('re)",
+     "aren't"
+    ],
+    [
+     "he / she / it",
+     "is ('s)",
+     "isn't"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "I am a student.",
+     "tr": "Ben öğrenciyim."
+    },
+    {
+     "en": "She is at home.",
+     "tr": "O evde."
+    },
+    {
+     "en": "We are happy.",
+     "tr": "Biz mutluyuz."
+    }
+   ],
+   "negative": [
+    {
+     "en": "I'm not tired.",
+     "tr": "Yorgun değilim."
+    },
+    {
+     "en": "He isn't my brother.",
+     "tr": "Benim erkek kardeşim değil."
+    },
+    {
+     "en": "They aren't in the bedroom.",
+     "tr": "Yatak odasında değiller."
+    }
+   ],
+   "question": [
+    {
+     "en": "Are you a teacher?",
+     "tr": "Öğretmen misin?",
+     "short": "Yes, I am.",
+     "short_tr": "Evet, öğretmenim."
+    },
+    {
+     "en": "Is it cold?",
+     "tr": "Hava soğuk mu?",
+     "short": "No, it isn't.",
+     "short_tr": "Hayır, soğuk değil."
+    },
+    {
+     "en": "Are they your friends?",
+     "tr": "Onlar senin arkadaşların mı?",
+     "short": "Yes, they are.",
+     "short_tr": "Evet, arkadaşlarım."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "I student.",
+     "right": "I am a student.",
+     "tr": "“am” atlanmaz; Türkçedeki “-im” ekinin yerini tutar."
+    },
+    {
+     "wrong": "She is teacher.",
+     "right": "She is a teacher.",
+     "tr": "Tekil meslek isimlerinden önce “a / an” gelir."
+    },
+    {
+     "wrong": "Yes, I'm.",
+     "right": "Yes, I am.",
+     "tr": "Kısa olumlu cevapta kısaltma kullanılmaz."
+    },
+    {
+     "wrong": "He is 20 years.",
+     "right": "He is 20 (years old).",
+     "tr": "Yaş “to be” ile söylenir; “years” tek başına kalmaz."
+    }
+   ]
+  },
+  {
+   "id": "present_simple",
+   "level": "A1",
+   "title": "Present simple",
+   "title_tr": "Geniş zaman",
+   "use_tr": "Alışkanlıkları, rutinleri, her zaman doğru olan gerçekleri ve kalıcı durumları anlatır: I get up at seven. (Yedide kalkarım.) Türkçedeki geniş zaman (-r / -Ar) gibi düşünebilirsin, ama İngilizcede şimdiki rutinler için de bu zaman kullanılır.",
+   "form_tr": "I / you / we / they + fiil. He / she / it + fiil + -s / -es. Olumsuz ve soru için yardımcı fiil do / does kullanılır; does geldiğinde fiil -s almaz.",
+   "table": [
+    [
+     "",
+     "I / you / we / they",
+     "he / she / it"
+    ],
+    [
+     "Positive",
+     "I work.",
+     "She works."
+    ],
+    [
+     "Negative",
+     "I don't work.",
+     "She doesn't work."
+    ],
+    [
+     "Question",
+     "Do you work?",
+     "Does she work?"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "I wake up at seven.",
+     "tr": "Yedide uyanırım."
+    },
+    {
+     "en": "She reads a book every night.",
+     "tr": "Her gece kitap okur."
+    },
+    {
+     "en": "Water boils at 100 degrees.",
+     "tr": "Su 100 derecede kaynar."
+    }
+   ],
+   "negative": [
+    {
+     "en": "I don't drink coffee.",
+     "tr": "Kahve içmem."
+    },
+    {
+     "en": "He doesn't watch TV.",
+     "tr": "Televizyon izlemez."
+    },
+    {
+     "en": "We don't live in Ankara.",
+     "tr": "Ankara'da yaşamıyoruz."
+    }
+   ],
+   "question": [
+    {
+     "en": "Do you like tea?",
+     "tr": "Çay sever misin?",
+     "short": "Yes, I do.",
+     "short_tr": "Evet, severim."
+    },
+    {
+     "en": "Does she work here?",
+     "tr": "Burada mı çalışıyor?",
+     "short": "No, she doesn't.",
+     "short_tr": "Hayır, burada çalışmıyor."
+    },
+    {
+     "en": "Do they play football?",
+     "tr": "Futbol oynarlar mı?",
+     "short": "Yes, they do.",
+     "short_tr": "Evet, oynarlar."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "She work in a bank.",
+     "right": "She works in a bank.",
+     "tr": "he / she / it ile fiil -s alır."
+    },
+    {
+     "wrong": "He doesn't works.",
+     "right": "He doesn't work.",
+     "tr": "does / doesn't varsa fiil yalın kalır."
+    },
+    {
+     "wrong": "I am work every day.",
+     "right": "I work every day.",
+     "tr": "Geniş zamanda “am / is / are” kullanılmaz."
+    },
+    {
+     "wrong": "You like pizza?",
+     "right": "Do you like pizza?",
+     "tr": "Soruda “do / does” başa gelir."
+    }
+   ]
+  },
+  {
+   "id": "have_got",
+   "level": "A1",
+   "title": "have got + possessives",
+   "title_tr": "have got (sahip olmak) ve iyelik sözcükleri",
+   "use_tr": "“have got” sahip olmayı anlatır; Türkçedeki “-Im var” yapısıdır: I have got a cat. (Bir kedim var.) İyelik sıfatları (my, your, his, her, its, our, their) Türkçedeki iyelik eklerinin (-Im, -In, -I...) karşılığıdır. İsimlerde ’s kullanılır: Ali's room (Ali'nin odası).",
+   "form_tr": "I / you / we / they + have got ('ve got). He / she / it + has got ('s got). Olumsuz: haven't got / hasn't got. Soru: Have / Has + özne + got...?",
+   "table": [
+    [
+     "Pronoun",
+     "Possessive",
+     "Example"
+    ],
+    [
+     "I",
+     "my",
+     "my bed"
+    ],
+    [
+     "you",
+     "your",
+     "your phone"
+    ],
+    [
+     "he / she / it",
+     "his / her / its",
+     "her bag"
+    ],
+    [
+     "we / they",
+     "our / their",
+     "their house"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "I've got a brother.",
+     "tr": "Bir erkek kardeşim var."
+    },
+    {
+     "en": "She has got blue eyes.",
+     "tr": "Onun mavi gözleri var."
+    },
+    {
+     "en": "This is Tom's room.",
+     "tr": "Burası Tom'un odası."
+    }
+   ],
+   "negative": [
+    {
+     "en": "I haven't got a car.",
+     "tr": "Arabam yok."
+    },
+    {
+     "en": "He hasn't got a phone.",
+     "tr": "Onun telefonu yok."
+    },
+    {
+     "en": "They haven't got a garden.",
+     "tr": "Onların bahçesi yok."
+    }
+   ],
+   "question": [
+    {
+     "en": "Have you got a pet?",
+     "tr": "Evcil hayvanın var mı?",
+     "short": "Yes, I have.",
+     "short_tr": "Evet, var."
+    },
+    {
+     "en": "Has she got a sister?",
+     "tr": "Onun kız kardeşi var mı?",
+     "short": "No, she hasn't.",
+     "short_tr": "Hayır, yok."
+    },
+    {
+     "en": "Is this your book?",
+     "tr": "Bu senin kitabın mı?",
+     "short": "Yes, it is.",
+     "short_tr": "Evet, benim."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "She have got a dog.",
+     "right": "She has got a dog.",
+     "tr": "he / she / it ile “has got” kullanılır."
+    },
+    {
+     "wrong": "There is a car to me.",
+     "right": "I've got a car.",
+     "tr": "“-Im var” anlamı için “have got” kullanılır."
+    },
+    {
+     "wrong": "He is my friend's.",
+     "right": "He is my friend.",
+     "tr": "’s sadece sahiplik bildirir."
+    },
+    {
+     "wrong": "This is her bag. (erkek için)",
+     "right": "This is his bag.",
+     "tr": "Erkek için his, kadın için her; Türkçede “onun” ikisini de karşılar."
+    }
+   ]
+  },
+  {
+   "id": "countable",
+   "level": "A1",
+   "title": "Countable / uncountable: a / an / some / any",
+   "title_tr": "Sayılabilen / sayılamayan isimler: a / an / some / any",
+   "use_tr": "Sayılabilen isimler (apple, book) tekil ve çoğul olabilir. Sayılamayan isimler (water, milk, bread, money) çoğul olmaz, önüne a / an gelmez. a: sessiz harfle başlayan sese, an: sesli harfle başlayan sese gelir (a cup, an apple). some: olumlu cümlede “biraz / birkaç”; any: olumsuz cümle ve sorularda “hiç”.",
+   "form_tr": "a / an + tekil sayılabilen. some + çoğul veya sayılamayan (olumlu). any + çoğul veya sayılamayan (olumsuz ve soru). Rica ve ikramda soruda da some kullanılır: Would you like some tea?",
+   "table": [
+    [
+     "",
+     "Countable",
+     "Uncountable"
+    ],
+    [
+     "Positive",
+     "a book / some books",
+     "some milk"
+    ],
+    [
+     "Negative",
+     "any books",
+     "any milk"
+    ],
+    [
+     "Question",
+     "any books?",
+     "any milk?"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "I've got an apple.",
+     "tr": "Bir elmam var."
+    },
+    {
+     "en": "There are some books on the desk.",
+     "tr": "Masada birkaç kitap var."
+    },
+    {
+     "en": "I want some water.",
+     "tr": "Biraz su istiyorum."
+    }
+   ],
+   "negative": [
+    {
+     "en": "There isn't any milk.",
+     "tr": "Hiç süt yok."
+    },
+    {
+     "en": "I haven't got any money.",
+     "tr": "Hiç param yok."
+    },
+    {
+     "en": "We haven't got any eggs.",
+     "tr": "Hiç yumurtamız yok."
+    }
+   ],
+   "question": [
+    {
+     "en": "Is there any bread?",
+     "tr": "Hiç ekmek var mı?",
+     "short": "Yes, there is.",
+     "short_tr": "Evet, var."
+    },
+    {
+     "en": "Have you got any pens?",
+     "tr": "Hiç kalemin var mı?",
+     "short": "No, I haven't.",
+     "short_tr": "Hayır, yok."
+    },
+    {
+     "en": "Would you like some juice?",
+     "tr": "Biraz meyve suyu ister misin?",
+     "short": "Yes, please.",
+     "short_tr": "Evet, lütfen."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "a water",
+     "right": "some water / a glass of water",
+     "tr": "Sayılamayan isme “a” gelmez."
+    },
+    {
+     "wrong": "an book",
+     "right": "a book",
+     "tr": "“an” sadece sesli harf sesinden önce gelir."
+    },
+    {
+     "wrong": "I haven't got some money.",
+     "right": "I haven't got any money.",
+     "tr": "Olumsuzda “any” kullanılır."
+    },
+    {
+     "wrong": "two breads",
+     "right": "two loaves of bread",
+     "tr": "Sayılamayan isimler -s almaz."
+    }
+   ]
+  },
+  {
+   "id": "present_continuous",
+   "level": "A1",
+   "title": "Present continuous (vs present simple)",
+   "title_tr": "Şimdiki zaman (geniş zamanla karşılaştırma)",
+   "use_tr": "Şu anda olan ya da bu günlerde süren eylemleri anlatır: I am making the bed. (Yatağı topluyorum.) Türkçedeki “-yor” ekine benzer. Fark: present simple rutin ve alışkanlık içindir (I get up at seven every day), present continuous ise şu an olan için (I am getting up now). know, like, want gibi durum fiilleri genelde -ing almaz.",
+   "form_tr": "Özne + am / is / are + fiil-ing. Olumsuz: am not / isn't / aren't + fiil-ing. Soru: Am / Is / Are + özne + fiil-ing?",
+   "table": [
+    [
+     "",
+     "Present simple",
+     "Present continuous"
+    ],
+    [
+     "Use",
+     "routines",
+     "now"
+    ],
+    [
+     "Example",
+     "I read every day.",
+     "I'm reading now."
+    ],
+    [
+     "Words",
+     "every day, usually",
+     "now, at the moment"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "I am waking up.",
+     "tr": "Uyanıyorum."
+    },
+    {
+     "en": "She is brushing her teeth.",
+     "tr": "Dişlerini fırçalıyor."
+    },
+    {
+     "en": "They are watching TV now.",
+     "tr": "Şu an televizyon izliyorlar."
+    }
+   ],
+   "negative": [
+    {
+     "en": "I'm not sleeping.",
+     "tr": "Uyumuyorum."
+    },
+    {
+     "en": "He isn't working today.",
+     "tr": "Bugün çalışmıyor."
+    },
+    {
+     "en": "We aren't playing.",
+     "tr": "Oyun oynamıyoruz."
+    }
+   ],
+   "question": [
+    {
+     "en": "Are you listening?",
+     "tr": "Dinliyor musun?",
+     "short": "Yes, I am.",
+     "short_tr": "Evet, dinliyorum."
+    },
+    {
+     "en": "Is it raining?",
+     "tr": "Yağmur yağıyor mu?",
+     "short": "No, it isn't.",
+     "short_tr": "Hayır, yağmıyor."
+    },
+    {
+     "en": "What are you doing?",
+     "tr": "Ne yapıyorsun?",
+     "short": "I'm reading.",
+     "short_tr": "Kitap okuyorum."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "I reading now.",
+     "right": "I am reading now.",
+     "tr": "am / is / are atlanmaz."
+    },
+    {
+     "wrong": "I am knowing him.",
+     "right": "I know him.",
+     "tr": "know, like, want gibi fiiller genelde -ing almaz."
+    },
+    {
+     "wrong": "I am going to school every day.",
+     "right": "I go to school every day.",
+     "tr": "Rutin için present simple kullanılır."
+    },
+    {
+     "wrong": "She is siting.",
+     "right": "She is sitting.",
+     "tr": "Kısa fiillerde son harf ikizlenir: sit → sitting."
+    }
+   ]
+  },
+  {
+   "id": "there_is",
+   "level": "A1",
+   "title": "There is / there are + prepositions of place",
+   "title_tr": "There is / there are (var / yok) ve yer edatları",
+   "use_tr": "Bir yerde bir şeyin var olup olmadığını söyler; Türkçedeki “var / yok” anlamındadır: There is a lamp on the table. (Masada bir lamba var.) Yer edatları (in, on, under, next to, behind, in front of, between) Türkçedeki “-de, üstünde, altında, yanında...” anlamlarını verir ve isimden önce gelir.",
+   "form_tr": "There is + tekil / sayılamayan. There are + çoğul. Olumsuz: There isn't / There aren't (any). Soru: Is there...? / Are there...?",
+   "table": [
+    [
+     "Preposition",
+     "Türkçe",
+     "Example"
+    ],
+    [
+     "in",
+     "içinde",
+     "in the wardrobe"
+    ],
+    [
+     "on",
+     "üstünde",
+     "on the bed"
+    ],
+    [
+     "under",
+     "altında",
+     "under the desk"
+    ],
+    [
+     "next to",
+     "yanında",
+     "next to the door"
+    ],
+    [
+     "behind",
+     "arkasında",
+     "behind the curtain"
+    ],
+    [
+     "in front of",
+     "önünde",
+     "in front of the mirror"
+    ],
+    [
+     "between",
+     "arasında",
+     "between the bed and the desk"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "There is a bed in my room.",
+     "tr": "Odamda bir yatak var."
+    },
+    {
+     "en": "There are two pictures on the wall.",
+     "tr": "Duvarda iki resim var."
+    },
+    {
+     "en": "The plant is next to the window.",
+     "tr": "Bitki pencerenin yanında."
+    }
+   ],
+   "negative": [
+    {
+     "en": "There isn't a TV in the bedroom.",
+     "tr": "Yatak odasında televizyon yok."
+    },
+    {
+     "en": "There aren't any chairs.",
+     "tr": "Hiç sandalye yok."
+    },
+    {
+     "en": "The book isn't under the bed.",
+     "tr": "Kitap yatağın altında değil."
+    }
+   ],
+   "question": [
+    {
+     "en": "Is there a lamp?",
+     "tr": "Lamba var mı?",
+     "short": "Yes, there is.",
+     "short_tr": "Evet, var."
+    },
+    {
+     "en": "Are there any books on the shelf?",
+     "tr": "Rafta hiç kitap var mı?",
+     "short": "No, there aren't.",
+     "short_tr": "Hayır, yok."
+    },
+    {
+     "en": "Where is my phone?",
+     "tr": "Telefonum nerede?",
+     "short": "It's on the table.",
+     "short_tr": "Masanın üstünde."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "There is two chairs.",
+     "right": "There are two chairs.",
+     "tr": "Çoğul isimle “there are” kullanılır."
+    },
+    {
+     "wrong": "In my room has a desk.",
+     "right": "There is a desk in my room.",
+     "tr": "“var” için “there is / are” kullanılır."
+    },
+    {
+     "wrong": "The cat is under of the bed.",
+     "right": "The cat is under the bed.",
+     "tr": "under, on, in sonrası “of” gelmez."
+    },
+    {
+     "wrong": "Yes, there's.",
+     "right": "Yes, there is.",
+     "tr": "Kısa olumlu cevapta kısaltma kullanılmaz."
+    }
+   ]
+  },
+  {
+   "id": "imperatives",
+   "level": "A1",
+   "title": "Imperatives",
+   "title_tr": "Emir cümleleri",
+   "use_tr": "Talimat, emir, uyarı ve rica için kullanılır: Open the window. (Pencereyi aç.) Türkçedeki emir kipi gibidir. Kibar olmak için please eklenir. Özne (you) söylenmez.",
+   "form_tr": "Olumlu: fiilin yalın hali (Sit down.). Olumsuz: Don't + fiil (Don't run.). Kibar: Please + fiil / fiil + please.",
+   "table": [
+    [
+     "Type",
+     "Form",
+     "Example"
+    ],
+    [
+     "Positive",
+     "verb",
+     "Close the door."
+    ],
+    [
+     "Negative",
+     "Don't + verb",
+     "Don't touch it."
+    ],
+    [
+     "Polite",
+     "Please + verb",
+     "Please sit down."
+    ]
+   ],
+   "positive": [
+    {
+     "en": "Turn off the alarm clock.",
+     "tr": "Alarmı kapat."
+    },
+    {
+     "en": "Open your books, please.",
+     "tr": "Kitaplarınızı açın, lütfen."
+    },
+    {
+     "en": "Make your bed.",
+     "tr": "Yatağını topla."
+    }
+   ],
+   "negative": [
+    {
+     "en": "Don't run!",
+     "tr": "Koşma!"
+    },
+    {
+     "en": "Don't use your phone.",
+     "tr": "Telefonunu kullanma."
+    },
+    {
+     "en": "Don't be late.",
+     "tr": "Geç kalma."
+    }
+   ],
+   "question": [
+    {
+     "en": "Can you open the window, please?",
+     "tr": "Pencereyi açar mısın, lütfen?",
+     "short": "Sure.",
+     "short_tr": "Tabii."
+    },
+    {
+     "en": "Could you help me?",
+     "tr": "Bana yardım edebilir misiniz?",
+     "short": "Yes, of course.",
+     "short_tr": "Evet, tabii ki."
+    },
+    {
+     "en": "Can you close the door?",
+     "tr": "Kapıyı kapatabilir misin?",
+     "short": "OK.",
+     "short_tr": "Tamam."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "You open the door.",
+     "right": "Open the door.",
+     "tr": "Emir cümlesinde özne söylenmez."
+    },
+    {
+     "wrong": "No run!",
+     "right": "Don't run!",
+     "tr": "Olumsuz emir “Don't” ile yapılır."
+    },
+    {
+     "wrong": "Don't to touch.",
+     "right": "Don't touch.",
+     "tr": "Fiilden önce “to” gelmez."
+    },
+    {
+     "wrong": "Not be late.",
+     "right": "Don't be late.",
+     "tr": "“be” ile de “Don't” kullanılır."
+    }
+   ]
+  },
+  {
+   "id": "can",
+   "level": "A1",
+   "title": "can / can't",
+   "title_tr": "can / can't (yetenek, izin, rica)",
+   "use_tr": "Yetenek (-Abilmek), izin ve rica bildirir: I can swim. (Yüzebilirim / Yüzme bilirim.) Can I open the window? (Pencereyi açabilir miyim?) Tüm öznelerle aynıdır, -s almaz.",
+   "form_tr": "Özne + can / can't (cannot) + fiil (yalın). Soru: Can + özne + fiil?",
+   "table": [
+    [
+     "",
+     "Form",
+     "Example"
+    ],
+    [
+     "Positive",
+     "can + verb",
+     "She can sing."
+    ],
+    [
+     "Negative",
+     "can't + verb",
+     "I can't drive."
+    ],
+    [
+     "Question",
+     "Can + subject + verb?",
+     "Can you cook?"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "I can swim.",
+     "tr": "Yüzebilirim."
+    },
+    {
+     "en": "She can speak English.",
+     "tr": "İngilizce konuşabilir."
+    },
+    {
+     "en": "You can sit here.",
+     "tr": "Buraya oturabilirsin."
+    }
+   ],
+   "negative": [
+    {
+     "en": "I can't find my phone.",
+     "tr": "Telefonumu bulamıyorum."
+    },
+    {
+     "en": "He can't drive.",
+     "tr": "Araba süremez."
+    },
+    {
+     "en": "We can't go out now.",
+     "tr": "Şimdi dışarı çıkamayız."
+    }
+   ],
+   "question": [
+    {
+     "en": "Can you play the guitar?",
+     "tr": "Gitar çalabilir misin?",
+     "short": "Yes, I can.",
+     "short_tr": "Evet, çalabilirim."
+    },
+    {
+     "en": "Can I use your pen?",
+     "tr": "Kalemini kullanabilir miyim?",
+     "short": "Yes, you can.",
+     "short_tr": "Evet, kullanabilirsin."
+    },
+    {
+     "en": "Can she cook?",
+     "tr": "Yemek yapabilir mi?",
+     "short": "No, she can't.",
+     "short_tr": "Hayır, yapamaz."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "She cans swim.",
+     "right": "She can swim.",
+     "tr": "can -s almaz."
+    },
+    {
+     "wrong": "I can to swim.",
+     "right": "I can swim.",
+     "tr": "can'den sonra “to” gelmez."
+    },
+    {
+     "wrong": "Do you can help me?",
+     "right": "Can you help me?",
+     "tr": "can ile “do” kullanılmaz."
+    },
+    {
+     "wrong": "He can swims.",
+     "right": "He can swim.",
+     "tr": "can'den sonra fiil yalın kalır."
+    }
+   ]
+  },
+  {
+   "id": "how_much",
+   "level": "A1",
+   "title": "How much / how many",
+   "title_tr": "How much / how many (ne kadar / kaç tane)",
+   "use_tr": "Miktar sormak için kullanılır. How many + sayılabilen çoğul isim (Kaç tane?). How much + sayılamayan isim (Ne kadar?). Fiyat sormak için de How much kullanılır: How much is it? (Bu ne kadar?)",
+   "form_tr": "How many + çoğul isim + are there / do you have...? How much + sayılamayan isim + is there / do you want...? Fiyat: How much is / are...?",
+   "table": [
+    [
+     "Question",
+     "Noun",
+     "Example"
+    ],
+    [
+     "How many",
+     "countable plural",
+     "How many chairs?"
+    ],
+    [
+     "How much",
+     "uncountable",
+     "How much water?"
+    ],
+    [
+     "How much",
+     "price",
+     "How much is it?"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "There are three books.",
+     "tr": "Üç kitap var."
+    },
+    {
+     "en": "I drink a lot of water.",
+     "tr": "Çok su içerim."
+    },
+    {
+     "en": "It's ten lira.",
+     "tr": "On lira."
+    }
+   ],
+   "negative": [
+    {
+     "en": "There aren't many chairs.",
+     "tr": "Çok sandalye yok."
+    },
+    {
+     "en": "I haven't got much time.",
+     "tr": "Çok vaktim yok."
+    },
+    {
+     "en": "We don't eat much sugar.",
+     "tr": "Çok şeker yemeyiz."
+    }
+   ],
+   "question": [
+    {
+     "en": "How many brothers have you got?",
+     "tr": "Kaç erkek kardeşin var?",
+     "short": "Two.",
+     "short_tr": "İki."
+    },
+    {
+     "en": "How much milk is there?",
+     "tr": "Ne kadar süt var?",
+     "short": "Not much.",
+     "short_tr": "Çok değil."
+    },
+    {
+     "en": "How much is this T-shirt?",
+     "tr": "Bu tişört ne kadar?",
+     "short": "It's 200 lira.",
+     "short_tr": "200 lira."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "How many water?",
+     "right": "How much water?",
+     "tr": "Sayılamayan isimle “how much”."
+    },
+    {
+     "wrong": "How much books?",
+     "right": "How many books?",
+     "tr": "Sayılabilen çoğulla “how many”."
+    },
+    {
+     "wrong": "How many book?",
+     "right": "How many books?",
+     "tr": "How many sonrası isim çoğul olur."
+    },
+    {
+     "wrong": "How much it is?",
+     "right": "How much is it?",
+     "tr": "Soruda “is” özneden önce gelir."
+    }
+   ]
+  },
+  {
+   "id": "this_that",
+   "level": "A1",
+   "title": "this / that / these / those",
+   "title_tr": "this / that / these / those (bu / şu / bunlar / şunlar)",
+   "use_tr": "this (bu) ve these (bunlar) yakındaki şeyler için; that (şu / o) ve those (şunlar / onlar) uzaktaki şeyler için kullanılır. Türkçede isim çoğul olsa da “bu kitaplar” deriz; İngilizcede ise “this” da çoğul olur: these books.",
+   "form_tr": "this / that + tekil isim + is. these / those + çoğul isim + are.",
+   "table": [
+    [
+     "",
+     "Near (yakın)",
+     "Far (uzak)"
+    ],
+    [
+     "Singular",
+     "this",
+     "that"
+    ],
+    [
+     "Plural",
+     "these",
+     "those"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "This is my bed.",
+     "tr": "Bu benim yatağım."
+    },
+    {
+     "en": "That lamp is new.",
+     "tr": "Şu lamba yeni."
+    },
+    {
+     "en": "These shoes are nice.",
+     "tr": "Bu ayakkabılar güzel."
+    }
+   ],
+   "negative": [
+    {
+     "en": "This isn't my bag.",
+     "tr": "Bu benim çantam değil."
+    },
+    {
+     "en": "Those aren't my books.",
+     "tr": "Şunlar benim kitaplarım değil."
+    },
+    {
+     "en": "That isn't a mirror.",
+     "tr": "Şu bir ayna değil."
+    }
+   ],
+   "question": [
+    {
+     "en": "Is this your phone?",
+     "tr": "Bu senin telefonun mu?",
+     "short": "Yes, it is.",
+     "short_tr": "Evet, benim."
+    },
+    {
+     "en": "Are those your shoes?",
+     "tr": "Şunlar senin ayakkabıların mı?",
+     "short": "No, they aren't.",
+     "short_tr": "Hayır, değil."
+    },
+    {
+     "en": "What's that?",
+     "tr": "Şu ne?",
+     "short": "It's a plant.",
+     "short_tr": "Bir bitki."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "This books are mine.",
+     "right": "These books are mine.",
+     "tr": "Çoğul isimle “these” kullanılır."
+    },
+    {
+     "wrong": "Those is my bag.",
+     "right": "That is my bag.",
+     "tr": "Tekil için “that”."
+    },
+    {
+     "wrong": "These is nice.",
+     "right": "These are nice.",
+     "tr": "these / those ile “are”."
+    },
+    {
+     "wrong": "Is this your?",
+     "right": "Is this yours?",
+     "tr": "İsimsiz kullanımda “yours” gelir."
+    }
+   ]
+  },
+  {
+   "id": "frequency",
+   "level": "A1",
+   "title": "Adverbs of frequency",
+   "title_tr": "Sıklık zarfları",
+   "use_tr": "Bir şeyi ne sıklıkla yaptığımızı söyler: always (her zaman), usually (genellikle), often (sık sık), sometimes (bazen), rarely (nadiren), never (asla / hiç). Genellikle present simple ile kullanılır.",
+   "form_tr": "Sıklık zarfı ana fiilden ÖNCE, ama “to be”den SONRA gelir: I always get up early. / She is never late. Soru: How often...?",
+   "table": [
+    [
+     "Adverb",
+     "Türkçe",
+     "%"
+    ],
+    [
+     "always",
+     "her zaman",
+     "100%"
+    ],
+    [
+     "usually",
+     "genellikle",
+     "80%"
+    ],
+    [
+     "often",
+     "sık sık",
+     "60%"
+    ],
+    [
+     "sometimes",
+     "bazen",
+     "40%"
+    ],
+    [
+     "rarely",
+     "nadiren",
+     "10%"
+    ],
+    [
+     "never",
+     "asla, hiç",
+     "0%"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "I always make my bed.",
+     "tr": "Yatağımı her zaman toplarım."
+    },
+    {
+     "en": "She usually reads at night.",
+     "tr": "Genellikle geceleri okur."
+    },
+    {
+     "en": "He is often tired.",
+     "tr": "Sık sık yorgun olur."
+    }
+   ],
+   "negative": [
+    {
+     "en": "I never drink coffee.",
+     "tr": "Asla kahve içmem."
+    },
+    {
+     "en": "We don't usually watch TV.",
+     "tr": "Genellikle televizyon izlemeyiz."
+    },
+    {
+     "en": "She isn't often late.",
+     "tr": "Pek sık geç kalmaz."
+    }
+   ],
+   "question": [
+    {
+     "en": "Do you always get up early?",
+     "tr": "Her zaman erken kalkar mısın?",
+     "short": "Yes, I do.",
+     "short_tr": "Evet, kalkarım."
+    },
+    {
+     "en": "How often do you read?",
+     "tr": "Ne sıklıkla okursun?",
+     "short": "Every day.",
+     "short_tr": "Her gün."
+    },
+    {
+     "en": "Is he usually happy?",
+     "tr": "Genellikle mutlu mudur?",
+     "short": "Yes, he is.",
+     "short_tr": "Evet, mutludur."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "I get up always early.",
+     "right": "I always get up early.",
+     "tr": "Zarf ana fiilden önce gelir."
+    },
+    {
+     "wrong": "She always is late.",
+     "right": "She is always late.",
+     "tr": "“to be”den sonra gelir."
+    },
+    {
+     "wrong": "I don't never eat meat.",
+     "right": "I never eat meat.",
+     "tr": "never zaten olumsuzdur; “don't” eklenmez."
+    },
+    {
+     "wrong": "Sometimes I am go.",
+     "right": "Sometimes I go.",
+     "tr": "Geniş zamanda “am” kullanılmaz."
+    }
+   ]
+  },
+  {
+   "id": "time",
+   "level": "A1",
+   "title": "Telling the time",
+   "title_tr": "Saati söyleme",
+   "use_tr": "Saati sormak için What time is it? (Saat kaç?) denir. Tam saat: It's seven o'clock. past = geçiyor, to = var: It's ten past seven (Yediyi on geçiyor). It's quarter to eight (Sekize çeyrek var). half past = buçuk: half past seven (yedi buçuk). Bir şeyin saati için “at” kullanılır: at 7 o'clock (saat yedide).",
+   "form_tr": "It's + saat. Dakika + past / to + saat. quarter = çeyrek, half = yarım. Rakamla da söylenebilir: It's seven thirty (7:30).",
+   "table": [
+    [
+     "Time",
+     "English",
+     "Türkçe"
+    ],
+    [
+     "7:00",
+     "seven o'clock",
+     "saat yedi"
+    ],
+    [
+     "7:10",
+     "ten past seven",
+     "yediyi on geçiyor"
+    ],
+    [
+     "7:15",
+     "quarter past seven",
+     "yediyi çeyrek geçiyor"
+    ],
+    [
+     "7:30",
+     "half past seven",
+     "yedi buçuk"
+    ],
+    [
+     "7:45",
+     "quarter to eight",
+     "sekize çeyrek var"
+    ],
+    [
+     "7:50",
+     "ten to eight",
+     "sekize on var"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "It's seven o'clock.",
+     "tr": "Saat yedi."
+    },
+    {
+     "en": "It's half past eight.",
+     "tr": "Saat sekiz buçuk."
+    },
+    {
+     "en": "I get up at quarter past seven.",
+     "tr": "Yediyi çeyrek geçe kalkarım."
+    }
+   ],
+   "negative": [
+    {
+     "en": "It isn't eight o'clock yet.",
+     "tr": "Saat henüz sekiz değil."
+    },
+    {
+     "en": "I don't get up at six.",
+     "tr": "Altıda kalkmam."
+    },
+    {
+     "en": "The bus doesn't leave at nine.",
+     "tr": "Otobüs dokuzda kalkmıyor."
+    }
+   ],
+   "question": [
+    {
+     "en": "What time is it?",
+     "tr": "Saat kaç?",
+     "short": "It's ten to nine.",
+     "short_tr": "Dokuza on var."
+    },
+    {
+     "en": "What time do you go to bed?",
+     "tr": "Kaçta yatarsın?",
+     "short": "At eleven.",
+     "short_tr": "On birde."
+    },
+    {
+     "en": "Is it five o'clock?",
+     "tr": "Saat beş mi?",
+     "short": "Yes, it is.",
+     "short_tr": "Evet, beş."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "Seven and half.",
+     "right": "Half past seven.",
+     "tr": "“buçuk” için “half past” kullanılır."
+    },
+    {
+     "wrong": "It's ten past to eight.",
+     "right": "It's ten to eight.",
+     "tr": "past ve to birlikte kullanılmaz."
+    },
+    {
+     "wrong": "I get up in seven.",
+     "right": "I get up at seven.",
+     "tr": "Saatten önce “at” gelir."
+    },
+    {
+     "wrong": "What time is it now? It's seven hour.",
+     "right": "It's seven o'clock.",
+     "tr": "Tam saat için “o'clock” denir."
+    }
+   ]
+  },
+  {
+   "id": "lets",
+   "level": "A1",
+   "title": "Let's... / Would you like...?",
+   "title_tr": "Let's... (Hadi...) / Would you like...? (İster misin?)",
+   "use_tr": "Let's + fiil bir öneri yapar; Türkçedeki “Hadi ...-elim” demektir: Let's go! (Hadi gidelim!) Would you like...? kibar bir teklif ya da davettir: Would you like some tea? (Biraz çay ister misin?) I'd like... (... isterim) kibarca istek bildirir.",
+   "form_tr": "Let's + fiil (yalın). Olumsuz: Let's not + fiil. Would you like + isim? / Would you like to + fiil? Cevap: Yes, please. / No, thank you.",
+   "table": [
+    [
+     "Phrase",
+     "Form",
+     "Example"
+    ],
+    [
+     "Let's",
+     "Let's + verb",
+     "Let's play."
+    ],
+    [
+     "Let's not",
+     "Let's not + verb",
+     "Let's not wait."
+    ],
+    [
+     "Would you like",
+     "+ noun / to + verb",
+     "Would you like to come?"
+    ],
+    [
+     "I'd like",
+     "+ noun / to + verb",
+     "I'd like a sandwich."
+    ]
+   ],
+   "positive": [
+    {
+     "en": "Let's go to the park.",
+     "tr": "Hadi parka gidelim."
+    },
+    {
+     "en": "Let's watch a film.",
+     "tr": "Hadi film izleyelim."
+    },
+    {
+     "en": "I'd like a glass of water.",
+     "tr": "Bir bardak su istiyorum."
+    }
+   ],
+   "negative": [
+    {
+     "en": "Let's not stay at home.",
+     "tr": "Evde kalmayalım."
+    },
+    {
+     "en": "No, thank you. I'm not hungry.",
+     "tr": "Hayır, teşekkürler. Aç değilim."
+    },
+    {
+     "en": "I wouldn't like to go out.",
+     "tr": "Dışarı çıkmak istemem."
+    }
+   ],
+   "question": [
+    {
+     "en": "Would you like some tea?",
+     "tr": "Biraz çay ister misin?",
+     "short": "Yes, please.",
+     "short_tr": "Evet, lütfen."
+    },
+    {
+     "en": "Would you like to come with us?",
+     "tr": "Bizimle gelmek ister misin?",
+     "short": "Yes, I'd love to.",
+     "short_tr": "Evet, çok isterim."
+    },
+    {
+     "en": "Shall we go?",
+     "tr": "Gidelim mi?",
+     "short": "OK, let's go.",
+     "short_tr": "Tamam, hadi gidelim."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "Let's to go.",
+     "right": "Let's go.",
+     "tr": "Let's sonrası “to” gelmez."
+    },
+    {
+     "wrong": "Let's going.",
+     "right": "Let's go.",
+     "tr": "Let's sonrası fiil yalın kalır."
+    },
+    {
+     "wrong": "Do you like a coffee? (teklif)",
+     "right": "Would you like a coffee?",
+     "tr": "Teklif için “Would you like” kullanılır; “Do you like” sevip sevmediğini sorar."
+    },
+    {
+     "wrong": "Would you like come?",
+     "right": "Would you like to come?",
+     "tr": "Fiilden önce “to” gelir."
+    }
+   ]
+  },
+  {
+   "id": "past_be",
+   "level": "A2",
+   "title": "Past simple: was / were",
+   "title_tr": "Geçmiş zamanda to be: was / were",
+   "use_tr": "“to be” fiilinin geçmiş halidir; Türkçedeki “-dI” ek-fiili gibi: I was at home. (Evdeydim.) Geçmişteki durum, yer ve duyguları anlatır. Zaman ifadeleri: yesterday, last night, last week, two days ago.",
+   "form_tr": "I / he / she / it + was. You / we / they + were. Olumsuz: wasn't / weren't. Soru: Was / Were + özne...?",
+   "table": [
+    [
+     "Subject",
+     "Positive",
+     "Negative"
+    ],
+    [
+     "I / he / she / it",
+     "was",
+     "wasn't"
+    ],
+    [
+     "you / we / they",
+     "were",
+     "weren't"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "I was tired yesterday.",
+     "tr": "Dün yorgundum."
+    },
+    {
+     "en": "She was at school.",
+     "tr": "O okuldaydı."
+    },
+    {
+     "en": "We were happy.",
+     "tr": "Mutluyduk."
+    }
+   ],
+   "negative": [
+    {
+     "en": "I wasn't at home last night.",
+     "tr": "Dün gece evde değildim."
+    },
+    {
+     "en": "It wasn't cold.",
+     "tr": "Hava soğuk değildi."
+    },
+    {
+     "en": "They weren't late.",
+     "tr": "Geç kalmadılar."
+    }
+   ],
+   "question": [
+    {
+     "en": "Were you at the party?",
+     "tr": "Partide miydin?",
+     "short": "Yes, I was.",
+     "short_tr": "Evet, oradaydım."
+    },
+    {
+     "en": "Was it expensive?",
+     "tr": "Pahalı mıydı?",
+     "short": "No, it wasn't.",
+     "short_tr": "Hayır, değildi."
+    },
+    {
+     "en": "Where were you yesterday?",
+     "tr": "Dün neredeydin?",
+     "short": "I was at home.",
+     "short_tr": "Evdeydim."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "I were at home.",
+     "right": "I was at home.",
+     "tr": "I ile “was” kullanılır."
+    },
+    {
+     "wrong": "They was happy.",
+     "right": "They were happy.",
+     "tr": "they ile “were”."
+    },
+    {
+     "wrong": "Did you be at home?",
+     "right": "Were you at home?",
+     "tr": "was / were ile “did” kullanılmaz."
+    },
+    {
+     "wrong": "I was went.",
+     "right": "I went.",
+     "tr": "Fiilin geçmişiyle “was” birlikte kullanılmaz."
+    }
+   ]
+  },
+  {
+   "id": "past_simple",
+   "level": "A2",
+   "title": "Past simple: regular and irregular verbs",
+   "title_tr": "Geçmiş zaman: düzenli ve düzensiz fiiller",
+   "use_tr": "Geçmişte başlayıp bitmiş eylemleri anlatır; Türkçedeki “-dI” geçmiş zamanı gibi: I watched a film last night. (Dün gece film izledim.) Düzenli fiiller -ed alır (play → played). Düzensiz fiillerin geçmiş hali ezberlenir (go → went, eat → ate).",
+   "form_tr": "Olumlu: özne + fiil-ed / düzensiz V2 (tüm öznelerde aynı). Olumsuz: didn't + fiil (yalın). Soru: Did + özne + fiil (yalın)?",
+   "table": [
+    [
+     "Verb",
+     "Past (V2)",
+     "Türkçe"
+    ],
+    [
+     "play",
+     "played",
+     "oynadı"
+    ],
+    [
+     "watch",
+     "watched",
+     "izledi"
+    ],
+    [
+     "go",
+     "went",
+     "gitti"
+    ],
+    [
+     "eat",
+     "ate",
+     "yedi"
+    ],
+    [
+     "get up",
+     "got up",
+     "kalktı"
+    ],
+    [
+     "see",
+     "saw",
+     "gördü"
+    ],
+    [
+     "have",
+     "had",
+     "sahipti / yedi"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "I watched TV last night.",
+     "tr": "Dün gece televizyon izledim."
+    },
+    {
+     "en": "She went to Istanbul.",
+     "tr": "İstanbul'a gitti."
+    },
+    {
+     "en": "We had breakfast at eight.",
+     "tr": "Sekizde kahvaltı yaptık."
+    }
+   ],
+   "negative": [
+    {
+     "en": "I didn't sleep well.",
+     "tr": "İyi uyumadım."
+    },
+    {
+     "en": "He didn't go to work.",
+     "tr": "İşe gitmedi."
+    },
+    {
+     "en": "They didn't play football.",
+     "tr": "Futbol oynamadılar."
+    }
+   ],
+   "question": [
+    {
+     "en": "Did you make your bed?",
+     "tr": "Yatağını topladın mı?",
+     "short": "Yes, I did.",
+     "short_tr": "Evet, topladım."
+    },
+    {
+     "en": "Did she call you?",
+     "tr": "Seni aradı mı?",
+     "short": "No, she didn't.",
+     "short_tr": "Hayır, aramadı."
+    },
+    {
+     "en": "What did you eat?",
+     "tr": "Ne yedin?",
+     "short": "I ate a sandwich.",
+     "short_tr": "Bir sandviç yedim."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "I didn't went.",
+     "right": "I didn't go.",
+     "tr": "didn't sonrası fiil yalın kalır."
+    },
+    {
+     "wrong": "Did you saw it?",
+     "right": "Did you see it?",
+     "tr": "Did ile fiil yalın kalır."
+    },
+    {
+     "wrong": "I goed home.",
+     "right": "I went home.",
+     "tr": "go düzensizdir: went."
+    },
+    {
+     "wrong": "Yesterday I go to school.",
+     "right": "Yesterday I went to school.",
+     "tr": "Geçmiş için fiilin geçmiş hali kullanılır."
+    }
+   ]
+  },
+  {
+   "id": "going_to",
+   "level": "A2",
+   "title": "be going to (future plans)",
+   "title_tr": "be going to (gelecek planları)",
+   "use_tr": "Önceden planlanmış niyetleri ve şu anki işaretlere dayanan tahminleri anlatır: I'm going to visit my grandma tomorrow. (Yarın büyükannemi ziyaret edeceğim.) Look at the clouds! It's going to rain. (Bulutlara bak! Yağmur yağacak.)",
+   "form_tr": "Özne + am / is / are + going to + fiil (yalın). Olumsuz: am not / isn't / aren't going to. Soru: Am / Is / Are + özne + going to + fiil?",
+   "table": [
+    [
+     "",
+     "Form",
+     "Example"
+    ],
+    [
+     "Positive",
+     "am / is / are going to + verb",
+     "I'm going to study."
+    ],
+    [
+     "Negative",
+     "isn't / aren't going to + verb",
+     "She isn't going to come."
+    ],
+    [
+     "Question",
+     "Are you going to + verb?",
+     "Are you going to cook?"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "I'm going to study tonight.",
+     "tr": "Bu akşam ders çalışacağım."
+    },
+    {
+     "en": "She is going to buy a new phone.",
+     "tr": "Yeni bir telefon alacak."
+    },
+    {
+     "en": "It's going to rain.",
+     "tr": "Yağmur yağacak."
+    }
+   ],
+   "negative": [
+    {
+     "en": "I'm not going to watch TV.",
+     "tr": "Televizyon izlemeyeceğim."
+    },
+    {
+     "en": "He isn't going to come.",
+     "tr": "Gelmeyecek."
+    },
+    {
+     "en": "We aren't going to stay.",
+     "tr": "Kalmayacağız."
+    }
+   ],
+   "question": [
+    {
+     "en": "Are you going to travel this summer?",
+     "tr": "Bu yaz seyahat edecek misin?",
+     "short": "Yes, I am.",
+     "short_tr": "Evet, edeceğim."
+    },
+    {
+     "en": "Is she going to call?",
+     "tr": "Arayacak mı?",
+     "short": "No, she isn't.",
+     "short_tr": "Hayır, aramayacak."
+    },
+    {
+     "en": "What are you going to do?",
+     "tr": "Ne yapacaksın?",
+     "short": "I'm going to sleep.",
+     "short_tr": "Uyuyacağım."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "I going to study.",
+     "right": "I'm going to study.",
+     "tr": "am / is / are atlanmaz."
+    },
+    {
+     "wrong": "She is going to buys.",
+     "right": "She is going to buy.",
+     "tr": "to sonrası fiil yalın kalır."
+    },
+    {
+     "wrong": "I am going to the study.",
+     "right": "I am going to study.",
+     "tr": "“going to + fiil” arasında “the” gelmez."
+    },
+    {
+     "wrong": "Are you go to come?",
+     "right": "Are you going to come?",
+     "tr": "Yapı “going to”dur."
+    }
+   ]
+  },
+  {
+   "id": "comparatives",
+   "level": "A2",
+   "title": "Comparatives & superlatives",
+   "title_tr": "Karşılaştırma ve üstünlük sıfatları",
+   "use_tr": "Karşılaştırma (daha...) iki şeyi kıyaslar: My room is bigger than your room. (Benim odam seninkinden daha büyük.) Üstünlük (en...) bir grupta en uç olanı gösterir: This is the biggest room. (Bu en büyük oda.) “than” Türkçedeki “-den / -dan” ekidir.",
+   "form_tr": "Kısa sıfat: + -er (than) / the + -est. İki ve daha fazla heceli: more ... (than) / the most .... -y ile biten: happy → happier → the happiest. Düzensiz: good → better → the best; bad → worse → the worst.",
+   "table": [
+    [
+     "Adjective",
+     "Comparative",
+     "Superlative"
+    ],
+    [
+     "big",
+     "bigger",
+     "the biggest"
+    ],
+    [
+     "small",
+     "smaller",
+     "the smallest"
+    ],
+    [
+     "happy",
+     "happier",
+     "the happiest"
+    ],
+    [
+     "beautiful",
+     "more beautiful",
+     "the most beautiful"
+    ],
+    [
+     "good",
+     "better",
+     "the best"
+    ],
+    [
+     "bad",
+     "worse",
+     "the worst"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "A bed is bigger than a chair.",
+     "tr": "Yatak sandalyeden daha büyüktür."
+    },
+    {
+     "en": "This book is more interesting.",
+     "tr": "Bu kitap daha ilginç."
+    },
+    {
+     "en": "She is the tallest in the class.",
+     "tr": "Sınıfın en uzunu."
+    }
+   ],
+   "negative": [
+    {
+     "en": "My room isn't bigger than yours.",
+     "tr": "Benim odam seninkinden daha büyük değil."
+    },
+    {
+     "en": "It isn't the best film.",
+     "tr": "En iyi film değil."
+    },
+    {
+     "en": "Tea isn't more expensive than coffee.",
+     "tr": "Çay kahveden daha pahalı değil."
+    }
+   ],
+   "question": [
+    {
+     "en": "Is Ankara bigger than Izmir?",
+     "tr": "Ankara İzmir'den büyük mü?",
+     "short": "Yes, it is.",
+     "short_tr": "Evet, büyük."
+    },
+    {
+     "en": "Which is the biggest room?",
+     "tr": "En büyük oda hangisi?",
+     "short": "The living room.",
+     "short_tr": "Oturma odası."
+    },
+    {
+     "en": "Who is the oldest in your family?",
+     "tr": "Ailende en yaşlı kim?",
+     "short": "My grandfather.",
+     "short_tr": "Dedem."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "more big",
+     "right": "bigger",
+     "tr": "Kısa sıfatlar -er alır."
+    },
+    {
+     "wrong": "bigger then",
+     "right": "bigger than",
+     "tr": "Doğrusu “than”; “then” = sonra."
+    },
+    {
+     "wrong": "the most best",
+     "right": "the best",
+     "tr": "good sıfatının üstünlüğü “the best”tir."
+    },
+    {
+     "wrong": "He is taller from me.",
+     "right": "He is taller than me.",
+     "tr": "“-den” anlamı için “than” kullanılır."
+    }
+   ]
+  },
+  {
+   "id": "past_continuous",
+   "level": "A2",
+   "title": "Past continuous",
+   "title_tr": "Geçmişte süregelen zaman",
+   "use_tr": "Geçmişte belli bir anda devam eden eylemi anlatır; Türkçedeki “-yordu” gibi: At 8 o'clock I was having breakfast. (Saat sekizde kahvaltı yapıyordum.) Uzun eylem past continuous, onu kesen kısa eylem past simple olur: I was sleeping when the alarm rang. (Alarm çaldığında uyuyordum.)",
+   "form_tr": "Özne + was / were + fiil-ing. Olumsuz: wasn't / weren't + fiil-ing. Soru: Was / Were + özne + fiil-ing? when + past simple, while + past continuous.",
+   "table": [
+    [
+     "Subject",
+     "Positive",
+     "Negative"
+    ],
+    [
+     "I / he / she / it",
+     "was reading",
+     "wasn't reading"
+    ],
+    [
+     "you / we / they",
+     "were reading",
+     "weren't reading"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "I was sleeping at midnight.",
+     "tr": "Gece yarısı uyuyordum."
+    },
+    {
+     "en": "She was reading when I called.",
+     "tr": "Ben aradığımda kitap okuyordu."
+    },
+    {
+     "en": "They were playing in the garden.",
+     "tr": "Bahçede oynuyorlardı."
+    }
+   ],
+   "negative": [
+    {
+     "en": "I wasn't watching TV.",
+     "tr": "Televizyon izlemiyordum."
+    },
+    {
+     "en": "It wasn't raining.",
+     "tr": "Yağmur yağmıyordu."
+    },
+    {
+     "en": "We weren't listening.",
+     "tr": "Dinlemiyorduk."
+    }
+   ],
+   "question": [
+    {
+     "en": "Were you sleeping?",
+     "tr": "Uyuyor muydun?",
+     "short": "Yes, I was.",
+     "short_tr": "Evet, uyuyordum."
+    },
+    {
+     "en": "Was he working at ten?",
+     "tr": "Saat onda çalışıyor muydu?",
+     "short": "No, he wasn't.",
+     "short_tr": "Hayır, çalışmıyordu."
+    },
+    {
+     "en": "What were you doing?",
+     "tr": "Ne yapıyordun?",
+     "short": "I was cooking.",
+     "short_tr": "Yemek yapıyordum."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "I was sleep.",
+     "right": "I was sleeping.",
+     "tr": "was / were sonrası fiil -ing alır."
+    },
+    {
+     "wrong": "They was playing.",
+     "right": "They were playing.",
+     "tr": "they ile “were”."
+    },
+    {
+     "wrong": "I was sleeping when the phone was ringing.",
+     "right": "I was sleeping when the phone rang.",
+     "tr": "Kesen kısa eylem past simple olur."
+    },
+    {
+     "wrong": "Did you sleeping?",
+     "right": "Were you sleeping?",
+     "tr": "Soruda was / were kullanılır."
+    }
+   ]
+  },
+  {
+   "id": "should",
+   "level": "A2",
+   "title": "should / shouldn't (advice)",
+   "title_tr": "should / shouldn't (tavsiye)",
+   "use_tr": "Tavsiye ve öneri bildirir; Türkçedeki “-mAlIsIn / -sAn iyi olur” anlamındadır: You should go to bed early. (Erken yatmalısın.) shouldn't = “-mAmAlIsIn”. Tüm öznelerle aynıdır.",
+   "form_tr": "Özne + should / shouldn't + fiil (yalın). Soru: Should + özne + fiil? Tavsiye istemek: What should I do?",
+   "table": [
+    [
+     "",
+     "Form",
+     "Example"
+    ],
+    [
+     "Positive",
+     "should + verb",
+     "You should rest."
+    ],
+    [
+     "Negative",
+     "shouldn't + verb",
+     "You shouldn't eat late."
+    ],
+    [
+     "Question",
+     "Should + subject + verb?",
+     "Should I call her?"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "You should drink more water.",
+     "tr": "Daha çok su içmelisin."
+    },
+    {
+     "en": "He should see a doctor.",
+     "tr": "Doktora gitmeli."
+    },
+    {
+     "en": "We should tidy our room.",
+     "tr": "Odamızı toplamalıyız."
+    }
+   ],
+   "negative": [
+    {
+     "en": "You shouldn't use your phone in bed.",
+     "tr": "Yatakta telefon kullanmamalısın."
+    },
+    {
+     "en": "She shouldn't eat so much sugar.",
+     "tr": "Bu kadar çok şeker yememeli."
+    },
+    {
+     "en": "They shouldn't be late.",
+     "tr": "Geç kalmamalılar."
+    }
+   ],
+   "question": [
+    {
+     "en": "Should I wear a coat?",
+     "tr": "Mont giymeli miyim?",
+     "short": "Yes, you should.",
+     "short_tr": "Evet, giymelisin."
+    },
+    {
+     "en": "Should we wait?",
+     "tr": "Beklemeli miyiz?",
+     "short": "No, we shouldn't.",
+     "short_tr": "Hayır, beklememeliyiz."
+    },
+    {
+     "en": "What should I do?",
+     "tr": "Ne yapmalıyım?",
+     "short": "You should rest.",
+     "short_tr": "Dinlenmelisin."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "You should to sleep.",
+     "right": "You should sleep.",
+     "tr": "should sonrası “to” gelmez."
+    },
+    {
+     "wrong": "She shoulds go.",
+     "right": "She should go.",
+     "tr": "should -s almaz."
+    },
+    {
+     "wrong": "You don't should go.",
+     "right": "You shouldn't go.",
+     "tr": "Olumsuzu “shouldn't”tır."
+    },
+    {
+     "wrong": "Do I should call?",
+     "right": "Should I call?",
+     "tr": "Soruda “should” başa gelir."
+    }
+   ]
+  },
+  {
+   "id": "present_perfect",
+   "level": "A2",
+   "title": "Present perfect (experiences)",
+   "title_tr": "Present perfect (hayat deneyimleri)",
+   "use_tr": "Hayatımızda bir şeyi yapıp yapmadığımızı, ne zaman olduğunu söylemeden anlatır: I have been to Paris. (Paris'e gittim / Paris'te bulundum.) ever (hiç), never (hiç / asla) sık kullanılır. Kesin bir geçmiş zaman söylenirse (yesterday, in 2020) past simple kullanılır.",
+   "form_tr": "Özne + have / has + V3 (past participle). Olumsuz: haven't / hasn't + V3, ya da have never + V3. Soru: Have / Has + özne + ever + V3?",
+   "table": [
+    [
+     "Verb",
+     "V2 (past)",
+     "V3 (participle)"
+    ],
+    [
+     "be",
+     "was / were",
+     "been"
+    ],
+    [
+     "see",
+     "saw",
+     "seen"
+    ],
+    [
+     "eat",
+     "ate",
+     "eaten"
+    ],
+    [
+     "go",
+     "went",
+     "gone / been"
+    ],
+    [
+     "try",
+     "tried",
+     "tried"
+    ],
+    [
+     "visit",
+     "visited",
+     "visited"
+    ]
+   ],
+   "positive": [
+    {
+     "en": "I have been to Antalya.",
+     "tr": "Antalya'ya gittim. (Antalya'da bulundum.)"
+    },
+    {
+     "en": "She has seen that film.",
+     "tr": "O filmi izledi."
+    },
+    {
+     "en": "We have tried sushi.",
+     "tr": "Suşiyi denedik."
+    }
+   ],
+   "negative": [
+    {
+     "en": "I have never been to London.",
+     "tr": "Londra'ya hiç gitmedim."
+    },
+    {
+     "en": "He hasn't eaten Indian food.",
+     "tr": "Hiç Hint yemeği yemedi."
+    },
+    {
+     "en": "They haven't seen snow.",
+     "tr": "Hiç kar görmediler."
+    }
+   ],
+   "question": [
+    {
+     "en": "Have you ever been to Paris?",
+     "tr": "Hiç Paris'e gittin mi?",
+     "short": "No, I haven't.",
+     "short_tr": "Hayır, gitmedim."
+    },
+    {
+     "en": "Has she ever ridden a horse?",
+     "tr": "Hiç ata bindi mi?",
+     "short": "Yes, she has.",
+     "short_tr": "Evet, bindi."
+    },
+    {
+     "en": "Have you ever met a famous person?",
+     "tr": "Hiç ünlü biriyle tanıştın mı?",
+     "short": "Yes, I have.",
+     "short_tr": "Evet, tanıştım."
+    }
+   ],
+   "mistakes": [
+    {
+     "wrong": "I have been to Paris last year.",
+     "right": "I went to Paris last year.",
+     "tr": "Kesin zaman varsa past simple kullanılır."
+    },
+    {
+     "wrong": "Have you ever went?",
+     "right": "Have you ever been?",
+     "tr": "have / has sonrası V3 gelir."
+    },
+    {
+     "wrong": "She have seen it.",
+     "right": "She has seen it.",
+     "tr": "he / she / it ile “has”."
+    },
+    {
+     "wrong": "I haven't never seen it.",
+     "right": "I have never seen it.",
+     "tr": "“never” ile ikinci bir olumsuzluk kullanılmaz."
+    }
+   ]
+  }
+ ]
+}

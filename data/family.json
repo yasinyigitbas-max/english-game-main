@@ -1,0 +1,405 @@
+{
+ "roles": [
+  {
+   "id": "mother",
+   "pron": "she",
+   "tr": "anne",
+   "pet": false,
+   "plural": "mothers"
+  },
+  {
+   "id": "father",
+   "pron": "he",
+   "tr": "baba",
+   "pet": false,
+   "plural": "fathers"
+  },
+  {
+   "id": "sister",
+   "pron": "she",
+   "tr": "kız kardeş",
+   "pet": false,
+   "plural": "sisters"
+  },
+  {
+   "id": "brother",
+   "pron": "he",
+   "tr": "erkek kardeş",
+   "pet": false,
+   "plural": "brothers"
+  },
+  {
+   "id": "grandmother",
+   "pron": "she",
+   "tr": "büyükanne",
+   "pet": false,
+   "plural": "grandmothers"
+  },
+  {
+   "id": "grandfather",
+   "pron": "he",
+   "tr": "büyükbaba",
+   "pet": false,
+   "plural": "grandfathers"
+  },
+  {
+   "id": "wife",
+   "pron": "she",
+   "tr": "eş (karı)",
+   "pet": false,
+   "plural": "wives"
+  },
+  {
+   "id": "husband",
+   "pron": "he",
+   "tr": "eş (koca)",
+   "pet": false,
+   "plural": "husbands"
+  },
+  {
+   "id": "daughter",
+   "pron": "she",
+   "tr": "kız evlat",
+   "pet": false,
+   "plural": "daughters"
+  },
+  {
+   "id": "son",
+   "pron": "he",
+   "tr": "oğul",
+   "pet": false,
+   "plural": "sons"
+  },
+  {
+   "id": "aunt",
+   "pron": "she",
+   "tr": "teyze / hala",
+   "pet": false,
+   "plural": "aunts"
+  },
+  {
+   "id": "uncle",
+   "pron": "he",
+   "tr": "amca / dayı",
+   "pet": false,
+   "plural": "uncles"
+  },
+  {
+   "id": "cousin",
+   "pron": "",
+   "tr": "kuzen",
+   "pet": false,
+   "plural": "cousins"
+  },
+  {
+   "id": "dog",
+   "pron": "it",
+   "tr": "köpek",
+   "pet": true,
+   "plural": "dogs"
+  },
+  {
+   "id": "cat",
+   "pron": "it",
+   "tr": "kedi",
+   "pet": true,
+   "plural": "cats"
+  },
+  {
+   "id": "bird",
+   "pron": "it",
+   "tr": "kuş",
+   "pet": true,
+   "plural": "birds"
+  },
+  {
+   "id": "fish",
+   "pron": "it",
+   "tr": "balık",
+   "pet": true,
+   "plural": "fish"
+  },
+  {
+   "id": "rabbit",
+   "pron": "it",
+   "tr": "tavşan",
+   "pet": true,
+   "plural": "rabbits"
+  },
+  {
+   "id": "hamster",
+   "pron": "it",
+   "tr": "hamster",
+   "pet": true,
+   "plural": "hamsters"
+  },
+  {
+   "id": "turtle",
+   "pron": "it",
+   "tr": "kaplumbağa",
+   "pet": true,
+   "plural": "turtles"
+  }
+ ],
+ "adjectives": [
+  {
+   "en": "kind",
+   "tr": "nazik"
+  },
+  {
+   "en": "funny",
+   "tr": "komik"
+  },
+  {
+   "en": "friendly",
+   "tr": "arkadaş canlısı"
+  },
+  {
+   "en": "cheerful",
+   "tr": "neşeli"
+  },
+  {
+   "en": "clever",
+   "tr": "zeki"
+  },
+  {
+   "en": "brave",
+   "tr": "cesur"
+  },
+  {
+   "en": "quiet",
+   "tr": "sessiz"
+  },
+  {
+   "en": "shy",
+   "tr": "utangaç"
+  },
+  {
+   "en": "calm",
+   "tr": "sakin"
+  },
+  {
+   "en": "lazy",
+   "tr": "tembel"
+  },
+  {
+   "en": "strict",
+   "tr": "katı"
+  },
+  {
+   "en": "noisy",
+   "tr": "gürültücü"
+  }
+ ],
+ "lesson": [
+  {
+   "title": "I, you, he, she, it, we, they",
+   "tr": "Özne zamirleri",
+   "rows": [
+    [
+     "I",
+     "ben"
+    ],
+    [
+     "you",
+     "sen / siz"
+    ],
+    [
+     "he",
+     "o (erkek)"
+    ],
+    [
+     "she",
+     "o (kadın)"
+    ],
+    [
+     "it",
+     "o (hayvan, eşya)"
+    ],
+    [
+     "we",
+     "biz"
+    ],
+    [
+     "they",
+     "onlar"
+    ]
+   ],
+   "say": [
+    "I, you, he, she, it, we, they."
+   ]
+  },
+  {
+   "title": "He, she or it?",
+   "tr": "Türkçede hepsi “o”. İngilizcede üç farklı kelime var.",
+   "rows": [
+    [
+     "he",
+     "a man or a boy: He is my father."
+    ],
+    [
+     "she",
+     "a woman or a girl: She is my mother."
+    ],
+    [
+     "it",
+     "an animal or a thing: It is my dog."
+    ]
+   ],
+   "say": [
+    "He is my father.",
+    "She is my mother.",
+    "It is my dog."
+   ]
+  },
+  {
+   "title": "am, is, are",
+   "tr": "“to be” fiili: am / is / are",
+   "rows": [
+    [
+     "I am",
+     "We are"
+    ],
+    [
+     "you are",
+     "they are"
+    ],
+    [
+     "he is",
+     "she is"
+    ],
+    [
+     "it is",
+     ""
+    ]
+   ],
+   "say": [
+    "I am, you are, he is, she is, it is, we are, they are."
+   ]
+  },
+  {
+   "title": "Examples",
+   "tr": "Örnekler",
+   "rows": [
+    [
+     "She is my mother.",
+     "O benim annem."
+    ],
+    [
+     "It is my dog.",
+     "O benim köpeğim."
+    ],
+    [
+     "They are my brothers.",
+     "Onlar benim erkek kardeşlerim."
+    ],
+    [
+     "We are a family.",
+     "Biz bir aileyiz."
+    ]
+   ],
+   "say": [
+    "She is my mother.",
+    "It is my dog.",
+    "They are my brothers.",
+    "We are a family."
+   ]
+  }
+ ],
+ "quiz": [
+  {
+   "q": "This is my mother. ___ is kind.",
+   "opts": [
+    "He",
+    "She",
+    "It"
+   ],
+   "a": 1,
+   "say": "She is kind."
+  },
+  {
+   "q": "This is my cat. ___ is funny.",
+   "opts": [
+    "He",
+    "She",
+    "It"
+   ],
+   "a": 2,
+   "say": "It is funny."
+  },
+  {
+   "q": "Tom and Ben ___ my brothers.",
+   "opts": [
+    "is",
+    "am",
+    "are"
+   ],
+   "a": 2,
+   "say": "Tom and Ben are my brothers."
+  }
+ ],
+ "quiz_b": [
+  {
+   "q": "This is my father. ___ is tall.",
+   "opts": [
+    "He",
+    "She",
+    "It"
+   ],
+   "a": 0,
+   "say": "He is tall."
+  },
+  {
+   "q": "This is my dog. ___ is happy.",
+   "opts": [
+    "He",
+    "She",
+    "It"
+   ],
+   "a": 2,
+   "say": "It is happy."
+  },
+  {
+   "q": "Anna and I ___ sisters.",
+   "opts": [
+    "is",
+    "am",
+    "are"
+   ],
+   "a": 2,
+   "say": "Anna and I are sisters."
+  }
+ ],
+ "quiz_c": [
+  {
+   "q": "This is my sister. ___ is funny.",
+   "opts": [
+    "He",
+    "She",
+    "It"
+   ],
+   "a": 1,
+   "say": "She is funny."
+  },
+  {
+   "q": "I ___ your brother.",
+   "opts": [
+    "is",
+    "am",
+    "are"
+   ],
+   "a": 1,
+   "say": "I am your brother."
+  },
+  {
+   "q": "My grandparents ___ kind.",
+   "opts": [
+    "is",
+    "am",
+    "are"
+   ],
+   "a": 2,
+   "say": "My grandparents are kind."
+  }
+ ]
+}

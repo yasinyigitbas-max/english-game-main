@@ -1,0 +1,651 @@
+{
+ "label": "Breakfast",
+ "quiz_after": false,
+ "lesson": [
+  {
+   "title": "I work, you work",
+   "tr": "Geniş zaman (Present Simple): her gün / genellikle yaptığımız şeyler.",
+   "rows": [
+    [
+     "I work.",
+     "Ben çalışırım."
+    ],
+    [
+     "You work.",
+     "Sen çalışırsın."
+    ],
+    [
+     "We work.",
+     "Biz çalışırız."
+    ],
+    [
+     "They work.",
+     "Onlar çalışırlar."
+    ]
+   ],
+   "say": [
+    "I work.",
+    "You work.",
+    "We work.",
+    "They work."
+   ]
+  },
+  {
+   "title": "He works, she works",
+   "tr": "he / she / it ile fiilin sonuna -s (veya -es) gelir.",
+   "rows": [
+    [
+     "He works.",
+     "O çalışır."
+    ],
+    [
+     "She watches TV.",
+     "O televizyon izler."
+    ],
+    [
+     "It sleeps.",
+     "O uyur."
+    ],
+    [
+     "He goes to school.",
+     "O okula gider."
+    ]
+   ],
+   "say": [
+    "He works.",
+    "She watches TV.",
+    "It sleeps.",
+    "He goes to school."
+   ]
+  },
+  {
+   "title": "Daily routines",
+   "tr": "Günlük rutin fiilleri",
+   "rows": [
+    [
+     "I get up.",
+     "Kalkarım."
+    ],
+    [
+     "I have breakfast.",
+     "Kahvaltı ederim."
+    ],
+    [
+     "I go to work.",
+     "İşe giderim."
+    ],
+    [
+     "I come home.",
+     "Eve gelirim."
+    ],
+    [
+     "I go to bed.",
+     "Yatarım."
+    ]
+   ],
+   "say": [
+    "I get up.",
+    "I have breakfast.",
+    "I go to work.",
+    "I come home.",
+    "I go to bed."
+   ]
+  },
+  {
+   "title": "don't / doesn't",
+   "tr": "Olumsuz: I / you / we / they + don't; he / she / it + doesn't. doesn't ile fiil -s almaz.",
+   "rows": [
+    [
+     "I don't work on Sunday.",
+     "Pazar günü çalışmam."
+    ],
+    [
+     "They don't watch TV.",
+     "Onlar televizyon izlemezler."
+    ],
+    [
+     "She doesn't drink coffee.",
+     "O kahve içmez."
+    ],
+    [
+     "He doesn't get up early.",
+     "O erken kalkmaz."
+    ]
+   ],
+   "say": [
+    "I don't work on Sunday.",
+    "They don't watch TV.",
+    "She doesn't drink coffee.",
+    "He doesn't get up early."
+   ]
+  },
+  {
+   "title": "Do ...? / Does ...?",
+   "tr": "Soru: Do + I / you / we / they; Does + he / she / it. Kısa cevap: Yes, I do. / No, she doesn't.",
+   "rows": [
+    [
+     "Do you work?",
+     "Çalışır mısın?"
+    ],
+    [
+     "Yes, I do.",
+     "Evet, çalışırım."
+    ],
+    [
+     "Does she work?",
+     "O çalışır mı?"
+    ],
+    [
+     "No, she doesn't.",
+     "Hayır, çalışmaz."
+    ]
+   ],
+   "say": [
+    "Do you work?",
+    "Yes, I do.",
+    "Does she work?",
+    "No, she doesn't."
+   ]
+  }
+ ],
+ "quiz": [
+  {
+   "q": "I ___ a student.",
+   "opts": [
+    "am",
+    "is",
+    "are"
+   ],
+   "a": 0,
+   "say": "I am a student."
+  },
+  {
+   "q": "They ___ my brothers.",
+   "opts": [
+    "am",
+    "is",
+    "are"
+   ],
+   "a": 2,
+   "say": "They are my brothers."
+  },
+  {
+   "q": "She ___ my mother.",
+   "opts": [
+    "am",
+    "is",
+    "are"
+   ],
+   "a": 1,
+   "say": "She is my mother."
+  },
+  {
+   "q": "We ___ a family.",
+   "opts": [
+    "is",
+    "are",
+    "am"
+   ],
+   "a": 1,
+   "say": "We are a family."
+  },
+  {
+   "q": "He ___ to work every day.",
+   "opts": [
+    "go",
+    "goes",
+    "going"
+   ],
+   "a": 1,
+   "say": "He goes to work every day."
+  },
+  {
+   "q": "I ___ breakfast at seven.",
+   "opts": [
+    "have",
+    "has",
+    "having"
+   ],
+   "a": 0,
+   "say": "I have breakfast at seven."
+  },
+  {
+   "q": "She ___ TV in the evening.",
+   "opts": [
+    "watch",
+    "watches",
+    "watching"
+   ],
+   "a": 1,
+   "say": "She watches TV in the evening."
+  },
+  {
+   "q": "They ___ work on Sunday.",
+   "opts": [
+    "don't",
+    "doesn't",
+    "isn't"
+   ],
+   "a": 0,
+   "say": "They don't work on Sunday."
+  },
+  {
+   "q": "He ___ drink coffee.",
+   "opts": [
+    "don't",
+    "doesn't",
+    "isn't"
+   ],
+   "a": 1,
+   "say": "He doesn't drink coffee."
+  },
+  {
+   "q": "___ you work at home?",
+   "opts": [
+    "Do",
+    "Does",
+    "Are"
+   ],
+   "a": 0,
+   "say": "Do you work at home?"
+  },
+  {
+   "q": "___ she get up early?",
+   "opts": [
+    "Do",
+    "Does",
+    "Is"
+   ],
+   "a": 1,
+   "say": "Does she get up early?"
+  },
+  {
+   "q": "It ___ my dog.",
+   "opts": [
+    "am",
+    "is",
+    "are"
+   ],
+   "a": 1,
+   "say": "It is my dog."
+  },
+  {
+   "q": "My father ___ at a bank.",
+   "opts": [
+    "work",
+    "works",
+    "working"
+   ],
+   "a": 1,
+   "say": "My father works at a bank."
+  },
+  {
+   "q": "Is he a teacher? Yes, he ___.",
+   "opts": [
+    "is",
+    "does",
+    "are"
+   ],
+   "a": 0,
+   "say": "Yes, he is."
+  }
+ ],
+ "week": [
+  [
+   "I get up at seven.",
+   "Saat yedide kalkarım."
+  ],
+  [
+   "I work every day.",
+   "Her gün çalışırım."
+  ],
+  [
+   "I go to the market on Monday.",
+   "Pazartesi markete giderim."
+  ],
+  [
+   "I play football on Saturday.",
+   "Cumartesi futbol oynarım."
+  ],
+  [
+   "I cook dinner in the evening.",
+   "Akşam yemek pişiririm."
+  ],
+  [
+   "I don't work on Sunday.",
+   "Pazar günü çalışmam."
+  ],
+  [
+   "I visit my friends on Friday.",
+   "Cuma günü arkadaşlarımı ziyaret ederim."
+  ],
+  [
+   "I read a book every night.",
+   "Her gece kitap okurum."
+  ],
+  [
+   "I watch TV with my family.",
+   "Ailemle televizyon izlerim."
+  ]
+ ],
+ "lines": {
+  "Good morning! Come and join us at the table.": "Günaydın! Gel, masada bize katıl.",
+  "Good morning!": "Günaydın!",
+  "Come and join us at the table.": "Gel, masada bize katıl.",
+  "I am sitting at the table.": "Masaya oturuyorum.",
+  "I am having breakfast.": "Kahvaltı ediyorum.",
+  "How is your week looking?": "Haftan nasıl görünüyor?",
+  "Let's learn the present simple.": "Geniş zamanı öğrenelim.",
+  "Now let's check.": "Şimdi kontrol edelim.",
+  "Well done!": "Aferin!",
+  "Breakfast is over.": "Kahvaltı bitti.",
+  "Explore the living room.": "Oturma odasını keşfet.",
+  "Have breakfast with your family.": "Ailenle kahvaltı et.",
+  "Yes, I did. Thank you.": "Evet, uyudum. Teşekkürler.",
+  "How are you?": "Nasılsın?",
+  "I am hugging my mother.": "Ona sarılıyorum.",
+  "I am hugging my father.": "Ona sarılıyorum.",
+  "I am hugging my sister.": "Ona sarılıyorum.",
+  "I am hugging my brother.": "Ona sarılıyorum.",
+  "I am hugging my grandmother.": "Ona sarılıyorum.",
+  "I am hugging my grandfather.": "Ona sarılıyorum.",
+  "I am hugging my wife.": "Ona sarılıyorum.",
+  "I am hugging my husband.": "Ona sarılıyorum.",
+  "I am hugging my daughter.": "Ona sarılıyorum.",
+  "I am hugging my son.": "Ona sarılıyorum.",
+  "I am hugging my aunt.": "Ona sarılıyorum.",
+  "I am hugging my uncle.": "Ona sarılıyorum.",
+  "I am hugging my cousin.": "Ona sarılıyorum.",
+  "I am hugging my dog.": "Ona sarılıyorum.",
+  "I am hugging my cat.": "Ona sarılıyorum.",
+  "I am hugging my bird.": "Ona sarılıyorum.",
+  "I am hugging my fish.": "Ona sarılıyorum.",
+  "I am hugging my rabbit.": "Ona sarılıyorum.",
+  "I am hugging my hamster.": "Ona sarılıyorum.",
+  "I am hugging my turtle.": "Ona sarılıyorum."
+ },
+ "quiz_b": [
+  {
+   "q": "You ___ my friend.",
+   "opts": [
+    "am",
+    "is",
+    "are"
+   ],
+   "a": 2,
+   "say": "You are my friend."
+  },
+  {
+   "q": "He ___ a doctor.",
+   "opts": [
+    "am",
+    "is",
+    "are"
+   ],
+   "a": 1,
+   "say": "He is a doctor."
+  },
+  {
+   "q": "I ___ happy today.",
+   "opts": [
+    "am",
+    "is",
+    "are"
+   ],
+   "a": 0,
+   "say": "I am happy today."
+  },
+  {
+   "q": "The cats ___ in the garden.",
+   "opts": [
+    "is",
+    "are",
+    "am"
+   ],
+   "a": 1,
+   "say": "The cats are in the garden."
+  },
+  {
+   "q": "She ___ to school by bus.",
+   "opts": [
+    "go",
+    "goes",
+    "going"
+   ],
+   "a": 1,
+   "say": "She goes to school by bus."
+  },
+  {
+   "q": "We ___ lunch at one.",
+   "opts": [
+    "have",
+    "has",
+    "having"
+   ],
+   "a": 0,
+   "say": "We have lunch at one."
+  },
+  {
+   "q": "My mother ___ tea every morning.",
+   "opts": [
+    "drink",
+    "drinks",
+    "drinking"
+   ],
+   "a": 1,
+   "say": "My mother drinks tea every morning."
+  },
+  {
+   "q": "I ___ like milk.",
+   "opts": [
+    "don't",
+    "doesn't",
+    "isn't"
+   ],
+   "a": 0,
+   "say": "I don't like milk."
+  },
+  {
+   "q": "She ___ play football.",
+   "opts": [
+    "don't",
+    "doesn't",
+    "isn't"
+   ],
+   "a": 1,
+   "say": "She doesn't play football."
+  },
+  {
+   "q": "___ they live here?",
+   "opts": [
+    "Do",
+    "Does",
+    "Are"
+   ],
+   "a": 0,
+   "say": "Do they live here?"
+  },
+  {
+   "q": "___ he work on Saturday?",
+   "opts": [
+    "Do",
+    "Does",
+    "Is"
+   ],
+   "a": 1,
+   "say": "Does he work on Saturday?"
+  },
+  {
+   "q": "We ___ in the kitchen.",
+   "opts": [
+    "am",
+    "is",
+    "are"
+   ],
+   "a": 2,
+   "say": "We are in the kitchen."
+  },
+  {
+   "q": "My brother ___ every day.",
+   "opts": [
+    "read",
+    "reads",
+    "reading"
+   ],
+   "a": 1,
+   "say": "My brother reads every day."
+  },
+  {
+   "q": "Are you a student? Yes, I ___.",
+   "opts": [
+    "am",
+    "do",
+    "is"
+   ],
+   "a": 0,
+   "say": "Yes, I am."
+  }
+ ],
+ "quiz_c": [
+  {
+   "q": "They ___ at home.",
+   "opts": [
+    "am",
+    "is",
+    "are"
+   ],
+   "a": 2,
+   "say": "They are at home."
+  },
+  {
+   "q": "It ___ cold today.",
+   "opts": [
+    "am",
+    "is",
+    "are"
+   ],
+   "a": 1,
+   "say": "It is cold today."
+  },
+  {
+   "q": "I ___ ten years old.",
+   "opts": [
+    "am",
+    "is",
+    "are"
+   ],
+   "a": 0,
+   "say": "I am ten years old."
+  },
+  {
+   "q": "My parents ___ teachers.",
+   "opts": [
+    "is",
+    "are",
+    "am"
+   ],
+   "a": 1,
+   "say": "My parents are teachers."
+  },
+  {
+   "q": "He ___ up at six.",
+   "opts": [
+    "get",
+    "gets",
+    "getting"
+   ],
+   "a": 1,
+   "say": "He gets up at six."
+  },
+  {
+   "q": "You ___ a shower in the morning.",
+   "opts": [
+    "take",
+    "takes",
+    "taking"
+   ],
+   "a": 0,
+   "say": "You take a shower in the morning."
+  },
+  {
+   "q": "My sister ___ English.",
+   "opts": [
+    "study",
+    "studies",
+    "studying"
+   ],
+   "a": 1,
+   "say": "My sister studies English."
+  },
+  {
+   "q": "We ___ watch TV at night.",
+   "opts": [
+    "don't",
+    "doesn't",
+    "isn't"
+   ],
+   "a": 0,
+   "say": "We don't watch TV at night."
+  },
+  {
+   "q": "He ___ eat meat.",
+   "opts": [
+    "don't",
+    "doesn't",
+    "isn't"
+   ],
+   "a": 1,
+   "say": "He doesn't eat meat."
+  },
+  {
+   "q": "___ you like tea?",
+   "opts": [
+    "Do",
+    "Does",
+    "Are"
+   ],
+   "a": 0,
+   "say": "Do you like tea?"
+  },
+  {
+   "q": "___ your father cook?",
+   "opts": [
+    "Do",
+    "Does",
+    "Is"
+   ],
+   "a": 1,
+   "say": "Does your father cook?"
+  },
+  {
+   "q": "You ___ very kind.",
+   "opts": [
+    "am",
+    "is",
+    "are"
+   ],
+   "a": 2,
+   "say": "You are very kind."
+  },
+  {
+   "q": "The dog ___ in the park.",
+   "opts": [
+    "run",
+    "runs",
+    "running"
+   ],
+   "a": 1,
+   "say": "The dog runs in the park."
+  },
+  {
+   "q": "Is she your aunt? Yes, she ___.",
+   "opts": [
+    "is",
+    "does",
+    "are"
+   ],
+   "a": 0,
+   "say": "Yes, she is."
+  }
+ ]
+}

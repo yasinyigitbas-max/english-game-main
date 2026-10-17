@@ -1,0 +1,387 @@
+{
+ "label": "VocabTest",
+ "quiz": [
+  {
+   "obj": "a phone",
+   "tr": "telefon",
+   "scene": "res://props/phone.tscn",
+   "opts": [
+    "call a friend",
+    "send a message",
+    "sleep in it",
+    "drink it"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "bir arkadaşı aramak",
+    "mesaj göndermek",
+    "içinde uyumak",
+    ""
+   ]
+  },
+  {
+   "obj": "a laptop",
+   "tr": "dizüstü bilgisayar",
+   "scene": "res://props/furniture/laptop.glb",
+   "opts": [
+    "send an email",
+    "work on it",
+    "eat it",
+    "sleep in it"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "e-posta göndermek",
+    "onunla çalışmak",
+    "",
+    "içinde uyumak"
+   ]
+  },
+  {
+   "obj": "a bus",
+   "tr": "otobüs",
+   "scene": "res://props/story/Bus.obj",
+   "opts": [
+    "get on the bus",
+    "wait for the bus",
+    "eat it",
+    "sleep in it"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "otobüse binmek",
+    "otobüsü beklemek",
+    "",
+    "içinde uyumak"
+   ]
+  },
+  {
+   "obj": "a bed",
+   "tr": "yatak",
+   "scene": "res://props/furniture/bedSingle.glb",
+   "opts": [
+    "sleep in it",
+    "make the bed",
+    "drink it",
+    "drive it"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "içinde uyumak",
+    "yatağı toplamak",
+    "",
+    ""
+   ]
+  },
+  {
+   "obj": "a television",
+   "tr": "televizyon",
+   "scene": "res://props/furniture/televisionModern.glb",
+   "opts": [
+    "watch TV",
+    "turn it on",
+    "eat it",
+    "wear it"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "televizyon izlemek",
+    "onu açmak",
+    "",
+    ""
+   ]
+  },
+  {
+   "obj": "a remote control",
+   "tr": "kumanda",
+   "scene": "res://props/remote.tscn",
+   "opts": [
+    "turn on the TV",
+    "change the channel",
+    "eat it",
+    "sleep on it"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "televizyonu açmak",
+    "kanalı değiştirmek",
+    "",
+    "üstünde uyumak"
+   ]
+  }
+ ],
+ "quiz_b": [
+  {
+   "obj": "a phone",
+   "tr": "telefon",
+   "scene": "res://props/phone.tscn",
+   "opts": [
+    "take a photo",
+    "answer a call",
+    "cook it",
+    "wear it"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "fotoğraf çekmek",
+    "bir aramaya cevap vermek",
+    "",
+    ""
+   ]
+  },
+  {
+   "obj": "a laptop",
+   "tr": "dizüstü bilgisayar",
+   "scene": "res://props/furniture/laptop.glb",
+   "opts": [
+    "turn it on",
+    "look for a job",
+    "drink it",
+    "drive it"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "onu açmak",
+    "iş aramak",
+    "",
+    ""
+   ]
+  },
+  {
+   "obj": "a bus",
+   "tr": "otobüs",
+   "scene": "res://props/story/Bus.obj",
+   "opts": [
+    "take the bus",
+    "get off the bus",
+    "wear it",
+    "drink it"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "otobüse binmek",
+    "otobüsten inmek",
+    "",
+    ""
+   ]
+  },
+  {
+   "obj": "a bed",
+   "tr": "yatak",
+   "scene": "res://props/furniture/bedSingle.glb",
+   "opts": [
+    "wake up in it",
+    "lie on it",
+    "cook it",
+    "wear it"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "içinde uyanmak",
+    "üstüne uzanmak",
+    "",
+    ""
+   ]
+  },
+  {
+   "obj": "a television",
+   "tr": "televizyon",
+   "scene": "res://props/furniture/televisionModern.glb",
+   "opts": [
+    "watch the news",
+    "turn it off",
+    "drink it",
+    "sleep in it"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "haberleri izlemek",
+    "onu kapatmak",
+    "",
+    "içinde uyumak"
+   ]
+  },
+  {
+   "obj": "a book",
+   "tr": "kitap",
+   "scene": "res://props/book.tscn",
+   "opts": [
+    "read a story",
+    "close it",
+    "eat it",
+    "take a shower"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "bir hikâye okumak",
+    "onu kapatmak",
+    "",
+    ""
+   ]
+  }
+ ],
+ "quiz_c": [
+  {
+   "obj": "a phone",
+   "tr": "telefon",
+   "scene": "res://props/phone.tscn",
+   "opts": [
+    "call your boss",
+    "read a message",
+    "sit on it",
+    "wash your face"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "patronunu aramak",
+    "bir mesaj okumak",
+    "üstüne oturmak",
+    ""
+   ]
+  },
+  {
+   "obj": "a laptop",
+   "tr": "dizüstü bilgisayar",
+   "scene": "res://props/furniture/laptop.glb",
+   "opts": [
+    "write an email",
+    "watch a video",
+    "wear it",
+    "brush your teeth"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "e-posta yazmak",
+    "video izlemek",
+    "",
+    "dişlerini fırçalamak"
+   ]
+  },
+  {
+   "obj": "a bus",
+   "tr": "otobüs",
+   "scene": "res://props/story/Bus.obj",
+   "opts": [
+    "get on the bus",
+    "take the bus to work",
+    "brush it",
+    "read it"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "otobüse binmek",
+    "işe otobüsle gitmek",
+    "",
+    "onu okumak"
+   ]
+  },
+  {
+   "obj": "a bed",
+   "tr": "yatak",
+   "scene": "res://props/furniture/bedSingle.glb",
+   "opts": [
+    "sleep in it",
+    "get out of it",
+    "read it",
+    "call it"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "içinde uyumak",
+    "ondan kalkmak",
+    "onu okumak",
+    ""
+   ]
+  },
+  {
+   "obj": "a television",
+   "tr": "televizyon",
+   "scene": "res://props/furniture/televisionModern.glb",
+   "opts": [
+    "watch a film",
+    "turn it on",
+    "drive it",
+    "dry your hands"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "film izlemek",
+    "onu açmak",
+    "",
+    "ellerini kurulamak"
+   ]
+  },
+  {
+   "obj": "a sofa",
+   "tr": "kanepe",
+   "scene": "res://props/furniture/loungeSofa.glb",
+   "opts": [
+    "sit on it",
+    "sleep on it",
+    "read it",
+    "brush it"
+   ],
+   "a": [
+    0,
+    1
+   ],
+   "tr_opts": [
+    "üstüne oturmak",
+    "üstünde uyumak",
+    "onu okumak",
+    ""
+   ]
+  }
+ ]
+}

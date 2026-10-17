@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[sub_resource type="CylinderMesh" id="1"]
+top_radius = 0.042
+bottom_radius = 0.038
+height = 0.1
+
+[sub_resource type="StandardMaterial3D" id="2"]
+albedo_color = Color(0.93, 0.47, 0.4, 1)
+roughness = 0.5
+
+[sub_resource type="CylinderMesh" id="3"]
+top_radius = 0.036
+bottom_radius = 0.036
+height = 0.004
+
+[sub_resource type="StandardMaterial3D" id="4"]
+albedo_color = Color(0.55, 0.35, 0.2, 1)
+
+[node name="Mug" type="Node3D" unique_id=126909291]
+
+[node name="Cup" type="MeshInstance3D" parent="." unique_id=799373229]
+mesh = SubResource("1")
+surface_material_override/0 = SubResource("2")
+
+[node name="Tea" type="MeshInstance3D" parent="." unique_id=1309198204]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.046, 0)
+mesh = SubResource("3")
+surface_material_override/0 = SubResource("4")

@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://c7r80w53bn4rd" path="res://ui/shared/phone.gd" id="1"]
+
+[node name="Phone" type="Control" unique_id=421441136]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")

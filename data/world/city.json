@@ -1,0 +1,59 @@
+{
+ "_doc": "Grid of 40 m city blocks. cell [i, j] sits at world (i*40, 0, j*40); +j is south. Cells inside bounds without an entry use default_block.",
+ "block_size": 40,
+ "bounds": {
+  "min": [
+   -2,
+   -1
+  ],
+  "max": [
+   2,
+   2
+  ]
+ },
+ "default_block": "res://scenes/blocks/block_residential.tscn",
+ "blocks": [
+  {
+   "cell": [
+    0,
+    0
+   ],
+   "scene": "res://scenes/blocks/block_home.tscn"
+  },
+  {
+   "cell": [
+    0,
+    1
+   ],
+   "scene": "res://scenes/blocks/block_shops.tscn"
+  },
+  {
+   "cell": [
+    1,
+    1
+   ],
+   "scene": "res://scenes/blocks/block_park.tscn"
+  },
+  {
+   "cell": [
+    -1,
+    1
+   ],
+   "scene": "res://scenes/blocks/block_residential_b.tscn"
+  },
+  {
+   "cell": [
+    -2,
+    2
+   ],
+   "scene": "res://scenes/blocks/block_park.tscn"
+  },
+  {
+   "cell": [
+    2,
+    1
+   ],
+   "scene": "res://scenes/blocks/block_residential_c.tscn"
+  }
+ ]
+}

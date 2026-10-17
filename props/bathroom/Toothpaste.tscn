@@ -1,0 +1,40 @@
+[gd_scene format=3]
+
+[sub_resource type="BoxMesh" id="m1"]
+size = Vector3(0.04, 0.02, 0.13)
+
+[sub_resource type="StandardMaterial3D" id="c1"]
+albedo_color = Color(0.97, 0.97, 0.98, 1)
+roughness = 0.7
+
+[sub_resource type="BoxMesh" id="m2"]
+size = Vector3(0.044, 0.022, 0.03)
+
+[sub_resource type="StandardMaterial3D" id="c2"]
+albedo_color = Color(0.85, 0.4, 0.35, 1)
+roughness = 0.7
+
+[sub_resource type="CylinderMesh" id="m3"]
+top_radius = 0.008
+bottom_radius = 0.008
+height = 0.02
+
+[sub_resource type="StandardMaterial3D" id="c3"]
+albedo_color = Color(0.85, 0.4, 0.35, 1)
+roughness = 0.7
+
+[node name="Toothpaste" type="Node3D" unique_id=635884845]
+
+[node name="P1" type="MeshInstance3D" parent="." unique_id=350717806]
+mesh = SubResource("m1")
+surface_material_override/0 = SubResource("c1")
+
+[node name="P2" type="MeshInstance3D" parent="." unique_id=1032424955]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.04)
+mesh = SubResource("m2")
+surface_material_override/0 = SubResource("c2")
+
+[node name="P3" type="MeshInstance3D" parent="." unique_id=335752734]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.075)
+mesh = SubResource("m3")
+surface_material_override/0 = SubResource("c3")

@@ -1,0 +1,21 @@
+# Godot caches / build outputs
+.godot/
+*.tmp
+/android/build/.gradle/
+/android/build/build/
+/android/build/src/main/assets/
+/android/build/libs/debug/godot-lib.template_debug.aar
+/android/build/libs/release/godot-lib.template_release.aar
+/android/build/assetPackInstallTime
+*.apk
+*.apk.idsig
+*.aab
+*.pck
+!/android/build/libs/**/sherpa.aar
+# TTS render cache (tools/build_voice*.py); regenerated on demand
+/tools/cache/
+!/tools/cache/.gdignore
+__pycache__/
+*.pyc
+# QA run logs
+*.log
