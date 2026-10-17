@@ -67,7 +67,8 @@ func _geo(g: GeometryInstance3D) -> void:
 	var wall := ShoulderCam._is_wall(ab)
 	var r0 := g.visibility_range_end
 	var r := 0.0; var mg := 2.0
-	if big < prop_size: r = prop_range; stats.props += 1
+	if big < prop_size:
+		r = prop_range; stats.props += 1; g.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF   # props: no shadow pass
 	elif not wall and ab.size.y < 2.6 and ab.size.x < 12.0 and ab.size.z < 12.0 and _interior(g):   # furniture, decor (not walls / floors)
 		r = interior_range; mg = 3.0; stats.interior += 1
 	elif ab.size.length() < mid_size: r = mid_range; mg = 4.0; stats.mid = int(stats.get("mid", 0)) + 1
@@ -92,7 +93,9 @@ func _light(l: Light3D) -> void:
 	l.set_meta("wc_done", true)
 	if l is DirectionalLight3D:
 		var d := l as DirectionalLight3D
-		if d.shadow_enabled: d.directional_shadow_max_distance = minf(d.directional_shadow_max_distance, sun_shadow)
+		if d.shadow_enabled:
+			d.directional_shadow_max_distance = minf(d.directional_shadow_max_distance, sun_shadow)
+			d.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL   # one shadow pass instead of 2 splits
 		return
 	if not l.distance_fade_enabled:
 		l.distance_fade_enabled = true; l.distance_fade_begin = light_range; l.distance_fade_length = 6.0

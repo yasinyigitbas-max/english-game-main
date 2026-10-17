@@ -123,11 +123,28 @@ static func _append(buckets: Dictionary, mesh: Mesh, mats: Array, xf: Transform3
 ## go into one chunk per root without a range (they are the skyline)
 const SMALL := 6.0
 const CELL := 14.0
-static func merge_root(root: Node3D, range_end := 0.0, range_margin := 4.0) -> Dictionary:
+## script-held nodes (room furniture in N / OBJ ...) are merged as their OWN roots: the merged mesh is their child, so a
+## script moving / hiding / swapping that node still moves / hides it (only their own unreferenced static children merge)
+static func merge_tree(root: Node3D, range_end := 0.0, range_margin := 4.0) -> Dictionary:
+	var prot := _protected(root)
+	var st := merge_root(root, range_end, range_margin, prot)
+	for n in prot:
+		if not is_instance_valid(n) or not (n is Node3D) or n == root or not root.is_ancestor_of(n) or _skip_node(n): continue
+		if n is MeshInstance3D and (n as MeshInstance3D).get_child_count() == 0: continue
+		var p: Node = n.get_parent(); var bad := false
+		while p and p != root:
+			if _skip_node(p): bad = true; break
+			p = p.get_parent()
+		if bad: continue
+		var s2 := merge_root(n, range_end, range_margin, prot)
+		for k in st: st[k] += int(s2.get(k, 0))
+	return st
+
+static func merge_root(root: Node3D, range_end := 0.0, range_margin := 4.0, prot_in = null) -> Dictionary:
 	var st := {"meshes": 0, "surfaces_in": 0, "surfaces_out": 0}
 	if root == null or not is_instance_valid(root) or root.has_meta("ow_merged"): return st
 	root.set_meta("ow_merged", true)
-	var prot := _protected(root)
+	var prot: Dictionary = prot_in if prot_in is Dictionary else _protected(root)
 	var cand: Array = []; _gather(root, prot, cand)
 	var inv := root.global_transform.affine_inverse()
 	var buckets := {}
@@ -186,7 +203,9 @@ static func merge_root(root: Node3D, range_end := 0.0, range_margin := 4.0) -> D
 			st.surfaces_out += 1
 		if am.get_surface_count() == 0: continue
 		var out := MeshInstance3D.new(); out.name = "OWMerged_" + String(cell); out.mesh = am; out.set_meta("no_merge", true); out.set_meta("ow_merged_mesh", true)
-		if cell != "big" and range_end > 0.0: out.visibility_range_end = range_end; out.visibility_range_end_margin = range_margin
+		if cell != "big":
+			if range_end > 0.0: out.visibility_range_end = range_end; out.visibility_range_end_margin = range_margin
+			out.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF   # small things: no sun-shadow pass (draw calls)
 		root.add_child(out); made += 1
 	if made == 0: return st
 	for g in used: (g as GeometryInstance3D).visible = false; g.set_meta("ow_merged_src", true)

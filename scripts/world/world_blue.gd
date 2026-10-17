@@ -80,7 +80,7 @@ static func merge_all(world: Node) -> Dictionary:
 		if c is Node3D and c != grid and not (places is Dictionary and c in (places as Dictionary).values()) and not (c is CharacterBody3D) and c.get_script() == null:
 			roots.append([c, 0.0])
 	for r in roots:
-		var s: Dictionary = Merge.merge_root(r[0], r[1])
+		var s: Dictionary = Merge.merge_tree(r[0], r[1])
 		if int(s.get("meshes", 0)) > 0: tot.roots += 1
 		for k in ["meshes", "surfaces_in", "surfaces_out"]: tot[k] += int(s.get(k, 0))
 	return tot
