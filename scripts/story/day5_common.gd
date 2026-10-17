@@ -16,7 +16,6 @@ const PET_ROLES := ["dog", "cat", "bird", "fish", "rabbit", "hamster", "turtle"]
 const VOICES_F := ["amy", "kristin", "hfc_female", "lessac"]   # = livingroom.gd voice_of()
 const VOICES_M := ["ryan", "joe", "hfc_male"]
 ## ryan / lessac / hfc_male are not used for new lines (licence): the same family member speaks days 5-6 in a CC0 / PD voice
-const REMAP := {"ryan": "joe_deep", "hfc_male": "joe", "lessac": "kristin"}
 
 var sc: Node            # the current scene
 var D: Dictionary = {}  # data/day<N>.json
@@ -101,8 +100,6 @@ static func speak(s: Node, label: String, label_tr: String, en: String, tr: Stri
 	await tree.create_timer(0.45, false).timeout
 
 # ------------------------------------------------------------------ family voices
-static func safe_voice(v: String) -> String: return String(REMAP.get(v, v))
-
 ## the family from save.json state.family, in livingroom.gd voice_of() order: [{name, voice, child}]
 static func family_people() -> Array:
 	var st = App.load_save().get("state", {})
@@ -119,7 +116,7 @@ static func family_people() -> Array:
 			v = (["child_f", "child_m"][nc % 2] if fem else ["child_m", "child_f"][nc % 2]); nc += 1
 		elif fem: v = VOICES_F[nf % VOICES_F.size()]; nf += 1
 		else: v = VOICES_M[nm % VOICES_M.size()]; nm += 1
-		out.append({"name": String(m.get("name", "")), "voice": safe_voice(v), "child": bool(m.get("child", false))})
+		out.append({"name": String(m.get("name", "")), "voice": v, "child": bool(m.get("child", false))})
 	return out
 
 # ------------------------------------------------------------------ step runner (override target / reach / act / spk in the day scripts)

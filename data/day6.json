@@ -827,7 +827,7 @@
   "woman": [
    "Woman",
    "Kadın",
-   "kristin"
+   "hfc_female"
   ],
   "driver": [
    "Bus driver",
@@ -837,7 +837,7 @@
   "taxi": [
    "Taxi",
    "Taksi",
-   "amy"
+   "lessac"
   ]
  },
  "lines": {

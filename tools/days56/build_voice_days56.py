@@ -3,8 +3,10 @@
   voice_<n>/voice_<n>_d56.bin + data/day56_voice_index_<n>.json   narrator packs m (joe, CC0), c (joe + boy filter), g (kristin + girl filter)
 Index format = data/voice_index.json: norm key -> [chunk, offset, length, "", seconds]. scripts/story/day5_common.gd merges these into
 Audio.index / Audio.alt_index at runtime (chunk 25 is opened by Audio.reopen_banks, which scans voice_000..031).
-NPC / family voices: CC0 / public-domain Piper voices only (amy, kristin, joe + pitch variants). ryan / lessac / hfc_male are NOT used:
-day5_common.gd maps a family member who has one of those voices to joe_deep / kristin / joe for these lines.
+Family lines are rendered in EVERY family voice id livingroom.gd voice_of() can give (amy, kristin, hfc_female, lessac, ryan, joe,
+hfc_male, child_f, child_m; same models + filters as tools/build_voice_day2.py), so each member keeps their own voice on days 5-6.
+Narrator / player lines: f (ljspeech, main bank) + packs m / c / g (same settings as tools/narrator_voices/render_voices.py).
+NPCs, one fixed voice each: Leo child_m, his mum lessac, shop assistant hfc_male, day-6 woman hfc_female, bus driver joe_deep, taxi lessac.
 Only lines that are not in the bank yet are rendered. Run: python3 tools/days56/build_voice_days56.py"""
 import json, re, os, wave, subprocess, sys
 from multiprocessing import Pool
@@ -16,11 +18,11 @@ BOY = "asetrate=22050*1.18,aresample=22050,atempo=0.847458,rubberband=pitch=1.69
 GIRL = "asetrate=22050*1.15,aresample=22050,atempo=0.869565,rubberband=pitch=1.4348:formant=preserved,"
 GTRIM = "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,areverse,silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.12,areverse,"
 DEEP = "asetrate=22050*0.9,aresample=22050,atempo=1.111111,"
-VOICES = {"ljspeech": ("ljspeech", ""), "amy": ("amy", ""), "kristin": ("kristin", ""), "joe": ("joe", ""), "joe_deep": ("joe", DEEP),
+VOICES = {"ljspeech": ("ljspeech", ""), "amy": ("amy", ""), "kristin": ("kristin", ""), "joe": ("joe", ""), "joe_deep": ("joe", DEEP), "hfc_female": ("hfc_female", ""), "lessac": ("lessac", ""), "ryan": ("ryan", ""), "hfc_male": ("hfc_male", ""),
           "child_f": ("kristin", GIRL), "child_m": ("joe", BOY),
           "m": ("joe", ""), "c": ("joe", BOY), "g": ("kristin", GTRIM + GIRL)}
-FAMILY = ["amy", "kristin", "joe", "joe_deep", "child_f", "child_m"]   # + hfc_female below (existing family voice of black's livingroom.gd)
-FAMILY_EXTRA = ["hfc_female"]
+FAMILY = ["amy", "kristin", "hfc_female", "lessac", "ryan", "joe", "hfc_male", "child_f", "child_m"]   # = livingroom.gd voice_of()
+FAMILY_EXTRA = []
 
 def collect():
     narr, voiced = [], []   # voiced: (voice, text)
@@ -89,8 +91,6 @@ if __name__ == "__main__":
     main_idx = json.load(open(f"{R}/data/voice_index.json"))
     src = [(norm(t), t, "ljspeech") for t in narr] + [(f"v_{v} {norm(t)}", t, v) for v, t in voiced]
     # hfc_female family clips: model exists on the box (existing family voice); skip if missing
-    src = [s for s in src if s[2] != "hfc_female" or os.path.exists(P + "en_US-hfc_female-medium.onnx")]
-    VOICES["hfc_female"] = ("hfc_female", "")
     idx = build("main", f"{R}/voice/voice_{CHUNK:03d}.bin", f"{R}/data/day56_voice_index.json", src, CHUNK, main_idx)
     if "--no-packs" in sys.argv: sys.exit()
     for n in ("m", "c", "g"):

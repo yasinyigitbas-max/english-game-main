@@ -49,19 +49,19 @@ Turkish (TR toggle, text only) is shown in *italics*. **Objective** = top-left O
   - ✔ "Excuse me, can you help us? This boy is lost."  *Affedersiniz, bize yardım edebilir misiniz? Bu çocuk kaybolmuş.*
   - ✘ "Can I have a bag, please?"  *Bir poşet alabilir miyim, lütfen?* → Not quite. That's not the problem right now. The boy is lost.  *Şu an sorun bu değil. Çocuk kaybolmuş.*
   - ✘ "How much is the bread?"  *Ekmek ne kadar?* → Not quite. Not now! Tell the assistant about the lost boy.  *Şimdi değil! Görevliye kayıp çocuktan bahset.*
-- **Shop assistant (joe voice):** Oh dear! Of course. I'm going to make an announcement. Can you describe him for me?  *Aman! Tabii ki. Bir anons yapacağım. Onu bana tarif edebilir misin?*
+- **Shop assistant (hfc_male voice):** Oh dear! Of course. I'm going to make an announcement. Can you describe him for me?  *Aman! Tabii ki. Bir anons yapacağım. Onu bana tarif edebilir misin?*
 - `[look_at_child]`
 - **Choice:** Describe the boy.  *Çocuğu tarif et.*
   - ✔ "He's about five. He's got short brown hair."  *Yaklaşık beş yaşında. Kısa kahverengi saçları var.*
   - ✘ "He's about five. He's got long blond hair."  *Yaklaşık beş yaşında. Uzun sarı saçları var.* → Not quite. Look again. His hair is short and brown.  *Tekrar bak. Saçı kısa ve kahverengi.*
   - ✘ "He's very old. He's got a big beard."  *Çok yaşlı. Büyük bir sakalı var.* → Not quite. No! He's a little boy.  *Hayır! O küçük bir çocuk.*
-- **Shop assistant (joe voice):** Great. And what's he wearing?  *Harika. Peki ne giyiyor?*
+- **Shop assistant (hfc_male voice):** Great. And what's he wearing?  *Harika. Peki ne giyiyor?*
 - **Choice:** What's he wearing?  *Ne giyiyor?*
   - ✔ "He's wearing a yellow T-shirt."  *Sarı bir tişört giyiyor.*
   - ✘ "He's wearing a red coat."  *Kırmızı bir mont giyiyor.* → Not quite. Look again. His T-shirt is yellow.  *Tekrar bak. Tişörtü sarı.*
   - ✘ "He's wearing a green hat."  *Yeşil bir şapka takıyor.* → Not quite. Look again. He isn't wearing a hat.  *Tekrar bak. Şapka takmıyor.*
 - `[announce]`
-- **Shop assistant (joe voice):** Attention, please! We've got a little boy called Leo at the front of the shop. He's about five, and he's wearing a yellow T-shirt.  *Dikkat lütfen! Mağazanın önünde Leo adında küçük bir çocuk var. Yaklaşık beş yaşında ve sarı bir tişört giyiyor.*
+- **Shop assistant (hfc_male voice):** Attention, please! We've got a little boy called Leo at the front of the shop. He's about five, and he's wearing a yellow T-shirt.  *Dikkat lütfen! Mağazanın önünde Leo adında küçük bir çocuk var. Yaklaşık beş yaşında ve sarı bir tişört giyiyor.*
 - **Boy (child_m voice):** I'm scared.  *Korkuyorum.*
 - **Objective:** Help Leo feel better.  *Leo'nun kendini daha iyi hissetmesine yardım et.*
 - **Choice:** What do you say to Leo?  *Leo'ya ne dersin?*
@@ -71,23 +71,23 @@ Turkish (TR toggle, text only) is shown in *italics*. **Objective** = top-left O
 - **Boy (child_m voice):** OK. Thank you.  *Tamam. Teşekkür ederim.*
 - `[mum_enters]`
 - **Narrator:** A woman is running into the shop.  *Bir kadın koşarak markete giriyor.*
-- **Woman (amy voice):** Excuse me! I'm looking for my little boy!  *Affedersiniz! Küçük oğlumu arıyorum!*
+- **Woman (lessac voice):** Excuse me! I'm looking for my little boy!  *Affedersiniz! Küçük oğlumu arıyorum!*
 - **Objective:** Find Leo's mum.  *Leo'nun annesini bul.*
 - **Choice:** What do you ask her?  *Ona ne sorarsın?*
   - ✔ "What's his name?"  *Adı ne?*
   - ✘ "What's your favourite colour?"  *En sevdiğin renk ne?* → Not quite. That doesn't help. Ask about her son.  *Bu yardımcı olmaz. Oğlunu sor.*
   - ✘ "Do you like this shop?"  *Bu marketi seviyor musun?* → Not quite. Not now! Ask about her son.  *Şimdi değil! Oğlunu sor.*
-- **Woman (amy voice):** Leo. He's five, and he's wearing a yellow T-shirt.  *Leo. Beş yaşında ve sarı bir tişört giyiyor.*
+- **Woman (lessac voice):** Leo. He's five, and he's wearing a yellow T-shirt.  *Leo. Beş yaşında ve sarı bir tişört giyiyor.*
 - **Me:** He's here! He's safe.  *Burada! O güvende.*
 - `[reunite]`
 - **Boy (child_m voice):** Mum!  *Anne!*
-- **Woman (amy voice):** Leo! There you are! I was so worried.  *Leo! İşte buradasın! Çok endişelendim.*
+- **Woman (lessac voice):** Leo! There you are! I was so worried.  *Leo! İşte buradasın! Çok endişelendim.*
 - **Narrator:** Leo is hugging his mum.  *Leo annesine sarılıyor.*
 - `[photo]`
-- **Woman (amy voice):** Thank you so much for helping him!  *Ona yardım ettiğin için çok teşekkür ederim!*
+- **Woman (lessac voice):** Thank you so much for helping him!  *Ona yardım ettiğin için çok teşekkür ederim!*
 - **Me:** You're welcome. Bye, Leo!  *Rica ederim. Hoşça kal, Leo!*
 - **Boy (child_m voice):** Bye! Thank you!  *Hoşça kal! Teşekkürler!*
-- **Shop assistant (joe voice):** Well done. That was really kind of you.  *Aferin. Çok nazik davrandın.*
+- **Shop assistant (hfc_male voice):** Well done. That was really kind of you.  *Aferin. Çok nazik davrandın.*
 - **Narrator:** Well done! You helped Leo find his mum.  *Aferin! Leo'nun annesini bulmasına yardım ettin.*
 - `[npcs_leave]`
 - **Objective:** Go home.  *Eve git.* / Go inside.  *İçeri gir.*
@@ -196,13 +196,13 @@ Turkish (TR toggle, text only) is shown in *italics*. **Objective** = top-left O
 - `[thunder]`
 - **Narrator:** The wind is blowing, and it's starting to rain.  *Rüzgar esiyor ve yağmur başlıyor.*
 - `[woman_appears]`
-- **Woman (kristin voice):** Wow, what terrible weather!  *Vay, ne kötü bir hava!*
+- **Woman (hfc_female voice):** Wow, what terrible weather!  *Vay, ne kötü bir hava!*
 - **Objective:** Talk about the weather.  *Hava hakkında konuş.*
 - **Choice:** What do you say about the weather?  *Hava hakkında ne dersin?*
   - ✔ "I know! It's really windy, and it's raining hard."  *Biliyorum! Çok rüzgarlı ve şiddetli yağmur yağıyor.*
   - ✘ "Yes, it's sunny and hot today."  *Evet, bugün hava güneşli ve sıcak.* → Not quite. Look at the sky! It isn't sunny.  *Gökyüzüne bak! Hava güneşli değil.*
   - ✘ "It's snowing a lot."  *Çok kar yağıyor.* → Not quite. Look again. It's raining, not snowing.  *Tekrar bak. Kar değil, yağmur yağıyor.*
-- **Woman (kristin voice):** Good thing the bus is coming soon.  *İyi ki otobüs birazdan geliyor.*
+- **Woman (hfc_female voice):** Good thing the bus is coming soon.  *İyi ki otobüs birazdan geliyor.*
 - `[bus_arrives]`
 - **Narrator:** The bus is coming.  *Otobüs geliyor.*
 - `[bus_breaks]`
@@ -220,7 +220,7 @@ Turkish (TR toggle, text only) is shown in *italics*. **Objective** = top-left O
 - **Narrator:** I'm waiting at the bus stop. It's raining really hard.  *Otobüs durağında bekliyorum. Çok şiddetli yağmur yağıyor.*
 - `[time_skip]`
 - **Narrator:** Ten minutes later...  *On dakika sonra...*
-- **Woman (kristin voice):** This is taking so long. What are you going to do?  *Bu çok uzun sürüyor. Sen ne yapacaksın?*
+- **Woman (hfc_female voice):** This is taking so long. What are you going to do?  *Bu çok uzun sürüyor. Sen ne yapacaksın?*
 - **Objective:** Choose what to do.  *Ne yapacağını seç.*
 - **Choice:** What are you going to do?  *Ne yapacaksın?*  (wrong answers disappear)
   - ✘ "I'm going to walk home."  *Eve yürüyeceğim.* → Not quite. Hmm, it's very windy and wet. Walking isn't a good idea right now.  *Hmm, hava çok rüzgarlı ve ıslak. Şu an yürümek iyi bir fikir değil.*
@@ -233,7 +233,7 @@ Turkish (TR toggle, text only) is shown in *italics*. **Objective** = top-left O
 - **famcall:** Of course! Stay at the bus stop. I'm coming right now.  *Tabii ki! Otobüs durağında kal. Hemen geliyorum.*
 - **Me:** Thanks! See you soon.  *Teşekkürler! Görüşürüz.*
 - `[phone_away]`
-- **Woman (kristin voice):** Lucky you! I'm going to call my husband, too.  *Ne şanslısın! Ben de kocamı arayacağım.*
+- **Woman (hfc_female voice):** Lucky you! I'm going to call my husband, too.  *Ne şanslısın! Ben de kocamı arayacağım.*
 - `[photo]`
 - **Narrator:** My family is coming to pick me up.  *Ailem beni almaya geliyor.*
 - `[ride_home]`
@@ -241,7 +241,7 @@ Turkish (TR toggle, text only) is shown in *italics*. **Objective** = top-left O
 
 **If the player picks “Call a taxi” (the taxi line is busy):**
 - **Narrator:** I'm calling a taxi.  *Taksi çağırıyorum.*
-- **Taxi (amy voice):** Sorry, all our taxis are busy because of the storm.  *Üzgünüz, fırtına yüzünden bütün taksilerimiz dolu.*
+- **Taxi (lessac voice):** Sorry, all our taxis are busy because of the storm.  *Üzgünüz, fırtına yüzünden bütün taksilerimiz dolu.*
 - **Objective:** Go home.  *Eve git.* / Go inside.  *İçeri gir.*
 
 ### 5. Evening couch talk

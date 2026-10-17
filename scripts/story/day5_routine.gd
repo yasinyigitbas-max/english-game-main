@@ -304,14 +304,14 @@ func _breakfast(lr: Node) -> void:
 	await _guide(lr, _living_door(lr, "front"), GO_OUT[0], GO_OUT[1])
 	lr.mode = "play"; lr._update_hand()
 
-## family speakers in the living room: their seat nodes (nod + talk) and CC0 / PD voices
+## family speakers in the living room: their seat nodes (nod + talk) in their own voices (voice_of, as in every other room)
 func spk(who: String) -> Array:
 	if sc and is_instance_valid(sc) and sc.has_method("humans") and who.begins_with("fam") and who != "famcall":
 		var hs: Array = sc.humans()
 		if not hs.is_empty():
 			var b: Dictionary = hs[int(who.trim_prefix("fam")) % hs.size()]
 			var nm := String(b.data.get("name", ""))
-			return [nm, nm, safe_voice(sc.voice_of(b)), null]
+			return [nm, nm, sc.voice_of(b), null]
 	return super.spk(who)
 
 func say(who: String, en: String, tr: String) -> void:

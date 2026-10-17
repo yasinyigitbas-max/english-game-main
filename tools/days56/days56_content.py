@@ -184,7 +184,7 @@ D5 = {
         Q("Don't cry. ___ OK.", ["It's", "Its", "It"], "Don't cry. It's OK.", "Ağlama. Sorun yok."),
         Q("We ___ happy at the end.", ["were", "was", "are"], "We were happy at the end.", "Sonunda mutluyduk."),
     ],
-    "speakers": {"child": ["Boy", "Çocuk", "child_m"], "mum": ["Woman", "Kadın", "amy"], "assistant": ["Shop assistant", "Görevli", "joe"]},
+    "speakers": {"child": ["Boy", "Çocuk", "child_m"], "mum": ["Woman", "Kadın", "lessac"], "assistant": ["Shop assistant", "Görevli", "hfc_male"]},
 }
 
 # ----------------------------------------------------------------------------------------------------------- DAY 6
@@ -321,7 +321,7 @@ D6 = {
         Q("I ___ the bus home yesterday.", ["didn't take", "don't took", "not took"], "I didn't take the bus home yesterday.", "Dün eve otobüsle gitmedim."),
         Q("The storm ___ very loud.", ["was", "were", "are"], "The storm was very loud.", "Fırtına çok gürültülüydü."),
     ],
-    "speakers": {"woman": ["Woman", "Kadın", "kristin"], "driver": ["Bus driver", "Otobüs şoförü", "joe_deep"], "taxi": ["Taxi", "Taksi", "amy"]},
+    "speakers": {"woman": ["Woman", "Kadın", "hfc_female"], "driver": ["Bus driver", "Otobüs şoförü", "joe_deep"], "taxi": ["Taxi", "Taksi", "lessac"]},
 }
 
 def walk(steps, out):
