@@ -186,6 +186,8 @@ func _live_ready() -> void:   # v32wh: the v32 _ready (also run when this room's
 	House.live_ready(self)   # v32wh: the two other rooms as shells next door
 
 func _intro() -> void:
+	load("res://scripts/story/day7_party.gd").prepare(self)   # v33 (red): day 7 coming home: dark room, the family hides (surprise)
+	load("res://scripts/story/day4_routine.gd").start(get_tree())   # v33 (red): day-4 / day-7 routine (idempotent)
 	await wait(0.6)
 	caption("I'm in the living room now.", false)   # house.17: silent room caption
 	_advance()

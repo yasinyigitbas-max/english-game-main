@@ -1913,11 +1913,13 @@ func objective() -> Array:
 	if d2 == "living": return ["Go to the living room.", ""]   # v31: day-2 morning
 	if d2 == "car": return ["Go outside to the car.", ""]
 	if _day3_stage() == "shower": return ["Take a shower.", ""]   # v32 (red): day-3 morning: the shower first, the living room only after it (Day3Morning)
-	if maxi(WorldState.day, App.day) >= 4 and _story_str("d4") == "start": return ["Start your day.", ""]   # v32c (red): placeholder day-4 first objective (bedtime.gd)
+	var d47: String = load("res://scripts/story/day4_routine.gd").main_objective()   # v33 (red): day 4 / day 7 routine step (+ day-8 placeholder)
+	if d47 != "": return [d47, ""]
 	if not App.bath_done and WorldState.day < 2: return ["Go to the bathroom.", ""]   # v31: not on day 2+; house.17: bathroom first, then the living room
 	return ["Go to the living room.", ""]
 
 func _advance(sound: bool) -> void:
+	load("res://scripts/story/day4_routine.gd").start(get_tree())   # v33 (red): day-4 / day-7 routine (idempotent; day 7 starts from blue's day 6)
 	var o := objective()
 	var prev := mission
 	# Bathroom-door / mirror pans: black bot (Life.guide_to). We only feed Objectives + speak.
