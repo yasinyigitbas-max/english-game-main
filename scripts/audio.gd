@@ -545,6 +545,10 @@ var sfx_log: Array = []
 ## v30.2 playtest: every water sound (tap, shower, watering, splash, flush, trickle) at 50 % volume (-6 dB)
 const WATER_SFX := ["water", "water_drops", "trickle", "shower_loop"]
 const WATER_DB := -6.0
+## v32 (Yasin 13:49): tap / sink water at 20 % of its previous volume (-14 dB on top of WATER_DB)
+const TAP_DB := -14.0
+func tap_sfx(db := 0.0, pitch := 1.0) -> void:
+	sfx("water", db + TAP_DB, pitch)
 func sfx(name: String, db := 0.0, pitch := 1.0) -> void:
 	sfx_log.append(name)
 	if not _sfx_cache.has(name):
