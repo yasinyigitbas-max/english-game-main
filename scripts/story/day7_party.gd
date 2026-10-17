@@ -94,7 +94,7 @@ func _decor() -> void:
 		_mesh(s, p, BALLOONS[i % BALLOONS.size()])
 		var st := BoxMesh.new(); st.size = Vector3(0.006, 0.7, 0.006); _mesh(st, p - Vector3(0, 0.55, 0), Color(0.9, 0.9, 0.9))
 	var lb := Label3D.new(); lb.text = "Congratulations!"; lb.font_size = 96; lb.pixel_size = 0.004; lb.modulate = Color(0.95, 0.35, 0.45)
-	lb.outline_size = 18; lb.outline_modulate = Color(1, 1, 1); lb.position = Vector3(2.6, 2.15, -2.9); add_child(lb)
+	lb.outline_size = 18; lb.outline_modulate = Color(1, 1, 1); lb.position = Vector3(2.6, 2.15, -2.9); _n3().add_child(lb)
 
 const CAKE := Vector3(-0.15, 0, -0.4)   # v33 QA: free corner of the coffee table (was inside the fruit bowl)
 func _cake() -> void:

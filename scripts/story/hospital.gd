@@ -347,7 +347,7 @@ func _player_body() -> void:
 ## v29 (M4): polaroid from an offscreen camera at the bedside so the player (in the bed) is in the photo
 func _snap_bed(key: String) -> void:
 	var xf := Transform3D.IDENTITY.translated(Vector3(1.5, 1.85, 0.2)).looking_at(Vector3(-0.1, 0.65, -1.2), Vector3.UP)
-	await Life.snap_from(key, xf, 55.0)
+	await Life.snap_from(key, global_transform * xf, 55.0)   # open world: the hospital sits at its reserved slot
 
 ## v29 (M5): penlight pivot at the Hand.R grip (between thumb and fingers), unit scale, -Z looking at the camera (player's eyes)
 const PEN_GRIP := Vector3(0.0, 0.075, -0.035)   # bone-frame offset in metres (bathroom.gd uses the same frame for held props)

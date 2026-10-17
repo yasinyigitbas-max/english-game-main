@@ -139,12 +139,21 @@ func _guide(en: String, at_id: String) -> void:
 	Objectives.complete(en)
 
 # ------------------------------------------------------------------ props + lights
+## open world: this script is a plain Node, so 3D props must hang under a Node3D inside the living room (room-local);
+## as direct children they ignored the room transform and landed at world coordinates (outside the house)
+var _r3: Node3D
+func _n3() -> Node3D:
+	if not is_instance_valid(_r3):
+		_r3 = Node3D.new(); _r3.name = "D4EveningProps"; lr.add_child(_r3)
+		tree_exiting.connect(func(): if is_instance_valid(_r3): _r3.queue_free())
+	return _r3
+
 func _mesh(m: Mesh, p: Vector3, c: Color, emit := 0.0) -> MeshInstance3D:
 	var mi := MeshInstance3D.new(); mi.mesh = m
 	var mat := StandardMaterial3D.new(); mat.albedo_color = c
 	if emit > 0.0: mat.emission_enabled = true; mat.emission = c; mat.emission_energy_multiplier = emit; mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mi.material_override = mat; mi.position = p; mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if emit > 0.0 else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-	add_child(mi); return mi
+	_n3().add_child(mi); return mi
 
 func _props() -> void:
 	if torch: return
@@ -159,9 +168,9 @@ func _props() -> void:
 	var tm := CylinderMesh.new(); tm.top_radius = 0.02; tm.bottom_radius = 0.026; tm.height = 0.2
 	torch = _mesh(tm, TABLE + Vector3(-0.05, 0.026, 0.32), Color(0.12, 0.13, 0.16)); torch.rotation.z = PI / 2
 	var cl := OmniLight3D.new(); cl.light_color = Color(1.0, 0.72, 0.42); cl.omni_range = 4.5; cl.light_energy = 0.0; cl.shadow_enabled = true
-	cl.position = TABLE + Vector3(0, 0.35, -0.25); add_child(cl); candle_light = cl
+	cl.position = TABLE + Vector3(0, 0.35, -0.25); _n3().add_child(cl); candle_light = cl
 	var sp := SpotLight3D.new(); sp.light_color = Color(1.0, 0.97, 0.88); sp.spot_range = 7.0; sp.spot_angle = 28.0; sp.light_energy = 0.0
-	add_child(sp); sp.position = TABLE + Vector3(-0.15, 0.1, 0.32); sp.look_at(Vector3(-3.0, 0.9, 0.6), Vector3.UP); spot = sp
+	_n3().add_child(sp); sp.position = TABLE + Vector3(-0.15, 0.1, 0.32); sp.look_at(lr.to_global(Vector3(-3.0, 0.9, 0.6)), Vector3.UP); spot = sp
 
 func _power_cut() -> void:
 	Audio.sfx("metalClick", 2.0)

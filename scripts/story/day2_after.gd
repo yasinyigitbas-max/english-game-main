@@ -35,7 +35,7 @@ static func run(sc: Node, where: String) -> void:
 			return
 		D2.set_stage("family")
 		if where == "living":
-			var at: Vector3 = sc.N.sofa.global_position + Vector3(0, 0.7, 0) if sc.get("N") and sc.N.has("sofa") else Vector3(1.95, 0.7, 0)
+			var at: Vector3 = sc.to_local(sc.N.sofa.global_position) + Vector3(0, 0.7, 0) if sc.get("N") and sc.N.has("sofa") else Vector3(1.95, 0.7, 0)
 			var opts := {"tr": "Ailenle konuş."}
 			if not _once("guide_family_living"): opts["sound"] = false
 			await Life.guide_to({"pos": at + Vector3(-3.0, 1.4, 0.4), "at": at}, "Talk to your family.", opts)

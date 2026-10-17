@@ -121,6 +121,7 @@ func save_score(key: String, v) -> void:
 
 # ------------------------------------------------------------------ guide / objectives / lines
 func guide(target, en: String) -> void:
+	if target is Dictionary and target.has("pos"): target = {"pos": to_global(target.pos), "at": to_global(target.at)}   # place-local shot -> world
 	await Life.guide_to(target, en, {"tr": tr_line(en)})
 
 func beat(name: String) -> void:   # plays data beats[place][name]: [speaker, line, tr]
@@ -171,7 +172,9 @@ func face(who: Node3D, at: Vector3) -> void:
 	create_tween().tween_property(who, "rotation:y", who.rotation.y + wrapf(y - who.rotation.y, -PI, PI), 0.4)
 
 # ------------------------------------------------------------------ cinematic camera (temporary Camera3D, like Life.guide_to)
+## open world: cine / cine_go / walk_to / guide shots take PLACE-LOCAL coordinates (the place stands rotated in the street)
 func cine(pos: Vector3, at: Vector3, t := 1.4) -> void:
+	pos = to_global(pos); at = to_global(at)
 	pos = _safe_pos(pos, at)
 	var rig := get_viewport().get_camera_3d()
 	if _cine_cam == null:
@@ -187,6 +190,7 @@ func cine(pos: Vector3, at: Vector3, t := 1.4) -> void:
 
 ## non-blocking camera move (returns the tween; await tw.finished when needed)
 func cine_go(pos: Vector3, at: Vector3, t := 1.4) -> Tween:
+	pos = to_global(pos); at = to_global(at)
 	pos = _safe_pos(pos, at)
 	if _cine_cam == null:
 		var rig := get_viewport().get_camera_3d()
@@ -222,6 +226,8 @@ func _rig_xf() -> Transform3D: return cam.global_transform
 
 # ------------------------------------------------------------------ player helpers
 func walk_to(p: Vector3, yaw := INF) -> void:
+	p = to_global(p)
+	if yaw != INF: yaw += global_rotation.y
 	var t := 0.0; player.busy = true
 	if Vector2(p.x - player.global_position.x, p.z - player.global_position.z).length() > 0.15:
 		player.hero.play("walk", 0.2)
@@ -230,7 +236,7 @@ func walk_to(p: Vector3, yaw := INF) -> void:
 			if d.length() < 0.1: break
 			player.velocity = d.normalized() * minf(1.6, d.length() * 4.0 + 0.3)
 			player.hero.rotation.y = lerp_angle(player.hero.rotation.y, atan2(d.x, d.z), 0.25)
-			player.move_and_slide(); player.global_position.y = 0.0
+			player.move_and_slide(); player.global_position.y = global_position.y
 			await get_tree().physics_frame; t += 1.0 / 60.0
 		player.velocity = Vector3.ZERO; player.hero.play("idle", 0.25)
 	if yaw != INF:
@@ -245,7 +251,7 @@ func busy(on: bool) -> void:
 const TARGET_NAMES := {"basket": "basket", "apples": "apples", "milk": "milk", "bread": "bread", "pay": "checkout", "exit": "door", "counter": "counter", "seat": "seat"}
 ## an objective target: Interactable that emits used(id) once enabled
 func target(id: String, pos: Vector3, focus: Vector3, verb_en: String, r := 1.5) -> Interactable:
-	var it := Interactable.new(); it.obj_name = String(TARGET_NAMES.get(id, id)); it.radius = r; it.position = pos; it.focus = focus; add_child(it)
+	var it := Interactable.new(); it.obj_name = String(TARGET_NAMES.get(id, id)); it.radius = r; it.position = pos; it.focus = to_global(focus); add_child(it)   # Interactable.focus is world space
 	it.verbs = func() -> Array: return [[verb_en, func(): used.emit(id)]] if it.enabled else []
 	its[id] = it; return it
 
@@ -266,14 +272,14 @@ func objective(id: String, en: String, cam_shot = null) -> void:
 func qa_use(id: String) -> void:
 	if not its.has(id): return
 	var it: Interactable = its[id]
-	await walk_to(Vector3(it.global_position.x, 0, it.global_position.z))
+	var lp := to_local(it.global_position); await walk_to(Vector3(lp.x, 0, lp.z))
 	used.emit(id)
 
 ## optional chat with an NPC: first time = data npc[place][id] dialogue, later = one short line
 func chat_target(id: String, npc: DemoCharacter, r := 1.6) -> void:
 	var to := (player.global_position if player else Vector3(0, 0, room.y / 2)) - npc.global_position; to.y = 0
 	var it := Interactable.new(); it.obj_name = String({"assistant": "shop assistant", "barista": "barista"}.get(id, "person")); it.radius = r; add_child(it)
-	it.position = npc.global_position + Vector3(0, 0, 0.9).rotated(Vector3.UP, npc.rotation.y); it.focus = npc.global_position + Vector3(0, 1.2, 0)
+	it.position = to_local(npc.global_position + npc.global_basis.z.normalized() * 0.9); it.focus = npc.global_position + Vector3(0, 1.2, 0)   # open world: room-local position, world focus
 	its["npc_" + id] = it
 	it.verbs = func() -> Array:
 		if mode != "play": return []

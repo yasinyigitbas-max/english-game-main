@@ -87,14 +87,14 @@ func reach(tag: String) -> void:
 	if n == null: return
 	_used = ""; _dbg = "reach " + tag
 	if "--qa-d56" in OS.get_cmdline_user_args():
-		await sc.walk_to(_near(n, 1.0))
+		await sc.walk_to(sc.to_local(_near(n, 1.0)))
 		if sc.player.global_position.distance_to(_near(n, 1.0)) > 1.2: sc.player.global_position = _near(n, 1.0)   # QA: blocked by a shelf
 	while is_instance_valid(sc) and is_instance_valid(n):
 		var a: Vector3 = sc.player.global_position; var b := n.global_position; a.y = 0; b.y = 0
 		if _used == "d5_" + tag or a.distance_to(b) < 1.5: break
 		await _w(0.2)
 	sc.busy(true)
-	await sc.walk_to(_near(n, 1.0))
+	await sc.walk_to(sc.to_local(_near(n, 1.0)))
 	_face(sc.player.hero, n.global_position); _face(n, sc.player.global_position)
 
 func _spawn(id: String, g: String, voice: String, pos: Vector3, yaw: float, top: Color, is_child: bool) -> DemoCharacter:
@@ -118,7 +118,7 @@ func act(tag: String) -> void:
 			child = _spawn("d5_child", "men", "child_m", Vector3(1.5, 0, hz - 1.7), PI * 0.85, Color(0.98, 0.85, 0.2), true)
 			child.hair_color = Color(0.36, 0.22, 0.12); child.outfit["Head"] = 0; child._refresh()   # short brown hair, yellow T-shirt (the description)
 			child.bone_offsets["Head"] = [Vector3.RIGHT, 0.35]   # head down, sad
-			await sc.cine(child.global_position + Vector3(-1.6, 1.5, -1.8), child.global_position + Vector3(0, 0.7, 0), 1.2)
+			await sc.cine(sc.to_local(child.global_position + Vector3(-1.6, 1.5, -1.8)), sc.to_local(child.global_position + Vector3(0, 0.7, 0)), 1.2)
 			await _w(1.6)
 			await sc.cine_end()
 		"walk_to_assistant":
@@ -129,7 +129,7 @@ func act(tag: String) -> void:
 				await _w(0.6)
 				_face(child, asst.global_position)
 		"look_at_child":
-			await sc.cine(child.global_position + Vector3(0.9, 1.2, 1.4), child.global_position + Vector3(0, 0.75, 0), 1.0)
+			await sc.cine(sc.to_local(child.global_position + Vector3(0.9, 1.2, 1.4)), sc.to_local(child.global_position + Vector3(0, 0.75, 0)), 1.0)
 		"announce":
 			Audio.sfx("place_bell", -4.0)
 			await sc.cine_end()
