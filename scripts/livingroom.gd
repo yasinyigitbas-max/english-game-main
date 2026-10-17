@@ -150,13 +150,19 @@ var family: Array = []          # seated family members (DemoCharacter)
 var remote_in_hand: Node3D
 
 # ============================================================ setup
+const House := preload("res://scripts/core/house.gd")   # v32wh: whole house
 func _ready() -> void:
+	if House.shell_ready(self, func(): _build_room(); preload("res://scripts/decor/decor_living.gd").build(self)): return   # v32wh: next-door room = geometry only
+	_live_ready()
+
+func _live_ready() -> void:   # v32wh: the v32 _ready (also run when this room's shell turns live)
 	DoorLabel.attach.call_deferred(self, OBJ, {"door_bed": ["Bedroom", "Yatak odası"], "door_bath": ["Bathroom", "Banyo"], "front": ["Outside", "Dışarı"]})   # v30.2
 	S.tr = App.tr_saved(); call_deferred("_refresh_text")   # v29.1: shared persisted TR flag (default off)
 	SEATS.armchair.hips = ARM_C + Vector3(sin(SEATS.armchair.yaw), 0, cos(SEATS.armchair.yaw)) * 0.02
 	_build_env()
-	_build_room()
-	preload("res://scripts/decor/decor_living.gd").build(self)   # decor-living
+	if not has_meta("wh_built"):   # v32wh: a shell turning live already has its geometry
+		_build_room()
+		preload("res://scripts/decor/decor_living.gd").build(self)   # decor-living
 	_build_grid()
 	water_fx = CPUParticles3D.new(); water_fx.amount = 80; water_fx.lifetime = 0.55; water_fx.emitting = false; water_fx.local_coords = false
 	water_fx.direction = Vector3(0, -1, 0); water_fx.spread = 8.0; water_fx.initial_velocity_min = 0.4; water_fx.initial_velocity_max = 0.7
@@ -177,6 +183,7 @@ func _ready() -> void:
 		var qa = load("res://scripts/qa_living.gd").new(); add_child(qa); qa.run(self)
 	else:
 		_intro.call_deferred()
+	House.live_ready(self)   # v32wh: the two other rooms as shells next door
 
 func _intro() -> void:
 	await wait(0.6)
@@ -2004,7 +2011,7 @@ func _house_enter() -> void:
 			if room_phone: room_phone.save()
 			App.patch_save({"living_front": "closed"})
 			Life.event("going_out"); Game.go_to(Game.WORLD_SCENE, "lot:home"); return
-		get_tree().change_scene_to_file.call_deferred("res://main.tscn" if t == "bedroom" else "res://bathroom.tscn"))
+		House.go(self, "res://main.tscn" if t == "bedroom" else "res://bathroom.tscn"))   # v32wh: walk through the door (same scene; House.go defers like call_deferred did)
 
 func spawn_family_breakfast(family_data: Array) -> Array:
 	clear_family_breakfast()

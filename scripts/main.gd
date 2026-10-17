@@ -190,11 +190,17 @@ var cam_override := false
 var mission := ""
 
 # ============================================================ setup
+const House := preload("res://scripts/core/house.gd")   # v32wh: whole house
 func _ready() -> void:
+	if House.shell_ready(self, func(): _build_room(); load("res://scripts/decor/decor_bedroom.gd").build(self)): return   # v32wh: next-door room = geometry only
+	_live_ready()
+
+func _live_ready() -> void:   # v32wh: the v32 _ready (also run when this room's shell turns live)
 	DoorLabel.attach.call_deferred(self, OBJ, {"door": ["Bathroom", "Banyo"], "door_s": ["Living room", "Oturma odası"]})   # v30.2
 	_build_env()
-	_build_room()
-	load("res://scripts/decor/decor_bedroom.gd").build(self)   # v305: static bedroom decor (no lights / obstacles)
+	if not has_meta("wh_built"):   # v32wh: a shell turning live already has its geometry
+		_build_room()
+		load("res://scripts/decor/decor_bedroom.gd").build(self)   # v305: static bedroom decor (no lights / obstacles)
 	_build_grid()
 	water_fx = CPUParticles3D.new(); water_fx.amount = 80; water_fx.lifetime = 0.55; water_fx.emitting = false; water_fx.local_coords = false
 	water_fx.direction = Vector3(0, -1, 0); water_fx.spread = 8.0; water_fx.initial_velocity_min = 0.4; water_fx.initial_velocity_max = 0.7
@@ -237,6 +243,7 @@ func _ready() -> void:
 		var qc = load("res://scripts/qa.gd").new(); add_child(qc); qc.run_cine(self)
 	elif "--qa" in OS.get_cmdline_user_args():
 		var qa = load("res://scripts/qa.gd").new(); add_child(qa); qa.run(self)
+	House.live_ready(self)   # v32wh: the two other rooms as shells next door
 
 func _mat(c: Color, emit := 0.0, alpha := 1.0) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new(); m.albedo_color = Color(c, alpha); m.roughness = 0.85
@@ -759,7 +766,7 @@ func do_verb(id: String, v: Array) -> void:
 		"door_s":
 			await gesture("door", id, func(): Audio.sfx("doorOpen_1"); create_tween().tween_property(N.door_s, "rotation:y", deg_to_rad(-82.0), 1.0))
 			S.door_opened = true; App.came_from = "bedroom"; save_game(); await wait(0.3)
-			await Audio.wait_idle(12.0); get_tree().change_scene_to_file("res://livingroom.tscn"); return
+			await Audio.wait_idle(12.0); House.go(self, "res://livingroom.tscn"); return   # v32wh: walk through the door (same scene)
 		"door" when S.door_locked:
 			await gesture("door", id, func(): _rattle_door())
 			await wait(0.3); caption("I should take my phone first." if (S.created and not S.has_phone) else "The door is locked. Look in the mirror first." if not S.created else ("The door is locked. Choose a job on your phone first." if S.job == "" else "The door is locked. Add your family on your phone first."))
@@ -768,7 +775,7 @@ func do_verb(id: String, v: Array) -> void:
 			await gesture("door", id, func(): S.door = "open"; Audio.sfx("doorOpen_1"); Audio.sfx("creak1", -3.0))
 			S.door_opened = true; _advance(false)
 			App.came_from = "bedroom"; save_game(); await wait(0.5)
-			await Audio.wait_idle(12.0); get_tree().change_scene_to_file("res://bathroom.tscn"); return
+			await Audio.wait_idle(12.0); House.go(self, "res://bathroom.tscn"); return   # v32wh: walk through the door (same scene)
 			await wait(2.2); caption("I am closing the door."); S.door = "closed"; _apply_states(true); await wait(0.9); Audio.sfx("doorClose_2")
 	cam_shot = {}
 	mode = "play"; _update_hand(); action_done.emit(id)

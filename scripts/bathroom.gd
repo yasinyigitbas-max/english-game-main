@@ -160,11 +160,18 @@ func add_obstacle(x0: float, z0: float, x1: float, z1: float) -> void:
 	rect_block(x0, z0, x1, z1); _build_grid()
 
 # ============================================================ setup
+const House := preload("res://scripts/core/house.gd")   # v32wh: whole house
 func _ready() -> void:
+	if House.shell_ready(self, func(): _load_player(); _build_room()): return   # v32wh: next-door room = geometry only
+	_live_ready()
+
+func _live_ready() -> void:   # v32wh: the v32 _ready (also run when this room's shell turns live)
 	DoorLabel.attach.call_deferred(self, OBJ, {"door": ["Living room", "Oturma odası"], "door_bed": ["Bedroom", "Yatak odası"]})   # v30.2
 	Life.event("bathroom")   # house.29: event clock
 	_load_player()
-	_build_env(); _build_room(); _build_grid(); _build_fx()
+	_build_env()
+	if not has_meta("wh_built"): _build_room()   # v32wh: a shell turning live already has its geometry
+	_build_grid(); _build_fx()
 	hero = DemoCharacter.new(); add_child(hero); hero.setup(S.gender); _apply_character()
 	hero.position = Vector3(LX + 0.65, 0, (WD.x + WD.y) / 2); hero.rotation.y = PI / 2   # from the bedroom: inside the west door
 	if App.came_from == "livingroom": hero.position = Vector3((SD.x + SD.y) / 2, 0, FZ - 0.6); hero.rotation.y = PI   # inside the south door
@@ -196,6 +203,7 @@ func _ready() -> void:
 		else: push_warning("bk_extras.gd failed to load; extras disabled")
 	if "--qa-bath" in OS.get_cmdline_user_args():
 		var q = load("res://scripts/qa_bathroom.gd").new(); add_child(q); q.run(self)
+	House.live_ready(self)   # v32wh: the two other rooms as shells next door
 
 ## reads the bedroom's user://save.json (same keys) so the player keeps the look they created
 func _load_player() -> void:
@@ -800,7 +808,7 @@ func do_verb(id: String, v: Array) -> void:
 			else:
 				await gesture("door", id, func(): S.door_bed = "open"; Audio.sfx("doorOpen_1"))
 				if bedroom_scene != "" and ResourceLoader.exists(bedroom_scene):
-					App.came_from = "bathroom"; await wait(0.6); await voice_idle(0.0); get_tree().change_scene_to_file(bedroom_scene); return
+					App.came_from = "bathroom"; await wait(0.6); await voice_idle(0.0); House.go(self, bedroom_scene); return   # v32wh: walk through the door (same scene)
 		"door":
 			if not (S.face_done and S.teeth_done) and WorldState.day < 2:   # v31: day 2+ has no bathroom requirement
 				await gesture("door", id, func(): Audio.sfx("handleSmallLeather"))
@@ -810,7 +818,7 @@ func do_verb(id: String, v: Array) -> void:
 				await walk_to(Vector3((SD.x + SD.y) / 2, 0, FZ + 0.35), 0.0)
 				bathroom_completed.emit()
 				if next_scene != "" and ResourceLoader.exists(next_scene):
-					App.came_from = "bathroom"; await wait(0.3); await voice_idle(0.0); get_tree().change_scene_to_file(next_scene); return
+					App.came_from = "bathroom"; await wait(0.3); await voice_idle(0.0); House.go(self, next_scene); return   # v32wh: walk through the door (same scene)
 				await caption("The living room comes later."); await wait(2.2)
 				await walk_to(OBJ.door.spot, PI)
 	await voice_idle(0.4)
