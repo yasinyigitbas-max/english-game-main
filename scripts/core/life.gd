@@ -7,6 +7,10 @@ const NEED_RATE := {"hunger": 1.0 / 600.0, "thirst": 1.0 / 480.0, "pee": 1.0 / 5
 const NEED_ICON := {"hunger": "Food", "thirst": "Drink", "pee": "Pee", "poop": "Toilet"}
 const SATISFY := {"breakfast": ["hunger", "thirst"], "tea": ["thirst"], "drink": ["thirst"], "glass": ["thirst"], "cup": ["thirst"],
 	"water": ["thirst"], "fridge": ["hunger"], "kitchen": ["hunger"], "snack": ["hunger"], "eat": ["hunger"], "toilet": ["pee", "poop"]}
+## v32-polish GLOBAL TOGGLE (Yasin): phone battery / charging and ALL body needs are switched OFF until further notice.
+## false -> needs and battery never decay (battery stays 100), no needs/battery objectives, prompts, warnings or voice lines,
+## the top-left strip shows only the clock + day, the phone never goes dead. Set true to bring everything back (code kept).
+const NEEDS_ENABLED := false
 var needs := {"hunger": 0.1, "thirst": 0.1, "pee": 0.1, "poop": 0.0}
 var battery := 100.0          # %
 var charging := false
@@ -51,6 +55,15 @@ func _process(dt: float) -> void:
 	var dm := clampf(m - _last_min, 0.0, 120.0); _last_min = m
 	var in_game: bool = sc != null and sc.has_method("caption") and not String(sc.scene_file_path).ends_with("menu.tscn")
 	charging = in_game and sc.get("S") is Dictionary and String(sc.S.get("phone", "")) == "charging"
+	if not NEEDS_ENABLED:   # v32-polish: no decay, no warnings / objectives; strip = clock + day only
+		battery = 100.0; _warned = false
+		for k in needs: needs[k] = 0.0
+		if Objectives.has("charge"): Objectives.set_list(Objectives.items.filter(func(it): return not (it is Dictionary and String(it.get("id", "")) == "charge")), false)
+		var ph0 = sc.get("phone") if sc else null
+		if not (ph0 is CanvasItem) and sc and sc.get("room_phone") != null: ph0 = sc.room_phone.phone
+		_lbl.visible = in_game and not (ph0 is CanvasItem and ph0.visible)
+		if in_game: _lbl.text = "%s   %s %d\n" % [WorldState.clock_text(), App.tx("Day"), WorldState.day]
+		return
 	if charging: battery = minf(battery + dt * 2.0, 100.0)   # house.29: charging in real time (~50 s full)
 	if charging and Objectives.has("charge"): Objectives.complete("charge")   # v30.5
 	if in_game and dm > 0.0:
