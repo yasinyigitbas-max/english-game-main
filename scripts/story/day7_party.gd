@@ -43,6 +43,7 @@ func _before() -> void:
 		return
 	_dark = true; _restore_dark()
 	lr.mode = "busy"; lr._hide_chips(); lr.hand3d.visible = false; lr.stick = Vector2.ZERO
+	if lr.get("touch"): lr.touch.visible = false
 	if lr.wall_fade: lr.wall_fade.force_fade(true)
 	for e in D.get("party", []):
 		if not is_instance_valid(lr): return
@@ -59,7 +60,7 @@ func _do(what: String, e: Dictionary) -> void:
 
 func _reveal() -> void:
 	_dark = false
-	lr.S.ceiling = "on"; lr._apply_states(); Audio.sfx("metalClick", 2.0)
+	lr.S.ceiling = "on"; lr.S.curtains = "open"; _light_env(); Audio.sfx("metalClick", 2.0)
 	_decor()
 	var spots := [Vector3(3.5, 0, -0.9), Vector3(3.5, 0, 0.0), Vector3(3.5, 0, 0.9), Vector3(3.3, 0, 1.7)]
 	var ctr := Vector3.ZERO
@@ -77,8 +78,11 @@ func _reveal() -> void:
 	if not hs.is_empty(): ctr /= float(hs.size())
 	else: ctr = Vector3(3.4, 0, 0.3)
 	Audio.sfx("plop", -2.0); Audio.sfx("plop", 0.0, 1.3)
-	var hp: Vector3 = lr.hero.global_position
-	lr.cam_shot = {"pos": hp + (hp - ctr).normalized() * 1.4 + Vector3(0, 1.6, 0), "at": ctr + Vector3(0, 1.1, 0)}
+	# v33 QA: the old shot (1.4 m behind the player at the front door) was inside the south wall: the screen showed only wall.
+	# Now: inside the room, 3 m in front of the family (TV side).
+	var cp := ctr + Vector3(-3.0, 1.7, 1.0)   # from the TV side: the family jumps up behind the sofa, the player is not in front of the lens
+	cp.z = clampf(cp.z, -2.4, 2.4); cp.x = clampf(cp.x, -2.8, 5.5)
+	lr.cam_shot = {"pos": cp, "at": ctr + Vector3(0, 1.1, 0)}
 	await _w(1.6)
 	for bm in hs:
 		if bm.node is DemoCharacter: bm.node.play("idle", 0.4)
@@ -92,13 +96,14 @@ func _decor() -> void:
 	var lb := Label3D.new(); lb.text = "Congratulations!"; lb.font_size = 96; lb.pixel_size = 0.004; lb.modulate = Color(0.95, 0.35, 0.45)
 	lb.outline_size = 18; lb.outline_modulate = Color(1, 1, 1); lb.position = Vector3(2.6, 2.15, -2.9); add_child(lb)
 
+const CAKE := Vector3(-0.15, 0, -0.4)   # v33 QA: free corner of the coffee table (was inside the fruit bowl)
 func _cake() -> void:
 	var c1 := CylinderMesh.new(); c1.top_radius = 0.16; c1.bottom_radius = 0.16; c1.height = 0.1
-	_mesh(c1, TABLE + Vector3(0, 0.05, -0.2), Color(0.55, 0.36, 0.22))
+	_mesh(c1, TABLE + CAKE + Vector3(0, 0.05, 0), Color(0.55, 0.36, 0.22))
 	var c2 := CylinderMesh.new(); c2.top_radius = 0.165; c2.bottom_radius = 0.165; c2.height = 0.03
-	_mesh(c2, TABLE + Vector3(0, 0.115, -0.2), Color(0.98, 0.9, 0.95))
+	_mesh(c2, TABLE + CAKE + Vector3(0, 0.115, 0), Color(0.98, 0.9, 0.95))
 	var ch := SphereMesh.new(); ch.radius = 0.025; ch.height = 0.05
-	for a in 5: _mesh(ch, TABLE + Vector3(cos(a * TAU / 5) * 0.1, 0.14, -0.2 + sin(a * TAU / 5) * 0.1), Color(0.85, 0.1, 0.15))
+	for a in 5: _mesh(ch, TABLE + CAKE + Vector3(cos(a * TAU / 5) * 0.1, 0.14, sin(a * TAU / 5) * 0.1), Color(0.85, 0.1, 0.15))
 	Audio.sfx("place_clink", -6.0)
 
 # ------------------------------------------------------------------ the week's polaroids

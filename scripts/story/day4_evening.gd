@@ -87,6 +87,7 @@ func _couch() -> void:
 	lr.mode = "busy"
 	await Life.guide_to({"pos": at + Vector3(-3.0, 1.4, 0.4), "at": at}, "Talk to my family.", {"tr": "Ailemle konuş.", "id": "Talk to my family."})
 	lr.mode = "play"; lr._update_hand()
+	if lr.get("touch"): lr.touch.visible = true   # the player walks to the sofa
 	_keep_obj = "Talk to my family."
 	var t0 := Time.get_ticks_msec()
 	while is_instance_valid(lr):
@@ -102,6 +103,7 @@ func _couch() -> void:
 	Objectives.complete("Talk to my family.")
 	if lr.wall_fade: lr.wall_fade.force_fade(true)
 	await _sit()
+	if lr.get("touch"): lr.touch.visible = false   # v33 QA: no joystick / hand button over the couch cinematic
 	_couch_shot = {"pos": Vector3(lr.SOFA_X - 2.6, 1.55, 0.9), "at": Vector3(lr.SOFA_X, 0.85, 0.0)}
 	lr.cam_shot = _couch_shot
 	await _w(1.0); await Audio.wait_idle(12.0)
@@ -170,11 +172,21 @@ func _power_cut() -> void:
 func _restore_dark() -> void:
 	if not _dark: return
 	lr.S.ceiling = "off"; lr.S.floorlamp = "off"; lr.S.tv = "off"; lr._apply_states()
-	_dark_env()
+	_lamp_off = false; _dark_env()
 
 func _dark_env() -> void:
 	if is_instance_valid(lr.sun): lr.sun.light_energy = 0.0
-	if lr.env: lr.env.ambient_light_energy = 0.05
+	if lr.env: lr.env.ambient_light_energy = 0.035; lr.env.ambient_light_color = Color(0.55, 0.62, 0.9)   # moonlit blue, not pitch black
+	# v33 QA: the window showed a bright daytime sky and the table lamp glowed during the power cut
+	if lr.get("N") is Dictionary:
+		if lr.N.get("sky") is StandardMaterial3D: (lr.N.sky as StandardMaterial3D).albedo_color = Color(0.1, 0.11, 0.2)
+		if lr.N.get("tlamp_shade") is MeshInstance3D and not _lamp_off: _lamp_off = true; lr.N.tlamp_shade.material_override = lr._mat(Color(0.98, 0.9, 0.75), 0.0)
+var _lamp_off := false
+
+func _light_env() -> void:   # undo _dark_env (the room's _apply_states() sets sky, sun and ambient energy again)
+	_lamp_off = false
+	if lr.env: lr.env.ambient_light_color = Color(1.0, 0.97, 0.93)
+	lr._apply_states()
 
 func _torch(on: bool) -> void:
 	if spot == null: _props()
@@ -188,7 +200,7 @@ func _candles(on: bool) -> void:
 
 func _lights_on() -> void:
 	_dark = false
-	lr.S.ceiling = "on"; lr._apply_states(); Audio.sfx("metalClick", 2.0)
+	lr.S.ceiling = "on"; _light_env(); Audio.sfx("metalClick", 2.0)
 	if spot: spot.light_energy = 0.0
 
 var _ft := 0.0
@@ -201,6 +213,7 @@ func _process(d: float) -> void:
 	if _kt < 0.4 or not is_instance_valid(lr): return
 	_kt = 0.0
 	if _keep_obj != "" and not Objectives.has(_keep_obj) and lr.mode != "busy": lr._set_mission(_keep_obj)
+	if not _couch_shot.is_empty() and lr.mode == "busy" and lr.get("touch") and lr.touch.visible: lr.touch.visible = false   # Life.guide_to shows it again after each pan
 	if _keep_pose:   # the family stays seated (day3_evening.gd rule)
 		for bm in lr.humans():
 			var seat := String(bm.seat)
@@ -232,6 +245,8 @@ func _end() -> void:
 	if not is_instance_valid(lr): return
 	lr.cam_shot = {}
 	if lr.wall_fade: lr.wall_fade.force_fade(false)
+	_couch_shot = {}
+	if lr.get("touch"): lr.touch.visible = true
 	await bed_prompt()
 
 ## pan to the bedroom door + sound + top-left objective, control back to the player (also used on a continued game)

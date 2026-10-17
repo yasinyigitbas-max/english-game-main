@@ -1,6 +1,6 @@
 # v33-days-4-7-red (red): days 4 and 7 + shared bedtime test bank
 
-Base: english-game-red `v32-polish-red` de3218f. Not run in Godot (QA owns the box): reviewed by reading only.
+Base: english-game-red `v32-polish-red` de3218f. **v33 QA: played start to end in a real Godot 4.7.2 run (see 7).**
 
 ## 1. Shared no-repeat bedtime test bank (for blue's days 5 / 6 too)
 Files: `scripts/story/test_bank.gd` (class_name TestBank, but reference it by PATH), `data/test_bank.json`.
@@ -285,3 +285,58 @@ Family lines are captioned "Name: line" and spoken with `Audio.say_as(en, voice_
 - Day-1 photo on the wall = "breakfast" (shipped still) etc. Days 5 / 6 depend on blue's data (see 4).
 - "My family were on the sofa." (seeded from the existing day-2 test) is BrE plural-agreement. Yasin, please review all new English (data/day4.json, day7.json, test_bank.json days 4 / 7).
 - main.gd `objective()` keeps "Start your day." for all of day 8 (same as the old day-4 placeholder) until a day-8 owner replaces it.
+
+## 7. Real-run QA (v33 QA, Godot 4.7.2, xvfb, opengl3, 1600x720, TR on)
+Harness: `tools/qa_d47/` (`run.sh <4|7>`: honours /workspace/godot.lock + pgrep, fresh save from `make_save.py`, its own
+user:// via XDG_DATA_HOME). `qa_d47.gd` plays the player's part (rooms, shower verb, sofa walk, puzzles, review choices,
+shop exit, bedtime test) at 3x speed and screenshots every objective and every spoken line (/tmp/qa_d47/shots_d4|d7).
+It checks every step that moves the story forward: top-left objective panel, camera pan (cam_shot / temporary camera) in
+the step's window, a spoken line (clip or Piper), exactly ONE bottom-centre caption box with the TR button inside + TR text,
+and NO caption box on the test screen. Also: seated NPC pose while lines play, 10 unique test questions, the test screen
+(no scroll, answers low), the power-cut brightness, the shop checkout flag, polaroids, the day change.
+
+Results of the last real runs (16:46 day 7, 16:48 Istanbul time day 4): day 7 -> 8: 15/15 PASS. Day 4 -> 5: all PASS except one step:
+the day-5 placeholder "Go to the living room." had no pan. That is fixed now (day4_bedtime.gd fallback guide_to) but not re-run.
+Each run: 14 objective steps, about 130 spoken lines, 0 caption-box problems, 0 pose problems, 10/10 unique test
+questions, test screen with no scroll and low answer buttons, power cut mean luminance 0.10-0.14 dark and 0.29-0.36 with
+candles, no script errors from these files. The only engine ERRORs are the box's missing TTS synth at startup and "2
+resources still in use at exit". On Yasin's instruction there was NO Godot run after these last edits: the day-7 reveal camera +
+cake position, the breakfast controls hide, the day-5 fallback pan. They were parse-checked only (gdtoolkit) and wait
+for the combined final test.
+
+Fixed in this pass:
+- day3_morning.gd:261 parse error under 4.7.2 (`var pan :=` could not infer the type) -> broke Day3Morning AND
+  day4_routine.gd (extends it): days 3, 4, 7 never started. Now `var pan: bool`.
+- Outdoor / shop lines were SILENT: UniversalScene.caption -> Voice.say plays clips only (no Piper fallback). New
+  `Day3Morning._cap_out()` (day3_morning.gd) for objectives and pan stops in universal scenes; day4_shop.gd `_me()` for
+  the player's checkout lines. Shop assistant lines ran 0.2 s apart (voice_idle gives up after 8 s): now Audio.wait_idle.
+- livingroom.gd `_advance()`: the room's own "Turn on the TV." / "Sit on the sofa." flashed up for 1 s on day-4/7
+  entries -> the Day4/Day7 routine now owns the objective while it lives (one guard line).
+- Power cut: the window still showed a bright day sky and the table lamp glowed -> dark storm sky, lamp off, cool moonlit
+  ambient (day4_evening.gd `_dark_env` / `_light_env`); lights-on restores everything. The surprise reveal uses it as well.
+- On-screen controls (joystick / hand) hidden during the breakfast, couch and party cinematics (Life.guide_to showed
+  them again after every pan); back for the sofa walk and at the end.
+- Party reveal camera sat inside the south wall (the whole screen was wall) -> TV-side shot of the family behind the
+  sofa. The cake was inside the fruit bowl -> free corner of the coffee table.
+- story_ui.gd:85 `get_meta("on", null)` printed an ERROR every frame while a StoryUI caption was up -> has_meta check.
+- day4_bedtime.gd fallback hand-off (no day-5 code in this branch) now uses guide_to (pan + voice) instead of _advance.
+- TestBank (Yasin's test-screen rule): the whole phone screen with no scrolling, answers + skip as low as possible (a gap
+  above them), the score buttons at the bottom, and the bottom caption box hidden for the whole test (every test
+  line is on the page). `_say_off(t)` shows it only while an off-screen line is spoken.
+
+Blue hand-off checked: day4_bedtime `_handoff()` calls `res://scripts/story/day5_routine.gd` `start(get_tree())` after it
+sets story.d5 = "start" (blue's entry). Day 7 from blue: WorldState.day = 7 + story.d7 = "start" -> Day4Routine.start()
+-> "shower" (the QA day-7 save starts exactly like this and runs to day 8). The day-7 photo wall reads blue's
+data/day5.json / day6.json "recap". data/test_bank.json was not edited here (blue's d5/d6 entries merge cleanly).
+
+Still open / not red's:
+- About 60 new lines per day have no voice clip yet and use the live Piper fallback (list in section 5; the QA log
+  prints them as PIPER_FALLBACK). Family lines without a "v_<voice>" clip are in the narrator voice.
+- world_exterior.gd:43 (blue/black) sets "Walk to the street." on every street entry. It shows for about 2 s before
+  red's "Go to the shop." / "Go back home." replaces it.
+- The living room's unshaded south-wall stub (livingroom.gd `_south_wall`, SHADING_MODE_UNSHADED) stays light cream
+  in the dark room (day-7 entry, power cut) when the default camera looks over it.
+- QA screenshots: the viewport image has an alpha channel, so unshaded / alpha-hash areas looked WHITE in PNG viewers
+  (it is not in the game). The harness now saves RGB.
+- day2_morning.gd uses the same breakfast pan (camera z 3.1, just outside the south wall). It renders fine in game (the
+  "white" was the alpha artefact above). Not changed.
