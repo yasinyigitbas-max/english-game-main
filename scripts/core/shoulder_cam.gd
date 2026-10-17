@@ -37,6 +37,7 @@ var _set_yaw := INF         # yaw last written to a CameraRig (a different value
 var _out_since := -1.0
 var _aside := false
 var _room_house := false
+var _wrote_cy := INF        # cam_yaw last written into a house room
 
 static func ensure(tree: SceneTree) -> Node:
 	var n := tree.root.get_node_or_null("ShoulderCam")
@@ -49,7 +50,7 @@ func _ready() -> void:
 
 ## v34 (blue): start fresh behind the hero next frame (WorldTrip arrival at a destination door: no swoop across town)
 func snap() -> void:
-	pos = Vector3.INF; look = Vector3.INF; _set_yaw = INF; _last_hero = Vector3.INF
+	pos = Vector3.INF; look = Vector3.INF; _set_yaw = INF; _last_hero = Vector3.INF; _wrote_cy = INF
 
 ## House._swap: the whole house moved by d (floating origin)
 func shift(d: Vector3) -> void:
@@ -108,6 +109,8 @@ func _process(dt: float) -> void:
 	# yaw: camera stick, else ease behind a walking hero, or behind the hero looking at the story target
 	var cs = sc.get("cam_stick")
 	if cs is Vector2 and absf(cs.x) > 0.1: yaw -= cs.x * STICK * dt; _manual = 1.5
+	elif _wrote_cy != INF and "cam_yaw" in sc and not (rc is CameraRig) and absf(wrapf(float(sc.cam_yaw) - _wrote_cy, -PI, PI)) > 0.0005:
+		yaw = float(sc.cam_yaw); _manual = 1.5   # v34: the room's mouse drag turned its cam_yaw: follow it (free, no ±1.3 clamp)
 	_manual = maxf(0.0, _manual - dt)
 	var moving := _last_hero != Vector3.INF and dt > 0.0 and Vector2(h.x - _last_hero.x, h.z - _last_hero.z).length() / dt > 0.25
 	_last_hero = h
@@ -123,7 +126,7 @@ func _process(dt: float) -> void:
 	var now := Time.get_ticks_msec() / 1000.0
 	if now >= _next:
 		_next = now + 0.1
-		var boxes := _blockers(sc, chest)
+		var boxes := _blockers(sc, chest); _boxes = boxes
 		var best := [side, k]; var found := false
 		for sd in [side, -side]:
 			for p in PULLS:
@@ -149,12 +152,13 @@ func _process(dt: float) -> void:
 	pos = pos.lerp(want_pos, 1.0 - exp(-dt / TAU_POS)) if dt > 0.0 else pos
 	look = look.lerp(want_look, 1.0 - exp(-dt / TAU_LOOK)) if dt > 0.0 else look
 	# the room's movement stays relative to this camera
-	if "cam_yaw" in sc and not (rc is CameraRig): sc.set("cam_yaw", yaw)
+	if "cam_yaw" in sc and not (rc is CameraRig): sc.set("cam_yaw", yaw); _wrote_cy = yaw
 	if rc is CameraRig: (rc as CameraRig).yaw = yaw; _set_yaw = yaw
 	var cam := get_viewport().get_camera_3d() as Camera3D
 	if cam == null or cam != rc: cam = rc
 	if not cam.has_meta("sc_fov0"): cam.set_meta("sc_fov0", cam.fov)
-	cam.fov = lerpf(cam.fov, FOV, 1.0 - exp(-dt / 0.3)) if dt > 0.0 else cam.fov
+	var want_fov := _guide_fov if tgt != Vector3.INF else FOV
+	cam.fov = lerpf(cam.fov, want_fov, 1.0 - exp(-dt / 0.3)) if dt > 0.0 else cam.fov
 	if pos.distance_to(look) > 0.05: cam.global_transform = Transform3D(Basis.looking_at(look - pos, Vector3.UP), pos)
 
 func _spot(h: Vector3, y: float, sd: float, p: float) -> Vector3:
@@ -216,17 +220,49 @@ static func _blocked(cp: Vector3, target: Vector3, boxes: Array) -> bool:
 
 func cam_fov(c: Camera3D) -> float: return FOV if c == null else maxf(c.fov, 40.0)
 
-## objective pan: move back (and up) along the boom until the hero's chest AND the target both sit inside the view
-## (80 % of the half field of view, the narrower of the two axes on a landscape phone is the vertical one)
+## objective pan: the hero's chest AND the target both sit inside the view (80 % of the half vertical fov).
+## v34 (blue): the pull-back never leaves the room: each candidate (behind, then 35° / 70° to either side, which needs less
+## distance) steps back + up only while the line to the hero stays clear of real walls and under the ceiling; the first
+## candidate that frames both wins. If none does, the best one (most of the frame) is used and the fov opens up just enough
+## (max 84°) instead of backing through a wall. _guide_fov carries that fov to the camera.
+var _guide_fov := FOV
+var _boxes: Array = []
 func _frame_both(h: Vector3, chest: Vector3, tgt: Vector3, y: float, sd: float, fov: float) -> Vector3:
-	var half := deg_to_rad(fov) * 0.5 * 0.8
+	var half := deg_to_rad(maxf(fov, FOV)) * 0.5 * 0.8
 	var mid := chest.lerp(tgt, 0.5)
-	var p := _spot(h, y, sd, 1.0)
-	for i in 12:
-		var f := (mid - p).normalized()
-		if f.angle_to((chest - p).normalized()) <= half and f.angle_to((tgt - p).normalized()) <= half: return p
-		p += Vector3(sin(y), 0, cos(y)) * 0.6 + Vector3(0, 0.3, 0)
-	return p
+	var top := h.y + (2.45 if _indoors(h) else 6.0)
+	var best := Vector3.INF; var best_need := INF
+	for dy in [0.0, 0.6, -0.6, 1.2, -1.2]:
+		var yy: float = y + dy
+		var p := _spot(h, yy, sd, 1.0)
+		if _blocked(p, chest, _boxes): p = _spot(h, yy, sd, 0.55)
+		for i in 13:
+			var need := _need_half(p, mid, chest, tgt)
+			if need <= half: _guide_fov = maxf(fov, FOV); return p
+			if need < best_need: best_need = need; best = p
+			var q := p + Vector3(sin(yy), 0, cos(yy)) * 0.5 + Vector3(0, 0.25, 0)
+			q.y = minf(q.y, top)
+			if _blocked(q, chest, _boxes) or _blocked(q, tgt, _boxes): break   # next step would be behind a wall
+			p = q
+	_guide_fov = clampf(rad_to_deg(best_need / 0.8) * 2.0 + 2.0, FOV, 84.0)
+	return best if best != Vector3.INF else _spot(h, y, sd, 1.0)
+
+func _need_half(p: Vector3, mid: Vector3, a: Vector3, b: Vector3) -> float:
+	var f := (mid - p).normalized()
+	return maxf(f.angle_to((a - p).normalized()), f.angle_to((b - p).normalized()))
+
+## inside a house room or a world place (low ceiling)
+func _indoors(h: Vector3) -> bool:
+	if _room_house: return true
+	for pl in get_tree().get_nodes_in_group("world_places"):
+		if pl.has_method("is_inside_place") and pl.is_inside_place(h): return true
+	return false
+
+## v34 (blue): the rooms' own drag / stick code clamps their cam_yaw to ±1.3 rad (the old fixed room camera); with this
+## one camera the yaw is free (main.gd / livingroom.gd ask this before clamping)
+static func free_yaw(tree: SceneTree) -> bool:
+	var n := tree.root.get_node_or_null("ShoulderCam")
+	return n != null and bool(n.get("enabled"))
 
 ## House._swap shifted the house: put the new current room camera on our view in the same deferred flush (no pop frame)
 func _apply_now() -> void:
