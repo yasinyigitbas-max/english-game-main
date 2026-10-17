@@ -266,13 +266,12 @@ static func _workplace(job: String) -> String:
 	return "work"
 
 func _drive(d: Dictionary) -> void:
-	if ChildDrive.wants_drive(d): ChildDrive.depart(self, d); return   # v33 child-drive: a parent drives a child (adults: unchanged below)
 	var w := W()
 	if not w.has_method("say_line"): return
 	if w.player: w.player.busy = true
 	await w.say_line("I am getting in my car.")
 	var to := "to school" if d.place == "school" else (("to " + String(d.place)) if d.place in ["the mall", "the hospital", "the shop"] else "to work")
-	await w.say_line("I am driving %s." % to)
+	await w.say_line(ChildDrive.child_line("I am driving %s." % to))   # v33: a child says "My mom/dad is driving me ..." (same flow as adults: no visible drive)
 	if w.player: w.player.busy = false
 	match String(d.get("day2", "")):   # v31 day 2
 		"work":
