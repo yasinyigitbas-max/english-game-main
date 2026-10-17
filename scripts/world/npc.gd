@@ -50,7 +50,7 @@ func _talk() -> void:
 	if anim != "sit_idle": hero.play("talk", 0.2)
 	await w.say_line(line)          # the talk animation waits for the line (never cut)
 	await get_tree().create_timer(0.6).timeout
-	if anim != "sit_idle" or mode == "walk": hero.play("walk" if mode == "walk" else anim, 0.3)
+	if anim != "sit_idle" or mode == "walk": hero.play("walk" if mode == "walk" else anim, 0.3, speed / 1.7 if mode == "walk" else 1.0)   # v32 polish: walk clip speed = walking speed after a chat (feet slid: clip at 1.7 m/s, NPC at 1.0-1.35)
 
 func _process(dt: float) -> void:
 	var w := get_tree().current_scene

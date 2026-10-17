@@ -15,6 +15,7 @@ var npc_seed := 100
 var lamp_lights: Array = []
 var fade_mat: StandardMaterial3D
 var _lamp_t := 0.0
+const LAMP_E := 2.4
 
 const DAY := {"bg": Color(0.86, 0.89, 0.93), "amb": Color(1.0, 0.97, 0.93), "amb_e": 0.45, "sun": Color(1.0, 0.95, 0.85), "sun_e": 1.45}
 const NIGHT := {"bg": Color(0.13, 0.16, 0.25), "amb": Color(0.50, 0.58, 0.85), "amb_e": 0.45, "sun": Color(0.6, 0.7, 1.0), "sun_e": 0.12}
@@ -196,8 +197,8 @@ func _street_check(dt: float) -> void:
 func day_k() -> float:
 	var h := WorldState.minutes / 60.0
 	if h < 6.0 or h > 20.5: return 0.0
-	if h < 7.0: return h - 6.0
-	if h > 19.0: return (20.5 - h) / 1.5
+	if h < 7.0: return smoothstep(0.0, 1.0, h - 6.0)            # v32 polish: eased dawn / dusk (was linear with kinks)
+	if h > 19.0: return smoothstep(0.0, 1.0, (20.5 - h) / 1.5)
 	return 1.0
 
 func _apply_light(force: bool) -> void:
@@ -207,19 +208,42 @@ func _apply_light(force: bool) -> void:
 	sun.light_color = NIGHT.sun.lerp(DAY.sun, k); sun.light_energy = lerpf(NIGHT.sun_e, DAY.sun_e, k)
 	var night := k < 0.5
 	Foliage.set_night(night)
-	_lamp_t -= get_process_delta_time()
-	if _lamp_t > 0.0 and not force: return
-	_lamp_t = 0.5
-	var pts: Array = []
-	if night:
-		for b in grid.loaded.values():
-			if b is CityBlock and b.fol.has("lamp"):
-				for e in b.fol.lamp: pts.append(b.global_transform * (e[0] as Transform3D) * Vector3(0, 3.9, -0.85))
-		var pp := player.global_position
-		pts.sort_custom(func(a, b2): return a.distance_squared_to(pp) < b2.distance_squared_to(pp))
-	for i in lamp_lights.size():
-		lamp_lights[i].visible = night and i < pts.size()
-		if lamp_lights[i].visible: lamp_lights[i].global_position = pts[i]
+	# v32 polish: street lamps fade in over dusk (0 at k 0.55 -> full at k 0.4) instead of all popping on at k 0.5, and the
+	# 6 real lights keep their lamp post while it stays among the 6 nearest; a light that moves to a new post fades in
+	# there (it used to jump between posts every 0.5 s while walking: visible light pops on the road)
+	var nf := clampf((0.55 - k) / 0.15, 0.0, 1.0)
+	var dt := get_process_delta_time()
+	_lamp_t -= dt
+	if _lamp_t <= 0.0 or force:
+		_lamp_t = 0.5
+		var pts: Array = []
+		if nf > 0.0:
+			for b in grid.loaded.values():
+				if b is CityBlock and b.fol.has("lamp"):
+					for e in b.fol.lamp: pts.append(b.global_transform * (e[0] as Transform3D) * Vector3(0, 3.9, -0.85))
+			var pp := player.global_position
+			pts.sort_custom(func(a, b2): return a.distance_squared_to(pp) < b2.distance_squared_to(pp))
+			pts = pts.slice(0, lamp_lights.size())
+		var idle_l: Array = []
+		for l in lamp_lights:
+			var keep := -1
+			if l.has_meta("post"):
+				for i in pts.size():
+					if (pts[i] as Vector3).distance_to(l.global_position) < 0.05:
+						keep = i
+						break
+			if keep >= 0:
+				pts.remove_at(keep)
+			else:
+				l.remove_meta("post")
+				idle_l.append(l)
+		for l in idle_l:
+			if pts.is_empty(): break
+			l.global_position = pts.pop_front(); l.set_meta("post", true); l.light_energy = 0.0
+	for l in lamp_lights:
+		var tgt: float = LAMP_E * nf if l.has_meta("post") else 0.0
+		l.light_energy = tgt if force else move_toward(l.light_energy, tgt, LAMP_E * dt * 1.8)
+		l.visible = l.light_energy > 0.01
 
 
 ## "grass" or "pave" under a world position (footstep sounds)

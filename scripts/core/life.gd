@@ -65,7 +65,8 @@ func _process(dt: float) -> void:
 	if not (ph is CanvasItem) and sc and sc.get("room_phone") != null: ph = sc.room_phone.phone   # v31: living room / outside phone too
 	_lbl.visible = in_game and not (ph is CanvasItem and ph.visible)   # v29.1: not drawn over the open phone (it has its own status bar)
 	if in_game:
-		var t := "%s   %s %d   %s %d%%%s\n" % [WorldState.clock_text(), App.tx("Day"), WorldState.day, App.tx("Battery"), int(battery), (" (%s)" % App.tx("charging")) if charging else ""]
+		# v32 blue: status line stays English (TR text only inside the shared caption box; it mixed "Gün 3 Pil" with "Food!")
+		var t := "%s   Day %d   Battery %d%%%s\n" % [WorldState.clock_text(), WorldState.day, int(battery), " (charging)" if charging else ""]
 		for k in needs: if needs[k] > 0.6: t += "%s!  " % NEED_ICON[k]
 		_lbl.text = t
 
@@ -206,8 +207,13 @@ func guide_to(target, text: String, opts := {}) -> void:
 			tmp.global_transform = rig.global_transform; tmp.current = true
 			pan_tw = sc.create_tween() if sc else create_tween()
 			var from_pos := rig.global_position
+			# v32 polish (blue): the rotation is slerped with the position (look_at() on frame 1 snapped the view to the
+			# target before the camera moved), eased in and out
+			var from_q := rig.global_transform.basis.get_rotation_quaternion()
+			var dv: Vector3 = shot.at - shot.pos
+			var to_q := (Basis.looking_at(dv, Vector3.UP) if absf(dv.normalized().y) < 0.99 else rig.global_transform.basis).get_rotation_quaternion()
 			pan_tw.tween_method(func(k):
-				if is_instance_valid(tmp): tmp.global_position = from_pos.lerp(shot.pos, k);tmp.look_at(shot.at), 0.0, 1.0, 1.2).set_trans(Tween.TRANS_SINE)
+				if is_instance_valid(tmp): tmp.global_transform = Transform3D(Basis(from_q.slerp(to_q, k)), from_pos.lerp(shot.pos, k)), 0.0, 1.0, 1.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	var t0 := Time.get_ticks_msec()
 	if speak: await _guide_say(sc, text)
 	# v31: the pan waits for its OWN tween (+ the 2.6 s hold), never just the spoken line (short lines freed tmp mid-pan)
@@ -216,7 +222,7 @@ func guide_to(target, text: String, opts := {}) -> void:
 	if left > 0.0: await get_tree().create_timer(left, false).timeout
 	if used_temp and is_instance_valid(tmp) and is_instance_valid(rig):
 		var back := sc.create_tween() if sc else create_tween()
-		back.tween_property(tmp, "global_transform", rig.global_transform, 0.8).set_trans(Tween.TRANS_SINE)
+		back.tween_property(tmp, "global_transform", rig.global_transform, 0.9).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)   # v32 polish (blue): eased out too
 		await back.finished
 		if is_instance_valid(rig): rig.current = true
 		if is_instance_valid(tmp): tmp.queue_free()

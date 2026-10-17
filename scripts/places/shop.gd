@@ -6,6 +6,7 @@ extends PlaceBase
 
 const CK := Vector3(3.6, 0, 2.3)     # checkout counter centre
 var walker_t := 0.0
+const WALKER_V := 1.1   # m/s (the walk clip matches 1.7 m/s at speed 1.0)
 var walker_path := [Vector3(-3.4, 0, 1.2), Vector3(-3.4, 0, -3.3), Vector3(-0.75, 0, -3.3), Vector3(-0.75, 0, 1.2), Vector3(1.75, 0, 1.2), Vector3(1.75, 0, -3.3), Vector3(-0.75, 0, -3.3), Vector3(-0.75, 0, 1.2)]
 var walker_i := 0
 var basket_items: Array = []
@@ -30,7 +31,7 @@ func build() -> void:
 		box(Vector3(0.05, 0.4, 1.2), Vector3(x, 2.55, -1.0), Color(0.2, 0.45, 0.35), false)
 		var sg: String = ["2  Rice & Pasta", "3  Drinks & Snacks", "5  Tins & Jars"][a]
 		label(sg, Vector3(x + 0.03, 2.55, -1.0), 40, Color.WHITE, PI / 2); label(sg, Vector3(x - 0.03, 2.55, -1.0), 40, Color.WHITE, -PI / 2)
-		cyl(0.008, 0.6, Vector3(x, 3.0, -1.0), Color(0.3, 0.3, 0.3))
+		cyl(0.008, 0.36, Vector3(x, 2.88, -1.0), Color(0.3, 0.3, 0.3))   # v32 polish: cord ends on the ceiling beam (was 0.6 m into the open sky)
 	# ---- fruit & veg crates near the door (left)
 	var crates := [["apple", Color(0.85, 0.2, 0.2)], ["banana", Color(0.95, 0.85, 0.3)], ["orange", Color(1.0, 0.6, 0.15)], ["tomato", Color(0.9, 0.25, 0.2)], ["carrot", Color(1.0, 0.55, 0.2)], ["broccoli", Color(0.3, 0.6, 0.3)]]
 	for k in crates.size():
@@ -42,6 +43,7 @@ func build() -> void:
 			for n in 7: food(String(crates[k][0]), c + Vector3(-0.25 + (n % 4) * 0.17, 0.62 + int(n / 4) * 0.06, -0.15 + int(n / 4) * 0.25 + (n % 2) * 0.06), 0.16 if crates[k][0] != "banana" else 0.18, n * 47.0)
 		label(["Apples 0.40", "Bananas 0.25", "Oranges 0.40", "Tomatoes 0.20", "Carrots 0.15", "Broccoli 0.90"][k], c + Vector3(0, 0.75, -0.41 if k < 3 else 0.41), 26, Color(0.1, 0.1, 0.1), PI if k < 3 else 0.0, Color(1, 1, 1, 0.9))
 	label("1  Fruit & Veg", Vector3(-4.25, 2.55, 2.1), 44, Color.WHITE)
+	for x in [-4.85, -3.65]: cyl(0.008, 0.36, Vector3(x, 2.88, 2.07), Color(0.3, 0.3, 0.3))   # v32 polish: the sign hung from nothing
 	box(Vector3(1.6, 0.4, 0.05), Vector3(-4.25, 2.55, 2.07), Color(0.2, 0.45, 0.35), false)
 	# ---- fridges with milk along the back wall
 	for i in 4:
@@ -75,7 +77,12 @@ func build() -> void:
 	for k in 4: model("res://props/places/basket.tscn", Vector3(-1.6, k * 0.12, 3.7), 0, 0.0, 0.42, k == 0)
 	label("Baskets", Vector3(-1.6, 1.0, 3.95), 36, Color(0.15, 0.15, 0.15), PI, Color(1, 1, 1, 0.9))
 	# lights: long emissive ceiling panels + one omni (no shadows)
-	for x in [-3.5, -0.8, 1.7, 4.2]: box(Vector3(0.3, 0.04, 6.5), Vector3(x, 2.97, 0), Color(1.0, 0.98, 0.92), false, 0.0, 0.8)
+	# v32 polish: the light panels floated in the air (no ceiling, 6.5 m in a 9 m room). Now they hang under steel rails that
+	# run wall to wall, and two cross beams carry the hanging aisle signs, so nothing floats in the top-down view.
+	for x in [-3.5, -0.8, 1.7, 4.2]:
+		box(Vector3(0.08, 0.08, room.y - 0.14), Vector3(x, 2.96, 0), Color(0.32, 0.33, 0.35), false)
+		box(Vector3(0.26, 0.03, room.y - 0.6), Vector3(x, 2.905, 0), Color(1.0, 0.98, 0.92), false, 0.0, 0.8)
+	for z in [-1.0, 2.07]: box(Vector3(room.x - 0.14, 0.06, 0.06), Vector3(0, 3.03, z), Color(0.32, 0.33, 0.35), false)
 	var omni := OmniLight3D.new(); omni.position = Vector3(0, 2.9, 0); omni.omni_range = 9.0; omni.light_energy = 0.35; omni.light_specular = 0.0; add_child(omni)
 	label("FRESH MARKET", Vector3(0, 2.6, hz - 0.1), 90, Color(0.3, 0.6, 0.35), PI)
 	for p in [Vector3(-hx + 0.4, 0, hz - 0.4), Vector3(hx - 0.4, 0, hz - 0.4)]: furn("pottedPlant", p, 0, 1.1, 0.0, true)
@@ -140,10 +147,10 @@ func _shelf_unit(c: Vector3, length: float, seed_i: int) -> void:
 func run() -> void:
 	Audio.music("shop_pop")
 	busy(true)
+	if not done("enter"): await cine(Vector3(5.0, 2.8, 4.0), Vector3(-1.0, 1.0, -2.0), 0.01)   # v32 polish: cut to the opening shot UNDER the fade-in (was a visible snap 0.6 s after it)
 	await get_tree().create_timer(0.6).timeout
-	Audio.sfx("place_bell", -6.0)
+	Audio.sfx("place_bell", -8.0)
 	if not done("enter"):
-		await cine(Vector3(5.0, 2.8, 4.0), Vector3(-1.0, 1.0, -2.0), 0.01)
 		var pan := cine_go(Vector3(-4.5, 2.6, 3.6), Vector3(1.5, 1.0, -2.5), 5.0)
 		await beat("enter")
 		if pan.is_running(): await pan.finished
@@ -155,13 +162,13 @@ func run() -> void:
 	if not done("shopping"):
 		if card_layer == null: show_list()
 		await objective("basket", "Take a basket.")
-		await walk_to(Vector3(-1.6, 0, 3.0), 0.0); player.hero.play("pick_up", 0.25); Audio.sfx("place_bag", -8.0)
+		await walk_to(Vector3(-1.6, 0, 3.0), 0.0); player.hero.play("pick_up", 0.25); Audio.sfx("place_bag", -3.0)
 		await say_line("I'm taking a basket.")
 		player.hero.hold_item("res://props/places/basket.tscn", "long", 0.4, true); player.hero.play("idle", 0.3)
 		await objective("apples", "Get six apples.", {"pos": Vector3(-4.2, 1.7, 0.2), "at": Vector3(-5.2, 0.7, 1.6)})
 		await _pick(Vector3(-5.2, 0, 0.75), 0.0, {"pos": Vector3(-3.95, 1.55, 0.95), "at": Vector3(-5.2, 0.62, 1.7)}, "fruit", "apple")
 		await objective("milk", "Get a bottle of milk.", {"pos": Vector3(-2.6, 1.7, -1.8), "at": Vector3(-3.5, 1.2, -3.9)})
-		await _pick(Vector3(-3.5, 0, -3.15), PI, {"pos": Vector3(-2.9, 1.5, -2.5), "at": Vector3(-3.5, 1.1, -3.7)}, "milk", "carton")
+		await _pick(Vector3(-3.5, 0, -3.15), PI, {"pos": Vector3(-1.9, 1.7, -3.3), "at": Vector3(-3.4, 1.15, -3.75)}, "milk", "carton")   # v32 polish: side shot (the old one sat 0.8 m behind the head: the camera clipped into the player)
 		await objective("bread", "Get a loaf of bread.", {"pos": Vector3(3.4, 1.8, -1.8), "at": Vector3(4.6, 1.0, -3.8)})
 		await _pick(Vector3(4.6, 0, -2.85), PI, {"pos": Vector3(4.0, 1.5, -2.4), "at": Vector3(4.6, 1.0, -3.8)}, "bread", "loaf")
 		await objective("pay", "Pay at the checkout.", {"pos": Vector3(1.5, 2.0, 3.6), "at": CK + Vector3(0, 1.1, 0)})
@@ -210,14 +217,14 @@ func checkout() -> void:
 		var tw := create_tween(); tw.tween_property(it, "position", CK + Vector3(-0.1, it.position.y, -0.3), 0.8)
 		if k == 0: await cine(CK + Vector3(-0.9, 1.5, 0.6), CK + Vector3(-0.1, 0.98, -0.3), 0.8)
 		if tw.is_valid() and tw.is_running(): await tw.finished
-		Audio.sfx("place_beep", -6.0)
+		Audio.sfx("place_beep", -13.0)
 		var tw2 := create_tween(); tw2.tween_property(it, "position", CK + Vector3(-0.1, it.position.y, -0.75 + k * 0.12), 0.3)
 	await cine(CK + Vector3(-1.2, 1.7, -0.9), CK + Vector3(0.1, 1.2, -0.75), 1.0)
 	await speak("assistant", L[2][1])
-	player.hero.play("pick_up", 0.25); Audio.sfx("place_coins", -6.0)
-	await speak("me", L[3][1]); Audio.sfx("place_till", -8.0)
+	player.hero.play("pick_up", 0.25); Audio.sfx("place_coins", -8.0)
+	await speak("me", L[3][1]); Audio.sfx("place_till", -4.0)
 	await speak("assistant", L[4][1]); await speak("me", L[5][1])
-	Audio.sfx("place_bag", -6.0)
+	Audio.sfx("place_bag", -3.0)
 	for p in placed: p.queue_free()
 	player.hero.hold_item(FOOD + "bag.glb", "long", 0.42, true)
 	await cine(CK + Vector3(-1.8, 1.6, 0.2), CK + Vector3(0.6, 1.3, -0.35), 1.0)
@@ -225,19 +232,31 @@ func checkout() -> void:
 	player.hero.play("idle", 0.3)
 	await cine_end()
 
-func lively(dt: float) -> void:   # one customer walks the aisles with a basket
+## v32 polish: one customer walks the aisles with a basket (walk clip speed matched to 1.1 m/s: no sliding feet; idle pose
+## when she stops), the bakery customer browses (pick-up clip, never frozen on its last frame), the assistant glances / types.
+var _amb_t := 4.0
+var _wsteps := {}
+func lively(dt: float) -> void:
 	if not npcs.has("c1"): return
+	if mode == "play":
+		glance("assistant", dt, 8.0, 0.25); glance("c2", dt, 6.0, 0.35)
+		_amb_t -= dt
+		if _amb_t <= 0.0:
+			_amb_t = randf_range(5.0, 8.0)
+			if randi() % 2 == 0: gesture(npcs.c2, "pick_up", maxf(0.6, npcs.c2.anim_length("pick_up") - 0.1))
+			elif CK.distance_to(player.global_position) > 2.5: gesture(npcs.assistant, "typing", 3.0)
 	var w: DemoCharacter = npcs.c1
 	var tgt: Vector3 = walker_path[walker_i]
 	var d := tgt - w.position; d.y = 0
 	if walker_t > 0.0:
 		walker_t -= dt
-		if walker_t <= 0.0: w.play("walk", 0.3)
+		if walker_t <= 0.0: w.set_meta("pose", "walk"); w.play("walk", 0.3, WALKER_V / 1.7)
 		return
 	if d.length() < 0.08:
 		walker_i = (walker_i + 1) % walker_path.size()
-		if walker_i % 2 == 0: walker_t = 2.5; w.play("idle", 0.3)
+		if walker_i % 2 == 0: walker_t = 2.5; w.set_meta("pose", "idle"); w.play("idle", 0.3)
 		return
-	if w.get_meta("pose") != "walk": w.set_meta("pose", "walk"); w.play("walk", 0.3)
-	w.position += d.normalized() * minf(dt * 1.0, d.length())
-	w.rotation.y = lerp_angle(w.rotation.y, atan2(d.x, d.z), 0.15)
+	if w.get_meta("pose") != "walk" or w.player.current_animation != "walk": w.set_meta("pose", "walk"); w.play("walk", 0.3, WALKER_V / 1.7)
+	w.position += d.normalized() * minf(dt * WALKER_V, d.length())
+	if Footsteps.contact(w.player, w.anim_length("walk"), _wsteps): Footsteps.npc_step(w, player.global_position)   # v32 polish: her steps are heard like the street NPCs'
+	w.rotation.y = lerp_angle(w.rotation.y, atan2(d.x, d.z), 1.0 - exp(-8.0 * dt))

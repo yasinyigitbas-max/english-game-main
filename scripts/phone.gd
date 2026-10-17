@@ -1236,8 +1236,8 @@ func _words() -> void:
 		rh.mouse_filter = Control.MOUSE_FILTER_IGNORE; row.add_child(rh)
 		var we := _l(w.en, 22, true); we.size_flags_horizontal = Control.SIZE_EXPAND_FILL; we.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		we.size_flags_vertical = Control.SIZE_FILL; we.clip_text = true; we.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; rh.add_child(we)
-		var wt := _l(w.tr, 15, false, TR_C); wt.vertical_alignment = VERTICAL_ALIGNMENT_CENTER; wt.size_flags_vertical = Control.SIZE_FILL
-		wt.clip_text = true; wt.size_flags_horizontal = Control.SIZE_EXPAND_FILL; wt.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		var wt := _trl(_l(w.tr, 15, false, TR_C)); wt.vertical_alignment = VERTICAL_ALIGNMENT_CENTER; wt.size_flags_vertical = Control.SIZE_FILL
+		wt.clip_text = false; wt.size_flags_horizontal = Control.SIZE_SHRINK_END; wt.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT   # v32 polish (blue): full width for the meaning (words with ı/ç came out blank in the 50/50 split); the English word trims instead
 		wt.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; rh.add_child(wt)   # v32 polish (blue): meaning follows the TR toggle (Turkish showed with TR off)
 		var word: String = w.en
 		row.pressed.connect(func(): App.say_word(word)); grid.add_child(row)

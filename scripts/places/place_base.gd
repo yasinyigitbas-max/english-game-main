@@ -114,7 +114,7 @@ func npc_line(npc: DemoCharacter, en: String) -> void:
 	var pose: String = npc.get_meta("pose", "idle")
 	if pose == "idle": npc.play("talk", 0.25)
 	face(npc, player.global_position)
-	_mute_next = true; hud.caption(en, maxf(4.5, Voice.clip_len("v_%s %s" % [npc.get_meta("voice"), Audio.norm(en)]) + 1.0)); _mute_next = false
+	_mute_next = true; hud.caption(en, read_secs(en, Voice.clip_len("v_%s %s" % [npc.get_meta("voice"), Audio.norm(en)])))   # v32 polish: reading time; _mute_next = false
 	if S.get("voice", true):
 		Audio.say_as(en, String(npc.get_meta("voice")))
 		await get_tree().create_timer(0.2).timeout
@@ -128,6 +128,7 @@ func face(who: Node3D, at: Vector3) -> void:
 
 # ------------------------------------------------------------------ cinematic camera (temporary Camera3D, like Life.guide_to)
 func cine(pos: Vector3, at: Vector3, t := 1.4) -> void:
+	pos = _safe_pos(pos, at)
 	var rig := get_viewport().get_camera_3d()
 	if _cine_cam == null:
 		_cine_cam = Camera3D.new(); _cine_cam.fov = 50.0; add_child(_cine_cam)
@@ -142,6 +143,7 @@ func cine(pos: Vector3, at: Vector3, t := 1.4) -> void:
 
 ## non-blocking camera move (returns the tween; await tw.finished when needed)
 func cine_go(pos: Vector3, at: Vector3, t := 1.4) -> Tween:
+	pos = _safe_pos(pos, at)
 	if _cine_cam == null:
 		var rig := get_viewport().get_camera_3d()
 		_cine_cam = Camera3D.new(); _cine_cam.fov = 50.0; add_child(_cine_cam)
@@ -153,11 +155,21 @@ func cine_go(pos: Vector3, at: Vector3, t := 1.4) -> Tween:
 	_cine_tw = tw
 	return tw
 
+## v32 polish: a cinematic camera never sits inside / right behind the player's head: pull it back along the shot
+func _safe_pos(pos: Vector3, at: Vector3) -> Vector3:
+	if player == null or not is_instance_valid(player): return pos
+	var p := pos; var back := (pos - at).normalized()
+	for i in 10:
+		var c: Vector3 = player.global_position
+		if Vector2(p.x - c.x, p.z - c.z).length() > 0.6 or p.y > 2.3: break
+		p += back * 0.2
+	return p
+
 func cine_end() -> void:
 	if _cine_cam == null: return
 	var c := _cine_cam; _cine_cam = null
 	if _cine_tw and _cine_tw.is_valid(): _cine_tw.kill()
-	var tw := c.create_tween(); tw.tween_property(c, "global_transform", _rig_xf(), 0.8).set_trans(Tween.TRANS_SINE)
+	var tw := c.create_tween(); tw.tween_property(c, "global_transform", _rig_xf(), 0.9).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)   # v32 polish: eased in AND out (was ease-in only: a hard stop on the rig)
 	await tw.finished
 	cam.current = true
 	c.queue_free(); _hud_hide(false)
@@ -295,7 +307,7 @@ func exit_door(pos: Vector3, focus: Vector3) -> void:
 	target("exit", pos, focus, "Go outside")
 
 func leave() -> void:
-	Audio.sfx("place_bell", -6.0); Audio.sfx("doorOpen_1", -4.0)
+	Audio.sfx("place_bell", -8.0); Audio.sfx("doorOpen_1", -4.0)
 	save_game(); App.came_from = place_id
 	await get_tree().create_timer(0.6).timeout
 	Audio.music("")
@@ -409,3 +421,28 @@ func _process(dt: float) -> void:
 	lively(dt)
 
 func lively(_dt: float) -> void: pass   # override: ambient NPC motion
+
+## v32 polish: ambient life helpers for NPCs outside the scripted beats (call from lively() only while mode == "play").
+## glance(): every few seconds the NPC eases its body toward a nearby direction and back (never a snap).
+var _glance_t := {}
+func glance(id: String, dt: float, every := 6.0, amp := 0.35) -> void:
+	if not npcs.has(id): return
+	var n: DemoCharacter = npcs[id]
+	if not n.has_meta("home_yaw"): n.set_meta("home_yaw", n.rotation.y)
+	if bool(n.get_meta("gesturing", false)): return
+	var t: float = float(_glance_t.get(id, randf_range(1.5, every))) - dt
+	if t <= 0.0:
+		t = randf_range(every * 0.7, every * 1.3)
+		var to: float = float(n.get_meta("home_yaw")) + (randf_range(-amp, amp) if randf() < 0.7 else 0.0)
+		n.create_tween().tween_property(n, "rotation:y", n.rotation.y + wrapf(to - n.rotation.y, -PI, PI), 1.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_glance_t[id] = t
+
+## gesture(): play anim for `hold` s (one-shot clips: pass their length so the last frame never freezes), then blend back
+func gesture(n: DemoCharacter, anim: String, hold: float) -> void:
+	if n == null or bool(n.get_meta("gesturing", false)) or not n.player.has_animation(anim): return
+	var pose: String = n.get_meta("pose", "idle")
+	n.set_meta("gesturing", true); n.play(anim, 0.35)
+	await get_tree().create_timer(hold).timeout
+	if not is_instance_valid(n): return
+	if n.player.current_animation == anim: n.play(pose, 0.4)
+	n.set_meta("gesturing", false)
