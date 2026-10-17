@@ -52,6 +52,7 @@ signal place_exited(place_id: String)
 func _ready() -> void:
 	D = App.load_json(DATA)
 	TRD = D.get("tr", {})
+	if has_meta("ow_shell"): build(); _room(); return   # v34 open world (phase 1): geometry, furniture and NPCs only
 	WorldState.ensure_loaded(); WorldState.scene = scene_file_path
 	_env()
 	hud = (load("res://ui/shared/hud.tscn") as PackedScene).instantiate(); add_child(hud)

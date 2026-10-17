@@ -61,6 +61,26 @@ func attach_camera(c: CameraRig, dist: float, pitch: float) -> void:
 
 func face(yaw: float) -> void: hero.rotation.y = yaw
 
+## v34 open world (World API): scripted walk in a straight line (story code moves the ONE hero; never spawns one)
+func move_to(p: Vector3, yaw := INF) -> void:
+	busy = true
+	var to := Vector3(p.x, global_position.y, p.z)
+	hero.player.play("walk", 0.3)
+	while is_inside_tree() and Vector2(to.x - global_position.x, to.z - global_position.z).length() > 0.08:
+		var dt := get_physics_process_delta_time()
+		var d := to - global_position; d.y = 0
+		hero.rotation.y = lerp_angle(hero.rotation.y, atan2(d.x, d.z), 1.0 - exp(-12.0 * dt))
+		global_position += d.normalized() * minf(WALK * dt, d.length())
+		await get_tree().physics_frame
+	PlayerController.stop_if_walking(hero)
+	if yaw != INF: face(yaw)
+	busy = false
+## v34 open world: put the hero at a door / spot id (World.spot) - only for skip_travel (car, bus, ambulance)
+func place_at(id: String) -> void:
+	var w = load("res://scripts/core/world.gd")
+	var p: Vector3 = w.spot(id)
+	global_position = Vector3(p.x, floor_y, p.z)
+
 func _physics_process(dt: float) -> void:
 	var v := Vector2(Input.get_axis("ui_left", "ui_right"), Input.get_axis("ui_up", "ui_down"))
 	if Input.is_physical_key_pressed(KEY_A): v.x -= 1

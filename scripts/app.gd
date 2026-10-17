@@ -2,7 +2,7 @@ extends Node
 ## Menu state: settings, save detection, UI strings (TR/EN), word voice clips.
 
 ## >>> INTEGRATION HOOK: the game's main scene (english_game_3dv2/main.tscn). <<<
-const GAME_SCENE := "res://main.tscn"
+const GAME_SCENE := "res://scenes/world.tscn"   # v34 open world preview (phase 1 skeleton); was res://main.tscn
 ## 3dv2 has no save system yet, so the menu uses this path. The game should write it.
 var SAVE_PATH: String = SavePath.P()   # v29.1: --save-path= / GAME_SAVE_PATH override for QA
 const SETTINGS_PATH := "user://menu_settings.cfg"

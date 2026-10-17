@@ -1,0 +1,355 @@
+class_name World
+extends UniversalScene
+## v34 open world (phase 1 skeleton, black): ONE gameplay scene. Every place is built once at load at a fixed world
+## position and never freed, rebuilt or shifted: the street (all city blocks), the house (bedroom, bathroom, living
+## room inside the home lot), the cafe and the shop interiors inside their street lots. One hero (WorldPlayer), one
+## camera (CameraRig driven by blue's shoulder camera), one HUD. Doors are the rooms' own hinged leaves: they swing
+## open when the hero comes close and close behind, so you see the furnished room behind them. No change_scene, no fade.
+## Phase 1 = geometry + walking only: the rooms / places run no story code yet (red ports it onto this API).
+## See OPENWORLD_PLAN.md for positions, door ids, the API and the culling setup.
+const HouseC := preload("res://scripts/core/house.gd")
+const BEDROOM := "res://main.tscn"
+const BATHROOM := "res://bathroom.tscn"
+const LIVING := "res://livingroom.tscn"
+const CAFE := "res://scenes/places/cafe.tscn"
+const SHOP := "res://scenes/places/shop.tscn"
+## fixed world placement (house: living room origin on the home lot, from the v33 town layout; rooms keep the v32wh offsets)
+const HOUSE_AT := Vector3(-5.35, 0.1, -0.4)
+const PLACES := {
+	"bedroom": [BEDROOM, Vector3(0, 0, -6.0), 0.0], "bathroom": [BATHROOM, Vector3(5.95, 0, -4.75), 0.0], "livingroom": [LIVING, Vector3.ZERO, 0.0],
+	"cafe": [CAFE, Vector3(8.5, 0.07, 32.5), PI], "shop": [SHOP, Vector3(-3.0, 0.07, 33.5), PI],
+}
+const HOME_LOTS := {"home": "livingroom", "cafe": "cafe", "corner_shop": "shop"}
+## reserved region slots (phase 2, red/blue): fenced off the public streets, reached by World.skip_travel
+const RESERVED := {"hospital": Vector3(0, 0, -120), "school": Vector3(120, 0, -120), "work": Vector3(-120, 0, -120)}
+const SPOTS := {"hospital_ward": Vector3(0, 0, -118), "school_desk": Vector3(120, 0, -118), "work_desk": Vector3(-120, 0, -118)}
+const FENCE_DAY := 8
+const LIGHT_NEAR := 14.0         # omni lights farther than this from the hero are off
+const VIS_END := 70.0            # small props are not drawn beyond this
+
+static var inst: World
+signal entered(region: String, from: String)
+signal left(region: String)
+var env: Environment
+var sun: DirectionalLight3D
+var grid: WorldGrid
+var places := {}          # id -> Node3D (room / place instance)
+var regions := {}         # id -> AABB (world)
+var doors := {}           # id -> WorldDoor
+var region := ""
+var last_door := ""
+var fences: Node3D
+var _lights: Array = []
+var _t := 0.0
+
+func _ready() -> void:
+	inst = self
+	WorldState.ensure_loaded(); WorldState.scene = scene_file_path
+	_env()
+	grid = WorldGrid.new(); grid.name = "Street"; add_child(grid)
+	for z in range(grid.bounds_min.y, grid.bounds_max.y + 1):
+		for x in range(grid.bounds_min.x, grid.bounds_max.x + 1):
+			var c := Vector2i(x, z); if not grid.loaded.has(c): grid._spawn(c, load(grid.scene_for(c)))
+	for id in PLACES: _build_place(id)
+	for lot_id in HOME_LOTS: _open_lot(lot_id, HOME_LOTS[lot_id])
+	_build_doors()
+	_build_fences()
+	hud = (load("res://ui/shared/hud.tscn") as PackedScene).instantiate(); add_child(hud)
+	player = WorldPlayer.new(); player.name = "Hero"; add_child(player); player.hud = hud; hud.player = player; player.floor_y = 0.07
+	player.surface_func = func(_p: Vector3) -> String: return "pave"
+	var start: Vector3 = places.bedroom.to_global(Vector3(-0.6, 0, 0.9))
+	player.global_position = Vector3(start.x, places.bedroom.global_position.y, start.z); player.face(PI)
+	player.floor_y = places.bedroom.global_position.y
+	cam = (load("res://ui/shared/camera_rig.tscn") as PackedScene).instantiate(); cam.far = 220.0; add_child(cam)
+	hud.camera = cam; player.attach_camera(cam, 8.0, 0.82)
+	setup_universal("Home", "Ev")
+	hud.set_mission("Walk anywhere: open world preview.")
+	for l in find_children("*", "OmniLight3D", true, false) + find_children("*", "SpotLight3D", true, false): _lights.append(l)
+	_cull_setup()
+	print("WORLD ready places=%s doors=%s regions=%s lights=%d" % [places.keys(), doors.keys(), regions.keys(), _lights.size()])
+
+func _env() -> void:
+	var we := WorldEnvironment.new(); env = Environment.new()
+	env.background_mode = Environment.BG_COLOR; env.background_color = Color(0.72, 0.82, 0.92)
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR; env.ambient_light_color = Color(1.0, 0.97, 0.93); env.ambient_light_energy = 0.55
+	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC; env.tonemap_exposure = 0.6
+	env.fog_enabled = true; env.fog_density = 0.0018; env.fog_sky_affect = 0.0
+	we.environment = env; add_child(we)
+	sun = DirectionalLight3D.new(); sun.shadow_enabled = true; sun.light_energy = 1.1; add_child(sun)
+	sun.look_at_from_position(Vector3(7, 8, -9), Vector3.ZERO)
+	sun.directional_shadow_max_distance = 30.0; sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
+
+# ------------------------------------------------------------ places
+func _build_place(id: String) -> void:
+	var d: Array = PLACES[id]
+	var ps := load(d[0]) as PackedScene
+	var n: Node3D = ps.instantiate()
+	n.name = "Place_" + id
+	var house := HouseC.is_room(d[0])
+	if house: n.set_meta(HouseC.SHELL, true)         # rooms: geometry + furniture only (House.shell_ready)
+	else: n.set_meta("ow_shell", true)               # cafe / shop: build() + _room() only (place_base)
+	n.transform = Transform3D(Basis(Vector3.UP, d[2]), (HOUSE_AT + d[1]) if house else d[1])
+	add_child(n)
+	if house: HouseC._cheap(n, false)
+	n.process_mode = Node.PROCESS_MODE_DISABLED   # phase 1: no room / place logic (red ports it); NPCs hold their pose
+	var all: Array = []; _walk(n, all)
+	for c in all:
+		if c is MeshInstance3D and (c as MeshInstance3D).mesh and ((c as MeshInstance3D).get_aabb().size.x >= 20.0 or (c as MeshInstance3D).get_aabb().size.z >= 20.0):
+			(c as MeshInstance3D).visible = false      # each room's own outdoor ground: the street is the ground now
+		if c is Label3D: (c as Label3D).visible = false
+		if c is WorldEnvironment: (c as WorldEnvironment).environment = null
+		if c is DirectionalLight3D: (c as DirectionalLight3D).visible = false
+		if c is Camera3D and not (c.get_viewport() is SubViewport): (c as Camera3D).current = false
+		if c is CanvasLayer: (c as CanvasLayer).visible = false
+	if house: _room_colliders(n)
+	places[id] = n
+	if n.get("room") is Vector2:   # cafe / shop: their floor rect (their terrace / props stay street)
+		var rm: Vector2 = n.get("room"); var c0 := n.to_global(Vector3(-rm.x / 2, 0, -rm.y / 2)); var c1 := n.to_global(Vector3(rm.x / 2, 3, rm.y / 2))
+		regions[id] = AABB(Vector3(minf(c0.x, c1.x), 0, minf(c0.z, c1.z)), Vector3(absf(c1.x - c0.x), 3, absf(c1.z - c0.z)))
+	else: regions[id] = _bounds(n)
+
+func _walk(n: Node, out: Array) -> void:
+	for c in n.get_children(): out.append(c); _walk(c, out)
+
+func _bounds(n: Node3D) -> AABB:
+	var ab := AABB(); var first := true
+	for g in n.find_children("*", "MeshInstance3D", true, false):
+		var mi := g as MeshInstance3D
+		if mi.mesh == null or not mi.visible: continue
+		var b := mi.global_transform * mi.get_aabb()
+		if b.size.x > 19.0 or b.size.z > 19.0: continue
+		if first: ab = b; first = false
+		else: ab = ab.merge(b)
+	return ab
+
+## house rooms have no physics (they used a grid): walls (thin tall boxes) and the furniture rectangles become colliders
+func _room_colliders(n: Node3D) -> void:
+	var body := StaticBody3D.new(); body.name = "OWBody"; n.add_child(body)
+	var leaves := []
+	for k in ["door", "door_s", "door_bed", "door_bath", "front"]:
+		var N = n.get("N")
+		if N is Dictionary and N.has(k) and N[k] is Node3D: leaves.append(N[k])
+	for g in n.find_children("*", "MeshInstance3D", true, false):
+		var mi := g as MeshInstance3D
+		if mi.mesh == null or not (mi.mesh is BoxMesh): continue
+		var skip := false
+		for lf in leaves: if lf == mi or (lf as Node).is_ancestor_of(mi): skip = true
+		if skip: continue
+		var ab := mi.global_transform * mi.get_aabb()
+		var s := ab.size
+		if s.y >= 1.6 and s.y < 6.0 and minf(s.x, s.z) <= 0.35 and maxf(s.x, s.z) >= 0.3 and ab.position.y < 0.5 + n.global_position.y:
+			_box_col(body, ab)
+	var obs = n.get("obstacles")
+	if obs is Array:
+		for r in obs:
+			if not (r is Rect2): continue
+			var rr: Rect2 = r
+			var lo: Vector3 = n.to_global(Vector3(rr.position.x, 0, rr.position.y)); var hi: Vector3 = n.to_global(Vector3(rr.end.x, 1.0, rr.end.y))
+			_box_col(body, AABB(Vector3(minf(lo.x, hi.x), lo.y, minf(lo.z, hi.z)), Vector3(absf(hi.x - lo.x), 1.0, absf(hi.z - lo.z))))
+
+func _box_col(body: StaticBody3D, ab: AABB) -> void:
+	var cs := CollisionShape3D.new(); var bs := BoxShape3D.new(); bs.size = ab.size; cs.shape = bs
+	body.add_child(cs); cs.global_position = ab.get_center()
+
+## the street lot that holds an interior: its solid building box / collider / fake door go away, the interior stands there
+func _open_lot(lot_id: String, place: String) -> void:
+	var lot := grid.find_lot(lot_id)
+	if lot == null: push_warning("World: lot %s not found" % lot_id); return
+	var lc := lot.global_transform * Vector3(0, 1.5, 0)
+	for m in get_tree().get_nodes_in_group("fade"):
+		if m is MeshInstance3D:
+			var ab: AABB = (m as MeshInstance3D).global_transform * (m as MeshInstance3D).get_aabb()
+			if ab.grow(0.2).has_point(Vector3(lc.x, 1.0, lc.z)) and ab.size.x < 20.0: (m as MeshInstance3D).visible = false; (m as Node).remove_from_group("fade"); m.set_meta("ow_removed", true)
+	for cs in lot.get_parent().find_children("*", "CollisionShape3D", true, false):
+		if (cs as Node3D).global_position.distance_to(lc) < 0.6: (cs as CollisionShape3D).disabled = true
+	if lot.door_pivot: lot.door_pivot.visible = false
+	for it in lot.find_children("*", "Interactable", true, false): it.queue_free()
+	for c in lot.get_children(): if c is Interactable: c.queue_free()
+	if place in ["cafe", "shop"]: _cut_place_door(places[place])
+
+## cafe / shop: their front wall had a painted door; cut a real 1.3 m opening and hang a swinging leaf in it
+func _cut_place_door(n: Node3D) -> void:
+	var rm: Vector2 = n.get("room")
+	var hx := rm.x / 2.0; var hz := rm.y / 2.0
+	for g in n.get_children():
+		if g is MeshInstance3D and (g as MeshInstance3D).mesh is BoxMesh:
+			var s: Vector3 = ((g as MeshInstance3D).mesh as BoxMesh).size; var p: Vector3 = (g as MeshInstance3D).position
+			if absf(p.z - hz) < 0.15 and absf(s.x - rm.x) < 0.05 and s.y >= 2.5: (g as MeshInstance3D).visible = false
+			elif absf(p.z - (hz - 0.09)) < 0.03 and absf(s.x - 1.2) < 0.01: (g as MeshInstance3D).visible = false      # painted door
+			elif absf(p.z - (hz - 0.125)) < 0.03 and absf(s.x - 0.9) < 0.01: (g as MeshInstance3D).visible = false     # its glass
+		if g is StaticBody3D and absf((g as Node3D).position.z - hz) < 0.15 and absf((g as Node3D).position.x) < 0.1: g.queue_free()
+	var gap := 0.65
+	var wc: Color = (n.call("floor_colors") as Array)[1]
+	for sx in [-1.0, 1.0]:
+		var w := hx - gap
+		n.call("box", Vector3(w, 3.0, 0.14), Vector3(sx * (gap + w / 2.0), 1.5, hz), wc)
+	n.call("box", Vector3(gap * 2.0, 0.8, 0.14), Vector3(0, 2.6, hz), wc, false)
+	var pv := Node3D.new(); pv.name = "OWDoor"; pv.position = Vector3(-gap, 0, hz); n.add_child(pv)
+	var leaf := MeshInstance3D.new(); var bm := BoxMesh.new(); bm.size = Vector3(gap * 2.0 - 0.04, 2.15, 0.06); leaf.mesh = bm
+	var mt := StandardMaterial3D.new(); mt.albedo_color = Color(0.35, 0.25, 0.18); leaf.material_override = mt; leaf.position = Vector3(gap - 0.02, 1.08, 0); pv.add_child(leaf)
+	n.set_meta("ow_door", pv)
+
+# ------------------------------------------------------------ doors
+## [id, place, N key (or "ow"), open angle, regions a / b]; duplicate leaves (bathroom's copy of the bedroom door) hidden
+func _build_doors() -> void:
+	var defs := [["bed_bath", "bedroom", "door", 80.0, "bedroom", "bathroom"], ["bed_living", "bedroom", "door_s", -82.0, "bedroom", "livingroom"],
+		["bath_living", "bathroom", "door", -82.0, "bathroom", "livingroom"], ["front", "livingroom", "front", 82.0, "livingroom", "street"],
+		["cafe", "cafe", "ow", -100.0, "cafe", "street"], ["shop", "shop", "ow", -100.0, "shop", "street"]]
+	var bN = places.bathroom.get("N")
+	if bN is Dictionary and bN.has("door_bed"): (bN.door_bed as Node3D).visible = false
+	for d in defs:
+		var n: Node3D = places[d[1]]
+		var leaf: Node3D = null
+		if d[2] == "ow": leaf = n.get_meta("ow_door", null)
+		else:
+			var N = n.get("N")
+			if N is Dictionary and N.has(d[2]): leaf = N[d[2]]
+		if leaf == null: push_warning("World: no leaf for door " + d[0]); continue
+		var dr := WorldDoor.new(); dr.id = d[0]; dr.leaf = leaf; dr.open_angle = deg_to_rad(d[3]); dr.a = d[4]; dr.b = d[5]
+		dr.closed_angle = leaf.rotation.y; dr.name = "Door_" + String(d[0]); add_child(dr)
+		doors[d[0]] = dr
+
+class WorldDoor extends Node:
+	var id := ""
+	var leaf: Node3D
+	var open_angle := 1.4
+	var closed_angle := 0.0
+	var a := ""; var b := ""
+	var is_open := false
+	var auto := true
+	var _tw: Tween
+	func center() -> Vector3:
+		var ab := AABB(); var first := true
+		for m in leaf.find_children("*", "MeshInstance3D", true, false):
+			var x: AABB = (m as MeshInstance3D).global_transform * (m as MeshInstance3D).get_aabb()
+			if first: ab = x; first = false
+			else: ab = ab.merge(x)
+		return ab.get_center() if not first else leaf.global_position
+	func open() -> void:
+		if is_open: return
+		is_open = true; Audio.sfx("doorOpen_1", -4.0); _swing(open_angle)
+	func close() -> void:
+		if not is_open: return
+		is_open = false; _swing(closed_angle)
+	func _swing(to: float) -> void:
+		if _tw and _tw.is_valid(): _tw.kill()
+		_tw = create_tween(); _tw.tween_property(leaf, "rotation:y", to, 0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	## story: open and let the hero walk through to the other side (phase 2: path walk)
+	func walk_through(h: Node3D) -> void:
+		open(); await leaf.get_tree().create_timer(0.4).timeout
+		var c := center(); var d := Vector3(c.x - h.global_position.x, 0, c.z - h.global_position.z)
+		var to := Vector3(c.x, h.global_position.y, c.z) + d.normalized() * 1.0
+		if h.has_method("move_to"): await h.move_to(to)
+
+# ------------------------------------------------------------ fences (construction barriers on every street at the edge until day 8)
+func _build_fences() -> void:
+	fences = Node3D.new(); fences.name = "Fences"; add_child(fences)
+	var lo := grid.cell_center(grid.bounds_min) - Vector3.ONE * grid.block_size * 0.5
+	var hi := grid.cell_center(grid.bounds_max) + Vector3.ONE * grid.block_size * 0.5
+	var stripe := StandardMaterial3D.new(); stripe.albedo_color = Color(0.95, 0.45, 0.1)
+	var white := StandardMaterial3D.new(); white.albedo_color = Color(0.96, 0.96, 0.94)
+	var body := StaticBody3D.new(); fences.add_child(body)
+	var inset := 1.5
+	var edges := [[Vector3(lo.x + inset, 0, lo.z + inset), Vector3(hi.x - inset, 0, lo.z + inset)], [Vector3(lo.x + inset, 0, hi.z - inset), Vector3(hi.x - inset, 0, hi.z - inset)],
+		[Vector3(lo.x + inset, 0, lo.z + inset), Vector3(lo.x + inset, 0, hi.z - inset)], [Vector3(hi.x - inset, 0, lo.z + inset), Vector3(hi.x - inset, 0, hi.z - inset)]]
+	for e in edges:
+		var p0: Vector3 = e[0]; var p1: Vector3 = e[1]; var L := p0.distance_to(p1); var dir := (p1 - p0).normalized()
+		var yaw := atan2(dir.x, dir.z) + PI / 2
+		var n := int(L / 2.2)
+		for i in n:
+			var p := p0 + dir * (i + 0.5) * (L / n)
+			for j in 2:
+				var bar := MeshInstance3D.new(); var bm := BoxMesh.new(); bm.size = Vector3(2.0, 0.22, 0.05); bar.mesh = bm
+				bar.material_override = stripe if (i + j) % 2 == 0 else white; bar.position = p + Vector3(0, 0.55 + j * 0.42, 0); bar.rotation.y = yaw; fences.add_child(bar)
+			for sx in [-0.9, 0.9]:
+				var leg := MeshInstance3D.new(); var lm := BoxMesh.new(); lm.size = Vector3(0.06, 1.1, 0.5); leg.mesh = lm; leg.material_override = white
+				leg.position = p + Vector3(0, 0.55, 0) + Vector3(cos(yaw), 0, -sin(yaw)) * sx * -1.0; leg.rotation.y = yaw; fences.add_child(leg)
+			if i % 4 == 0:
+				var cone := MeshInstance3D.new(); var cm := CylinderMesh.new(); cm.top_radius = 0.03; cm.bottom_radius = 0.18; cm.height = 0.55; cone.mesh = cm
+				cone.material_override = stripe; cone.position = p + Vector3(0, 0.28, 0) - Vector3(sin(yaw), 0, cos(yaw)) * 0.8; fences.add_child(cone)
+		var cs := CollisionShape3D.new(); var bs := BoxShape3D.new(); bs.size = Vector3(L, 2.0, 0.4); cs.shape = bs; body.add_child(cs)
+		cs.position = (p0 + p1) / 2 + Vector3(0, 1, 0); cs.rotation.y = yaw
+	_fences_for_day()
+	WorldState.ensure_loaded()
+
+func _fences_for_day() -> void:
+	var up := maxi(WorldState.day, App.day) < FENCE_DAY
+	fences.visible = up
+	for cs in fences.find_children("*", "CollisionShape3D", true, false): (cs as CollisionShape3D).disabled = not up
+
+# ------------------------------------------------------------ culling / activation
+func _cull_setup() -> void:
+	for g in grid.find_children("*", "GeometryInstance3D", true, false):
+		var gi := g as GeometryInstance3D
+		var ab: AABB = gi.get_aabb() if gi is VisualInstance3D else AABB()
+		if ab.size.length() < 6.0: gi.visibility_range_end = VIS_END; gi.visibility_range_end_margin = 5.0
+	for id in places:
+		for g in (places[id] as Node).find_children("*", "GeometryInstance3D", true, false):
+			var gi2 := g as GeometryInstance3D
+			if gi2.get_aabb().size.length() < 1.2: gi2.visibility_range_end = 30.0; gi2.visibility_range_end_margin = 3.0
+	for l in _lights: (l as Light3D).shadow_enabled = false
+
+func _process(dt: float) -> void:
+	_t -= dt
+	if _t > 0.0 or player == null: return
+	_t = 0.2
+	var hp := player.global_position
+	for l in _lights:
+		if not is_instance_valid(l): continue
+		var near := (l as Node3D).global_position.distance_to(hp) < LIGHT_NEAR
+		if not l.has_meta("ow_vis"): l.set_meta("ow_vis", (l as Light3D).visible)
+		(l as Light3D).visible = near and bool(l.get_meta("ow_vis"))
+	for id in doors:
+		var dr: WorldDoor = doors[id]
+		if not dr.auto: continue
+		var dd := Vector2(dr.center().x - hp.x, dr.center().z - hp.z).length()
+		if dd < 1.6: dr.open()
+		elif dd > 3.2: dr.close()
+	var r := region_at(hp)
+	if r != region:
+		var old := region; region = r
+		if old != "": left.emit(old)
+		entered.emit(r, old)
+		player.floor_y = places[r].global_position.y if places.has(r) and HouseC.is_room(String(PLACES[r][0])) else 0.07
+		if hud.has_method("set_place"): hud.set_place(r.capitalize(), "")
+
+func region_at(p: Vector3) -> String:
+	for id in regions:
+		var ab: AABB = regions[id]
+		if p.x >= ab.position.x and p.x <= ab.end.x and p.z >= ab.position.z and p.z <= ab.end.z: return id
+	return "street"
+
+# ------------------------------------------------------------ API (phase 1 minimal; see OPENWORLD_PLAN.md)
+static func get_world() -> World: return inst if is_instance_valid(inst) else null
+static func room(id: String) -> Node3D: return inst.places.get(id) if inst else null
+static func door(id: String) -> WorldDoor: return inst.doors.get(id) if inst else null
+static func hero_node() -> WorldPlayer: return inst.player if inst else null
+## walk the hero to a place through its door (phase 1: straight walk to the door, through it)
+static func goto(place: String, door_id := "") -> void:
+	if inst == null: return
+	var dr: WorldDoor = inst.doors.get(door_id) if door_id != "" else null
+	if dr == null:
+		for d in inst.doors.values(): if (d as WorldDoor).a == place or (d as WorldDoor).b == place: dr = d; break
+	if dr: await dr.walk_through(inst.player); inst.last_door = dr.id
+## car / bus / ambulance trips: the ONLY gameplay fade (Yasin 18:12): black, hero at the destination, back in
+static func skip_travel(dest: String) -> void:
+	if inst == null: return
+	await Game.fade(1.0, 0.45)
+	inst.player.place_at(dest)
+	await inst.get_tree().create_timer(0.3).timeout
+	await Game.fade(0.0, 0.45)
+## objective pan: a temp camera marked guide_cam; the shoulder camera frames hero + target with the one camera
+static func pan(at: Vector3, secs := 2.6) -> void:
+	if inst == null: return
+	var tmp := Camera3D.new(); tmp.set_meta("guide_cam", true); tmp.set_meta("guide_at", at); inst.add_child(tmp)
+	tmp.global_transform = inst.cam.global_transform; tmp.current = true
+	await inst.get_tree().create_timer(secs).timeout
+	if is_instance_valid(inst.cam): inst.cam.current = true
+	tmp.queue_free()
+## position of a door id / spot id (place_at target)
+static func spot(id: String) -> Vector3:
+	if inst == null: return Vector3.ZERO
+	if inst.doors.has(id): return (inst.doors[id] as WorldDoor).center()
+	if SPOTS.has(id): return SPOTS[id]
+	if inst.places.has(id): return (inst.regions[id] as AABB).get_center()
+	return Vector3.ZERO
