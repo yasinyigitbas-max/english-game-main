@@ -1241,7 +1241,8 @@ func _update_preview() -> void:
 var _tr_lbls: Array = []
 var _tr_last := false
 func _tr_now() -> bool:
-	return App.tr_on() or test_mode()   # v33.1 (Yasin 17:41): Turkish on learning screens ALWAYS shows; the TR button only controls the caption box
+	return App.tr_on() or test_mode() or page in ["grammar", "words"]   # v33.1 (grammar/words reference screens are learning screens too, 18:06)
+	# v33.1 (Yasin 17:41): Turkish on learning screens ALWAYS shows; the TR button only controls the caption box
 func _trl(l: Label) -> Label:
 	_tr_lbls = _tr_lbls.filter(func(x): return is_instance_valid(x)); _tr_lbls.append(l); l.visible = _tr_now(); _tr_last = _tr_now(); return l
 func _process(dt: float) -> void:
@@ -1402,6 +1403,6 @@ func _words() -> void:
 		we.size_flags_vertical = Control.SIZE_FILL; we.clip_text = true; we.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; rh.add_child(we)
 		var wt := _trl(_l(w.tr, 15, false, TR_C)); wt.vertical_alignment = VERTICAL_ALIGNMENT_CENTER; wt.size_flags_vertical = Control.SIZE_FILL
 		wt.clip_text = false; wt.size_flags_horizontal = Control.SIZE_SHRINK_END; wt.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT   # v32 polish (blue): full width for the meaning (words with ı/ç came out blank in the 50/50 split); the English word trims instead
-		wt.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; rh.add_child(wt)   # v32 polish (blue): meaning follows the TR toggle (Turkish showed with TR off)
+		wt.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING; wt.custom_minimum_size.x = minf(wt.get_theme_font("font").get_string_size(wt.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x + 4, 190); rh.add_child(wt)   # v33.1: trimming made the meaning's min width 0 -> it rendered blank   # v32 polish (blue): meaning follows the TR toggle (Turkish showed with TR off)
 		var word: String = w.en
 		row.pressed.connect(func(): App.say_word(word)); grid.add_child(row)

@@ -8,8 +8,22 @@ SHOT 03_cafe_lesson3 CAPTION_VISIBLE
 SHOT 04_body_lesson1_9rows CAPTION_VISIBLE
 SHOT 05_family_lesson2_glosses CAPTION_VISIBLE
 SHOT 06_family_lesson3_am_is_are CAPTION_VISIBLE
-SHOT 07_breakfast_lesson3 CAPTION_VISIBLE
+SHOT 07_breakfast_lesson3
 SHOT 07b_breakfast_lesson_last_do_does
+SHOT 07c_present_simple_1
+TRCOUNT 07c_present_simple_1 visible=5 hidden=0 empty=0
+SHOT 07c_present_simple_2
+TRCOUNT 07c_present_simple_2 visible=5 hidden=0 empty=0
+SHOT 07c_present_simple_3
+TRCOUNT 07c_present_simple_3 visible=9 hidden=0 empty=0
+SHOT 07c_present_simple_4
+TRCOUNT 07c_present_simple_4 visible=5 hidden=0 empty=0
+SHOT 07c_present_simple_5
+TRCOUNT 07c_present_simple_5 visible=5 hidden=0 empty=0
+SHOT 07d_grammar_A1
+TRCOUNT 07d_grammar_A1 visible=13 hidden=0 empty=0
+SHOT 07e_words
+TRCOUNT 07e_words visible=32 hidden=0 empty=0
 SHOT 05a_family_lesson1 CAPTION_VISIBLE
 SHOT 05d_family_lesson4 CAPTION_VISIBLE
 SHOT 08_shop_quiz CAPTION_VISIBLE

@@ -50,6 +50,12 @@ func _ready() -> void:
 	var bk: Dictionary = App.load_json("res://data/breakfast.json")
 	ph.start_set(bk, "lesson"); ph.lesson_i = 2; ph._lesson(); await w(0.6); await shot("07_breakfast_lesson3")
 	ph.lesson_i = bk.lesson.size() - 1; ph._lesson(); await w(0.6); await shot("07b_breakfast_lesson_last_do_does")
+	for pi in bk.lesson.size():   # v33.1 (Yasin 18:05): every present simple page with TR off
+		ph.lesson_i = pi; ph._lesson(); await w(0.6); await shot("07c_present_simple_%d" % (pi + 1))
+		_count_tr("07c_present_simple_%d" % (pi + 1))
+	ph.page = "grammar"; ph._grammar(); await w(0.6); await shot("07d_grammar_A1"); _count_tr("07d_grammar_A1")
+	ph.page = "words"; ph._words(); await w(0.6); await shot("07e_words"); _count_tr("07e_words")
+	ph.page = "lesson"
 	var fl: Dictionary = App.load_json("res://data/family.json") if FileAccess.file_exists("res://data/family.json") else {}
 	ph.les = {}; ph.lesson_i = 0; ph.page = "lesson"; ph._lesson(); await w(0.6); await shot("05a_family_lesson1")
 	ph.lesson_i = 3; ph._lesson(); await w(0.6); await shot("05d_family_lesson4")
@@ -99,3 +105,12 @@ func _tap(words: Array) -> void:
 			if b.is_visible_in_tree() and not b.disabled and b.text == wd and b.get_parent() is HFlowContainer:
 				b.pressed.emit(); break
 		await w(0.15)
+
+func _count_tr(n: String) -> void:
+	var vis := 0; var hid := 0; var empty := 0
+	for l in ph.find_children("*", "Label", true, false):
+		if (l as Label).get_theme_color("font_color") != ph.TR_C: continue
+		if (l as Label).text.strip_edges() == "": empty += 1
+		elif (l as Label).is_visible_in_tree(): vis += 1
+		else: hid += 1
+	var info := "TRCOUNT %s visible=%d hidden=%d empty=%d" % [n, vis, hid, empty]; print(info); log_lines.append(info)

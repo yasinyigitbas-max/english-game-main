@@ -1,7 +1,7 @@
 extends Node
 ## house.28: downloadable asset packs (voice.pck, speech.pck) from GitHub Releases.
 ## Autoload listed FIRST so packs already on disk are mounted before Audio/App open their banks.
-const BASE_URL: = "https://github.com/yasinyigitbas-max/english-game-packs/releases/download/packs-v36/"
+const BASE_URL: = "https://github.com/yasinyigitbas-max/english-game-packs/releases/download/packs-v37/"
 const MANIFEST_URL := BASE_URL + "manifest.json"
 const DIR := "user://packs"
 var mounted := {}
