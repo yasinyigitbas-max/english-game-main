@@ -807,15 +807,26 @@ func do_verb(id: String, v: Array) -> void:
 			else: action_peak.emit(id); await wait(1.5)
 		"switch": await gesture("door", id, func(): S.ceiling = _flip("ceiling"); Audio.sfx("metalClick", 2.0))
 		"door_s" when s_locked():
-			await gesture("door", id, func(): Audio.sfx("metalClick")); caption("The door is locked. Add your family on your phone first." if S.door_locked else "The door is locked. Go to the bathroom first."); await wait(2.6)
+			await gesture("door", id, func(): Audio.sfx("metalClick"))
+			var why := "The door is locked. Go to the bathroom first."
+			if S.door_locked:
+				if not _job_chosen(): why = "The door is locked. Choose a job on your phone first."
+				elif not _family_ok(): why = "The door is locked. Add your family on your phone first."
+				else: why = "The door is locked."
+			caption(why); await wait(2.6)
 		"door_s":
 			await gesture("door", id, func(): Audio.sfx("doorOpen_1"); create_tween().tween_property(N.door_s, "rotation:y", deg_to_rad(-82.0), 1.0))
 			S.door_opened = true; App.came_from = "bedroom"; save_game(); await wait(0.3)
 			await Audio.wait_idle(12.0); StoryNav.room(self, "res://livingroom.tscn"); return   # v32wh: walk through the door (same scene)
 		"door" when S.door_locked:
 			await gesture("door", id, func(): _rattle_door())
-			await wait(0.3); caption("I should take my phone first." if (S.created and not S.has_phone) else "The door is locked. Look in the mirror first." if not S.created else ("The door is locked. Choose a job on your phone first." if S.job == "" else "The door is locked. Add your family on your phone first."))
-			await wait(2.6)
+			await wait(0.3)
+			var why := "The door is locked."
+			if S.created and not S.has_phone: why = "I should take my phone first."
+			elif not S.created: why = "The door is locked. Look in the mirror first."
+			elif not _job_chosen(): why = "The door is locked. Choose a job on your phone first."
+			elif not _family_ok(): why = "The door is locked. Add your family on your phone first."
+			caption(why); await wait(2.6)
 		"door":
 			await gesture("door", id, func(): S.door = "open"; Audio.sfx("doorOpen_1"); Audio.sfx("creak1", -3.0))
 			S.door_opened = true; _advance(false)
@@ -1718,7 +1729,7 @@ func _after_look() -> void:
 	Audio.sfx("metalClick", 2.0, 0.8)
 	caption("I am ready."); _set_mission("Explore your bedroom.")
 	await wait(2.2)
-	if S.job == "":
+	if not _job_chosen():
 		hint_t = 0.0; notify("jobs")
 		await Life.guide_to({"pos": PHONE_POS + Vector3(0.9, 1.4, 1.1), "at": PHONE_POS + Vector3(0, 0.2, 0)}, "Pick up your phone.")
 	elif is_child():
@@ -2019,7 +2030,7 @@ func phone_pickup() -> void:
 	var orect := _phone_rect()
 	# v13: the phone leaves the table for good; the player carries it from now on
 	S.has_phone = true; App.family_breakfast = true; N.phone_body.visible = false; N.phone_screen.visible = false; save_game()
-	await phone.open(orect, "jobs" if S.job == "" else ("calendar" if is_child() and not S.calendar_seen else ("family" if not _family_ok() else "home")))
+	await phone.open(orect, "jobs" if not _job_chosen() else ("calendar" if is_child() and not S.calendar_seen else ("family" if not _family_ok() else "home")))
 	await phone_done
 	_advance(false)
 	cam_shot = {}; phone_lit = false; await wait(0.8)
@@ -2039,7 +2050,7 @@ func open_phone_hud() -> void:
 	mode = "busy"; _hide_chips(); hand3d.visible = false; touch.visible = false; stick = Vector2.ZERO
 	await Audio.wait_idle(12.0)   # house.17
 	caption("I am looking at my phone.")
-	var first: String = "jobs" if S.job == "" else ("calendar" if is_child() and not S.calendar_seen else ("family" if not _family_ok() else ("calendar" if notify_app == "calendar" else "home")))
+	var first: String = "jobs" if not _job_chosen() else ("calendar" if is_child() and not S.calendar_seen else ("family" if not _family_ok() else ("calendar" if notify_app == "calendar" else "home")))
 	if S.has_phone:   # v13: the phone lives in the pocket: take out -> zoom -> UI -> zoom out -> pocket
 		if pocket == null:
 			pocket = load("res://scripts/pocket_phone.gd").new(); add_child(pocket); pocket.character = hero; pocket.camera = cam
@@ -2063,7 +2074,7 @@ var pocket: Node
 func phone_event(p: String) -> void:
 	if p == "family" and phone.page == "lesson": p = "lesson"
 	match p:
-		"jobs": caption("I am choosing my job." if S.job == "" else "I am opening the Jobs app."); _set_mission("Choose a job on your phone." if S.job == "" else mission)
+		"jobs": caption("I am choosing my job." if not _job_chosen() else "I am opening the Jobs app."); _set_mission("Choose a job on your phone." if not _job_chosen() else mission)
 		"grammar": caption("I am learning grammar.")
 		"words": caption("I am learning new words.")
 		"me": pass   # house.17: "I am looking at my phone." only once per open (said on open)
@@ -2072,8 +2083,10 @@ func phone_event(p: String) -> void:
 		"quiz":   # v32-polish: scripted tests (review / big test / day-2 test) have their own narrator line; no second box
 			if phone.les.is_empty(): caption("I am answering a question.")
 		"family":
-			caption("I am adding my family.")
-			if S.lesson_done and not _family_ok(): _set_mission("Add your family.")
+			if _family_ok(): caption("I am looking at my family.")
+			else:
+				caption("I am adding my family.")
+				if S.lesson_done: _set_mission("Add your family.")
 		"member": caption("I am adding a family member.")
 		"calendar": caption("I am looking at my calendar.")
 
@@ -2144,13 +2157,29 @@ func door_rule() -> bool:
 
 ## v33 child-drive: a family exists (adults, as before) and, for a child, it has a mom or a dad
 func _family_ok() -> bool:
-	return not S.family.is_empty() and (not is_child() or ChildDrive.has_parent(S.family))
+	var fam: Array = S.family if S.get("family", []) is Array else []
+	if fam.is_empty():
+		var st = App.load_save().get("state", {})
+		if st is Dictionary and st.get("family") is Array and not st.family.is_empty():
+			S.family = st.family; fam = S.family
+	return not fam.is_empty() and (not is_child() or ChildDrive.has_parent(fam))
+
+## saved chosen-job flag: live S.job or save.json state.job (never re-prompt once chosen)
+func _job_chosen() -> bool:
+	if String(S.get("job", "")) != "": return true
+	var st = App.load_save().get("state", {})
+	return st is Dictionary and String(st.get("job", "")) != ""
 
 ## [mission, phone app to badge] for the current state
 func objective() -> Array:
 	if not S.created: return [mission, ""]
+	if String(S.get("job", "")) == "" or (S.get("family", []) is Array and S.family.is_empty()):
+		var _st = App.load_save().get("state", {})
+		if _st is Dictionary:
+			if String(S.get("job", "")) == "" and String(_st.get("job", "")) != "": S.job = String(_st.job)
+			if (S.get("family", []) is Array and S.family.is_empty()) and _st.get("family") is Array and not _st.family.is_empty(): S.family = _st.family
 	if WorldState.day > 1 and not S.calendar_seen: S.calendar_seen = true
-	if S.job == "": return ["Choose a job on your phone." if S.has_phone else "Pick up your phone.", "jobs"]
+	if not _job_chosen(): return ["Choose a job on your phone." if S.has_phone else "Pick up your phone.", "jobs"]
 	if is_child() and not S.calendar_seen: return ["Open the Calendar." if S.has_phone else "Pick up your phone.", "calendar"]
 	if not S.lesson_done: return ["Learn he, she and it.", "family"]
 	if not _family_ok(): return ["Add your family.", "family"]
@@ -2195,7 +2224,7 @@ func notify(app: String) -> void:
 	if phone.visible and phone.page == "home": phone.show_page("home", false)
 
 func todo() -> Array:
-	return [["Turn off the alarm clock.", S.alarm != "ringing" and started], ["Look in the mirror.", S.created], ] + ([] if is_child() else [["Choose a job.", S.job != ""]]) + [
+	return [["Turn off the alarm clock.", S.alarm != "ringing" and started], ["Look in the mirror.", S.created], ] + ([] if is_child() else [["Choose a job.", _job_chosen()]]) + [
 		["Learn he, she and it.", S.lesson_done], ["Add your family.", _family_ok()], ["Open the Calendar.", S.calendar_seen],
 		["Open the door.", S.door_opened], ["Explore the house.", false]] + \
 		(phone.tasks(S.job).map(func(t): return [t.do, false]) if S.job != "" else [])

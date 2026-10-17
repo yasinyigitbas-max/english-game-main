@@ -170,6 +170,7 @@ func order() -> void:
 	var L: Array = D.beats.cafe.order
 	Economy.spend(450, "cafe: hot chocolate + 2 cookies")   # v31: "That's four pounds fifty" (no cafe items in shops.json)
 	await cine(Vector3(0.4, 1.75, -0.6), Vector3(-1.2, 1.35, -2.8), 1.2)
+	# only the barista asks for the order, once (no narrator / second ask)
 	await speak("barista", L[0][1])
 	tick_card("like")
 	await cine(Vector3(-0.6, 1.6, -1.0), Vector3(-0.6, 2.45, -3.9), 1.3)   # the menu board (v32 polish: no pendant lamp in front of it)

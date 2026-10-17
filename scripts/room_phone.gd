@@ -75,7 +75,7 @@ func open_phone() -> void:
 	if "hand3d" in host and host.hand3d: host.hand3d.visible = false
 	await Audio.wait_idle(12.0)   # house.17: wait for the current announcement
 	caption("I am looking at my phone.")
-	var first: String = "jobs" if S.job == "" else ("calendar" if is_child() and not S.calendar_seen else ("family" if not _family_ok() else ("calendar" if notify_app == "calendar" else "home")))
+	var first: String = "jobs" if not _job_chosen() else ("calendar" if is_child() and not S.calendar_seen else ("family" if not _family_ok() else ("calendar" if notify_app == "calendar" else "home")))
 	pocket.open_ui = func(r: Rect2):
 		_closed_wait()
 		await phone.open(r, first)
@@ -106,12 +106,22 @@ func extra_tr(t: String) -> String:
 func is_child() -> bool: return S.get("age", "adult") == "child"
 func member_saved() -> void: save()
 func door_rule() -> bool: return not (S.created and S.job != "" and _family_ok())
-func _family_ok() -> bool: return not S.family.is_empty() and (not is_child() or ChildDrive.has_parent(S.family))   # v33 child-drive
+func _family_ok() -> bool:
+	var fam: Array = S.family if S.get("family", []) is Array else []
+	if fam.is_empty():
+		var st = App.load_save().get("state", {})
+		if st is Dictionary and st.get("family") is Array and not st.family.is_empty():
+			S.family = st.family; fam = S.family
+	return not fam.is_empty() and (not is_child() or ChildDrive.has_parent(fam))
+func _job_chosen() -> bool:
+	if String(S.get("job", "")) != "": return true
+	var st = App.load_save().get("state", {})
+	return st is Dictionary and String(st.get("job", "")) != ""
 
 func _objective_app() -> String:
 	if not S.created: return ""
 	if WorldState.day > 1 and not S.calendar_seen: S.calendar_seen = true
-	if S.job == "": return "jobs"
+	if not _job_chosen(): return "jobs"
 	if is_child() and not S.calendar_seen: return "calendar"
 	if not S.lesson_done or not _family_ok(): return "family"
 	if not S.calendar_seen: return "calendar"
@@ -120,7 +130,7 @@ func _objective_app() -> String:
 func phone_event(p: String) -> void:
 	if p == "family" and phone.page == "lesson": p = "lesson"
 	match p:
-		"jobs": caption("I am choosing my job." if S.job == "" else "I am opening the Jobs app.")
+		"jobs": caption("I am choosing my job." if not _job_chosen() else "I am opening the Jobs app.")
 		"grammar": caption("I am learning grammar.")
 		"words": caption("I am learning new words.")
 		"me": pass   # house.17: "I am looking at my phone." only once per open (said on open)
@@ -133,7 +143,7 @@ func phone_event(p: String) -> void:
 		"calendar": caption("I am looking at my calendar.")
 
 func todo() -> Array:
-	return [["Turn off the alarm clock.", true], ["Look in the mirror.", S.created], ] + ([] if is_child() else [["Choose a job.", S.job != ""]]) + [
+	return [["Turn off the alarm clock.", true], ["Look in the mirror.", S.created], ] + ([] if is_child() else [["Choose a job.", _job_chosen()]]) + [
 		["Learn he, she and it.", S.lesson_done], ["Add your family.", _family_ok()], ["Open the Calendar.", S.calendar_seen],
 		["Open the door.", S.door_opened], ["Explore the house.", false]] + \
 		(phone.tasks(S.job).map(func(t): return [t.do, false]) if S.job != "" else [])

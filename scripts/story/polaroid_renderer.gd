@@ -99,7 +99,11 @@ func _build(key: String) -> void:
 			_stage(Color(0.55, 0.78, 0.98), Color(0, 0, 0, 0), Color(0.45, 0.6, 0.35), Vector3(2.6, 1.6, 3.0), Vector3(-0.5, 0.8, -0.5))
 			_box(Vector3(10, 0.03, 3), Vector3(0, 0.015, -0.5), Color(0.3, 0.3, 0.32)); for x in 5: _box(Vector3(0.6, 0.01, 0.12), Vector3(-4 + x * 2, 0.035, -0.5), Color(1, 1, 1))
 			_box(Vector3(4.5, 2.2, 1.6), Vector3(-3.4, 1.3, -0.9), Color(0.95, 0.75, 0.15)); _box(Vector3(0.05, 0.9, 1.4), Vector3(-1.14, 1.6, -0.9), Color(0.5, 0.75, 0.9))
-			_box(Vector3(0.3, 0.2, 0.15), Vector3(0.4, 0.1, -0.2), Color(0.95, 0.6, 0.25)); _box(Vector3(0.12, 0.12, 0.12), Vector3(0.58, 0.22, -0.2), Color(0.95, 0.6, 0.25))
+			# cat on the road (Kenney Cube Pets) — the dive is over it
+			if ResourceLoader.exists("res://props/story/animal-cat.glb"):
+				_glb("res://props/story/animal-cat.glb", Vector3(0.45, 0.0, -0.15), -40.0, 0.85)
+			else:
+				_box(Vector3(0.3, 0.2, 0.15), Vector3(0.4, 0.1, -0.2), Color(0.95, 0.6, 0.25)); _box(Vector3(0.12, 0.12, 0.12), Vector3(0.58, 0.22, -0.2), Color(0.95, 0.6, 0.25))
 			# mid-dive over the cat: body almost horizontal, arms forward, bus braking behind (no injury shown)
 			var pv := Node3D.new(); pv.position = Vector3(0.0, 0.55, -0.2); pv.rotation_degrees = Vector3(0, 0, -72); root.add_child(pv)
 			c = _char("me", Vector3.ZERO, 90.0, "walk", 0.3); c.reparent(pv, false); c.position = Vector3(0, -0.9, 0)

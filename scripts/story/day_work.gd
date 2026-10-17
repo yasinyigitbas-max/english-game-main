@@ -29,6 +29,9 @@ static func pending() -> bool:
 static func goal() -> Array:
 	var st := CharacterHook.state()
 	var job := String(st.get("job", ""))
+	if job == "":
+		var raw = App.load_save().get("state", {})
+		if raw is Dictionary: job = String(raw.get("job", ""))
 	var school: bool = CharacterHook.is_child(st) or load("res://scripts/story/work.gd").category_of(job, false) in ["study"]
 	return ["Go to school.", "Okula git."] if school else ["Go to work.", "İşe git."]
 
