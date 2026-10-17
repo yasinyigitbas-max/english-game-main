@@ -135,7 +135,7 @@ static func merge_root(root: Node3D, range_end := 0.0, range_margin := 4.0) -> D
 		if gi is MeshInstance3D:
 			var m := gi as MeshInstance3D
 			mesh = m.mesh
-			if mesh == null or m.skin != null or mesh.get_blend_shape_count() > 0: continue
+			if mesh == null or m.skin != null or (mesh is ArrayMesh and (mesh as ArrayMesh).get_blend_shape_count() > 0): continue
 			if mesh is BoxMesh and ShoulderCam._is_wall(m.global_transform * m.get_aabb()): continue   # walls fade one by one
 		else:
 			mm = (gi as MultiMeshInstance3D).multimesh

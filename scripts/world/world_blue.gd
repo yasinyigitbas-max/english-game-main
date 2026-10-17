@@ -66,6 +66,6 @@ static func merge_all(world: Node) -> Dictionary:
 			roots.append([c, 0.0])
 	for r in roots:
 		var s: Dictionary = Merge.merge_root(r[0], r[1])
-		if s.meshes > 0: tot.roots += 1
-		for k in ["meshes", "surfaces_in", "surfaces_out"]: tot[k] += s[k]
+		if int(s.get("meshes", 0)) > 0: tot.roots += 1
+		for k in ["meshes", "surfaces_in", "surfaces_out"]: tot[k] += int(s.get(k, 0))
 	return tot
