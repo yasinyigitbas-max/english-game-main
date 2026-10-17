@@ -94,6 +94,9 @@ static func _cheap(room: Node, on: bool) -> void:
 		elif c is SubViewport:
 			if on: c.set_meta("wh_upd", c.render_target_update_mode); c.render_target_update_mode = SubViewport.UPDATE_DISABLED
 			elif c.has_meta("wh_upd"): c.render_target_update_mode = c.get_meta("wh_upd"); c.remove_meta("wh_upd")
+		elif c is Label3D:   # state text (alarm "Ring! Ring!", TV channel): drawn through walls, the live room sets it -> hidden in a shell
+			if on: c.set_meta("wh_vis", c.visible); c.visible = false
+			elif c.has_meta("wh_vis"): c.visible = c.get_meta("wh_vis"); c.remove_meta("wh_vis")
 		elif c is GeometryInstance3D:
 			var g := c as GeometryInstance3D
 			if on:
@@ -116,7 +119,7 @@ static func _cheap(room: Node, on: bool) -> void:
 static func _hide_tall(room: Node, hide: bool) -> void:
 	var all: Array = []; _walk(room, all)
 	for c in all:
-		if not (c is GeometryInstance3D) or c.has_meta("wh_ground"): continue
+		if not (c is GeometryInstance3D) or c is Label3D or c.has_meta("wh_ground"): continue
 		var g := c as GeometryInstance3D
 		if hide:
 			if g.visible and not g.has_meta("wh_tall") and g is VisualInstance3D:
