@@ -1,0 +1,1457 @@
+{
+ "_doc": "v33 (red): shared no-repeat bedtime test bank (scripts/story/test_bank.gd, class TestBank). One entry per question: id (unique, never reuse), day, v (version 0/1/2 = the 3 rotating sets of a day), topic, q (___ = the gap), opts, a (index of the right option; options are shuffled at draw time), say (full sentence, spoken), tr (Turkish of say). Days 2/3 are seeded from data/day2_evening.json + data/day3_evening.json (quiz/quiz_b/quiz_c). Blue: append day 5 / day 6 entries (ids d5_01.., d6_01..), 10 per version.",
+ "topics": {
+  "past_simple": "Past simple",
+  "have_to": "have to",
+  "countable": "Countable / uncountable",
+  "how_many_much": "How many / how much",
+  "cafe_order": "Ordering at the café",
+  "containers": "a bottle of / a loaf of",
+  "there_is_are": "There is / there are",
+  "prepositions": "Prepositions (in, on, under, next to)",
+  "power_cut": "Power cut words",
+  "party": "Party words"
+ },
+ "questions": [
+  {
+   "id": "d2_01",
+   "day": 2,
+   "v": 0,
+   "topic": "past_simple",
+   "q": "Yesterday I ___ to work.",
+   "opts": [
+    "went",
+    "go",
+    "goed"
+   ],
+   "a": 0,
+   "say": "Yesterday I went to work.",
+   "tr": "Dün işe gittim."
+  },
+  {
+   "id": "d2_02",
+   "day": 2,
+   "v": 0,
+   "topic": "past_simple",
+   "q": "I ___ breakfast with my family.",
+   "opts": [
+    "had",
+    "have",
+    "haved"
+   ],
+   "a": 0,
+   "say": "I had breakfast with my family.",
+   "tr": "Ailemle kahvaltı yaptım."
+  },
+  {
+   "id": "d2_03",
+   "day": 2,
+   "v": 0,
+   "topic": "past_simple",
+   "q": "The doctor ___ me.",
+   "opts": [
+    "checked",
+    "check",
+    "checks"
+   ],
+   "a": 0,
+   "say": "The doctor checked me.",
+   "tr": "Doktor beni kontrol etti."
+  },
+  {
+   "id": "d2_04",
+   "day": 2,
+   "v": 0,
+   "topic": "past_simple",
+   "q": "I ___ fine.",
+   "opts": [
+    "was",
+    "were",
+    "am"
+   ],
+   "a": 0,
+   "say": "I was fine.",
+   "tr": "İyiydim."
+  },
+  {
+   "id": "d2_05",
+   "day": 2,
+   "v": 0,
+   "topic": "past_simple",
+   "q": "I ___ to my family.",
+   "opts": [
+    "talked",
+    "talk",
+    "talks"
+   ],
+   "a": 0,
+   "say": "I talked to my family.",
+   "tr": "Ailemle konuştum."
+  },
+  {
+   "id": "d2_06",
+   "day": 2,
+   "v": 0,
+   "topic": "past_simple",
+   "q": "I ___ home in the evening.",
+   "opts": [
+    "came",
+    "come",
+    "comed"
+   ],
+   "a": 0,
+   "say": "I came home in the evening.",
+   "tr": "Akşam eve geldim."
+  },
+  {
+   "id": "d2_07",
+   "day": 2,
+   "v": 1,
+   "topic": "past_simple",
+   "q": "I ___ to the hospital.",
+   "opts": [
+    "went",
+    "goes",
+    "going"
+   ],
+   "a": 0,
+   "say": "I went to the hospital.",
+   "tr": "Hastaneye gittim."
+  },
+  {
+   "id": "d2_08",
+   "day": 2,
+   "v": 1,
+   "topic": "past_simple",
+   "q": "My family ___ on the sofa.",
+   "opts": [
+    "were",
+    "was",
+    "is"
+   ],
+   "a": 0,
+   "say": "My family were on the sofa.",
+   "tr": "Ailem kanepedeydi."
+  },
+  {
+   "id": "d2_09",
+   "day": 2,
+   "v": 1,
+   "topic": "past_simple",
+   "q": "I ___ have to.",
+   "opts": [
+    "learned",
+    "learn",
+    "learns"
+   ],
+   "a": 0,
+   "say": "I learned have to.",
+   "tr": "have to öğrendim."
+  },
+  {
+   "id": "d2_10",
+   "day": 2,
+   "v": 1,
+   "topic": "past_simple",
+   "q": "The doctor ___ I was fine.",
+   "opts": [
+    "said",
+    "say",
+    "sayed"
+   ],
+   "a": 0,
+   "say": "The doctor said I was fine.",
+   "tr": "Doktor iyi olduğumu söyledi."
+  },
+  {
+   "id": "d2_11",
+   "day": 2,
+   "v": 1,
+   "topic": "past_simple",
+   "q": "I ___ a busy day.",
+   "opts": [
+    "had",
+    "has",
+    "have"
+   ],
+   "a": 0,
+   "say": "I had a busy day.",
+   "tr": "Yoğun bir gün geçirdim."
+  },
+  {
+   "id": "d2_12",
+   "day": 2,
+   "v": 1,
+   "topic": "past_simple",
+   "q": "I ___ my family about my day.",
+   "opts": [
+    "told",
+    "tell",
+    "telled"
+   ],
+   "a": 0,
+   "say": "I told my family about my day.",
+   "tr": "Aileme günümü anlattım."
+  },
+  {
+   "id": "d2_13",
+   "day": 2,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "I ___ up early.",
+   "opts": [
+    "woke",
+    "wake",
+    "waked"
+   ],
+   "a": 0,
+   "say": "I woke up early.",
+   "tr": "Erken uyandım."
+  },
+  {
+   "id": "d2_14",
+   "day": 2,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "I ___ the car.",
+   "opts": [
+    "drove",
+    "drive",
+    "drived"
+   ],
+   "a": 0,
+   "say": "I drove the car.",
+   "tr": "Arabayı sürdüm."
+  },
+  {
+   "id": "d2_15",
+   "day": 2,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "The doctor ___ kind.",
+   "opts": [
+    "was",
+    "were",
+    "be"
+   ],
+   "a": 0,
+   "say": "The doctor was kind.",
+   "tr": "Doktor nazikti."
+  },
+  {
+   "id": "d2_16",
+   "day": 2,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "I ___ all day.",
+   "opts": [
+    "worked",
+    "work",
+    "works"
+   ],
+   "a": 0,
+   "say": "I worked all day.",
+   "tr": "Bütün gün çalıştım."
+  },
+  {
+   "id": "d2_17",
+   "day": 2,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "My family ___ me a question.",
+   "opts": [
+    "asked",
+    "ask",
+    "asks"
+   ],
+   "a": 0,
+   "say": "My family asked me a question.",
+   "tr": "Ailem bana bir soru sordu."
+  },
+  {
+   "id": "d2_18",
+   "day": 2,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "I ___ tired in the evening.",
+   "opts": [
+    "was",
+    "were",
+    "am"
+   ],
+   "a": 0,
+   "say": "I was tired in the evening.",
+   "tr": "Akşam yorgundum."
+  },
+  {
+   "id": "d3_01",
+   "day": 3,
+   "v": 0,
+   "topic": "past_simple",
+   "q": "I ___ to the café.",
+   "opts": [
+    "went",
+    "go",
+    "goed"
+   ],
+   "a": 0,
+   "say": "I went to the café.",
+   "tr": "Kafeye gittim."
+  },
+  {
+   "id": "d3_02",
+   "day": 3,
+   "v": 0,
+   "topic": "cafe_order",
+   "q": "I'd ___ a hot chocolate, please.",
+   "opts": [
+    "like",
+    "likes",
+    "liked"
+   ],
+   "a": 0,
+   "say": "I'd like a hot chocolate, please.",
+   "tr": "Bir sıcak çikolata istiyorum, lütfen."
+  },
+  {
+   "id": "d3_03",
+   "day": 3,
+   "v": 0,
+   "topic": "how_many_much",
+   "q": "How ___ apples did you buy?",
+   "opts": [
+    "many",
+    "much",
+    "lot"
+   ],
+   "a": 0,
+   "say": "How many apples did you buy?",
+   "tr": "Kaç elma aldın?"
+  },
+  {
+   "id": "d3_04",
+   "day": 3,
+   "v": 0,
+   "topic": "how_many_much",
+   "q": "How ___ milk did you buy?",
+   "opts": [
+    "much",
+    "many",
+    "lot"
+   ],
+   "a": 0,
+   "say": "How much milk did you buy?",
+   "tr": "Ne kadar süt aldın?"
+  },
+  {
+   "id": "d3_05",
+   "day": 3,
+   "v": 0,
+   "topic": "containers",
+   "q": "I bought a ___ of milk.",
+   "opts": [
+    "bottle",
+    "loaf",
+    "six"
+   ],
+   "a": 0,
+   "say": "I bought a bottle of milk.",
+   "tr": "Bir şişe süt aldım."
+  },
+  {
+   "id": "d3_06",
+   "day": 3,
+   "v": 0,
+   "topic": "past_simple",
+   "q": "I ___ six apples.",
+   "opts": [
+    "bought",
+    "buy",
+    "buyed"
+   ],
+   "a": 0,
+   "say": "I bought six apples.",
+   "tr": "Altı elma aldım."
+  },
+  {
+   "id": "d3_07",
+   "day": 3,
+   "v": 1,
+   "topic": "cafe_order",
+   "q": "Can I ___ a cookie, please?",
+   "opts": [
+    "have",
+    "has",
+    "had"
+   ],
+   "a": 0,
+   "say": "Can I have a cookie, please?",
+   "tr": "Bir kurabiye alabilir miyim, lütfen?"
+  },
+  {
+   "id": "d3_08",
+   "day": 3,
+   "v": 1,
+   "topic": "past_simple",
+   "q": "I ___ two cookies.",
+   "opts": [
+    "had",
+    "have",
+    "haved"
+   ],
+   "a": 0,
+   "say": "I had two cookies.",
+   "tr": "İki kurabiye yedim."
+  },
+  {
+   "id": "d3_09",
+   "day": 3,
+   "v": 1,
+   "topic": "containers",
+   "q": "I bought a ___ of bread.",
+   "opts": [
+    "loaf",
+    "bottle",
+    "glass"
+   ],
+   "a": 0,
+   "say": "I bought a loaf of bread.",
+   "tr": "Bir somun ekmek aldım."
+  },
+  {
+   "id": "d3_10",
+   "day": 3,
+   "v": 1,
+   "topic": "how_many_much",
+   "q": "How ___ cookies would you like?",
+   "opts": [
+    "many",
+    "much",
+    "any"
+   ],
+   "a": 0,
+   "say": "How many cookies would you like?",
+   "tr": "Kaç kurabiye istersin?"
+  },
+  {
+   "id": "d3_11",
+   "day": 3,
+   "v": 1,
+   "topic": "countable",
+   "q": "Milk is ___.",
+   "opts": [
+    "uncountable",
+    "countable",
+    "many"
+   ],
+   "a": 0,
+   "say": "Milk is uncountable.",
+   "tr": "Süt sayılamaz."
+  },
+  {
+   "id": "d3_12",
+   "day": 3,
+   "v": 1,
+   "topic": "past_simple",
+   "q": "I ___ to the shop.",
+   "opts": [
+    "went",
+    "goes",
+    "going"
+   ],
+   "a": 0,
+   "say": "I went to the shop.",
+   "tr": "Dükkâna gittim."
+  },
+  {
+   "id": "d3_13",
+   "day": 3,
+   "v": 2,
+   "topic": "countable",
+   "q": "Apples are ___.",
+   "opts": [
+    "countable",
+    "uncountable",
+    "much"
+   ],
+   "a": 0,
+   "say": "Apples are countable.",
+   "tr": "Elmalar sayılabilir."
+  },
+  {
+   "id": "d3_14",
+   "day": 3,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "I ___ a hot chocolate.",
+   "opts": [
+    "ordered",
+    "order",
+    "orders"
+   ],
+   "a": 0,
+   "say": "I ordered a hot chocolate.",
+   "tr": "Bir sıcak çikolata sipariş ettim."
+  },
+  {
+   "id": "d3_15",
+   "day": 3,
+   "v": 2,
+   "topic": "how_many_much",
+   "q": "How ___ is the coffee?",
+   "opts": [
+    "much",
+    "many",
+    "lot"
+   ],
+   "a": 0,
+   "say": "How much is the coffee?",
+   "tr": "Kahve ne kadar?"
+  },
+  {
+   "id": "d3_16",
+   "day": 3,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "I ___ a shower in the morning.",
+   "opts": [
+    "took",
+    "take",
+    "taked"
+   ],
+   "a": 0,
+   "say": "I took a shower in the morning.",
+   "tr": "Sabah duş aldım."
+  },
+  {
+   "id": "d3_17",
+   "day": 3,
+   "v": 2,
+   "topic": "containers",
+   "q": "I bought ___ apples.",
+   "opts": [
+    "six",
+    "a",
+    "much"
+   ],
+   "a": 0,
+   "say": "I bought six apples.",
+   "tr": "Altı elma aldım."
+  },
+  {
+   "id": "d3_18",
+   "day": 3,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "I ___ to my family.",
+   "opts": [
+    "talked",
+    "talk",
+    "talks"
+   ],
+   "a": 0,
+   "say": "I talked to my family.",
+   "tr": "Ailemle konuştum."
+  },
+  {
+   "id": "d4_01",
+   "day": 4,
+   "v": 0,
+   "topic": "there_is_are",
+   "q": "There ___ a candle on the table.",
+   "opts": [
+    "is",
+    "are",
+    "am"
+   ],
+   "a": 0,
+   "say": "There is a candle on the table.",
+   "tr": "Masada bir mum var."
+  },
+  {
+   "id": "d4_02",
+   "day": 4,
+   "v": 0,
+   "topic": "there_is_are",
+   "q": "There ___ two torches in the drawer.",
+   "opts": [
+    "are",
+    "is",
+    "be"
+   ],
+   "a": 0,
+   "say": "There are two torches in the drawer.",
+   "tr": "Çekmecede iki el feneri var."
+  },
+  {
+   "id": "d4_03",
+   "day": 4,
+   "v": 0,
+   "topic": "prepositions",
+   "q": "Put the candle ___ the table, please.",
+   "opts": [
+    "on",
+    "of",
+    "at"
+   ],
+   "a": 0,
+   "say": "Put the candle on the table, please.",
+   "tr": "Mumu masanın üstüne koy, lütfen."
+  },
+  {
+   "id": "d4_04",
+   "day": 4,
+   "v": 0,
+   "topic": "past_simple",
+   "q": "The lights ___ out.",
+   "opts": [
+    "went",
+    "go",
+    "goed"
+   ],
+   "a": 0,
+   "say": "The lights went out.",
+   "tr": "Işıklar söndü."
+  },
+  {
+   "id": "d4_05",
+   "day": 4,
+   "v": 0,
+   "topic": "power_cut",
+   "q": "Don't be ___!",
+   "opts": [
+    "afraid",
+    "afraids",
+    "fear"
+   ],
+   "a": 0,
+   "say": "Don't be afraid!",
+   "tr": "Korkma!"
+  },
+  {
+   "id": "d4_06",
+   "day": 4,
+   "v": 0,
+   "topic": "there_is_are",
+   "q": "Where ___ the torch?",
+   "opts": [
+    "is",
+    "are",
+    "am"
+   ],
+   "a": 0,
+   "say": "Where is the torch?",
+   "tr": "El feneri nerede?"
+  },
+  {
+   "id": "d4_07",
+   "day": 4,
+   "v": 0,
+   "topic": "there_is_are",
+   "q": "___ there any batteries?",
+   "opts": [
+    "Are",
+    "Is",
+    "Am"
+   ],
+   "a": 0,
+   "say": "Are there any batteries?",
+   "tr": "Hiç pil var mı?"
+  },
+  {
+   "id": "d4_08",
+   "day": 4,
+   "v": 0,
+   "topic": "power_cut",
+   "q": "I bought some ___ at the shop.",
+   "opts": [
+    "candles",
+    "candle",
+    "a candles"
+   ],
+   "a": 0,
+   "say": "I bought some candles at the shop.",
+   "tr": "Dükkândan biraz mum aldım."
+  },
+  {
+   "id": "d4_09",
+   "day": 4,
+   "v": 0,
+   "topic": "power_cut",
+   "q": "It is very ___ in here.",
+   "opts": [
+    "dark",
+    "darks",
+    "darkly"
+   ],
+   "a": 0,
+   "say": "It is very dark in here.",
+   "tr": "Burası çok karanlık."
+  },
+  {
+   "id": "d4_10",
+   "day": 4,
+   "v": 0,
+   "topic": "power_cut",
+   "q": "Turn ___ the torch, please.",
+   "opts": [
+    "on",
+    "in",
+    "at"
+   ],
+   "a": 0,
+   "say": "Turn on the torch, please.",
+   "tr": "El fenerini aç, lütfen."
+  },
+  {
+   "id": "d4_11",
+   "day": 4,
+   "v": 1,
+   "topic": "there_is_are",
+   "q": "There ___ some batteries in the box.",
+   "opts": [
+    "are",
+    "is",
+    "am"
+   ],
+   "a": 0,
+   "say": "There are some batteries in the box.",
+   "tr": "Kutuda biraz pil var."
+  },
+  {
+   "id": "d4_12",
+   "day": 4,
+   "v": 1,
+   "topic": "there_is_are",
+   "q": "There ___ a torch under the sink.",
+   "opts": [
+    "is",
+    "are",
+    "be"
+   ],
+   "a": 0,
+   "say": "There is a torch under the sink.",
+   "tr": "Lavabonun altında bir el feneri var."
+  },
+  {
+   "id": "d4_13",
+   "day": 4,
+   "v": 1,
+   "topic": "prepositions",
+   "q": "The matches are ___ the cupboard.",
+   "opts": [
+    "in",
+    "at",
+    "of"
+   ],
+   "a": 0,
+   "say": "The matches are in the cupboard.",
+   "tr": "Kibritler dolabın içinde."
+  },
+  {
+   "id": "d4_14",
+   "day": 4,
+   "v": 1,
+   "topic": "past_simple",
+   "q": "The power ___ off in the evening.",
+   "opts": [
+    "went",
+    "goes",
+    "goed"
+   ],
+   "a": 0,
+   "say": "The power went off in the evening.",
+   "tr": "Akşam elektrik kesildi."
+  },
+  {
+   "id": "d4_15",
+   "day": 4,
+   "v": 1,
+   "topic": "power_cut",
+   "q": "Don't ___ afraid. It's only a power cut.",
+   "opts": [
+    "be",
+    "is",
+    "are"
+   ],
+   "a": 0,
+   "say": "Don't be afraid. It's only a power cut.",
+   "tr": "Korkma. Sadece bir elektrik kesintisi."
+  },
+  {
+   "id": "d4_16",
+   "day": 4,
+   "v": 1,
+   "topic": "there_is_are",
+   "q": "___ is the torch? It's in the drawer.",
+   "opts": [
+    "Where",
+    "What",
+    "Who"
+   ],
+   "a": 0,
+   "say": "Where is the torch? It's in the drawer.",
+   "tr": "El feneri nerede? Çekmecede."
+  },
+  {
+   "id": "d4_17",
+   "day": 4,
+   "v": 1,
+   "topic": "there_is_are",
+   "q": "Is there a candle? Yes, there ___.",
+   "opts": [
+    "is",
+    "are",
+    "isn't"
+   ],
+   "a": 0,
+   "say": "Is there a candle? Yes, there is.",
+   "tr": "Mum var mı? Evet, var."
+  },
+  {
+   "id": "d4_18",
+   "day": 4,
+   "v": 1,
+   "topic": "past_simple",
+   "q": "I ___ candles and batteries this morning.",
+   "opts": [
+    "bought",
+    "buy",
+    "buyed"
+   ],
+   "a": 0,
+   "say": "I bought candles and batteries this morning.",
+   "tr": "Bu sabah mum ve pil aldım."
+  },
+  {
+   "id": "d4_19",
+   "day": 4,
+   "v": 1,
+   "topic": "power_cut",
+   "q": "I can't see. It's too ___.",
+   "opts": [
+    "dark",
+    "light",
+    "bright"
+   ],
+   "a": 0,
+   "say": "I can't see. It's too dark.",
+   "tr": "Göremiyorum. Çok karanlık."
+  },
+  {
+   "id": "d4_20",
+   "day": 4,
+   "v": 1,
+   "topic": "prepositions",
+   "q": "The candle is ___ the window.",
+   "opts": [
+    "next to",
+    "next",
+    "of"
+   ],
+   "a": 0,
+   "say": "The candle is next to the window.",
+   "tr": "Mum pencerenin yanında."
+  },
+  {
+   "id": "d4_21",
+   "day": 4,
+   "v": 2,
+   "topic": "there_is_are",
+   "q": "There ___ no lights in the house.",
+   "opts": [
+    "are",
+    "is",
+    "am"
+   ],
+   "a": 0,
+   "say": "There are no lights in the house.",
+   "tr": "Evde hiç ışık yok."
+  },
+  {
+   "id": "d4_22",
+   "day": 4,
+   "v": 2,
+   "topic": "there_is_are",
+   "q": "There ___ a box of matches on the shelf.",
+   "opts": [
+    "is",
+    "are",
+    "be"
+   ],
+   "a": 0,
+   "say": "There is a box of matches on the shelf.",
+   "tr": "Rafta bir kutu kibrit var."
+  },
+  {
+   "id": "d4_23",
+   "day": 4,
+   "v": 2,
+   "topic": "prepositions",
+   "q": "The batteries are ___ the torch now.",
+   "opts": [
+    "in",
+    "on",
+    "of"
+   ],
+   "a": 0,
+   "say": "The batteries are in the torch now.",
+   "tr": "Piller şimdi el fenerinin içinde."
+  },
+  {
+   "id": "d4_24",
+   "day": 4,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "We ___ the candles.",
+   "opts": [
+    "lit",
+    "light",
+    "lights"
+   ],
+   "a": 0,
+   "say": "We lit the candles.",
+   "tr": "Mumları yaktık."
+  },
+  {
+   "id": "d4_25",
+   "day": 4,
+   "v": 2,
+   "topic": "power_cut",
+   "q": "Don't ___. I'm here.",
+   "opts": [
+    "worry",
+    "worries",
+    "worried"
+   ],
+   "a": 0,
+   "say": "Don't worry. I'm here.",
+   "tr": "Endişelenme. Buradayım."
+  },
+  {
+   "id": "d4_26",
+   "day": 4,
+   "v": 2,
+   "topic": "there_is_are",
+   "q": "___ are the candles? They're in the box.",
+   "opts": [
+    "Where",
+    "When",
+    "Who"
+   ],
+   "a": 0,
+   "say": "Where are the candles? They're in the box.",
+   "tr": "Mumlar nerede? Kutudalar."
+  },
+  {
+   "id": "d4_27",
+   "day": 4,
+   "v": 2,
+   "topic": "there_is_are",
+   "q": "Are there any matches? No, there ___.",
+   "opts": [
+    "aren't",
+    "isn't",
+    "not"
+   ],
+   "a": 0,
+   "say": "Are there any matches? No, there aren't.",
+   "tr": "Hiç kibrit var mı? Hayır, yok."
+  },
+  {
+   "id": "d4_28",
+   "day": 4,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "The lights ___ back on.",
+   "opts": [
+    "came",
+    "come",
+    "comed"
+   ],
+   "a": 0,
+   "say": "The lights came back on.",
+   "tr": "Işıklar geri geldi."
+  },
+  {
+   "id": "d4_29",
+   "day": 4,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "I ___ afraid of the dark.",
+   "opts": [
+    "wasn't",
+    "weren't",
+    "not"
+   ],
+   "a": 0,
+   "say": "I wasn't afraid of the dark.",
+   "tr": "Karanlıktan korkmadım."
+  },
+  {
+   "id": "d4_30",
+   "day": 4,
+   "v": 2,
+   "topic": "prepositions",
+   "q": "The torch is ___ the bed.",
+   "opts": [
+    "under",
+    "of",
+    "at"
+   ],
+   "a": 0,
+   "say": "The torch is under the bed.",
+   "tr": "El feneri yatağın altında."
+  },
+  {
+   "id": "d7_01",
+   "day": 7,
+   "v": 0,
+   "topic": "past_simple",
+   "q": "This week I ___ a lot of English.",
+   "opts": [
+    "learned",
+    "learn",
+    "learns"
+   ],
+   "a": 0,
+   "say": "This week I learned a lot of English.",
+   "tr": "Bu hafta çok İngilizce öğrendim."
+  },
+  {
+   "id": "d7_02",
+   "day": 7,
+   "v": 0,
+   "topic": "past_simple",
+   "q": "My family ___ a party.",
+   "opts": [
+    "planned",
+    "plan",
+    "planed"
+   ],
+   "a": 0,
+   "say": "My family planned a party.",
+   "tr": "Ailem bir parti planladı."
+  },
+  {
+   "id": "d7_03",
+   "day": 7,
+   "v": 0,
+   "topic": "party",
+   "q": "Everybody ___ \"Surprise!\"",
+   "opts": [
+    "shouted",
+    "shout",
+    "shouts"
+   ],
+   "a": 0,
+   "say": "Everybody shouted \"Surprise!\"",
+   "tr": "Herkes \"Sürpriz!\" diye bağırdı."
+  },
+  {
+   "id": "d7_04",
+   "day": 7,
+   "v": 0,
+   "topic": "party",
+   "q": "We ___ some cake.",
+   "opts": [
+    "ate",
+    "eat",
+    "eated"
+   ],
+   "a": 0,
+   "say": "We ate some cake.",
+   "tr": "Biraz pasta yedik."
+  },
+  {
+   "id": "d7_05",
+   "day": 7,
+   "v": 0,
+   "topic": "past_simple",
+   "q": "I ___ very happy.",
+   "opts": [
+    "was",
+    "were",
+    "am"
+   ],
+   "a": 0,
+   "say": "I was very happy.",
+   "tr": "Çok mutluydum."
+  },
+  {
+   "id": "d7_06",
+   "day": 7,
+   "v": 0,
+   "topic": "party",
+   "q": "We ___ songs and danced.",
+   "opts": [
+    "sang",
+    "sing",
+    "singed"
+   ],
+   "a": 0,
+   "say": "We sang songs and danced.",
+   "tr": "Şarkı söyledik ve dans ettik."
+  },
+  {
+   "id": "d7_07",
+   "day": 7,
+   "v": 0,
+   "topic": "party",
+   "q": "There ___ balloons everywhere.",
+   "opts": [
+    "were",
+    "was",
+    "is"
+   ],
+   "a": 0,
+   "say": "There were balloons everywhere.",
+   "tr": "Her yerde balonlar vardı."
+  },
+  {
+   "id": "d7_08",
+   "day": 7,
+   "v": 0,
+   "topic": "past_simple",
+   "q": "Did you ___ the party?",
+   "opts": [
+    "enjoy",
+    "enjoyed",
+    "enjoys"
+   ],
+   "a": 0,
+   "say": "Did you enjoy the party?",
+   "tr": "Partiden keyif aldın mı?"
+  },
+  {
+   "id": "d7_09",
+   "day": 7,
+   "v": 0,
+   "topic": "past_simple",
+   "q": "I ___ to the shop this afternoon.",
+   "opts": [
+    "went",
+    "go",
+    "goes"
+   ],
+   "a": 0,
+   "say": "I went to the shop this afternoon.",
+   "tr": "Bu öğleden sonra dükkâna gittim."
+  },
+  {
+   "id": "d7_10",
+   "day": 7,
+   "v": 0,
+   "topic": "party",
+   "q": "Thank you ___ the party!",
+   "opts": [
+    "for",
+    "to",
+    "of"
+   ],
+   "a": 0,
+   "say": "Thank you for the party!",
+   "tr": "Parti için teşekkürler!"
+  },
+  {
+   "id": "d7_11",
+   "day": 7,
+   "v": 1,
+   "topic": "past_simple",
+   "q": "On day 3, I ___ to the café.",
+   "opts": [
+    "went",
+    "go",
+    "goed"
+   ],
+   "a": 0,
+   "say": "On day 3, I went to the café.",
+   "tr": "3. günde kafeye gittim."
+  },
+  {
+   "id": "d7_12",
+   "day": 7,
+   "v": 1,
+   "topic": "past_simple",
+   "q": "On day 4, the lights ___ out.",
+   "opts": [
+    "went",
+    "go",
+    "goes"
+   ],
+   "a": 0,
+   "say": "On day 4, the lights went out.",
+   "tr": "4. günde ışıklar söndü."
+  },
+  {
+   "id": "d7_13",
+   "day": 7,
+   "v": 1,
+   "topic": "past_simple",
+   "q": "We ___ candles in the dark.",
+   "opts": [
+    "lit",
+    "light",
+    "lights"
+   ],
+   "a": 0,
+   "say": "We lit candles in the dark.",
+   "tr": "Karanlıkta mum yaktık."
+  },
+  {
+   "id": "d7_14",
+   "day": 7,
+   "v": 1,
+   "topic": "party",
+   "q": "My family ___ behind the sofa.",
+   "opts": [
+    "hid",
+    "hide",
+    "hided"
+   ],
+   "a": 0,
+   "say": "My family hid behind the sofa.",
+   "tr": "Ailem kanepenin arkasına saklandı."
+  },
+  {
+   "id": "d7_15",
+   "day": 7,
+   "v": 1,
+   "topic": "past_simple",
+   "q": "___ you like the cake? Yes, I did.",
+   "opts": [
+    "Did",
+    "Do",
+    "Was"
+   ],
+   "a": 0,
+   "say": "Did you like the cake? Yes, I did.",
+   "tr": "Pastayı beğendin mi? Evet, beğendim."
+  },
+  {
+   "id": "d7_16",
+   "day": 7,
+   "v": 1,
+   "topic": "party",
+   "q": "The cake ___ delicious.",
+   "opts": [
+    "was",
+    "were",
+    "did"
+   ],
+   "a": 0,
+   "say": "The cake was delicious.",
+   "tr": "Pasta çok lezzetliydi."
+  },
+  {
+   "id": "d7_17",
+   "day": 7,
+   "v": 1,
+   "topic": "past_simple",
+   "q": "We ___ a lot of photos this week.",
+   "opts": [
+    "took",
+    "take",
+    "taked"
+   ],
+   "a": 0,
+   "say": "We took a lot of photos this week.",
+   "tr": "Bu hafta çok fotoğraf çektik."
+  },
+  {
+   "id": "d7_18",
+   "day": 7,
+   "v": 1,
+   "topic": "party",
+   "q": "I ___ a present from my family.",
+   "opts": [
+    "got",
+    "get",
+    "getted"
+   ],
+   "a": 0,
+   "say": "I got a present from my family.",
+   "tr": "Ailemden bir hediye aldım."
+  },
+  {
+   "id": "d7_19",
+   "day": 7,
+   "v": 1,
+   "topic": "past_simple",
+   "q": "We ___ the party at home.",
+   "opts": [
+    "had",
+    "have",
+    "haved"
+   ],
+   "a": 0,
+   "say": "We had the party at home.",
+   "tr": "Partiyi evde yaptık."
+  },
+  {
+   "id": "d7_20",
+   "day": 7,
+   "v": 1,
+   "topic": "party",
+   "q": "Let's ___ a photo!",
+   "opts": [
+    "take",
+    "took",
+    "takes"
+   ],
+   "a": 0,
+   "say": "Let's take a photo!",
+   "tr": "Hadi bir fotoğraf çekelim!"
+  },
+  {
+   "id": "d7_21",
+   "day": 7,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "This week I ___ a shower every morning.",
+   "opts": [
+    "took",
+    "take",
+    "takes"
+   ],
+   "a": 0,
+   "say": "This week I took a shower every morning.",
+   "tr": "Bu hafta her sabah duş aldım."
+  },
+  {
+   "id": "d7_22",
+   "day": 7,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "I ___ candles and batteries on day 4.",
+   "opts": [
+    "bought",
+    "buy",
+    "buyed"
+   ],
+   "a": 0,
+   "say": "I bought candles and batteries on day 4.",
+   "tr": "4. günde mum ve pil aldım."
+  },
+  {
+   "id": "d7_23",
+   "day": 7,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "I didn't ___ about the party.",
+   "opts": [
+    "know",
+    "knew",
+    "knows"
+   ],
+   "a": 0,
+   "say": "I didn't know about the party.",
+   "tr": "Partiden haberim yoktu."
+  },
+  {
+   "id": "d7_24",
+   "day": 7,
+   "v": 2,
+   "topic": "party",
+   "q": "The party ___ a surprise.",
+   "opts": [
+    "was",
+    "were",
+    "is"
+   ],
+   "a": 0,
+   "say": "The party was a surprise.",
+   "tr": "Parti bir sürprizdi."
+  },
+  {
+   "id": "d7_25",
+   "day": 7,
+   "v": 2,
+   "topic": "party",
+   "q": "My family ___ the living room.",
+   "opts": [
+    "decorated",
+    "decorate",
+    "decorates"
+   ],
+   "a": 0,
+   "say": "My family decorated the living room.",
+   "tr": "Ailem oturma odasını süsledi."
+  },
+  {
+   "id": "d7_26",
+   "day": 7,
+   "v": 2,
+   "topic": "party",
+   "q": "We ___ and laughed.",
+   "opts": [
+    "danced",
+    "dance",
+    "dances"
+   ],
+   "a": 0,
+   "say": "We danced and laughed.",
+   "tr": "Dans ettik ve güldük."
+  },
+  {
+   "id": "d7_27",
+   "day": 7,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "Everybody ___ at the photos.",
+   "opts": [
+    "looked",
+    "look",
+    "looks"
+   ],
+   "a": 0,
+   "say": "Everybody looked at the photos.",
+   "tr": "Herkes fotoğraflara baktı."
+  },
+  {
+   "id": "d7_28",
+   "day": 7,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "What ___ you do on day 3?",
+   "opts": [
+    "did",
+    "do",
+    "does"
+   ],
+   "a": 0,
+   "say": "What did you do on day 3?",
+   "tr": "3. günde ne yaptın?"
+  },
+  {
+   "id": "d7_29",
+   "day": 7,
+   "v": 2,
+   "topic": "past_simple",
+   "q": "I ___ a great week!",
+   "opts": [
+    "had",
+    "have",
+    "has"
+   ],
+   "a": 0,
+   "say": "I had a great week!",
+   "tr": "Harika bir hafta geçirdim!"
+  },
+  {
+   "id": "d7_30",
+   "day": 7,
+   "v": 2,
+   "topic": "party",
+   "q": "There ___ a big cake on the table.",
+   "opts": [
+    "was",
+    "were",
+    "are"
+   ],
+   "a": 0,
+   "say": "There was a big cake on the table.",
+   "tr": "Masada büyük bir pasta vardı."
+  }
+ ]
+}
