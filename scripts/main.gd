@@ -860,7 +860,15 @@ func _lie_blend(t: float) -> void:
 	var hy: float = (sk.global_transform * sk.get_bone_global_pose(sk.find_bone("Hips")).origin).y
 	hero.position.y += (lerpf(M + 0.1, M + 0.16, t) - hy) * sin(t * PI)
 
+## v33 (red) STANDARD BED POSE: every "lying in bed" state (go-to-bed on any day, day-1 back from the hospital, the lying
+## locks of bedtime / story_home / day 4 / day 7, the morning start) goes through _pose_sleep() / bedsit_to_lie() and so
+## straight into the real "sleep" clip (sleep_pose). _pose_flat() = the old rigid lying frame, only used to fit the clip
+## and under the black fade before the get-up flow (end_sleep_pose / bedsit_up).
 func _pose_sleep() -> void:
+	_pose_flat()
+	sleep_pose()
+func _pose_flat() -> void:
+	if sleep_clip: hero.transform = _flat_xf   # back to the exact flat-lying transform the clip was fitted from
 	sleep_clip = false
 	hero.rotation.y = PI / 2; _lie_blend(1.0)
 	hero.bone_offsets.clear(); hero.player.speed_scale = 1.0
@@ -877,6 +885,7 @@ const SLEEP_A := 1.9
 const SLEEP_B := 5.4
 const SLEEP_SPEED := 0.55
 var sleep_clip := false
+var _flat_xf := Transform3D.IDENTITY
 func _bone_w(bn: String) -> Vector3:
 	var sk := hero.skeleton; var i := sk.find_bone(bn)
 	return sk.global_transform * sk.get_bone_global_pose(i).origin if i >= 0 else hero.global_position
@@ -884,6 +893,7 @@ func _feet_w() -> Vector3: return (_bone_w("Foot.L") + _bone_w("Foot.R")) * 0.5
 func sleep_pose() -> void:
 	if sleep_clip or not hero.player.has_animation("sleep"): return
 	var h0 := _bone_w("Head"); var f0 := _feet_w(); var p0 := _bone_w("Hips")
+	_flat_xf = hero.transform
 	hero.bone_offsets.clear()
 	hero.model.rotation = Vector3(0, hero.model.rotation.y, 0); hero.model.position = Vector3.ZERO
 	hero.player.speed_scale = SLEEP_SPEED; hero.player.play("sleep", 0.0); hero.player.seek(SLEEP_A, true)
@@ -894,7 +904,7 @@ func sleep_pose() -> void:
 	hero.global_position += Vector3(m0.x - m1.x, p0.y - _bone_w("Hips").y, m0.z - m1.z)
 	sleep_clip = true; breathing = true
 func end_sleep_pose() -> void:
-	if sleep_clip: _pose_sleep()
+	if sleep_clip: _pose_flat()
 func _sleep_pingpong() -> void:
 	if not sleep_clip or hero.player.current_animation != "sleep": return
 	var p := hero.player.current_animation_position
@@ -940,6 +950,7 @@ func bedsit_to_lie() -> void:
 	hero.player.speed_scale = 1.0; hero.player.play("idle", 1.4, 0.0); hero.player.seek(0.0, true)
 	create_tween().tween_method(_lie_blend, 0.0, 1.0, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	await wait(1.6); hero.player.speed_scale = 0.0; breathing = true
+	sleep_pose()   # v33 (red): standard - lying down ends straight in the sleep clip (every bed path)
 
 func get_up_sequence(opening := false) -> void:
 	Life.event("wake")   # house.29: event clock
@@ -1908,11 +1919,7 @@ func _story_str(k: String) -> String:
 
 ## v33 (red): day-2 / day-3 evening: the couch talk is done and bedtime.gd has not run yet (story.d2_bed_pending / d3_bed_pending)
 func _bed_pending() -> bool:
-	var sv = App.load_save().get("story", {})
-	if not sv is Dictionary: return false
-	var d := maxi(WorldState.day, App.day)
-	return (d == 2 and bool(sv.get("d2_bed_pending", false)) and not bool(sv.get("d2_bedtime_done", false))) \
-		or (d == 3 and bool(sv.get("d3_bed_pending", false)) and not bool(sv.get("d3_bedtime_done", false)))
+	return Bedtime.pending()   # v33 (red): shared (every day)
 
 ## v32 (red): story.d3 ("shower" -> "living" -> "outside" -> "done"), only on day 3+
 func _day3_stage() -> String:

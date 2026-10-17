@@ -47,7 +47,7 @@ func log_line(sc: Node) -> void:
 		var d: DemoCharacter = sc.doctor
 		s += " doc=%s%s@(%.2f,%.2f)" % [d.player.current_animation if d.player else "?", "" if d.visible else "(hid)", d.global_position.x, d.global_position.z]
 	var ui = sc.get("ui") if sc else null
-	if ui and ui.panel.visible: s += " CAP='%s' TR(%s)='%s'" % [ui.en_l.text, "on" if ui.tr_l.visible else "off", ui.tr_l.text]
+	if ui and ui.get("panel") and ui.panel.visible: s += " CAP='%s' TR(%s)='%s'" % [ui.en_l.text, "on" if ui.tr_l.visible else "off", ui.tr_l.text]
 	var lw = sc.find_child("PartWord", true, false) if sc else null
 	if lw and lw.is_visible_in_tree(): s += " PART=" + lw.text
 	var bx := _boxes(); if bx != 1: s += " BOXES=%d" % bx
@@ -58,7 +58,13 @@ func log_line(sc: Node) -> void:
 func _run() -> void:
 	await w(1.0)
 	if mode in ["end", "d3eve"]: await _run_end(); return
-	_patch_state({"tr": false})
+	if mode == "d1": await _run_d1(); return
+	var gender := "men"; var age := "adult"
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--gender="): gender = a.substr(9)
+		if a.begins_with("--age="): age = a.substr(6)
+	_patch_state({"tr": false, "gender": gender, "age": age})
+	Audio.set_narrator(App.narrator_for(gender, age)); print("QA body ", gender, "/", age, " narrator ", Audio.narrator)
 	WorldState.load_game(); WorldState.day = 2; App.day = 2
 	App.came_from = "outside"
 	if mode == "direct":   # --mode=direct : straight into the day-2 visit (home-first save state), no world load
@@ -97,6 +103,33 @@ func _follow() -> void:
 ## --mode=end : day-2 ending. Fixture: work + hospital done. home_car spawn -> pan to the door -> front door -> living room
 ## "Talk to your family." -> couch chat (puzzles) -> "Go to bed." -> bedroom -> bedtime (dream, test, "I am sleeping.") -> day 3.
 ## Logs every spoken line with the scene it was spoken in (the stale "Go to the living room." check) + frames.
+## --mode=d1 : day 1 back home from the hospital (story_home): lying in bed (standard sleep clip from the start), review
+## skipped, big test autoplayed, "I am tired. I should rest." -> night -> day 2 get-up. Frames + LOG (body anim).
+func _run_d1() -> void:
+	var gender := "men"; var age := "adult"
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--gender="): gender = a.substr(9)
+		if a.begins_with("--age="): age = a.substr(6)
+	_patch_state({"tr": false, "gender": gender, "age": age})
+	Audio.set_narrator(App.narrator_for(gender, age))
+	App.patch_save({"story": {}, "day": 1}); WorldState.load_game(); WorldState.day = 1; App.day = 1
+	t0 = Time.get_ticks_msec()
+	App.came_from = "hospital"; App.continue_requested = true; get_tree().change_scene_to_file("res://main.tscn")
+	var tick := 0; var tired := -1.0
+	while _t() < 420.0:
+		await w(0.4); tick += 1
+		var sc = get_tree().current_scene
+		if sc == null or not sc.has_method("objective"): continue
+		var b: DemoCharacter = sc.hero
+		print("LOGD1 t=%.1f anim=%s sleep_clip=%s rot=%s pos=%s" % [_t(), b.player.current_animation, str(sc.get("sleep_clip")), str(b.rotation), str(b.global_position)])
+		if tick % 3 == 0 or (tired > 0 and _t() - tired < 10.0): await frame("_d1")
+		for bt in sc.find_children("*", "Button", true, false):
+			if bt.is_visible_in_tree() and String(bt.text).begins_with("Skip the review"): bt.pressed.emit(); print("QA skip review")
+		await _autoplay(sc)
+		if tired < 0 and hsaid.size() > 0 and hsaid[-1] == "I am tired. I should rest.": tired = _t(); print("QA tired t=", tired)
+		if tired > 0 and _t() - tired > 30.0: break
+	print("QA DONE d1 t=", _t()); get_tree().quit()
+
 func _run_end() -> void:
 	var gender := "men"; var age := "adult"
 	for a in OS.get_cmdline_user_args():

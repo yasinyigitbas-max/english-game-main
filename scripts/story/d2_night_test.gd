@@ -20,8 +20,10 @@ func run(h: Node, phone) -> Array:
 	if not ph.page in ["lesson", "quiz"]: ph.open(Rect2(), "home"); await get_tree().create_timer(0.5).timeout
 	_pick_version(); qi = 0; score = 0
 	ph.page = "quiz"   # phone.gd lock: no close / home / back-out while the test runs
+	ph.set_meta("ext_test", true)   # v33 (red): phone.gd empty-page watchdog must not rebuild its own quiz over this test
 	_question()
 	var res: Array = await finished
+	ph.remove_meta("ext_test")
 	ph.page = "home"
 	queue_free()
 	return res

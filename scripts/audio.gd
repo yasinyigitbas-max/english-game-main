@@ -61,8 +61,9 @@ static func norm(s: String) -> String:
 		out = out.replace("  ", " ")
 	return out.strip_edges()
 
-func has_clip(text: String) -> bool:
-	return index.has(norm(text))
+func has_clip(text: String) -> bool:   # v33 (red): "the CHOSEN narrator can say this line" (universal narrator)
+	if narrator == "f" and index.has(norm(text)): return true
+	return _own_path(text) != ""
 
 ## narrator-voices: optional narrator packs (voice_m/ Male, voice_c/ Boy, voice_g/ Girl), each with its own index
 ## data/voice_index_<v>.json (same norm keys / format as data/voice_index.json). Only narrator/player lines are in them
@@ -104,7 +105,10 @@ func _clip(key: String) -> AudioStream:
 	if narrator != "f" and not key.begins_with("v_"):
 		var a := _alt_clip(key)
 		if a: alt_stats.alt += 1; return a
+		var o := _own_file(key)
+		if o: alt_stats.alt += 1; return o
 		if index.has(key): alt_stats.fallback += 1
+		return null   # v33 (red) UNIVERSAL NARRATOR: never the f narrator's clip under the m / c / g narrator
 	if not index.has(key):
 		return null
 	var e: Array = index[key]
@@ -114,6 +118,32 @@ func _clip(key: String) -> AudioStream:
 	var vf: FileAccess = voice_files[c]
 	vf.seek(int(e[1]))
 	return AudioStreamOggVorbis.load_from_buffer(vf.get_buffer(int(e[2])))
+
+## v33 (red) UNIVERSAL NARRATOR - the ONE lookup for a narrator / player line, always in the narrator chosen at creation:
+## f: house index, else the outdoor ljspeech clip voice/<md5>.ogg, else voice_drive/f/; m / c / g: the pack (voice_<v>/),
+## else voice_own/<v>/<md5 of norm>.ogg (same Kokoro speaker as the pack), else voice_drive/<v>/. Never another voice.
+func own_clip(text: String) -> AudioStream:
+	var k := norm(text)
+	if narrator == "f" and index.has(k): return _clip(k)
+	if narrator != "f":
+		var a := _alt_clip(k)
+		if a: return a
+	var p := _own_path(text)
+	if p == "" or p == "pack": return null
+	var st = load(p)
+	return st as AudioStream if st is AudioStream else null
+func _own_file(key: String) -> AudioStream:
+	var p := "res://voice_own/%s/%s.ogg" % [narrator, key.md5_text().substr(0, 12)]
+	if not ResourceLoader.exists(p): return null
+	var st = load(p)
+	return st as AudioStream if st is AudioStream else null
+func _own_path(text: String) -> String:
+	if narrator != "f" and alt_index.has(norm(text)): return "pack"
+	var ps := ["res://voice_own/%s/%s.ogg" % [narrator, norm(text).md5_text().substr(0, 12)],
+		"res://voice_drive/%s/%s.ogg" % [narrator, text.md5_text().substr(0, 12)]]
+	if narrator == "f": ps.push_front("res://voice/%s.ogg" % text.md5_text().substr(0, 12))
+	for p in ps: if ResourceLoader.exists(p): return p
+	return ""
 
 func envelope(text: String) -> PackedByteArray:
 	var k := norm(text)
@@ -193,7 +223,7 @@ func say(text: String, interrupt := true) -> void:
 		return
 	if _dup(text): return
 	# house.17: global voice queue - a new line NEVER cuts the current one (interrupt is ignored)
-	var st := _clip(norm(text))
+	var st := own_clip(text)   # v33 (red): universal narrator (chosen voice only)
 	if st:
 		queue.append({"stream": st, "what": text})
 		stats.clip += 1
@@ -210,7 +240,14 @@ func say_as(text: String, voice: String) -> void:
 	var st := _clip("v_%s %s" % [voice, norm(text)]) if voice != "" else null
 	if st and _dup(text, voice): return
 	if st: queue.append({"stream": st, "what": text, "v": voice}); stats.clip += 1; spoke.emit(text); _kick()
+	elif narrator != "f" and index.has(norm(text)) and not alt_index.has(norm(text)) and not _dup(text):   # NPC line without its own clip: as before v33
+		var f := _f_clip(norm(text))
+		if f: queue.append({"stream": f, "what": text}); stats.clip += 1; spoke.emit(text); _kick()
 	else: say(text)
+func _f_clip(key: String) -> AudioStream:
+	var e: Array = index[key]; var c := int(e[0])
+	if c >= voice_files.size() or voice_files[c] == null: return null
+	voice_files[c].seek(int(e[1])); return AudioStreamOggVorbis.load_from_buffer(voice_files[c].get_buffer(int(e[2])))
 
 var _sherpa = null
 var _sherpa_ok := -1   # -1 unknown, 0 failed, 1 ready

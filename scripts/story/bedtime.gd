@@ -21,6 +21,13 @@ var bed_fixes := 0
 var recap: Array = []   # [photo key, EN caption]
 var night := 2          # v32c (red): 2 = day-2 night -> day 3, 3 = day-3 night -> day 4
 
+## v33 (red): ONE answer for "the evening chat is over, bedtime is pending" (any day: d<N>_bed_pending and not
+## d<N>_bedtime_done). main.gd objective(), bathroom.gd and the routine captions use it, so no stale
+## "Go to the living room." can be set or spoken after the family chat.
+static func pending() -> bool:
+	var sv := _story()
+	var d := maxi(WorldState.day, App.day)
+	return bool(sv.get("d%d_bed_pending" % d, false)) and not bool(sv.get("d%d_bedtime_done" % d, false))
 static func _story() -> Dictionary:
 	var sv = App.load_save().get("story", {})
 	return sv if sv is Dictionary else {}

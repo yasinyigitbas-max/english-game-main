@@ -133,7 +133,7 @@ func run_d2(mode: String) -> void:
 		if p == Game.WORLD_SCENE and seen.size() > 1 and Game.spawn == "home_car": break
 	var sv: Dictionary = App.load_save().get("story", {})
 	ok(bool(sv.get("day2_work_done", false)) and bool(sv.get("day2_hospital_done", false)), "d2 (%s first): both visits done" % ("hospital" if hosp_first else "work"))
-	ok(qsaid.has("Now I'm going to work." if hosp_first else "Now I'm going to the hospital."), "d2: 'Now I'm going to ...' line between the visits")
+	ok((qsaid.any(func(t): return String(t) in ["Now I'm going to work.", "Now I'm going to school.", "Now I'm going shopping."] or String(t).begins_with("My mom is driving me") or String(t).begins_with("My dad is driving me"))) if hosp_first else (qsaid.has("Now I'm going to the hospital.") or qsaid.any(func(t): return String(t).ends_with("driving me to the hospital."))), "d2: 'Now I'm going to ...' line between the visits")
 	ok(Game.spawn == "home_car" and get_tree().current_scene.scene_file_path == Game.WORLD_SCENE, "d2: second visit -> street spawn home_car")
 	wsc = get_tree().current_scene
 	await w(1.5)

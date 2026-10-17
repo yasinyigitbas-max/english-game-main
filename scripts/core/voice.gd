@@ -8,18 +8,11 @@ var enabled := true
 
 static func clip_path(en: String) -> String: return "res://voice/%s.ogg" % en.md5_text().substr(0, 12)
 
-func has_clip(en: String) -> bool: return Audio.has_clip(en) or ResourceLoader.exists(clip_path(en))
+func has_clip(en: String) -> bool: return Audio.has_clip(en)   # v33 (red): the chosen narrator's clip
 
 func say(en: String) -> void:
 	if not enabled or en.strip_edges() == "": return
-	if Audio.has_clip(en): Audio.say(en); return
-	var alt := Audio.narrator_alt(en)   # v31: selected narrator pack before the default outdoor clip
-	if alt: Audio.say_stream(alt, en); return
-	var p := clip_path(en)
-	if ResourceLoader.exists(p):
-		var st = load(p)   # blue v29: a broken / stale-import clip is skipped (caption still shows)
-		if st is AudioStream: Audio.say_stream(st, en)
-		else: push_warning("Voice: could not load " + p)
+	Audio.say(en)   # v33 (red): universal narrator - Audio.own_clip (chosen voice only; f: same ljspeech model on device; else silent)
 
 func clip_len(en: String) -> float:
 	var p := clip_path(en)

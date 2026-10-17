@@ -21,6 +21,7 @@ const BODY2 := [
 func _player_body() -> void:
 	super._player_body()
 	body.rotation = Vector3(0, 0, 0); body.position = Vector3(0, 0.2, -0.45); body.play("sit_idle", 0.0)
+	_fit_to_bed("Hips")   # v33 (red): a child sits on the bed, not in it
 
 func set_tr(on: bool) -> void:
 	S.tr = on
@@ -87,10 +88,8 @@ func _run() -> void:
 	var sv = App.load_save().get("story", {})
 	if not (sv is Dictionary and bool(sv.get("day2_work_done", false))) and maxi(WorldState.day, App.day) == 2:
 		await ui.line(_go_line())   # v33 (red): "Now I'm going to school." for pupils / teachers (the work summary then says "I went to school.")
-		if ChildDrive.active(): ChildDrive.trip(get_tree(), "hospital", "work"); return   # v33 child-drive
 		load("res://scripts/story/work_summary.gd").play(get_tree())
 		return
-	if maxi(WorldState.day, App.day) == 2 and ChildDrive.active(): ChildDrive.trip(get_tree(), "hospital", "home"); return   # v33 child-drive
 	if maxi(WorldState.day, App.day) == 2:   # v32-polish: both visits done -> outside beside the car on the home lot (not inside the house)
 		App.came_from = "outside"; Game.go_to(Game.WORLD_SCENE, "home_car"); return
 	if next_scene != "": get_tree().change_scene_to_file(next_scene)
@@ -99,6 +98,7 @@ func _run() -> void:
 func _go_line() -> String:
 	var st := CharacterHook.state()
 	var lbl: String = load("res://scripts/story/work.gd").car_label(String(st.get("job", "")), CharacterHook.is_child(st))
+	if ChildDrive.active(): return ChildDrive.drive_line(ChildDrive.place_of("work"))   # v33: child "My mom is driving me to school."
 	return {"Go to school": "Now I'm going to school.", "Go shopping": "Now I'm going shopping."}.get(lbl, "Now I'm going to work.")
 
 ## ---- third-person camera + body-part close-ups on the PLAYER's skeleton
@@ -115,6 +115,34 @@ const FRAME := {
 	"head": [0.6, 0.35, 0.3], "neck": [0.55, 0.08, 0.35], "shoulders": [0.8, 0.5, 0.35], "back": [0.85, 0.4, 0.35],
 	"stomach": [0.75, 0.75, 0.3], "hands and fingers": [0.6, 0.7, 0.4], "knees": [0.75, 0.65, 0.35], "feet": [0.85, 0.85, 0.35],
 	"mouth and teeth": [0.45, 0.0, 0.2], "nose": [0.45, 0.06, 0.3]}
+## v33 (red): pixel-safe close-ups - the arrow tip sits on the part at the frame centre, and the camera distance is the
+## smallest that keeps every point of the part's FIT set inside the safe area (below the part label, above the caption box)
+const FIT := {   # word: [[bone, up offset in m at scale 1], ...]
+	"head": [["Head", 0.0], ["Head", 0.3]], "neck": [["Neck", -0.05], ["Head", 0.3]], "ears": [["Head", 0.0], ["Head", 0.22]],
+	"eyes": [["Head", 0.04], ["Head", 0.2]], "nose": [["Head", 0.02], ["Head", 0.18]], "mouth and teeth": [["Head", -0.02], ["Head", 0.14]],
+	"shoulders": [["UpperArm.L", 0.05], ["UpperArm.R", 0.05], ["Neck", 0.0]], "chest": [["Chest", 0.0], ["UpperArm.L", 0.0], ["UpperArm.R", 0.0]],
+	"back": [["Chest", 0.1], ["Hips", 0.0]], "stomach": [["Abdomen", 0.0], ["Hips", 0.0], ["Torso", 0.0]],
+	"hands and fingers": [["Hand.L", -0.08], ["Hand.L", 0.08], ["LowerArm.L", 0.0]], "arms": [["UpperArm.L", 0.0], ["Hand.L", 0.0]],
+	"legs": [["UpperLeg.L", 0.0], ["Foot.L", 0.0], ["UpperLeg.R", 0.0]], "knees": [["LowerLeg.L", 0.08], ["LowerLeg.R", 0.08]],
+	"feet": [["Foot.L", -0.05], ["Foot.R", -0.05], ["Foot.L", 0.1]]}
+func _k() -> float: return float(body.model.scale.y) if body and body.model else 1.0
+func _bone_pos(bn: String):
+	var sk: Skeleton3D = body.skeleton
+	var i := sk.find_bone(bn)
+	return sk.global_transform * sk.get_bone_global_pose(i).origin if i >= 0 else null
+func _fit_dist(word: String, p: Vector3, dir: Vector3, d: float) -> float:
+	var vs := get_viewport().get_visible_rect().size
+	var tv := tan(deg_to_rad(cam.fov) * 0.5); var th := tv * vs.x / maxf(1.0, vs.y)
+	var z := dir; var x := Vector3.UP.cross(z).normalized(); var y := z.cross(x)
+	var need := d
+	for e in FIT.get(word, []):
+		var q = _bone_pos(String(e[0]))
+		if q == null: continue
+		var o: Vector3 = (q as Vector3) + Vector3(0, float(e[1]) * _k(), 0) - p
+		# safe area: 58 % of the half height (part label on top, caption box at the bottom), 75 % of the half width
+		need = maxf(need, o.dot(z) + absf(o.dot(y)) / (tv * 0.58) + 0.02)
+		need = maxf(need, o.dot(z) + absf(o.dot(x)) / (th * 0.75) + 0.02)
+	return minf(need, d * 2.5)
 func _yaw_between(from: Vector3, to: Vector3) -> float: return atan2(to.x - from.x, to.z - from.z) + MODEL_YAW
 func _part_pos(word: String) -> Vector3:
 	var sk: Skeleton3D = body.skeleton
@@ -122,7 +150,7 @@ func _part_pos(word: String) -> Vector3:
 	for bn in PARTS[word][1]:
 		var i := sk.find_bone(bn)
 		if i >= 0: p = sk.global_transform * sk.get_bone_global_pose(i).origin; break
-	if word in ["ears", "eyes", "nose", "mouth and teeth", "head"]: p += Vector3(0, {"ears": 0.08, "eyes": 0.1, "nose": 0.075, "mouth and teeth": 0.04, "head": 0.16}[word], 0)   # v306: tuned for the close-ups
+	if word in ["ears", "eyes", "nose", "mouth and teeth", "head"]: p += Vector3(0, {"ears": 0.08, "eyes": 0.1, "nose": 0.075, "mouth and teeth": 0.04, "head": 0.16}[word] * _k(), 0)   # v306: tuned for the close-ups (v33: x body scale)
 	if word == "knees":
 		var i := sk.find_bone(PARTS[word][1][0]); if i >= 0: p = sk.global_transform * sk.get_bone_global_pose(i).origin
 	return p
@@ -170,16 +198,18 @@ func _zoom_part(word: String, hold: float) -> void:
 	var fwd := (doctor.global_position - body.global_position); fwd.y = 0; fwd = fwd.normalized()
 	var side := fwd.cross(Vector3.UP)
 	var fr: Array = FRAME[word]
-	var d: float = fr[0]
+	var d: float = float(fr[0]) * _k()   # v33 (red): child / short / tall bodies: framing scales with the body
 	if word == "back": fwd = -fwd   # the doctor looks at the back from behind
-	if word == "ears": p += -side * 0.075   # v306: the ear on the camera side
+	if word == "ears": p += -side * 0.075 * _k()   # v306: the ear on the camera side
 	_show_label(word)
 	_set_iv_visible(word != "back")   # v31.1: the IV stand sits between the camera and the player's back
 	doctor.visible = false   # v306: the close camera sits where the doctor stands; never film his side
 	# v33 (red): the v306 framing (0.6 x distance, almost level) put the camera INSIDE the thigh / knee / forearm and so
 	# close to the head that the sit_idle sway turned "mouth and teeth" / "ears" into shots of the hair. Per-part distance,
 	# elevation (look down past the thighs at the stomach, hands, knees, feet; past the bed rail at the feet) and side.
-	var cp: Vector3 = p + (fwd - side * float(fr[2]) + Vector3(0, float(fr[1]), 0)).normalized() * d
+	var dir: Vector3 = (fwd - side * float(fr[2]) + Vector3(0, float(fr[1]), 0)).normalized()
+	d = _fit_dist(word, p, dir, d)   # v33 (red): back off until the whole part (+ context, e.g. the head for "neck") is in frame
+	var cp: Vector3 = p + dir * d
 	await _cam_to(cp, p, 0.7)
 	_arrow_at(p, cp, d)
 	if hold > 0.0: await get_tree().create_timer(hold).timeout; _hide_label()

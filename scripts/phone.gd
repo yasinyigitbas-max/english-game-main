@@ -115,7 +115,7 @@ func _update_capgap() -> void:
 	if capgap == null or not is_visible_in_tree(): return
 	var h := get_viewport_rect().size.y
 	var top := _caption_top(get_tree().root, h)
-	var want := clampf(h - top + 14.0, CAPGAP_MIN, h * 0.42)
+	var want := clampf(h - top + 14.0, 8.0 if has_meta("ext_test") else CAPGAP_MIN, h * 0.42)   # v33 (red): scripted tests use the full screen (no caption box)
 	if absf(capgap.custom_minimum_size.y - want) > 1.0: capgap.custom_minimum_size.y = want
 
 func _fit() -> void:
@@ -154,7 +154,8 @@ func _lock_tick() -> void:
 		if hck: hck.text = WorldState.clock_text()
 		if bt: bt.text = ("%s %d   4G   %d%%" % [App.tx("Day"), WorldState.day, int(Life.battery)]) if Life.NEEDS_ENABLED else ("%s %d   4G" % [App.tx("Day"), WorldState.day])   # v32-polish: no battery % while off
 	# house.24.2: safety - a locked lesson/quiz page that failed to build (empty body) is rebuilt, then released
-	if is_locked() and page in ["lesson", "quiz"] and body and find_child("LessonNext" if page == "lesson" else "Options", true, false) == null:
+	# v33 (red): not while a scripted test (d2/d3 night test) owns the phone - its score page / puzzles have no "Options"
+	if is_locked() and page in ["lesson", "quiz"] and body and not has_meta("ext_test") and find_child("LessonNext" if page == "lesson" else "Options", true, false) == null:
 		_empty_t += get_process_delta_time()
 		if _empty_t > 2.0:
 			_empty_t = 0.0; _rebuilds += 1

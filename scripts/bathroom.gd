@@ -176,7 +176,9 @@ func _ready() -> void:
 	hand3d.billboard = BaseMaterial3D.BILLBOARD_ENABLED; hand3d.no_depth_test = true; hand3d.render_priority = 10; hand3d.visible = false; add_child(hand3d)
 	_load_voice(); _build_ui(); _apply_states()
 	_stable_lights()   # v304: final omni settings from frame 0 (no shadow/variant switch 0.5 s in, right before the mirror pan)
-	if (S.face_done and S.teeth_done) or WorldState.day >= 2:
+	if Bedtime.pending():   # v33 (red): after the family chat the evening goal is bed, never the living room
+		_set_mission("Go to bed.")
+	elif (S.face_done and S.teeth_done) or WorldState.day >= 2:
 		_set_mission("Go to the living room.")
 	else:
 		# Objectives feed only — bathroom-door / mirror pans: black bot via Life.guide_to
@@ -890,7 +892,7 @@ func wash_face() -> void:
 	if not S.face_done:
 		S.face_done = true; await caption("My face is clean."); Audio.good(); task_completed.emit("wash_face")
 		Objectives.complete("Wash your face.")
-		if S.teeth_done: Objectives.set_list(["Go to the living room."]); _set_mission("Go to the living room.")
+		if S.teeth_done: Objectives.set_list([_next_goal()]); _set_mission(_next_goal())
 		else: Objectives.set_list(["Brush your teeth."]); _set_mission("Brush your teeth.")
 		_routine_check(); await wait(1.8)
 
@@ -960,7 +962,7 @@ func brush_teeth() -> void:
 	if not S.teeth_done:
 		S.teeth_done = true; await caption("My teeth are clean."); Audio.good(); task_completed.emit("brush_teeth")
 		Objectives.complete("Brush your teeth.")
-		if S.face_done: Objectives.set_list(["Go to the living room."]); _set_mission("Go to the living room.")
+		if S.face_done: Objectives.set_list([_next_goal()]); _set_mission(_next_goal())
 		else: Objectives.set_list(["Wash your face."]); _set_mission("Wash your face.")
 		_routine_check(); await wait(1.8)
 
@@ -1500,11 +1502,12 @@ func _vclip(key: String) -> AudioStream:
 var voice_log: Array = []   # QA: which clips were queued
 func say(t: String) -> void:
 	var alt := Audio.narrator_alt(t)   # v31: Male / Boy / Girl narrator pack first (universal narrator setting)
-	var en := alt if alt else _vclip("en:" + t)
+	var en := alt if alt else (_vclip("en:" + t) if Audio.narrator == "f" else Audio.own_clip(t))   # v33 (red): own bank only for the f narrator
 	if en: Audio.say_stream(en, t); voice_log.append("en:" + t)   # house.17: global queue
 	elif Voice.has_clip(t): Voice.say(t)   # v29 review: house/outdoor ljspeech clip only, never device TTS
 	_vnext()
 
+func _next_goal() -> String: return "Go to bed." if Bedtime.pending() else "Go to the living room."   # v33 (red)
 func _vnext() -> void:
 	if vqueue.is_empty() or vplayer.playing: return
 	vplayer.stream = vqueue.pop_front(); vplayer.play()
@@ -1513,7 +1516,7 @@ func _vnext() -> void:
 func _routine_check() -> void:
 	if S.face_done and S.teeth_done:
 		_save_progress()
-		await wait(1.2); await caption("Go to the living room.")
+		await wait(1.2); await caption(_next_goal())
 
 ## house.24.1: same stable lighting as the living room: no lamp specular / distance fade / omni shadows (no camera-dependent hot spots)
 func _stable_lights() -> void:

@@ -339,8 +339,23 @@ func _player_body() -> void:
 	body = DemoCharacter.new(); add_child(body); body.setup(String(App.load_save().get("state", {}).get("gender", "men")))
 	CharacterHook.apply(body, CharacterHook.creator(get_tree()))
 	body.play("idle", 0.0); body.position = Vector3(0, 0.62, -0.15); body.rotation = Vector3(-PI / 2, 0, 0)
+	_fit_to_bed("Head")   # v33 (red): a child's head on the pillow too
 	for n in body.find_children("*", "VisualInstance3D", true, false): (n as VisualInstance3D).layers = 2
 	cam.cull_mask = 1
+
+## v33 (red): child / short / tall bodies (model scale k != 1): move the body so the anchor bone sits where the scale-1
+## body has it - a child sits ON the exam bed (hips on the mattress, legs hanging) / lies with the head on the pillow,
+## instead of sinking into the bed. Adults with the default height: unchanged.
+func _fit_to_bed(anchor: String) -> void:
+	if body == null or body.model == null or body.skeleton == null: return
+	var k: float = body.model.scale.y
+	if absf(k - 1.0) < 0.01: return
+	if body.player: body.player.advance(0.0)
+	var sk: Skeleton3D = body.skeleton
+	var i := sk.find_bone(anchor)
+	if i < 0: return
+	var rel: Vector3 = sk.global_transform * sk.get_bone_global_pose(i).origin - body.global_position
+	body.global_position += rel * (1.0 / k - 1.0)
 
 ## v29 (M4): polaroid from an offscreen camera at the bedside so the player (in the bed) is in the photo
 func _snap_bed(key: String) -> void:
