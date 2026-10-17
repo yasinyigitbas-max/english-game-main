@@ -67,6 +67,7 @@ func run() -> void:
 		var dr := get_tree().root.get_node_or_null("Day56Routine")
 		if dr == null or dr._busy: continue
 		var o: String = String(dr._cur.get("en", ""))
+		if o == "" and Objectives.items.size() == 1: o = String(Objectives.items[0].en)
 		if s.get("mode") != null and String(s.mode) != "play": continue
 		if Audio.is_speaking(): continue
 		var key := "%d|%s|%s|%s" % [d, Day56.stage(d), k, o]

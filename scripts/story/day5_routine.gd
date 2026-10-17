@@ -154,7 +154,9 @@ func _enter(s: Node) -> void:
 				set_stage(day, "event")
 				var ev = load("res://scripts/story/day5_shop.gd").new(); ev.name = "Day5Shop"; ev.day = day; ev.D = D; ev.sc = s; s.add_child(ev)
 				await ev.run()
-				if stage(day) == "home": await ev.exit_prompt()
+				if stage(day) == "home":
+					_cur = {"id": "Go outside.", "en": "Go outside.", "tr": "Dışarı çık."}
+					await ev.exit_prompt()
 		"home":
 			if k == "outside":
 				var gh: Array = ["Go inside.", "İçeri gir."] if day == 6 else GO_HOME
