@@ -88,10 +88,6 @@
     "tr": "Kafede sipariş",
     "rows": [
      [
-      "What can I get you?",
-      "Ne alırsınız?"
-     ],
-     [
       "I'd like a hot chocolate, please.",
       "Bir sıcak çikolata istiyorum, lütfen."
      ],
@@ -117,7 +113,6 @@
      ]
     ],
     "say": [
-     "What can I get you?",
      "I'd like a hot chocolate, please.",
      "Can I have a cookie, too?",
      "Is that for here or to go?",
@@ -255,15 +250,6 @@
     ],
     "a": 1,
     "say": "Three sandwiches, please."
-   },
-   {
-    "q": "What can I ___ you?",
-    "opts": [
-     "get",
-     "got"
-    ],
-    "a": 0,
-    "say": "What can I get you?"
    },
    {
     "q": "For here, ___.",

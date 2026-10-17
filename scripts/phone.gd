@@ -65,6 +65,14 @@ func job(id: String) -> Dictionary:
 	for j in jobs_data.get("jobs", []): if j.id == id: return j
 	return {}
 
+## live or save.json chosen job (never re-prompt once chosen)
+func _saved_job() -> String:
+	var S: Dictionary = main.S if main else {}
+	var j := String(S.get("job", ""))
+	if j != "": return j
+	var st = App.load_save().get("state", {})
+	return String(st.get("job", "")) if st is Dictionary else ""
+
 func role(id: String) -> Dictionary:
 	for r in fam_data.get("roles", []): if r.id == id: return r
 	return {}
@@ -382,7 +390,7 @@ static func date_text() -> String:
 func apps() -> Array:
 	var S: Dictionary = main.S if main else {}
 	var out := []
-	if S.get("job", "") == "": out.append(["jobs", "Jobs", "app_jobs"])
+	if _saved_job() == "": out.append(["jobs", "Jobs", "app_jobs"])
 	else: out.append(["family", "Family", "app_family"]); out.append(["calendar", "Calendar", "app_calendar"])
 	out += [["grammar", "Grammar", "app_grammar"], ["words", "Words", "app_words"], ["me", "Me", "app_me"]]
 	return out
@@ -399,7 +407,7 @@ func _home() -> void:
 	var nm: String = S.get("name", "")
 	var g := _l("Hi, %s!" % nm if nm != "" else "Hi!", 30, true); g.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT; hi.add_child(g)
 	var gt := _trl(_l("Merhaba, %s!" % nm if nm != "" else "Merhaba!", 17, false, TR_C)); gt.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT; hi.add_child(gt)   # v31.1: TR only with TR on
-	var jb: String = S.get("job", "")
+	var jb: String = _saved_job()
 	var st := _l(i_am(job(jb)) if jb != "" else "Choose a job in the Jobs app.", 19, false, BLUE if jb == "" else MUTED)
 	st.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT; hi.add_child(st)
 	var gap := Control.new(); gap.custom_minimum_size.y = 14; v.add_child(gap)
@@ -603,10 +611,15 @@ func _job_done() -> void:
 	var r := VBoxContainer.new(); r.alignment = BoxContainer.ALIGNMENT_CENTER; r.add_theme_constant_override("separation", 6); h.add_child(r)
 	r.add_child(_l("Job saved!", 22, true, GREEN))
 	r.add_child(_l(i_am(sel), 44, true))
-	r.add_child(_l("Next: tell me about your family.", 24, false, MUTED))
-	r.add_child(_l("Sırada: aileni anlat.", 16, false, TR_C))
+	var fam_ok: bool = main != null and main.has_method("_family_ok") and bool(main._family_ok())
+	if not fam_ok:
+		r.add_child(_l("Next: tell me about your family.", 24, false, MUTED))
+		r.add_child(_l("Sırada: aileni anlat.", 16, false, TR_C))
 	var gap := Control.new(); gap.custom_minimum_size.y = 8; r.add_child(gap)
-	var nb := _btn("Next: my family", func(): Audio.click(); show_page("family"), Vector2(280, 62), true); nb.name = "NextFamily"; r.add_child(nb)
+	if fam_ok:
+		var hb := _btn("Done", func(): Audio.click(); show_page("home"), Vector2(280, 62), true); hb.name = "JobDoneHome"; r.add_child(hb)
+	else:
+		var nb := _btn("Next: my family", func(): Audio.click(); show_page("family"), Vector2(280, 62), true); nb.name = "NextFamily"; r.add_child(nb)
 
 # ------------------------------------------------------------ family: lesson -> check -> creator
 func _family_entry() -> void:
