@@ -75,7 +75,9 @@ func toggle_tr(on: bool) -> void:
 
 # ---- host API used by phone.gd
 func caption(t: String, _speak := true) -> void:
-	if ui: ui.en_l.text = t; ui.tr_l.text = StoryUI.tr_of(t); ui._sync_tr(); ui.panel.visible = t != ""   # v32-polish: same box, claim() via visibility
+	if ui:
+		ui.en_l.text = t; ui.tr_l.text = StoryUI.tr_of(t); ui._sync_tr(); ui.panel.visible = t != ""   # v32-polish: same box
+		if t != "": StoryUI.claim(ui.panel)   # v32-polish: hide any other bottom box even if this one was already up
 func phone_event(_a: String) -> void: pass
 func extra_tr(_t: String) -> String: return ""
 func is_child() -> bool: return String(App.load_save().get("state", {}).get("age", "adult")) == "child"

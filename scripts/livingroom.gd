@@ -240,6 +240,7 @@ func voice_of(b: Dictionary) -> String:
 func caption_live(line: String, tr_line := "") -> void:
 	if tr_line != "": XTR[line] = tr_line
 	cap_text = line; cap_serial += 1; cap_panel.visible = line != ""; _refresh_text()
+	if cap_panel.visible: StoryUI.claim(cap_panel)   # v32-polish: also when the box was already up (no visibility_changed) -> any other box hides
 
 func _say_me(en: String, tr_line: String) -> void:
 	var line := "Me: " + en; XTR[line] = "Ben: " + tr_line
@@ -1824,6 +1825,7 @@ func _fill_tasks() -> void:
 var cap_serial := 0
 func caption(t: String, speak := true) -> void:
 	cap_text = t; cap_panel.visible = t != ""
+	if cap_panel.visible: StoryUI.claim(cap_panel)   # v32-polish: also when the box was already up (no visibility_changed) -> any other box hides
 	if t != "": captioned.emit(t)
 	cap_serial += 1
 	var my := cap_serial
