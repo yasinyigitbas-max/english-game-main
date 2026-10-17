@@ -137,6 +137,9 @@ func run() -> void:
 			print("D56QA WORK walk car=%s" % str(car.global_position if car else "-"))
 			if car and pl: await pl.move_to(car.global_position + (pl.global_position - car.global_position).normalized() * 2.4)
 			continue
+		if k == "livingroom.tscn" and Objectives.items.is_empty() and Day56.stage(d) == "out" and _work_t > 0 and t - _work_t > 60 and not Audio.is_speaking():
+			_work_t = t   # fix33: back from red's work trip (front door) the day-6 routine waits on the street with no objective
+			print("D56QA WORK back home with no objective: going out"); App.came_from = "livingroom"; await go(Game.WORLD_SCENE, "livingroom"); continue
 		if dr == null or dr._busy: continue
 		var o: String = String(dr._cur.get("en", ""))
 		if o == "" and Objectives.items.size() == 1: o = String(Objectives.items[0].en)

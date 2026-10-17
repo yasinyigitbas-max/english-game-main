@@ -499,6 +499,7 @@ func _bed_view(sc: Node, face) -> Dictionary:
 	var an := ""
 	var hp = sc.get("hero")
 	if hp and hp.get("player") is AnimationPlayer: an = String((hp.player as AnimationPlayer).current_animation)
-	if lp.y < 0.05 and not an in ["stand_to_sit", "sit_idle", "wake_up", "sleep"]: return {}
+	var tipped: bool = hp is Node3D and hp.get("model") is Node3D and absf((hp.model as Node3D).rotation.x) > 0.05   # lie blend (model tipped back)
+	if lp.y < 0.05 and not tipped and sc.get("breathing") != true and sc.get("sleep_clip") != true and String(sc.get("mode")) != "lying" and not an in ["stand_to_sit", "sit_idle", "wake_up", "sleep"]: return {}
 	var f: Vector3 = sc.OBJ.bed.focus
 	return {"pos": (sc as Node3D).to_global(f + Vector3(1.4, 1.6, 1.6)), "at": (sc as Node3D).to_global(f + Vector3(-0.3, -0.1, 0))}

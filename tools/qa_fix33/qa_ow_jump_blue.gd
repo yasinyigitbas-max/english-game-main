@@ -46,7 +46,7 @@ func _ready() -> void:
 			WorldState.minutes = 22.0 * 60.0; App.patch_save({"alarm_off_day": 4})   # a real bedtime: evening, today's alarm long done
 			await OwLink.enter("bedroom", ""); await _t(6.0)
 			var bm = OwLink.inst.world.places.get("bedroom"); bm.mode = "busy"
-			bm.cam_shot = {"pos": bm.OBJ.bed.focus + Vector3(1.9, 1.5, 1.7), "at": bm.OBJ.bed.focus + Vector3(0, 0.3, 0)}
+			# blue: no QA cam_shot - the shoulder camera's own bed framing is under test
 			await bm.walk_to(bm.OBJ.bed.spot, 0.0); await _t(1.0)
 			bm.lie_down()
 			for i in 26:
