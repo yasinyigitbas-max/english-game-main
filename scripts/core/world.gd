@@ -61,6 +61,7 @@ func _ready() -> void:
 	OWPlaces.build(self)
 	_home_spots()
 	_build_doors()
+	_late_places.call_deferred()   # after the world-mode places' deferred _world_init (they build there)
 	_build_fences()
 	hud = (load("res://ui/shared/hud.tscn") as PackedScene).instantiate(); add_child(hud)
 	player = WorldPlayer.new(); player.name = "Hero"; add_child(player); player.hud = hud; hud.player = player; player.floor_y = 0.07
@@ -97,7 +98,7 @@ func _build_place(id: String) -> void:
 	n.name = "Place_" + id
 	var house := HouseC.is_room(d[0])
 	if house: n.set_meta(HouseC.SHELL, true)         # rooms: geometry + furniture only (House.shell_ready)
-	else: n.set_meta("ow_shell", true)               # cafe / shop: build() + _room() only (place_base)
+	else: n.set("world_mode", true); n.set("host", self)   # cafe / shop: blue's full world-mode place (its own real door; red's OwLink starts it)
 	n.transform = Transform3D(Basis(Vector3.UP, d[2]), (HOUSE_AT + d[1]) if house else d[1])
 	add_child(n)
 	if house: HouseC._cheap(n, false)
@@ -175,7 +176,6 @@ func _open_lot(lot_id: String, place: String) -> void:
 	if lot.door_pivot: lot.door_pivot.visible = false
 	for it in lot.find_children("*", "Interactable", true, false): it.queue_free()
 	for c in lot.get_children(): if c is Interactable: c.queue_free()
-	if place in ["cafe", "shop"]: _cut_place_door(places[place])
 
 ## cafe / shop: their front wall had a painted door; cut a real 1.3 m opening and hang a swinging leaf in it
 func _cut_place_door(n: Node3D) -> void:
@@ -211,6 +211,7 @@ func _build_doors() -> void:
 	for d in defs:
 		var n: Node3D = places[d[1]]
 		var leaf: Node3D = null
+		if d[1] in ["cafe", "shop"]: continue   # world-mode places: _late_places
 		if d[2] == "ow": leaf = n.get_meta("ow_door", null)
 		else:
 			var N = n.get("N")
@@ -219,6 +220,19 @@ func _build_doors() -> void:
 		var dr := WorldDoor.new(); dr.id = d[0]; dr.leaf = leaf; dr.open_angle = deg_to_rad(d[3]); dr.a = d[4]; dr.b = d[5]
 		dr.closed_angle = leaf.rotation.y; dr.name = "Door_" + String(d[0]); add_child(dr)
 		doors[d[0]] = dr; dr.c0 = dr.center()
+
+## cafe / shop (world mode) built in their deferred _world_init: region = floor rect, door = their FrontDoor hinge
+func _late_places() -> void:
+	for id in ["cafe", "shop"]:
+		var n: Node3D = places[id]
+		var rm: Vector2 = n.get("room"); var c0 := n.to_global(Vector3(-rm.x / 2, 0, -rm.y / 2)); var c1 := n.to_global(Vector3(rm.x / 2, 3, rm.y / 2))
+		regions[id] = AABB(Vector3(minf(c0.x, c1.x), 0, minf(c0.z, c1.z)), Vector3(absf(c1.x - c0.x), 3, absf(c1.z - c0.z)))
+		var leaf: Node3D = n.get("door_hinge")
+		if leaf == null: push_warning("World: no FrontDoor in " + id); continue
+		leaf.set_meta("ow_world_door", true); leaf.set_meta("no_fade", true); leaf.add_to_group("doors")
+		var dr := WorldDoor.new(); dr.id = id; dr.leaf = leaf; dr.open_angle = -1.75; dr.a = id; dr.b = "street"
+		dr.closed_angle = leaf.rotation.y; dr.name = "Door_" + id; add_child(dr); doors[id] = dr; dr.c0 = dr.center()
+	for l in find_children("*", "OmniLight3D", true, false) + find_children("*", "SpotLight3D", true, false): if not l in _lights: _lights.append(l)
 
 class WorldDoor extends Node:
 	var id := ""
@@ -384,12 +398,16 @@ static func goto(place: String, door_id := "") -> void:
 static func skip_travel(dest: String) -> void:
 	if inst == null: return
 	inst.player.busy = true
+	var fc = Game.get("_fade")
+	var old_c: Color = fc.color if fc else Color.BLACK
+	if fc: fc.color = Color(0, 0, 0, old_c.a)   # TRUE black (Game's overlay is light grey)
 	await Game.fade(1.0, 0.45)
 	inst.player.place_at(dest)
 	var sc = inst.get_tree().root.get_node_or_null("ShoulderCam")
 	if sc and sc.get("pos") != null: sc.set("pos", Vector3.INF); sc.set("yaw", inst.player.hero.rotation.y + PI)
 	await inst.get_tree().create_timer(0.35).timeout
 	await Game.fade(0.0, 0.45)
+	if fc: fc.color = Color(old_c.r, old_c.g, old_c.b, 0.0)
 	inst.player.busy = false
 
 ## objective pan, awaitable: the one shoulder camera frames hero + target (blue's ShoulderCam honours guide_cam), then back

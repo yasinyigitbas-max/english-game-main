@@ -140,7 +140,7 @@ func _world_tick(dt: float) -> void:
 			if Objectives.has("Go outside."): Objectives.complete("Go outside.")
 			if its.has("exit") and its.exit.enabled: used.emit("exit")
 			place_exited.emit(place_id)
-	if door_hinge:   # the door swings open (outwards) while the player is near it, closes behind them
+	if door_hinge and not door_hinge.has_meta("ow_world_door"):   # (World drives it in world.tscn) the door swings open (outwards) while the player is near it, closes behind them
 		var dl := to_local(player.global_position) - Vector3(0, 0, room.y / 2.0)
 		var want := -1.75 if Vector2(dl.x, dl.z).length() < 2.2 else 0.0
 		door_hinge.rotation.y = lerpf(door_hinge.rotation.y, want, 1.0 - exp(-dt * 5.0))
