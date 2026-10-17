@@ -111,7 +111,7 @@ static func choose(lr: Node, q: Dictionary) -> bool:
 	for o in order: opts.append(src[o])
 	var right: int = order.find(int(q.get("a", 0)))
 	for i in opts.size():
-		var bt := Button.new(); bt.text = String(opts[i]); bt.custom_minimum_size = Vector2(180, 60); bt.add_theme_font_size_override("font_size", 24); row.add_child(bt); StoryUI.tr_button(bt, StoryUI.opt_tr(String(opts[i])), 16)
+		var bt := Button.new(); bt.text = String(opts[i]); bt.custom_minimum_size = Vector2(180, 60); bt.add_theme_font_size_override("font_size", 24); row.add_child(bt); StoryUI.tr_button(bt, StoryUI.opt_tr(String(opts[i])), 15, Color(0.82, 0.9, 1.0))
 		var ii: int = i
 		bt.pressed.connect(func():
 			if st[0] or bt.disabled: return

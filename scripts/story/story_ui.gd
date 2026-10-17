@@ -164,9 +164,8 @@ static func scramble_panel(parent: Node, box_name: String, pool: Array, ask_en :
 	parent.add_child(box)
 	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 10); box.add_child(v)
 	var ask := Label.new(); ask.name = "Ask"; ask.text = ask_en; ask.add_theme_font_size_override("font_size", 22); ask.add_theme_color_override("font_color", Color(0.4, 0.45, 0.6))
-	ask.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(ask)
-	var askt := Label.new(); askt.name = "AskTR"; askt.text = ask_tr; askt.add_theme_font_size_override("font_size", 16); askt.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8))
-	askt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; askt.visible = ask_tr != ""; v.add_child(askt)   # v33.1 (Yasin 17:41): Turkish on learning screens ALWAYS shows; the TR button only controls the caption box
+	v.add_child(ask)
+	var askt := tr_row(v, ask, ask_tr, 20, TR_COL_C, 0.55); askt.visible = ask_tr != ""   # ui33: Turkish in the RIGHT column   # v33.1 (Yasin 17:41): Turkish on learning screens ALWAYS shows; the TR button only controls the caption box
 	var row := HFlowContainer.new(); row.name = "Words"; row.alignment = FlowContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("h_separation", 12); row.add_theme_constant_override("v_separation", 12); v.add_child(row)
 	var btns: Array = []

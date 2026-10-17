@@ -21,7 +21,7 @@ func _ready() -> void:
 	await w(6.0)
 	if OwLink.inst and is_instance_valid(OwLink.inst.live): get_tree().current_scene = OwLink.inst.live
 	P("LIVE " + (OwLink.inst.live_id if OwLink.inst else "-"))
-	if not ev in ["places", "fix", "fixb", "trburst", "d1", "ui", "hosp", "hosp2"]: Engine.time_scale = 2.5; AudioServer.playback_speed_scale = 2.5
+	if not ev in ["places", "fix", "fixb", "trburst", "d1", "ui", "hosp", "hosp2", "glass"]: Engine.time_scale = 2.5; AudioServer.playback_speed_scale = 2.5
 	Objectives.changed.connect(func():
 		for it in Objectives.items:
 			var s := String(it.en)
@@ -40,7 +40,7 @@ func _snap(n: String) -> void:
 	var caps := get_tree().root.find_children("*Caption*", "", true, false).filter(func(c): return c is CanvasItem and c.is_visible_in_tree())
 	P("SHOT %s scene=%s objs=%s caps=%d cam=%s" % [f, cs.name if cs else "-", JSON.stringify(Objectives.items.map(func(i): return i.en)), caps.size(), get_viewport().get_camera_3d().get_path() if get_viewport().get_camera_3d() else "none"])
 func _setup(pre := false) -> void:
-	var day := 6 if ev in ["d6", "d6b", "d6c", "places", "fix", "fixb", "trburst", "ui", "hosp"] else 7
+	var day := 6 if ev in ["d6", "d6b", "d6c", "places", "fix", "fixb", "trburst", "ui", "hosp", "glass"] else 7
 	if ev == "d1": day = 1
 	var st: Dictionary = {}
 	for k in ["d3", "d4", "d5"]: st[k] = "done"
@@ -116,6 +116,7 @@ func run() -> void:
 	if ev == "ui": await ui33(); get_tree().quit(); return
 	if ev == "hosp": await hosp33(); get_tree().quit(); return
 	if ev == "hosp2": await hosp33(true); get_tree().quit(); return
+	if ev == "glass": await glass33(); get_tree().quit(); return
 	var stuck := 0
 	var limit := 3000
 	while _t() < limit:
@@ -475,3 +476,25 @@ func _hosp1() -> void:
 	for i in 14:
 		await w(3.0); P("HOSP t=%d caps=%s tr=%s" % [i * 3, _caps_vis(), _trcol()])
 		if i in [3, 5, 7, 10]: await _snap("H1_hosp_%02d" % i)
+
+func glass33() -> void:
+	await OwLink.to_street("front"); await w(5.0)
+	var W = OwLink.inst.world; var all: Array = []; _walk_all(W, all)
+	var tap := Vector3(5.1, 0, -1.5)
+	for c in all:
+		if c is Node3D and c.get_parent() and str(c.name) == "Tap": tap = (c as Node3D).global_position; P("TAP at %s" % str(tap))
+	for c in all:
+		if not (c is GeometryInstance3D) or not (c as Node3D).is_visible_in_tree(): continue
+		var gp: Vector3 = (c as Node3D).global_position
+		var ab: AABB = (c as GeometryInstance3D).global_transform * (c as VisualInstance3D).get_aabb()
+		var ctr := ab.get_center()
+		if Vector2(ctr.x - tap.x, ctr.z - tap.z).length() > 6.0 and Vector2(gp.x - tap.x, gp.z - tap.z).length() > 6.0: continue
+		var m = (c as GeometryInstance3D).material_override
+		if m == null and c is MeshInstance3D and c.mesh and c.mesh.get_surface_count() > 0: m = c.get_active_material(0)
+		var mi := "-"
+		if m is StandardMaterial3D: mi = "std tr=%d col=%s" % [m.transparency, str(m.albedo_color)]
+		elif m is ShaderMaterial: mi = "shader " + str(m.shader.resource_path if m.shader else "")
+		P("NEAR %s cls=%s ctr=%s size=%s mesh=%s mat=%s tr=%.2f" % [str(c.get_path()).right(100), c.get_class(), str(ctr), str(ab.size), (c.mesh.get_class() if c is MeshInstance3D and c.mesh else "-"), mi, (c as GeometryInstance3D).transparency])
+	var wp = W.player; wp.global_position = tap + Vector3(-2.5, 0.1, -3.5); await w(2.0)
+	var c3 := get_viewport().get_camera_3d(); if c3: c3.global_position = tap + Vector3(-3, 1.8, -4); c3.look_at(tap + Vector3(0, 0.8, 0))
+	await w(0.5); await _snap("G1_tap_area")
