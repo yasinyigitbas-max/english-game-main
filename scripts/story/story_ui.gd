@@ -130,6 +130,14 @@ static func tr_button(b: Button, tr_text: String, fs := 18, tr_c := TR_COL_C) ->
 	e.add_theme_color_override("font_color", b.get_theme_color("font_color")); h.add_child(e)
 	var t := Label.new(); t.name = "TR"; t.text = tr_text; t.mouse_filter = Control.MOUSE_FILTER_IGNORE; t.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	t.add_theme_font_size_override("font_size", fs); t.add_theme_color_override("font_color", tr_c); t.add_to_group("tr_column"); h.add_child(t)
+	# fit: the button grows (up to max_w) and the English shrinks until EN + TR fit inside it
+	var max_w := maxf(b.custom_minimum_size.x, 330.0)
+	var fs_en := e.get_theme_font_size("font_size")
+	while fs_en > 18 and e.get_minimum_size().x + t.get_minimum_size().x + 44.0 > max_w:
+		fs_en -= 2; e.add_theme_font_size_override("font_size", fs_en)
+	while fs > 12 and e.get_minimum_size().x + t.get_minimum_size().x + 44.0 > max_w:
+		fs -= 1; t.add_theme_font_size_override("font_size", fs)
+	b.custom_minimum_size.x = clampf(e.get_minimum_size().x + t.get_minimum_size().x + 44.0, b.custom_minimum_size.x, max_w)
 	b.set_meta("en", en); return t
 static var _opt_tr: Dictionary = {}
 static func opt_tr(o: String) -> String:

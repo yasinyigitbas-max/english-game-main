@@ -61,6 +61,7 @@ func _process(_d: float) -> void:
 		if not (b is CanvasItem): continue
 		var id := b.get_instance_id()
 		if not (b as CanvasItem).visible: _st.erase(id); continue
+		if b.has_meta("ts_force_until") and Time.get_ticks_msec() < int(b.get_meta("ts_force_until")): continue   # ui33: an off-screen line forced into the box (TestBank _say_off) stays while it is spoken
 		var en := _box_text(b)
 		var key := norm(strip_who(en))
 		if not have_screen: screen = " " + norm(_collect(roots)) + " "; have_screen = true

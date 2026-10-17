@@ -21,7 +21,7 @@ func _ready() -> void:
 	await w(6.0)
 	if OwLink.inst and is_instance_valid(OwLink.inst.live): get_tree().current_scene = OwLink.inst.live
 	P("LIVE " + (OwLink.inst.live_id if OwLink.inst else "-"))
-	if not ev in ["places", "fix", "fixb", "trburst", "d1", "ui", "hosp"]: Engine.time_scale = 2.5; AudioServer.playback_speed_scale = 2.5
+	if not ev in ["places", "fix", "fixb", "trburst", "d1", "ui", "hosp", "hosp2"]: Engine.time_scale = 2.5; AudioServer.playback_speed_scale = 2.5
 	Objectives.changed.connect(func():
 		for it in Objectives.items:
 			var s := String(it.en)
@@ -51,6 +51,8 @@ func _setup(pre := false) -> void:
 	if ev == "d7b": st["d6"] = "done"; st["d7"] = "home"; st["d7_shop"] = true
 	if ev in ["places", "fix", "fixb", "trburst", "ui", "hosp"]: st["d6"] = "done"; st["d7"] = "done"
 	if ev == "d1": st = {}; WorldState.flags.erase("story_accident")
+	if ev == "hosp": day = 1; st.erase("day1_done"); st.erase("day2_hospital_done"); WorldState.flags.erase("story_accident")
+	if ev == "hosp2": day = 2; st.erase("day2_hospital_done"); st["day2"] = "work"
 	var sv: Dictionary = App.load_save(); var state: Dictionary = (sv.get("state", {}) if sv.get("state", {}) is Dictionary else {}).duplicate()
 	state["family"] = [{"role": "mother", "name": "Ayse", "skin": 1, "hair": 0, "hcol": 1, "cloth": 0},
 		{"role": "father", "name": "Mehmet", "skin": 2, "hair": 2, "hcol": 0, "cloth": 1},
@@ -113,6 +115,7 @@ func run() -> void:
 	if ev == "d1": await d1(); get_tree().quit(); return
 	if ev == "ui": await ui33(); get_tree().quit(); return
 	if ev == "hosp": await hosp33(); get_tree().quit(); return
+	if ev == "hosp2": await hosp33(true); get_tree().quit(); return
 	var stuck := 0
 	var limit := 3000
 	while _t() < limit:
@@ -461,12 +464,14 @@ func ui33() -> void:
 func _walk_all(n: Node, out: Array) -> void:
 	out.append(n)
 	for c in n.get_children(): _walk_all(c, out)
-func hosp33() -> void:
+func hosp33(only2 := false) -> void:
+	if not only2: await _hosp1()
+	OwLink.enter("hospital_day2", ""); await w(6.0)
+	for i in 12:
+		await w(3.0); P("HOSP2 t=%d caps=%s tr=%s" % [i * 3, _caps_vis(), _trcol()])
+		if i in [4, 7, 10]: await _snap("H2_hosp2_%02d" % i)
+func _hosp1() -> void:
 	OwLink.enter("hospital", ""); await w(6.0)
 	for i in 14:
 		await w(3.0); P("HOSP t=%d caps=%s tr=%s" % [i * 3, _caps_vis(), _trcol()])
 		if i in [3, 5, 7, 10]: await _snap("H1_hosp_%02d" % i)
-	OwLink.enter("hospital_day2", ""); await w(6.0)
-	for i in 12:
-		await w(3.0); P("HOSP2 t=%d caps=%s" % [i * 3, _caps_vis()])
-		if i in [4, 7, 10]: await _snap("H2_hosp2_%02d" % i)

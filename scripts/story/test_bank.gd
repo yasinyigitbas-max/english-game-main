@@ -172,6 +172,10 @@ func _say_off(t: String) -> void:            # off-screen line: caption box only
 	_off_until = Time.get_ticks_msec() + 600; _off_live = true
 	if host and host.has_method("caption"): host.caption(t, false)
 	Audio.say(t)
+	var until := Time.get_ticks_msec() + 1200 + t.split(" ").size() * 420   # ui33: the TestScreen guard keeps this box up while the line is spoken
+	for n in get_tree().get_nodes_in_group("caption_box"):
+		if n is CanvasItem and (n as CanvasItem).visible: n.set_meta("ts_force_until", until)
+	_off_until = until
 
 func _question() -> void:
 	if _skipped: return
