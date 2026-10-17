@@ -4,6 +4,10 @@
 ## from the moment he lies down until the day-3 get-up - through the recap, the test and the sleep.
 ## ENTRY: Bedtime.hook_bedroom(main)  - call from main.gd _continue_game() (bedroom entered). Plays once:
 ##   story.d2_bed_pending (set by day2_evening.gd) -> story.d2_bedtime_done. Day 3 resumes Day3Morning when needed.
+## v32c (red): also the DAY 3 night (night = 3): story.d3_bed_pending (day3_evening.gd) -> day-3 polaroids (d3_polaroids.gd) ->
+##   d3_night_test.gd -> sleep -> DAY 4 (WorldState.day = 4): wake with only "I'm waking up." + "I'm getting up." (no alarm,
+##   silent "Day 4" title) -> placeholder first objective "Start your day." (story.d4 = "start"). Flags d3_bedtime_done, d3_recap,
+##   d3_night_score.
 class_name Bedtime
 extends Node
 
@@ -15,6 +19,7 @@ var bed_lock := false
 var _bed_xf: Transform3D
 var bed_fixes := 0
 var recap: Array = []   # [photo key, EN caption]
+var night := 2          # v32c (red): 2 = day-2 night -> day 3, 3 = day-3 night -> day 4
 
 static func _story() -> Dictionary:
 	var sv = App.load_save().get("story", {})
@@ -25,6 +30,9 @@ static func hook_bedroom(main: Node) -> void:
 	if maxi(WorldState.day, App.day) == 2 and bool(sv.get("d2_bed_pending", false)) and not bool(sv.get("d2_bedtime_done", false)):
 		if main.has_node("Bedtime"): return
 		var b = load("res://scripts/story/bedtime.gd").new(); b.name = "Bedtime"; b.m = main; main.add_child(b); b.run()
+	elif maxi(WorldState.day, App.day) == 3 and bool(sv.get("d3_bed_pending", false)) and not bool(sv.get("d3_bedtime_done", false)):   # v32c (red)
+		if main.has_node("Bedtime"): return
+		var b3 = load("res://scripts/story/bedtime.gd").new(); b3.name = "Bedtime"; b3.night = 3; b3.m = main; main.add_child(b3); b3.run()
 	elif maxi(WorldState.day, App.day) >= 3:
 		load("res://scripts/story/day3_morning.gd").attach(main.get_tree())
 
@@ -76,6 +84,13 @@ func _dline(en: String) -> void:
 
 func _recap_list() -> Array:
 	var sv := _story(); var out: Array = []
+	if night == 3:   # v32c (red): day 3 = shower, cafe, shop, couch (data/day3_evening.json "recap")
+		var d3 = App.load_json("res://data/day3_evening.json")
+		var need := {"d3_cafe": "d3_cafe", "d3_shop": "d3_shop", "d3_couch": "d3_couch_done"}
+		for r in (d3.get("recap", []) if d3 is Dictionary else []):
+			if need.has(r[0]) and not bool(sv.get(need[r[0]], false)): continue
+			out.append([String(r[0]), String(r[1])])
+		return out
 	var d = App.load_json(DATA)
 	if sv.has("day2_score") or bool(App.load_save().get("breakfast_done", false)): out.append(["d2_breakfast", "I had breakfast and learned have to."])
 	if bool(sv.get("day2_work_done", false)):
@@ -91,7 +106,8 @@ func _dream() -> void:
 	var dim := ColorRect.new(); dim.color = Color(0.25, 0.2, 0.45, 0.0); dim.set_anchors_preset(Control.PRESET_FULL_RECT); dim.mouse_filter = Control.MOUSE_FILTER_IGNORE; cl.add_child(dim)
 	var t := create_tween(); t.tween_property(dim, "color:a", 0.6, 1.0)
 	var keys: Array = []; for r in recap: keys.append(r[0])
-	await load("res://scripts/story/d2_polaroids.gd").ensure_d2(self, keys)
+	if night == 3: await load("res://scripts/story/d3_polaroids.gd").ensure_d3(self, keys)   # v32c (red)
+	else: await load("res://scripts/story/d2_polaroids.gd").ensure_d2(self, keys)
 	if t.is_running(): await t.finished
 	await _dline("I am dreaming about my day.")
 	var row := HBoxContainer.new(); row.name = "D2Polaroids"; row.alignment = BoxContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("separation", 18)
@@ -104,11 +120,11 @@ func _dream() -> void:
 		ct.parallel().tween_property(tl, "scale", Vector2.ONE, 0.6).from(Vector2(1.35, 1.35)).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		ct.parallel().tween_property(tl, "rotation_degrees", [-4.0, 3.0, -2.0, 4.0, -3.0][i % 5], 0.6).from(0.0); await ct.finished
 		await _dline(String(recap[i][1]))
-	await _dline("Went, had, talked: this is the past simple.")
+	await _dline("Went, ordered, bought: this is the past simple." if night == 3 else "Went, had, talked: this is the past simple.")
 	await _w(1.2)
 	var ft := create_tween(); ft.tween_property(row, "modulate:a", 0.0, 1.0); ft.parallel().tween_property(dim, "color:a", 0.0, 1.0); await ft.finished
 	row.queue_free(); dim.queue_free(); ui.hide_caption()
-	_flag("d2_recap", keys)
+	_flag("d%d_recap" % night, keys)
 
 ## story_home.gd house.27 polaroid card (same look), any photo key + caption
 func _polaroid(key: String, cap: String, i: int) -> Control:
@@ -136,8 +152,8 @@ func _test() -> void:
 	ui.hide_caption()
 	var ph = m.phone
 	ph.visible = true; ph.open(Rect2(), "home"); await _w(0.5)
-	var res: Array = await load("res://scripts/story/d2_night_test.gd").new().run(m, ph)
-	_flag("d2_night_score", res)
+	var res: Array = await load("res://scripts/story/d%d_night_test.gd" % night).new().run(m, ph)   # v32c (red): d3 = cafe / shop test
+	_flag("d%d_night_score" % night, res)
 	await Audio.wait_idle(15.0)
 	await ph.close(true)
 
@@ -149,6 +165,7 @@ func _sleep() -> void:
 	ui.hide_caption()
 	var black := ColorRect.new(); black.color = Color(0.05, 0.05, 0.12, 0.0); black.set_anchors_preset(Control.PRESET_FULL_RECT); cl.add_child(black)
 	var tw := create_tween(); tw.tween_property(black, "color:a", 1.0, 2.0); await tw.finished
+	if night == 3: await _sleep_to_day4(black); return   # v32c (red)
 	_flag("d2_bedtime_done", true); _flag("d2_bed_pending", false); _flag("d3", "shower")
 	load("res://scripts/story/day2_morning.gd").set_stage("day3")
 	Life.advance_day(true)   # day 3, 00:00
@@ -169,10 +186,50 @@ func _sleep() -> void:
 	m.mode = "play"; m._update_hand()
 	load("res://scripts/story/day3_morning.gd").attach(get_tree())
 
-func _day_title() -> void:
+## v32c (red): day-3 night -> DAY 4. Waking says only "I'm waking up." then "I'm getting up." (no alarm, silent title).
+func _sleep_to_day4(black: ColorRect) -> void:
+	_flag("d3_bedtime_done", true); _flag("d3_bed_pending", false); _flag("d4", "start")
+	Life.advance_day(true)   # day 4, 00:00
+	if WorldState.day != 4:
+		WorldState.day = 4; App.day = 4; App.patch_save({"day": 4})
+	await _w(1.2)
+	Life.event("morning")
+	m.S.ceiling = "on"; m._apply_states()
+	var tw := create_tween(); tw.tween_property(black, "color:a", 0.0, 1.5); await tw.finished
+	black.queue_free()
+	await _day_title(false)
+	m.cam_shot = {}
+	bed_lock = false
+	await _wake_simple()
+	m.mode = "play"; m._update_hand()
+	await _day4_prompt()
+
+## main.gd get_up_sequence() without its extra lines: "I'm waking up." -> sit up -> edge -> "I'm getting up." -> stand
+func _wake_simple() -> void:
+	Life.event("wake")
+	m.mode = "busy"; m._hide_chips(); m._update_hand()
+	await Audio.wait_idle(8.0)
+	m.caption("I'm waking up.")
+	m.hero.player.speed_scale = 0.0
+	await m.bedsit_up()
+	await m.bedsit_to_edge()
+	await Audio.wait_idle(8.0)
+	m.caption("I'm getting up.")
+	await m.stand_from_bed()
+	m.mode = "play"; m._update_hand(); m.action_done.emit("getup")
+
+## placeholder day-4 first objective (Life.guide_to pan onto the living-room door; main.gd objective() keeps it while d4 == "start")
+func _day4_prompt() -> void:
+	await Audio.wait_idle(8.0)
+	var f: Vector3 = m.OBJ.door_s.focus
+	await Life.guide_to({"pos": f + Vector3(0.4, 1.0, -2.4), "at": f}, "Start your day.", {"tr": "Gününe başla.", "id": "Start your day.",
+		"list": [{"id": "Start your day.", "en": "Start your day.", "tr": "Gününe başla."}]})
+
+func _day_title(speak := true) -> void:
 	var v := VBoxContainer.new(); v.name = "DayTitle"; v.set_anchors_preset(Control.PRESET_CENTER_TOP); v.offset_top = 150; v.offset_left = -400; v.offset_right = 400
 	v.alignment = BoxContainer.ALIGNMENT_CENTER; v.modulate.a = 0.0; cl.add_child(v)
-	for e in [["It is a new day.", 44, Color.WHITE], ["Day 3", 30, Color(1, 0.92, 0.7)]]:
+	var rows: Array = [["It is a new day.", 44, Color.WHITE], ["Day 3", 30, Color(1, 0.92, 0.7)]] if speak else [["Day %d" % maxi(WorldState.day, App.day), 44, Color(1, 0.92, 0.7)]]   # v32c (red): day 4 = silent title
+	for e in rows:
 		var l := Label.new(); l.text = e[0]; l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; l.add_theme_font_size_override("font_size", e[1]); l.add_theme_color_override("font_color", e[2])
 		l.add_theme_constant_override("outline_size", 10); l.add_theme_color_override("font_outline_color", Color(0.1, 0.12, 0.25))
 		if UI.font_b: l.add_theme_font_override("font", UI.font_b)
@@ -180,7 +237,7 @@ func _day_title() -> void:
 		if App.tr_on():
 			var lt := Label.new(); lt.text = ui.tr_of(e[0]); lt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; lt.add_theme_font_size_override("font_size", 22); lt.add_theme_color_override("font_color", Color(0.78, 0.88, 1.0))
 			lt.add_theme_constant_override("outline_size", 8); lt.add_theme_color_override("font_outline_color", Color(0.1, 0.12, 0.25)); v.add_child(lt)
-	Audio.say("It is a new day.")
+	if speak: Audio.say("It is a new day.")
 	var tw := create_tween(); tw.tween_property(v, "modulate:a", 1.0, 0.4); tw.tween_interval(2.2); tw.tween_property(v, "modulate:a", 0.0, 0.5)
 	await tw.finished; v.queue_free()
 	await Audio.wait_idle(5.0)

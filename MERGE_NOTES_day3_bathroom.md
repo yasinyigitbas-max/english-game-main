@@ -96,6 +96,87 @@ Code (scripts/story/day3_morning.gd):
 - Known limit: `App.came_from` stays "cafe"/"shop" until another scene sets it, so a reload of the outdoor scene right after a
   visit would re-cue (marking is idempotent; one pan per scene instance).
 
+## v32c: day-3 evening (family couch talk) -> day-3 bedtime -> DAY 4
+UNTESTED (Godot not run). Modelled on day2_evening.gd / day2_evening.json / bedtime.gd. No blue / black file touched.
+
+Flow:
+1. Player comes home through the front door after BOTH places (story.d3 "home", d3_cafe + d3_shop) -> living room:
+   `Life.guide_to` pan onto the sofa, objective **"Talk to my family."** ("Ailemle konuş."), kept on the list until the couch.
+2. At the couch: d3_couch_done + d3_bed_pending, `Life.event("home")` (18:00), the player sits on a FREE sofa seat (or stands
+   next to the sofa when the family fills it; day 2 could sit on top of a family member), couch shot, couch snapshot `d3_couch`.
+3. Talk: family "How was your day?" -> me "It was a good day." -> "Put the words in the right order." -> 7 family question /
+   scrambled-word puzzle pairs (data/day3_evening.json "talk"): Where did you go? -> I went to the café. / What did you order?
+   -> I'd like a hot chocolate, please. / How many cookies did you have? -> I had two cookies. / And then? -> I went to the shop.
+   / How many apples did you buy? -> I bought six apples. (+ "Apples are countable, so we ask: How many apples?") / How much milk
+   did you buy? -> I bought a bottle of milk. (+ "Milk is uncountable, so we ask: How much milk?") / I bought a loaf of bread.
+   Then "Thank you for the shopping! Well done.", "You must be tired. Go to bed.", me "Good night!", stand up.
+   (Sentences match blue's cafe order = hot chocolate + two cookies, and blue's shopping list = six apples, milk, bread.)
+4. `Life.guide_to` pan onto the bedroom door, **"Go to bed."** (kept on the list). A continued game re-shows it (start() -> bed_prompt()).
+5. Bedroom: `Bedtime` with `night = 3`: "Go to bed." pan onto the bed, lie down (bed_lock), dream polaroids d3_shower /
+   d3_cafe / d3_shop / d3_couch (real couch snapshot; player-look stills from d3_polaroids.gd otherwise) + "Went, ordered,
+   bought: this is the past simple.", test d3_night_test.gd (3 versions x 6: cafe order, countable / uncountable, how many /
+   how much, past simple; Retake, grammar tip, Skip, quiz_ver key "Day3Shop"), "Good night!", "I am sleeping.", fade.
+6. DAY 4: `Life.advance_day(true)` (+ forced `WorldState.day = 4`, App.day = 4, save "day" 4 if it was not 4), 07:00, silent
+   "Day 4" title (TR "4. Gün"), no alarm; wake with ONLY **"I'm waking up."** (sit up, edge) then **"I'm getting up."** (stand).
+7. Placeholder day-4 first objective: `Life.guide_to` pan onto the living-room door, **"Start your day."** ("Gününe başla.");
+   story.d4 = "start"; main.gd objective() keeps it on day 4+ while d4 == "start" (replace when day 4 is designed).
+
+Rules: one bottom caption box (lr.caption / lr._say_as / lr._say_me in the living room; StoryUI caption with the room panel
+hidden during the dream, as on day 2; m.caption on waking); the puzzle is the centre panel (Objectives.ovl_register) like day 2.
+NPCs keep their pose: the family is put on the TV seats (`family_at_tv_now()`), and while the evening runs
+`Day3Evening._process` re-applies `sit_down(node, seat, false)` to any seated family member whose clip is no longer sit_idle.
+
+Flags (save.json "story"): d3_couch_done, d3_bed_pending, d3_couch_told, d3_recap, d3_night_score, d3_bedtime_done, d4 = "start".
+
+Files:
+- NEW scripts/story/day3_evening.gd (`class_name Day3Evening`; entry `Day3Evening.start(get_tree())`; start/ready_to_run/run/_ask/
+  _sit/bed_prompt/_process (objective keeper + pose keeper)/_line/_snap_couch/_puzzle (keeps "?" and commas))
+- NEW data/day3_evening.json (lines EN->TR, talk, recap, quiz / quiz_b / quiz_c)
+- NEW scripts/story/d3_night_test.gd (= d2_night_test.gd with DATA = day3_evening.json, KEY = "Day3Shop")
+- NEW scripts/story/d3_polaroids.gd (extends d2_polaroids.gd: d3_shower, d3_cafe, d3_shop, d3_couch stills)
+- scripts/story/bedtime.gd: `:7-10` header, `:22` `night`, `:33-35` day-3 hook in hook_bedroom, `:86-94` day-3 recap list,
+  `:109-110` d3 stills, `:123` closing line, `:127` d%d_recap, `:155-156` d%d_night_test / score, `:168` night 3 -> `_sleep_to_day4`,
+  `:189-226` `_sleep_to_day4`, `_wake_simple`, `_day4_prompt`, `:228-240` `_day_title(speak)` (day 4 silent). Day 2 unchanged.
+- scripts/livingroom.gd `:191` hook line in `_intro()`: `load("res://scripts/story/day3_evening.gd").start(get_tree())`
+- scripts/main.gd `:1842-1845` `_story_str()`, `:1883` day-4 placeholder objective in `objective()`
+- scripts/qa_v31c.gd `:131` checks "Talk to my family." after the town cues (the couch talk itself is not driven by QA)
+- data/extra_lines.json: +33 entries (every new line, incl. test feedback sentences, "Day 4")
+- .gitignore: allow-list for the 4 new files
+
+### VOICE NEEDS v32c (none of these are in english_game_3dv2/data/voice_index*.json)
+Narrator / player (narrator packs f/m/c/g):
+- Talk to my family.
+- It was a good day.
+- I went to the café.
+- I'd like a hot chocolate, please.
+- I had two cookies.
+- I went to the shop.
+- I bought six apples.
+- I bought a bottle of milk.
+- I bought a loaf of bread.
+- Apples are countable, so we ask: How many apples?
+- Milk is uncountable, so we ask: How much milk?
+- I am standing next to the sofa.
+- I took a shower.
+- Went, ordered, bought: this is the past simple.
+- I'm waking up.
+- I'm getting up.
+- Start your day.
+Family (Audio.say_as, each family member's voice):
+- Where did you go?
+- What did you order?
+- How many cookies did you have?
+- And then?
+- How many apples did you buy?
+- How much milk did you buy?
+- Thank you for the shopping! Well done.
+Test feedback (narrator reads q.say), new: Apples are countable. / Milk is uncountable. / Can I have a cookie, please? /
+How many cookies would you like? / How much is the coffee? / How many apples did you buy? / How much milk did you buy? /
+I ordered a hot chocolate. / I took a shower in the morning. (the other q.say lines are in the lists above)
+Reused from the v31c list (also still to render): How was your day? / You must be tired. Go to bed. (family) / Good night! /
+I am dreaming about my day. / Now a short test about my day. / I am sleeping. / I talked to my family. / Put the words in the
+right order. (voiced) / I am sitting on the sofa. (voiced) / Go to bed. / I am going to bed. / I am lying in bed.
+
 ## New player-visible lines (TR in data/extra_lines.json, +2 entries v32 / +3 entries v32b)
 - "Here is the café." -> "İşte kafe."
 - "Here is the shop." -> "İşte dükkân."
@@ -118,10 +199,12 @@ Code (scripts/story/day3_morning.gd):
 - MERGE_NOTES_day3_bathroom.md, .gitignore (allow-list)
 
 ## Status
-UNTESTED (v32 and v32b). Suggested QA: qa_v31c day-3 leg: after the alarm the list must stay "Take a shower." (+ "Charge my phone." if
+UNTESTED (v32, v32b and v32c). Suggested QA: qa_v31c day-3 leg: after the alarm the list must stay "Take a shower." (+ "Charge my phone." if
 present) through bedroom -> bathroom door -> bathroom; the bathroom chip must read "I am opening the door."; "Go to the living
 room." only after Take a shower; outside: the pan shows the cafe then the shop and returns to the player without entering walls.
 v32b: run qa_v31c (the day-3 tail now covers the cafe / shop / home cues); with blue's interiors merged, enter + leave each place.
+v32c: from "Talk to my family.": solve the 7 puzzles (TR off / on), check the family stays seated, Go to bed. -> dream (4 cards) ->
+test (Skip + Retake) -> Day 4 title -> only "I'm waking up." / "I'm getting up." -> "Start your day." pan; WorldState.day == 4.
 
 ## Port to english-game-main (v31.1), branch v32-day3-morning-main
 - O8: english-game-main already has black's v31.1 O8 fix in `scripts/core/objectives.gd` (`set_list()` / `clear()` keep the
