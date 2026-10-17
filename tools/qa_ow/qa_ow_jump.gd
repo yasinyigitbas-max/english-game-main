@@ -67,7 +67,7 @@ func _ready() -> void:
 			if car4: w4.player.global_position = car4.global_position + Vector3(2.5, 0, 0)
 			await _t(3.0); _shot(1); await _t(8.0); _shot(2); await _t(14.0); _shot(3); get_tree().quit(); return
 		"cafe":
-			await OwLink.travel("cafe", "cafe"); await _t(16.0); _shot(0)
+			await OwLink.travel("cafe", "cafe"); await _t(16.0); print("RED_CAFE live=", OwLink.inst.live_id, " hero=", OwLink.inst.world.player.global_position, " cam=", get_viewport().get_camera_3d().get_path() if get_viewport().get_camera_3d() else "none"); _shot(0)
 			var c = get_tree().current_scene
 			if c and c.has_method("qa_use"): c.qa_use("counter")
 			await _t(14.0); _shot(1); get_tree().quit(); return
