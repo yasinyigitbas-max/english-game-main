@@ -542,13 +542,12 @@ static func _trim(e: PackedByteArray) -> PackedByteArray:
 var _sfx_pool: Array = []
 var _sfx_cache := {}
 var sfx_log: Array = []
-## v30.2 playtest: every water sound (tap, shower, watering, splash, flush, trickle) at 50 % volume (-6 dB)
+## v32 (Yasin 13:51): EVERY water sound plays at one and the same loudness, the tap's new level (20 % of before).
+## Per-clip dB = target (-39.6 LUFS) minus the clip's measured loudness (ebur128), so the caller's db is ignored.
+const WATER_LEVEL := {"water": -26.0, "water_drops": -18.5, "trickle": -21.5, "shower_loop": -23.3}
 const WATER_SFX := ["water", "water_drops", "trickle", "shower_loop"]
-const WATER_DB := -6.0
-## v32 (Yasin 13:49): tap / sink water at 20 % of its previous volume (-14 dB on top of WATER_DB)
-const TAP_DB := -14.0
-func tap_sfx(db := 0.0, pitch := 1.0) -> void:
-	sfx("water", db + TAP_DB, pitch)
+func tap_sfx(_db := 0.0, pitch := 1.0) -> void:
+	sfx("water", 0.0, pitch)
 func sfx(name: String, db := 0.0, pitch := 1.0) -> void:
 	sfx_log.append(name)
 	if not _sfx_cache.has(name):
@@ -559,7 +558,7 @@ func sfx(name: String, db := 0.0, pitch := 1.0) -> void:
 		for i in 8:
 			var pl := AudioStreamPlayer.new(); add_child(pl); _sfx_pool.append(pl)
 	var pl: AudioStreamPlayer = _sfx_pool.pop_front(); _sfx_pool.append(pl)
-	pl.stream = _sfx_cache[name]; pl.volume_db = db + (WATER_DB if name in WATER_SFX else 0.0); pl.pitch_scale = pitch; pl.play()
+	pl.stream = _sfx_cache[name]; pl.volume_db = WATER_LEVEL[name] if WATER_LEVEL.has(name) else db; pl.pitch_scale = pitch; pl.play()
 
 ## house.28: (re)open voice banks; called again after downloaded packs are mounted.
 func reopen_banks() -> void:

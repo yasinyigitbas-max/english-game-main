@@ -1244,11 +1244,11 @@ func _v31_house() -> void:
 	b.hero.position = Vector3(b.OBJ["door"].spot.x, 0, b.OBJ["door"].spot.z - 0.6); await w(1.5); await shot("06_bathroom_label")
 	# water at 50 %: -6 dB on every water sfx + the shower loop
 	Audio.sfx("water", -4.0); var pl: AudioStreamPlayer = Audio._sfx_pool.back()
-	ok(is_equal_approx(pl.volume_db, -10.0), "water sfx -4 dB call plays at %.1f dB (-6 dB = 50%%)" % pl.volume_db)
+	ok(is_equal_approx(pl.volume_db, Audio.WATER_LEVEL["water"]), "water sfx plays at the shared water level (%.1f dB)" % pl.volume_db)
 	Audio.sfx("metalClick", -4.0); pl = Audio._sfx_pool.back()
 	ok(is_equal_approx(pl.volume_db, -4.0), "non-water sfx unchanged (%.1f dB)" % pl.volume_db)
 	b.S.shower = "on"; b._apply_states(true); await w(0.8)
-	ok(b.shower_snd != null and b.shower_snd.playing and is_equal_approx(b.shower_snd.volume_db, -20.0) or (b.shower_snd and b.shower_snd.volume_db < -19.0), "shower loop %.1f dB (was -14)" % (b.shower_snd.volume_db if b.shower_snd else 0.0))
+	ok(b.shower_snd != null and b.shower_snd.playing and is_equal_approx(b.shower_snd.volume_db, Audio.WATER_LEVEL["shower_loop"]), "shower loop at shared water level %.1f dB" % (b.shower_snd.volume_db if b.shower_snd else 0.0))
 	b.S.shower = "off"; b._apply_states(true); await w(0.6)
 	var dv = b.verbs("door")[0]; b.do_verb("door", dv)
 	ok(await _scene_is("res://livingroom.tscn", 25.0), "day 2: bathroom -> living room without washing")
