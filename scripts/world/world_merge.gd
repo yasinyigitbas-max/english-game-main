@@ -128,6 +128,12 @@ const CELL := 14.0
 static func merge_tree(root: Node3D, range_end := 0.0, range_margin := 4.0) -> Dictionary:
 	var prot := _protected(root)
 	var st := merge_root(root, range_end, range_margin, prot)
+	# wall-fade groups (bathroom tile grids, wall + trim sets): their meshes merge under the group node and the merged
+	# mesh joins the manager's entry, so the group still fades / hides as one
+	for g in root.find_children("*", "Node3D", true, false):
+		if g.has_meta("wf_reg") and not (g is GeometryInstance3D) and g.get_child_count() > 1 and not prot.has(g):
+			var s3 := merge_root(g, 0.0, 4.0, {}, true)
+			for k in st: st[k] += int(s3.get(k, 0))
 	for n in prot:
 		if not is_instance_valid(n) or not (n is Node3D) or n == root or not root.is_ancestor_of(n) or _skip_node(n): continue
 		if n is MeshInstance3D and (n as MeshInstance3D).get_child_count() == 0: continue
@@ -140,12 +146,15 @@ static func merge_tree(root: Node3D, range_end := 0.0, range_margin := 4.0) -> D
 		for k in st: st[k] += int(s2.get(k, 0))
 	return st
 
-static func merge_root(root: Node3D, range_end := 0.0, range_margin := 4.0, prot_in = null) -> Dictionary:
+static func merge_root(root: Node3D, range_end := 0.0, range_margin := 4.0, prot_in = null, fade_group := false) -> Dictionary:
 	var st := {"meshes": 0, "surfaces_in": 0, "surfaces_out": 0}
 	if root == null or not is_instance_valid(root) or root.has_meta("ow_merged"): return st
 	root.set_meta("ow_merged", true)
 	var prot: Dictionary = prot_in if prot_in is Dictionary else _protected(root)
-	var cand: Array = []; _gather(root, prot, cand)
+	var cand: Array = []
+	if fade_group:   # every plain child mesh of a wall-fade group (walls included: the group fades as one)
+		for c in root.find_children("*", "MeshInstance3D", true, false): if (c as Node3D).is_visible_in_tree() and not c.has_meta("ow_merged_mesh"): cand.append(c)
+	else: _gather(root, prot, cand)
 	var inv := root.global_transform.affine_inverse()
 	var buckets := {}
 	var used: Array = []
@@ -157,7 +166,7 @@ static func merge_root(root: Node3D, range_end := 0.0, range_margin := 4.0, prot
 			var m := gi as MeshInstance3D
 			mesh = m.mesh
 			if mesh == null or m.skin != null or (mesh is ArrayMesh and (mesh as ArrayMesh).get_blend_shape_count() > 0): continue
-			if mesh is BoxMesh and ShoulderCam._is_wall(m.global_transform * m.get_aabb()): continue   # walls fade one by one
+			if not fade_group and mesh is BoxMesh and ShoulderCam._is_wall(m.global_transform * m.get_aabb()): continue   # walls fade one by one
 		else:
 			mm = (gi as MultiMeshInstance3D).multimesh
 			if mm == null or mm.mesh == null or mm.transform_format != MultiMesh.TRANSFORM_3D: continue
@@ -207,7 +216,16 @@ static func merge_root(root: Node3D, range_end := 0.0, range_margin := 4.0, prot
 			if range_end > 0.0: out.visibility_range_end = range_end; out.visibility_range_end_margin = range_margin
 			out.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF   # small things: no sun-shadow pass (draw calls)
 		root.add_child(out); made += 1
+		if fade_group: _join_fade(root, out)
 	if made == 0: return st
 	for g in used: (g as GeometryInstance3D).visible = false; g.set_meta("ow_merged_src", true)
 	st.meshes = used.size()
 	return st
+
+## add a merged mesh to the wall-fade entry of its group node (meta wf_reg = the manager's instance id)
+static func _join_fade(group: Node, mi: MeshInstance3D) -> void:
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	var m = instance_from_id(int(group.get_meta("wf_reg")))
+	if m == null or m.get("_walls") == null: return
+	for e in m._walls:
+		if e.node == group: (e.meshes as Array).append(mi)
