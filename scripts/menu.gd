@@ -183,7 +183,7 @@ func _go_game() -> void:
 		_toast(App.t("no_game") + App.GAME_SCENE)
 
 func _new_game() -> void:
-	App.continue_requested = false
+	App.new_game_reset()   # v32 (black): full reset (save, flags, day, objectives, audio, pause) before the opening
 	_go_game()
 
 func _continue() -> void:
