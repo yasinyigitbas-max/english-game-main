@@ -1713,6 +1713,7 @@ func _build_ui() -> void:
 	room_phone.setup(self, hud, phone_btn, func(shot: Dictionary): cam_shot = shot)
 	phone_btn.visible = App.has_phone   # v29.1: only after the bedroom pickup
 	cap_panel = PanelContainer.new(); cap_panel.name = "Caption"; cap_panel.add_theme_stylebox_override("panel", _sb(Color(0.08, 0.10, 0.16, 0.72), 22, 12))
+	cap_panel.add_to_group("caption_box"); cap_panel.visibility_changed.connect(func(): if cap_panel.visible: StoryUI.claim(cap_panel))   # v32-polish: ONE caption box on screen (StoryUI.claim)
 	hud.add_child(cap_panel)
 	var ch := HBoxContainer.new(); ch.add_theme_constant_override("separation", 16); cap_panel.add_child(ch)
 	var cv := VBoxContainer.new(); cv.add_theme_constant_override("separation", 2); ch.add_child(cv)

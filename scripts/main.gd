@@ -1196,6 +1196,7 @@ func _build_ui() -> void:
 	phone_btn.visible = false; hud.add_child(phone_btn)
 	# caption
 	cap_panel = PanelContainer.new(); cap_panel.name = "Caption"; cap_panel.add_theme_stylebox_override("panel", _sb(Color(0.08, 0.10, 0.16, 0.72), 22, 12))
+	cap_panel.add_to_group("caption_box"); cap_panel.visibility_changed.connect(func(): if cap_panel.visible: StoryUI.claim(cap_panel))   # v32-polish: ONE caption box on screen (StoryUI.claim)
 	hud.add_child(cap_panel)
 	var ch := HBoxContainer.new(); ch.add_theme_constant_override("separation", 16); cap_panel.add_child(ch)
 	var cv := VBoxContainer.new(); cv.add_theme_constant_override("separation", 2); ch.add_child(cv)
@@ -1824,8 +1825,10 @@ func phone_event(p: String) -> void:
 		"grammar": caption("I am learning grammar.")
 		"words": caption("I am learning new words.")
 		"me": pass   # house.17: "I am looking at my phone." only once per open (said on open)
-		"lesson": caption("I am learning about he, she and it."); _set_mission("Learn he, she and it.")
-		"quiz": caption("I am answering a question.")
+		"lesson":   # v32-polish: only the family he/she/it lesson (the dream review / scripted lessons used to stack this line)
+			if phone.les.is_empty(): caption("I am learning about he, she and it."); _set_mission("Learn he, she and it.")
+		"quiz":   # v32-polish: scripted tests (review / big test / day-2 test) have their own narrator line; no second box
+			if phone.les.is_empty(): caption("I am answering a question.")
 		"family":
 			caption("I am adding my family.")
 			if S.lesson_done and S.family.is_empty(): _set_mission("Add your family.")

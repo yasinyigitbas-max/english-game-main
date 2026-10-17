@@ -73,6 +73,7 @@ func _ready() -> void:
 	phone_btn.pressed.connect(func(): UI.click(); open_phone()); root.add_child(phone_btn)
 	# caption
 	cap_panel = PanelContainer.new(); cap_panel.name = "Caption"; cap_panel.add_theme_stylebox_override("panel", UI.sb(Color(0.08, 0.10, 0.16, 0.72), 22, 12))
+	cap_panel.add_to_group("caption_box"); cap_panel.visibility_changed.connect(func(): if cap_panel.visible: StoryUI.claim(cap_panel))   # v32-polish: ONE caption box on screen (StoryUI.claim)
 	root.add_child(cap_panel)
 	var ch := HBoxContainer.new(); ch.add_theme_constant_override("separation", 16); cap_panel.add_child(ch)
 	var cv := VBoxContainer.new(); cv.add_theme_constant_override("separation", 2); ch.add_child(cv)
@@ -198,11 +199,7 @@ func on_action() -> void:
 func show_chips() -> void:
 	_hide_chips()
 	if near == null: return
-	var nm: String = near.obj_name if "obj_name" in near else ""
-	var head := Label.new(); head.text = nm.capitalize() if nm != "" else "Door"; head.add_theme_font_override("font", UI.font_b)
-	head.add_theme_font_size_override("font_size", 20); head.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT; head.modulate = Color(0.12, 0.15, 0.25)
-	var hp := PanelContainer.new(); hp.add_theme_stylebox_override("panel", UI.sb(Color(1, 1, 1, 0.75), 14, 4)); hp.add_child(head)
-	hp.size_flags_horizontal = Control.SIZE_SHRINK_END; chips.add_child(hp)
+	# v32-polish: no title panel above the buttons any more ("Take Apples" showed two boxes); the button text names the action
 	var target = near
 	for v in target.verb_list():
 		var b := Button.new(); b.text = v[0]; b.custom_minimum_size = Vector2(230, 58); b.add_theme_font_size_override("font_size", 22)
