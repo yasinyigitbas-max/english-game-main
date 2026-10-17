@@ -70,12 +70,12 @@ static func merge_all(world: Node) -> Dictionary:
 	var roots: Array = []
 	var grid = world.get("grid")
 	if grid and grid.get("loaded") is Dictionary:
-		for c in grid.loaded: roots.append([grid.loaded[c], 60.0])
+		for c in grid.loaded: roots.append([grid.loaded[c], 30.0])
 		if grid.has_signal("block_loaded"):
-			grid.block_loaded.connect(func(_c, b): (func(): Merge.merge_root(b, 60.0)).call_deferred())
+			grid.block_loaded.connect(func(_c, b): (func(): Merge.merge_root(b, 30.0)).call_deferred())
 	var places = world.get("places")
 	if places is Dictionary:
-		for id in places: roots.append([places[id], 40.0])
+		for id in places: roots.append([places[id], 28.0])
 	for c in world.get_children():
 		if c is Node3D and c != grid and not (places is Dictionary and c in (places as Dictionary).values()) and not (c is CharacterBody3D) and c.get_script() == null:
 			roots.append([c, 0.0])

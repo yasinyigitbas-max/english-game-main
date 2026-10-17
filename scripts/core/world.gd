@@ -79,7 +79,7 @@ func _ready() -> void:
 	hud.set_mission("Walk anywhere: open world preview.")
 	for l in find_children("*", "OmniLight3D", true, false) + find_children("*", "SpotLight3D", true, false): _lights.append(l)
 	_cull_setup()
-	var _bo: Dictionary = preload("res://scripts/world/world_blue.gd").install(self, {"culling": false})   # blue: wall fade, cafe/shop fronts, merge, door no_fade
+	var _bo: Dictionary = preload("res://scripts/world/world_blue.gd").install(self, {"culling": false, "work": true})   # blue: wall fade, cafe/shop fronts, merge, door no_fade
 	# blue's WorldCulling with the 19:03 draw-distance limits (~28 m; buildings / merged blocks bigger than 30 m stay on, cut by far + fog)
 	var wc: Node = load("res://scripts/world/world_culling.gd").new(); wc.set("host", self)
 	for kv in [["prop_range", 18.0], ["interior_range", 26.0], ["mid_range", VIS_END], ["far_range", VIS_END + 4.0], ["big_size", 30.0], ["light_range", LIGHT_NEAR], ["shadow_range", 8.0], ["sun_shadow", 24.0]]: wc.set(kv[0], kv[1])
