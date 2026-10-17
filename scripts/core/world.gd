@@ -437,10 +437,19 @@ func hero_pos() -> Vector3:
 	return (h as Node3D).global_position if h is Node3D and (h as Node3D).is_inside_tree() else player.global_position
 
 func region_at(p: Vector3) -> String:
+	# fix33 (blue): the house room bounds overlap (each room's mesh bounds reach into its neighbours: the bedroom box
+	# covered most of the living room), and the FIRST match won: the region stayed "bedroom" in the living room, so the
+	# living room was culled (indoor_vis) = the couch / evening / party cameras showed the street through an invisible room.
+	# Now: the live OwLink room when the hero is inside it, else the match whose floor rect is smallest.
+	var live_id := String(OwLink.inst.live_id) if OwLink.active() else ""
+	var best := "street"; var best_a := INF
 	for id in regions:
 		var ab: AABB = regions[id]
-		if p.x >= ab.position.x and p.x <= ab.end.x and p.z >= ab.position.z and p.z <= ab.end.z: return id
-	return "street"
+		if p.x >= ab.position.x and p.x <= ab.end.x and p.z >= ab.position.z and p.z <= ab.end.z:
+			if id == live_id: return id
+			var a := ab.size.x * ab.size.z
+			if a < best_a: best_a = a; best = id
+	return best
 
 # ------------------------------------------------------------ home spots
 func _home_spots() -> void:
