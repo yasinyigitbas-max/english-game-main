@@ -73,8 +73,10 @@ func _ready() -> void:
 			await _t(14.0); _shot(1); get_tree().quit(); return
 		_: await OwLink.enter("livingroom", "bedroom")
 	if ev == "couch2":
-		await _t(3.0); load("res://scripts/story/day2_evening.gd").start(get_tree())
-		var lr2 = OwLink.inst.world.places.get("livingroom"); lr2.hero.position = Vector3(lr2.SOFA_X - 1.2, 0, 0.0)   # the player walks up to the couch
+		await _t(14.0)   # the real path: livingroom _intro -> Day2After -> "Talk to your family." -> Day2Evening (no manual start)
+		print("RED_COUCH has_eve=", get_tree().current_scene.has_node("Day2Evening") if get_tree().current_scene else "-", " obj=", Objectives.items)
+		var lr2 = OwLink.inst.world.places.get("livingroom"); lr2.hero.global_position = lr2.to_global(Vector3(lr2.SOFA_X - 1.2, 0, 0.0))   # the player walks up to the couch
+		print("RED_COUCH lr_has_eve=", lr2.has_node("Day2Evening"))
 	var t0 := 0.0
 	for i in shots.size():
 		await _t(shots[i] - t0); t0 = shots[i]; _shot(i)

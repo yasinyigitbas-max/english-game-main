@@ -67,7 +67,7 @@ func run() -> void:
 	# wait for the player at the couch (or sitting on it)
 	var t0 := Time.get_ticks_msec()
 	while is_instance_valid(lr):
-		var h: Vector3 = lr.hero.position   # open world: room-local like SOFA_X
+		var h: Vector3 = lr.to_local(lr.hero.global_position)   # open world: room-local like SOFA_X
 		if String(lr.S.seat).begins_with("sofa") or Vector2(h.x, h.z).distance_to(Vector2(lr.SOFA_X, 0.0)) < 1.9: break
 		if Time.get_ticks_msec() - t0 > 600000: break
 		await _w(0.25)
