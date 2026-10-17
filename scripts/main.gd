@@ -474,9 +474,11 @@ func _build_room() -> void:
 	# ---------- bookcase on the right wall (faces -X)
 	N.shelf = prop("bookcaseOpen", Vector3(3.3, 0, -0.85), -90, 1.75)
 	block(N.shelf)
-	for i in 3: prop("books", Vector3(3.3, 0.42 + i * 0.47, -0.95 + (i % 2) * 0.15), -90, 0.0, 0.32)
+	# v32-polish: books seated ON the shelf boards (bookcaseOpen.glb shelf tops y = 0.13 / 0.37 / 0.61 of 0.88, scaled 1.75/0.88);
+	# they used to float 0.16 m above each board
+	for i in 3: prop("books", Vector3(3.3, (0.13 + i * 0.24) * 1.75 / 0.88, -0.95 + (i % 2) * 0.15), -90, 0.0, 0.32)
 	_spl(prop("plantSmall3", Vector3(3.3, 1.76, -0.85), 0, 0.3))
-	N.shelf_book = box(Vector3(0.16, 0.24, 0.05), Vector3(3.3, 1.02, -0.62), Color(0.85, 0.3, 0.3))
+	N.shelf_book = box(Vector3(0.16, 0.24, 0.05), Vector3(3.3, 0.37 * 1.75 / 0.88 + 0.122, -0.62), Color(0.85, 0.3, 0.3))   # v32-polish: standing on the 2nd board
 	reg("books", "bookcase", Vector3(3.3, 1.2, -0.85), Vector3(2.6, 0, -0.85), Vector3(1, 0, 0))
 	# ---------- light switch + door on the right wall
 	box(Vector3(0.02, 0.12, 0.08), Vector3(3.49, 1.2, 0.35), Color(1, 1, 1))
@@ -905,16 +907,24 @@ func bedsit_to_lie() -> void:
 func get_up_sequence(opening := false) -> void:
 	Life.event("wake")   # house.29: event clock
 	mode = "busy"; _hide_chips(); _update_hand()
-	caption("I am waking up." if opening else "I am getting up.")
+	# v32-polish: every wake-up shows exactly "I'm waking up." then "I'm getting up.", each readable (>= 2 s and until the
+	# voice has finished); the old "I am standing up." line and its voice call are gone
+	var t0 := Time.get_ticks_msec()
+	caption("I'm waking up.")
 	hero.player.speed_scale = 0.0
 	await bedsit_up()
 	if opening: Life.snap("wake")   # house.27: day-1 polaroid
+	await _readable(t0)
 	await bedsit_to_edge()
-	caption("I am getting up.")
-	await wait(0.5)
-	caption("I am standing up.")
+	t0 = Time.get_ticks_msec()
+	caption("I'm getting up.")
+	await _readable(t0)
 	await stand_from_bed()
 	mode = "play"; _update_hand(); action_done.emit("getup")
+
+## v32-polish: keep the current caption on screen at least 2 s and until the narrator has finished it
+func _readable(t0: int, min_ms := 2000) -> void:
+	while Time.get_ticks_msec() - t0 < min_ms or (Audio.is_speaking() and Time.get_ticks_msec() - t0 < 8000): await get_tree().process_frame
 
 ## v30.1: back from the hospital the player wakes up lying on the bed (morning lying pose + get-up flow), then the home story runs
 func _home_from_hospital() -> void:
@@ -1354,6 +1364,7 @@ func load_game() -> bool:
 	S.tr = App.tr_saved()   # v29.1: the one persisted TR flag (other scenes write state.tr too)
 	_sync_app_phone()
 	S.door_locked = door_rule()   # v9: the door needs the mirror, a job and at least one family member
+	S.door = "closed"   # v32-polish: the bedroom -> bathroom door was saved "open" on day 1 and so started open on day 2; it always starts closed
 	if d.has("pos"): saved_pos = Vector3(d.pos[0], 0, d.pos[1])
 	return S.created
 
@@ -1474,14 +1485,23 @@ func _after_look() -> void:
 	await wait(1.6)
 	touch.visible = true
 
+## v32-polish: the spelled name plus a visible blinking caret (a thin bar; the space keeps the width steady)
+var _caret_on := true
+func _name_show() -> void:
+	if is_instance_valid(name_lbl): name_lbl.text = S.name + ("|" if _caret_on else " ")
+
 func _show_alphabet() -> void:
 	var v := _side_panel(560)
 	_title(v, "What is your name?", "Adın ne? Harflere dokun.")
-	var np := PanelContainer.new(); np.add_theme_stylebox_override("panel", _sb(Color(0.93, 0.95, 1.0), 16, 8)); v.add_child(np)
-	name_lbl = Label.new(); name_lbl.name = "NameField"; name_lbl.add_theme_font_override("font", font_b); name_lbl.add_theme_font_size_override("font_size", 40)
+	# v32-polish: field about 56 px tall (no extra panel padding), font 34, vertically centred, blinking caret
+	var nsb := _sb(Color(0.93, 0.95, 1.0), 16, 8); nsb.content_margin_top = 0; nsb.content_margin_bottom = 0
+	var np := PanelContainer.new(); np.name = "NameBox"; np.add_theme_stylebox_override("panel", nsb); np.custom_minimum_size.y = 56; v.add_child(np)
+	name_lbl = Label.new(); name_lbl.name = "NameField"; name_lbl.add_theme_font_override("font", font_b); name_lbl.add_theme_font_size_override("font_size", 34)
 	name_lbl.add_theme_color_override("font_color", Color(0.12, 0.15, 0.25)); name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_lbl.clip_text = true; name_lbl.custom_minimum_size.y = 56; np.add_child(name_lbl)
-	S.name = ""; name_lbl.text = "_"
+	name_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER; name_lbl.clip_text = true; name_lbl.custom_minimum_size.y = 56; np.add_child(name_lbl)
+	var ct := Timer.new(); ct.wait_time = 0.5; ct.autostart = true; np.add_child(ct)
+	ct.timeout.connect(func(): _caret_on = not _caret_on; _name_show())
+	S.name = ""; _name_show()
 	# v11: QWERTY like a phone keyboard (A-Z only), staggered rows, Delete + OK
 	var kb := VBoxContainer.new(); kb.name = "Letters"; kb.add_theme_constant_override("separation", 8); v.add_child(kb)
 	for ri in QWERTY.size():
@@ -1502,10 +1522,10 @@ const QWERTY := ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"]
 func type_letter(L: String) -> void:
 	if S.name.length() >= 12: return
 	S.name += L if S.name == "" else L.to_lower()
-	name_lbl.text = S.name; Audio.letter(L)
+	_name_show(); Audio.letter(L)
 
 func type_back() -> void:
-	Audio.click(); S.name = S.name.left(-1); name_lbl.text = S.name if S.name != "" else "_"
+	Audio.click(); S.name = S.name.left(-1); _name_show()
 
 func type_done() -> void:
 	if S.name == "": caption("What is your name? How do you spell it?"); return

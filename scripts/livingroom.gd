@@ -851,10 +851,10 @@ func _ball(r: float, p: Vector3, col: Color) -> MeshInstance3D:
 func _build_shelf() -> void:
 	N.shelf = prop("bookcaseOpen", Vector3(-2.95, 0, -2.75), 0, 1.85)
 	block(N.shelf)
-	for i in 3: prop("books", Vector3(-3.05 + (i % 2) * 0.12, 0.44 + i * 0.49, -2.75), 0, 0.0, 0.34)
+	for i in 3: prop("books", Vector3(-3.05 + (i % 2) * 0.12, (0.13 + i * 0.24) * 1.85 / 0.88, -2.75), 0, 0.0, 0.34)   # v32-polish: seated on the boards (were 0.17 m above)
 	_spl(prop("plantSmall1", Vector3(-2.8, 1.36, -2.75), 0, 0.22))
 	_spl(prop("plantSmall3", Vector3(-2.95, 1.86, -2.75), 0, 0.28))
-	N.shelf_book = box(Vector3(0.05, 0.24, 0.17), Vector3(-2.72, 0.56, -2.72), Color(0.85, 0.3, 0.3))
+	N.shelf_book = box(Vector3(0.05, 0.24, 0.17), Vector3(-2.72, 0.13 * 1.85 / 0.88 + 0.122, -2.72), Color(0.85, 0.3, 0.3))   # v32-polish: on the bottom board
 	box(Vector3(0.05, 0.22, 0.16), Vector3(-2.66, 0.55, -2.72), C_BLUE)
 	reg("books", "bookcase", Vector3(-2.95, 1.2, -2.75), Vector3(-2.85, 0, -2.0), Vector3(0, 0, -1))
 

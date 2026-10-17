@@ -1421,6 +1421,7 @@ func _build_ui() -> void:
 	hud.tr_func = func(en: String) -> String: return TR.get(en, TR_EXTRA.get(en, room_phone.extra_tr(en) if room_phone else ""))
 	hud.voice_func = func(en: String) -> void: if S.voice and not _mute_next and not voice_busy(): say(en)
 	S.tr = App.tr_saved(); hud.set_tr(S.tr); hud.set_place("Bathroom", "Banyo")
+	S.door_bed = "closed"; S.door = "closed"; _apply_states.call_deferred()   # v32-polish: both doors start closed on every day (day 2 started with the bedroom door open)
 	# house.16: the bedroom's phone (scripts/phone.gd) + pocket sequence on the HUD phone button; hud's own phone unused
 	room_phone = load("res://scripts/room_phone.gd").new(); add_child(room_phone)
 	room_phone.setup(self, hud.phone.get_parent(), hud.phone_btn)

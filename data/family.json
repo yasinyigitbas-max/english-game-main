@@ -227,7 +227,8 @@
    ],
    "say": [
     "I, you, he, she, it, we, they."
-   ]
+   ],
+   "title_tr": "I, you, he, she, it, we, they (özne zamirleri)"
   },
   {
    "title": "He, she or it?",
@@ -250,6 +251,21 @@
     "He is my father.",
     "She is my mother.",
     "It is my dog."
+   ],
+   "title_tr": "He, she or it? (o: erkek, kadın, hayvan/eşya)",
+   "rows_tr": [
+    [
+     "o (erkek)",
+     "bir adam ya da erkek çocuk: O benim babam."
+    ],
+    [
+     "o (kadın)",
+     "bir kadın ya da kız: O benim annem."
+    ],
+    [
+     "o (hayvan, eşya)",
+     "bir hayvan ya da eşya: O benim köpeğim."
+    ]
    ]
   },
   {
@@ -275,6 +291,25 @@
    ],
    "say": [
     "I am, you are, he is, she is, it is, we are, they are."
+   ],
+   "title_tr": "am, is, are (olmak fiili)",
+   "rows_tr": [
+    [
+     "ben ...im",
+     "biz ...iz"
+    ],
+    [
+     "sen ...sin",
+     "onlar ...ler"
+    ],
+    [
+     "o (erkek) ...dir",
+     "o (kadın) ...dir"
+    ],
+    [
+     "o (hayvan, eşya) ...dir",
+     ""
+    ]
    ]
   },
   {
@@ -303,7 +338,8 @@
     "It is my dog.",
     "They are my brothers.",
     "We are a family."
-   ]
+   ],
+   "title_tr": "Örnekler"
   }
  ],
  "quiz": [
