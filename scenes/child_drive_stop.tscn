@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/story/child_drive_stop.gd" id="1"]
+
+[node name="ChildDriveStop" type="Node3D"]
+script = ExtResource("1")
