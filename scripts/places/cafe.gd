@@ -75,6 +75,7 @@ func build() -> void:
 	for f in [[Vector3(-4.92, 1.8, -1.0), Color(0.93, 0.52, 0.44)], [Vector3(-4.92, 1.7, 0.4), Color(0.4, 0.56, 0.76)], [Vector3(-4.92, 1.9, 1.7), Color(0.95, 0.8, 0.4)]]:
 		var p: Vector3 = f[0]; box(Vector3(0.04, 0.6, 0.5), p, Color(0.3, 0.22, 0.16), false); box(Vector3(0.045, 0.5, 0.4), p, f[1], false)
 	label("Corner Cafe", Vector3(-4.88, 2.55, 0.4), 90, Color(0.98, 0.9, 0.7), PI / 2)
+	box(Vector3(room.x - 0.14, 0.06, 0.06), Vector3(0, 3.03, BAR_Z), Color(0.2, 0.17, 0.14), false)   # v32 polish: wooden beam the pendants hang from
 	for t in [Vector3(-1.5, 0, BAR_Z), Vector3(0.5, 0, BAR_Z)]:   # pendant lamps over the counter (emissive, high so the top camera sees past them)
 		cyl(0.006, 0.4, t + Vector3(0, 2.8, 0), Color(0.15, 0.15, 0.15))
 		cyl(0.06, 0.18, t + Vector3(0, 2.52, 0), Color(0.2, 0.18, 0.16), false, 0.0, 0.22)
@@ -130,16 +131,16 @@ func _garland(a: Vector3, b: Vector3, n: Vector3) -> void:
 func run() -> void:
 	Audio.music("cafe_lofi")
 	busy(true)
+	if not done("enter"): await cine(Vector3(3.5, 2.6, 3.0), Vector3(-1.0, 1.0, -2.5), 0.01)   # v32 polish: cut to the opening shot UNDER the fade-in (was a visible snap 0.6 s after it)
 	await get_tree().create_timer(0.6).timeout
-	Audio.sfx("place_bell", -6.0)
+	Audio.sfx("place_bell", -8.0)
 	if not done("enter"):
-		await cine(Vector3(3.5, 2.6, 3.0), Vector3(-1.0, 1.0, -2.5), 0.01)
 		var pan := cine_go(Vector3(-3.5, 2.4, 2.6), Vector3(0.5, 1.0, -2.6), 5.0)
 		await beat("enter")
 		if pan.is_running(): await pan.finished
 		await cine_end(); mark("enter")
 	if not done("teach"):   # first visit: how to order food and drinks (menu card + narrator)
-		await cine(Vector3(-0.6, 1.9, -0.9), Vector3(-0.6, 2.45, -3.9), 1.4)
+		await cine(Vector3(-0.6, 1.6, -1.0), Vector3(-0.6, 2.45, -3.9), 1.4)   # v32 polish: lower camera, the pendant lamps sit above the boards instead of over them
 		teach_card("How to order", "Nasıl sipariş verilir", [["like", "I'd like a hot chocolate, please.", "Bir sıcak çikolata istiyorum, lütfen."], ["can", "Can I have a cookie, please?", "Bir kurabiye alabilir miyim, lütfen?"],
 			["much", "How much milk? A little, please.", "Ne kadar süt? Biraz, lütfen."], ["many", "How many cookies? Two, please.", "Kaç kurabiye? İki tane, lütfen."], ["here", "For here or to go?", "Burada mı, götürmek için mi?"]])
 		await beat("teach")
@@ -171,7 +172,7 @@ func order() -> void:
 	await cine(Vector3(0.4, 1.75, -0.6), Vector3(-1.2, 1.35, -2.8), 1.2)
 	await speak("barista", L[0][1])
 	tick_card("like")
-	await cine(Vector3(-0.6, 1.9, -1.3), Vector3(-0.6, 2.4, -3.9), 1.3)   # the menu board
+	await cine(Vector3(-0.6, 1.6, -1.0), Vector3(-0.6, 2.45, -3.9), 1.3)   # the menu board (v32 polish: no pendant lamp in front of it)
 	await speak("me", L[1][1])
 	await cine(Vector3(0.3, 1.8, -0.9), Vector3(-1.0, 1.3, -3.0), 1.0)
 	await speak("barista", L[2][1]); await speak("me", L[3][1]); tick_card("much")
@@ -180,20 +181,20 @@ func order() -> void:
 	await speak("barista", L[6][1]); await speak("me", L[7][1]); tick_card("here")
 	# brewing: barista turns to the machine, steam + hiss, camera on the machine
 	b.play("typing", 0.3); create_tween().tween_property(b, "rotation:y", PI, 0.4)
-	steam.emitting = true; Audio.sfx("place_steam", -8.0)
+	steam.emitting = true; Audio.sfx("place_steam", -5.0)
 	await cine(Vector3(-1.1, 1.6, -2.4), Vector3(-1.6, 1.2, -3.6), 1.4)
 	await get_tree().create_timer(1.2).timeout
-	steam.emitting = false; Audio.sfx("place_clink", -6.0)
+	steam.emitting = false; Audio.sfx("place_clink", -5.0)
 	cup_on_counter = food("cup-coffee", Vector3(-1.0, 1.045, BAR_Z + 0.15), 0.12)
 	b.play("idle", 0.3); face(b, player.global_position)
 	await cine(Vector3(0.2, 1.7, -0.9), Vector3(-1.0, 1.15, BAR_Z), 1.0)
 	await speak("barista", L[8][1])
-	player.hero.play("pick_up", 0.25); Audio.sfx("place_coins", -6.0)
+	player.hero.play("pick_up", 0.25); Audio.sfx("place_coins", -8.0)
 	await speak("me", L[9][1])
-	Audio.sfx("place_till", -8.0)
+	Audio.sfx("place_till", -4.0)
 	await speak("barista", L[10][1])
 	if is_instance_valid(cup_on_counter): cup_on_counter.queue_free()
-	player.hero.hold_item(FOOD + "cup-coffee.glb", "cylinder", 0.1, false); Audio.sfx("place_clink", -8.0)
+	player.hero.hold_item(FOOD + "cup-coffee.glb", "cylinder", 0.1, false); Audio.sfx("place_clink", -5.0)
 	player.hero.play("idle", 0.3)
 	await speak("me", L[11][1])
 	await cine_end()
@@ -208,10 +209,16 @@ func sit() -> void:
 	await beat("sit")
 	await cine_end()
 
+## v32 polish: the cafe feels alive between the beats: seated customers glance around, the standing customer takes a
+## phone call now and then, the barista works the till / chats; nothing moves while a scripted beat owns the NPCs.
 var _lt := 0.0
 func lively(dt: float) -> void:
+	if mode != "play" or not npcs.has("c1"): return
+	for id in ["c1", "c3", "c2", "barista"]: glance(id, dt, 7.0 if id != "barista" else 9.0, 0.3 if id != "barista" else 0.2)
 	_lt += dt
-	if _lt > 5.0 and mode == "play" and npcs.has("c1"):
-		_lt = 0.0
-		var who: DemoCharacter = [npcs.c2, npcs.barista][randi() % 2]
-		if who.get_meta("pose") == "idle": who.play("talk", 0.3); get_tree().create_timer(1.6).timeout.connect(func(): if is_instance_valid(who): who.play("idle", 0.3))
+	if _lt < 6.0: return
+	_lt = randf_range(-1.5, 1.0)
+	match randi() % 3:
+		0: gesture(npcs.c2, "phone_call", 6.0)
+		1: nod(npcs.barista, 2.5)   # v32 rule: "typing" / "talk" are seated clips -> a standing barista / customer sat down
+		_: nod([npcs.c2, npcs.barista][randi() % 2], 1.8)

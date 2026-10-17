@@ -147,9 +147,13 @@ func _v_shop_door() -> Array:
 # ------------------------------------------------------------------ cafe: menu board + tables
 func _build_cafe() -> void:
 	it.obj_name = "café menu"
+	# blue fix: the A-board stood at the node origin, 0.5 m in front of the cafe's door spawn (lot:cafe) right on its path.
+	# It now stands beside the path (local x 1.65, path is +-1.1), at the street end of the lot, still facing the street (+Z);
+	# the doorway, the 1.5 m in front of it and the spawn are clear. The tables (+-2.2, -0.6) stay where they were.
+	var B := Vector3(1.65, 0, 0.35)
 	var k := MeshKit.new()
-	k.box(Vector3(0.7, 1.0, 0.05), Vector3(0, 0.55, 0), DARK, 0); k.box(Vector3(0.62, 0.9, 0.06), Vector3(0, 0.57, 0.01), Color(0.25, 0.30, 0.28))
-	for sx in [-0.33, 0.33]: k.box(Vector3(0.04, 1.1, 0.04), Vector3(sx, 0.55, -0.05), WOOD)
+	k.box(Vector3(0.7, 1.0, 0.05), B + Vector3(0, 0.55, 0), DARK, 0); k.box(Vector3(0.62, 0.9, 0.06), B + Vector3(0, 0.57, 0.01), Color(0.25, 0.30, 0.28))
+	for sx in [-0.33, 0.33]: k.box(Vector3(0.04, 1.1, 0.04), B + Vector3(sx, 0.55, -0.05), WOOD)
 	for t in [Vector3(-2.2, 0, -0.6), Vector3(2.2, 0, -0.6)]:
 		k.cyl(0.4, 0.04, t + Vector3(0, 0.74, 0), WHITE, 14); k.cyl(0.04, 0.72, t + Vector3(0, 0.37, 0), DARK, 6)
 		k.cyl(0.04, 0.12, t + Vector3(0.1, 0.81, 0), WHITE, 8)
@@ -159,8 +163,8 @@ func _build_cafe() -> void:
 		col(Vector3(2.0, 1, 0.9), t + Vector3(0, 0.5, 0))
 	k.commit(self)
 	var l := Label3D.new(); Lines.set_sign(l, "MENU\ncoffee 2.50\ntea 2.00\ncake 3.00", "MENÜ\nkahve 2.50\nçay 2.00\nkek 3.00"); l.font = load("res://fonts/Nunito.ttf"); l.font_size = 30; l.pixel_size = 0.0035
-	l.position = Vector3(0, 0.62, 0.05); l.outline_size = 0; add_child(l)
-	col(Vector3(0.8, 1.1, 0.2), Vector3(0, 0.55, 0)); it.focus = to_global(Vector3(0, 0.7, 0))
+	l.position = B + Vector3(0, 0.62, 0.05); l.outline_size = 0; add_child(l)
+	col(Vector3(0.8, 1.1, 0.2), B + Vector3(0, 0.55, 0)); it.position = B + Vector3(0, 0, 0.9); it.focus = to_global(B + Vector3(0, 0.7, 0))
 
 func _v_cafe() -> Array:
 	var lot := _interior_lot()

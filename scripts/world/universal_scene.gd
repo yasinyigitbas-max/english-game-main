@@ -94,12 +94,19 @@ func caption(t: String, speak = true) -> void:
 		await get_tree().process_frame
 	if t != "" and speak and S.get("voice", true): await voice_idle(0.05)
 	if not is_inside_tree(): return
-	_mute_next = true; hud.caption(t, maxf(4.5, clip_len(t) + 1.0)); _mute_next = false
+	_mute_next = true; hud.caption(t, read_secs(t, clip_len(t))); _mute_next = false
 	if t != "" and speak and S.get("voice", true): say(t)
 	_serving = my
 	if room_phone: room_phone.S.tr = hud.show_tr
 
 ## speak a line and let it finish before the next animation step starts
+## v32 polish: on-screen time = the clip + 1 s, at least 4.5 s, and never shorter than a comfortable reading pace
+## (14 characters/s) for the English line plus the Turkish line when TR is on (long lines vanished before they were read)
+func read_secs(t: String, clip: float) -> float:
+	var chars := t.length()
+	if hud and hud.show_tr: chars += hud.tr_of(t).length()
+	return maxf(maxf(4.5, clip + 1.0), chars / 14.0 + 0.8)
+
 func say_line(t: String) -> void:
 	await caption(t)
 	if S.get("voice", true) and is_inside_tree(): await voice_idle(0.15)
