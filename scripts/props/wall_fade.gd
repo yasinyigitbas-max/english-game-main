@@ -318,7 +318,7 @@ class CamAvoid extends RefCounted:
 		var out := []
 		for gname in [GROUP, "fade"]:
 			for n in tree.get_nodes_in_group(gname):
-				if not (n is Node3D) or not (n as Node3D).is_inside_tree(): continue
+				if not (n is Node3D) or not (n as Node3D).is_inside_tree() or n.has_meta("wh_view_only"): continue   # v33: whole-house black void / ground twin
 				var ms: Array = [n] if n is VisualInstance3D else n.find_children("*", "VisualInstance3D", true, false)
 				var ab := AABB(); var first := true
 				for g in ms:

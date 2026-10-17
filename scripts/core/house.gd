@@ -153,10 +153,10 @@ static func _dark_outside(room: Node) -> void:
 			else: c.cull_mask &= ~L_MIRROR
 		elif c is MeshInstance3D and (c as MeshInstance3D).mesh and (c as MeshInstance3D).get_aabb().size.x >= 20.0 and not c.has_meta("wh_twin"):
 			var g := c as MeshInstance3D
-			var tw := MeshInstance3D.new(); tw.mesh = g.mesh; tw.material_override = _black_m; tw.layers = L_VIEW; tw.set_meta("wh_twin", true)
+			var tw := MeshInstance3D.new(); tw.mesh = g.mesh; tw.material_override = _black_m; tw.layers = L_VIEW; tw.set_meta("wh_twin", true); tw.set_meta("wh_view_only", true)
 			tw.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			g.add_child(tw); g.layers = L_MIRROR
-	var v := MeshInstance3D.new(); v.name = "WHVoid"
+	var v := MeshInstance3D.new(); v.name = "WHVoid"; v.set_meta("wh_view_only", true)   # never a camera / fade blocker
 	var bm := BoxMesh.new(); bm.size = Vector3(60, 40, 60); v.mesh = bm; v.layers = L_VIEW
 	v.material_override = _black_m; v.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	room.add_child(v)
