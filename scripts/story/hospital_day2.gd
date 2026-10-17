@@ -20,7 +20,9 @@ const BODY2 := [
 ## the player sits on the bed edge (third person: visible)
 func _player_body() -> void:
 	super._player_body()
-	body.rotation = Vector3(0, 0, 0); body.position = Vector3(0, 0.2, -0.45); body.play("sit_idle", 0.0)
+	# child-scaled seat: the sit pose's hip height scales with the body, so a child sits ON the exam bed (no clipping)
+	var bs := CharacterHook.body_scale(body)
+	body.rotation = Vector3(0, 0, 0); body.position = Vector3(0, 0.2 + 0.42 * (1.0 - bs), -0.45 + 0.12 * (1.0 - bs)); body.play("sit_idle", 0.0)
 
 func set_tr(on: bool) -> void:
 	S.tr = on

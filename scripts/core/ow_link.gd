@@ -37,7 +37,47 @@ func _start() -> void:
 	for id in ROOM_PATH:   # rooms become root children (needed for current_scene); same global transform: nothing moves
 		var r: Node = world.places.get(id)
 		if r and r.get_parent() != get_tree().root: r.reparent(get_tree().root, true)
-	enter(String(App.get("ow_start")) if App.get("ow_start") else "bedroom", "")
+	WorldState.ensure_loaded()
+	if App.continue_requested and WorldState.place != "" and WorldState.place != "bedroom": await _resume(WorldState.place)
+	else:
+		await _enter("bedroom", "")
+		if App.continue_requested and WorldState.place == "bedroom": _put_hero()
+
+## Continue: the saved place goes live and the hero stands where he was saved (world coordinates)
+func _resume(pl: String) -> void:
+	var p := world.player as Node3D
+	if ROOM_PATH.has(pl):
+		await _enter(pl, ""); _put_hero()
+	elif pl in PLACES:
+		_put_hero(); await _enter(pl, "street")
+	elif EXTRA.has(pl):
+		await _enter(pl, "")
+	else:   # street (any unknown place resumes on the street at the home door)
+		get_tree().current_scene = world; p.process_mode = Node.PROCESS_MODE_INHERIT; world.hud.visible = true; world.cam.current = true
+		if WorldState.hero_pos == null: p.place_at("front")
+		_put_hero()
+		_street_hooks("resume")
+
+func _put_hero() -> void:
+	var hp = WorldState.hero_pos
+	if not (hp is Array and hp.size() == 3): return
+	var g := Vector3(float(hp[0]), float(hp[1]), float(hp[2]))
+	var h := the_hero(); var p := world.player as Node3D
+	if is_instance_valid(live) and ROOM_PATH.has(live_id):
+		h.global_position = Vector3(g.x, h.global_position.y, g.z); h.global_rotation.y = WorldState.hero_yaw
+		if live.get("cam_focus") is Vector3: live.set("cam_focus", h.position)
+	else:
+		p.global_position = Vector3(g.x, p.global_position.y, g.z); h.rotation.y = WorldState.hero_yaw
+
+## the save always knows the live place + the hero position (rooms / places save their own story state as in v33)
+var _save_t := 0.0
+func _remember(save_now := false) -> void:
+	var h := the_hero()
+	if not is_instance_valid(h): return
+	WorldState.place = live_id if live_id != "" else "street"
+	var g := h.global_position
+	WorldState.hero_pos = [snappedf(g.x, 0.01), snappedf(g.y, 0.01), snappedf(g.z, 0.01)]; WorldState.hero_yaw = snappedf(h.global_rotation.y, 0.01)
+	if save_now and App.has_save(): WorldState.save_game()
 
 # ------------------------------------------------------------ room code helpers (v33 code calls these)
 ## room _live_ready: `hero = OwLink.hero_for(self)` instead of DemoCharacter.new() + add_child
@@ -62,6 +102,13 @@ static func _adopt(n: Node3D, parent: Node) -> void:
 	n.global_transform = g
 	if n.has_meta("wh_hv"): n.remove_meta("wh_hv")
 	n.visible = true
+	_reset_hero(n)
+
+## undo a story place's pose / layer tweaks on the one hero (hospital bed lie / sit, first-person hide layer)
+static func _reset_hero(n: Node3D) -> void:
+	for v in n.find_children("*", "VisualInstance3D", true, false): if (v as VisualInstance3D).layers == 2: (v as VisualInstance3D).layers = 1
+	n.rotation = Vector3(0, n.rotation.y, 0)
+	if n is DemoCharacter: (n as DemoCharacter).play("idle", 0.2)
 
 # ------------------------------------------------------------ going live
 ## make place `id` live (house room or story place). from = room/place id the hero comes from ("" / "street")
@@ -80,11 +127,15 @@ func _enter(id: String, from: String) -> void:
 		if pl.has_meta("ow_shell"): pl.remove_meta("ow_shell"); pl.call("_ow_live", world)
 		else: pl.call_deferred("_start")
 		return
-	var r: Node = world.places.get(id) if ROOM_PATH.has(id) else _extra(id)
-	if r == null: push_warning("OwLink: no place " + id); return
+	if not ROOM_PATH.has(id) and not EXTRA.has(id): push_warning("OwLink: no place " + id); return
 	var h := the_hero()
 	var hp := h.global_position; var hy := h.global_rotation.y
 	_sleep_live()
+	var r: Node = world.places.get(id) if ROOM_PATH.has(id) else _extra(id)   # an extra's _ready borrows the hero (after the sleep)
+	if r == null: push_warning("OwLink: no place " + id); return
+	if not ROOM_PATH.has(id):
+		if h.has_meta("wh_hv"): h.remove_meta("wh_hv")
+		h.visible = true
 	var p := world.player as Node3D
 	p.process_mode = Node.PROCESS_MODE_DISABLED
 	world.hud.visible = false
@@ -104,8 +155,6 @@ func _enter(id: String, from: String) -> void:
 		if from != "":
 			var sp: Array = r.call("_wh_spawn", from) if r.has_method("_wh_spawn") else []
 			if sp.size() == 2: House._walk_in(r, r.to_local(hp), hy, sp[0], sp[1])
-	else:
-		h.visible = false   # first-person story places (hospital): the player is the camera / bed body
 
 func _extra(id: String) -> Node:
 	if extras.has(id) and is_instance_valid(extras[id]): return extras[id]
@@ -142,6 +191,7 @@ func _to_street(door: String) -> void:
 	_sleep_live()
 	get_tree().current_scene = world
 	if h.get_parent() != p: h.reparent(p, false)
+	_reset_hero(h)
 	h.transform = Transform3D(Basis(Vector3.UP, g.basis.get_euler().y), Vector3.ZERO); h.visible = true
 	p.global_position = Vector3(g.origin.x, p.floor_y, g.origin.z)
 	p.process_mode = Node.PROCESS_MODE_INHERIT
@@ -179,7 +229,7 @@ static func travel(dest: String, door := "", covered := false) -> void:
 		inst._sleep_live(); inst.get_tree().current_scene = inst.world
 		var h := the_hero(); var p := inst.world.player as Node3D
 		if h.get_parent() != p: h.reparent(p, false)
-		h.transform = Transform3D.IDENTITY; h.visible = true
+		_reset_hero(h); h.transform = Transform3D.IDENTITY; h.visible = true
 		p.process_mode = Node.PROCESS_MODE_INHERIT; inst.world.cam.current = true
 		p.place_at(_door_id(door))
 		inst._street_hooks.call_deferred(door)
@@ -208,6 +258,11 @@ func _on_entered(region: String, from: String) -> void:
 		_sleep_live(); get_tree().current_scene = world; App.came_from = from
 
 func _process(_dt: float) -> void:
+	_save_t -= _dt
+	if _save_t <= 0.0:
+		_save_t = 10.0
+		var busy_story := Game.busy or (is_instance_valid(live) and String(live.get("mode")) == "busy")
+		if not busy_story: _remember(true)
 	# the WorldPlayer body follows the hero while a room drives him (World region / door / culling use its position)
 	if is_instance_valid(live) and ROOM_PATH.has(live_id):
 		var h := the_hero(); var p := world.player as Node3D

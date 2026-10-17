@@ -336,8 +336,10 @@ func _frame(who: Node3D, t := 0.7) -> void:
 ## v29 (M4): player body lying in the bed; render layer 2 is hidden from the first-person camera (cull_mask)
 var body: DemoCharacter
 func _player_body() -> void:
-	body = DemoCharacter.new(); add_child(body); body.setup(String(App.load_save().get("state", {}).get("gender", "men")))
-	CharacterHook.apply(body, CharacterHook.creator(get_tree()))
+	body = OwLink.hero_for(self)   # open world: the ONE world hero lies in the bed (v33: a new body)
+	if not OwLink.active():
+		body.setup(String(App.load_save().get("state", {}).get("gender", "men")))
+		CharacterHook.apply(body, CharacterHook.creator(get_tree()))
 	body.play("idle", 0.0); body.position = Vector3(0, 0.62, -0.15); body.rotation = Vector3(-PI / 2, 0, 0)
 	for n in body.find_children("*", "VisualInstance3D", true, false): (n as VisualInstance3D).layers = 2
 	cam.cull_mask = 1

@@ -23,8 +23,10 @@ func _ready() -> void:
 	var plan: Dictionary = ChildDrive.plan.duplicate()
 	if plan.is_empty(): plan = {"mode": "arrive", "from": "home", "to": "hospital"}   # QA / direct load
 	_build()
-	kid = DemoCharacter.new(); kid.name = "Kid"; add_child(kid)
-	kid.setup(String(CharacterHook.creator().get("gender", "men"))); Game.apply_character(kid); kid.play("idle", 0.0)
+	kid = OwLink.hero_for(self)   # open world: the ONE world hero is the child here (v33: a new "Kid")
+	if not OwLink.active():
+		kid.name = "Kid"; kid.setup(String(CharacterHook.creator().get("gender", "men"))); Game.apply_character(kid)
+	kid.play("idle", 0.0)
 	cd = load("res://scripts/story/child_drive.gd").new(); cd.name = "ChildDrive"; cd.w = self; add_child(cd)
 	cd.kid = kid; cd.kid_hero = kid; cd.car = car
 	cam = Camera3D.new(); cam.fov = 50.0; add_child(cam); cam.current = true
