@@ -280,6 +280,9 @@ func run() -> void:
 				if world: await wgo(Game.WORLD_SCENE, "livingroom")
 				else: App.came_from = "livingroom"; Game.go_to(Game.WORLD_SCENE, "lot:home"); await w(2.0)
 			["world_exterior.tscn", "Go to the shop."]:
+				var pl0 = s.get("player")
+				if world and pl0 and not acted.has("walkout"):   # fix33: a player walks off the step first (the town pan waits for that)
+					acted["walkout"] = gt; await _walk_to(pl0, pl0.global_position + Vector3(0, 0, 4.5)); await w(6.0)
 				if world: await wgo("res://scenes/places/shop.tscn", "street")
 				else: WorldState.player_pos = Vector3(-3, 0, 27.6); Game.go_to("res://scenes/places/shop.tscn", "front_door"); await w(2.0)
 			["shop.tscn", "Go outside."]:
@@ -295,7 +298,11 @@ func run() -> void:
 					if String(so.get("kind")) == "car" and pl and (car == null or so.global_position.distance_to(pl.global_position) < car.global_position.distance_to(pl.global_position)): car = so
 				if car and pl: await _walk_to(pl, car.global_position + (pl.global_position - car.global_position).normalized() * 2.4)
 				else: did = false
-			["world_exterior.tscn", "Go back home."]: await go(Game.HOUSE_FRONT_DOOR_SCENE, "outside")
+			["world_exterior.tscn", "Go back home."]:
+				var pl1 = s.get("player")
+				if world and pl1 and not acted.has("walkhome"):
+					acted["walkhome"] = gt; await _walk_to(pl1, pl1.global_position + Vector3(0, 0, -4.5)); await w(6.0)
+				await go(Game.HOUSE_FRONT_DOOR_SCENE, "outside")
 			["livingroom.tscn", "Talk to my family."]: s.hero.global_position = s.to_global(Vector3(s.SOFA_X - 1.2, 0, 0.3))   # room-local (the room is off the origin in the world)
 			["livingroom.tscn", "Go to bed."]: await go("res://main.tscn", "livingroom")
 			_: did = false
