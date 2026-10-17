@@ -61,7 +61,26 @@ func shift(d: Vector3) -> void:
 	if _last_hero != Vector3.INF: _last_hero += d
 	_apply_now.call_deferred()
 
+## fix33: Godot 4.7 gl_compatibility keeps RENDERING a stale camera after the current camera was reparented / swapped
+## (OwLink lends ONE room camera to each room; rooms and places toggle `current`): get_camera_3d() named the room camera
+## while the screen showed the street CameraRig (top-down from outside: day-2 couch, bedtime polaroids, D7 wake).
+## Re-attaching the current camera (clear + make current in the same frame: nothing else renders in between) whenever
+## the current camera / scene changes, and every 0.5 s as a safety net, keeps the render camera = the current camera.
+var _rc_cam: Camera3D = null
+var _rc_scene: Node = null
+var _rc_t := 0.0
+var _rc_kick := 0
+func _reattach(dt: float) -> void:
+	var c := get_viewport().get_camera_3d()
+	var sc := get_tree().current_scene
+	_rc_t -= dt
+	if c != _rc_cam or sc != _rc_scene: _rc_cam = c; _rc_scene = sc; _rc_kick = 3
+	if c == null or (_rc_kick <= 0 and _rc_t > 0.0): return
+	_rc_t = 0.5; _rc_kick -= 1
+	c.clear_current(false); c.make_current()
+
 func _process(dt: float) -> void:
+	_reattach(get_process_delta_time())
 	var sc := get_tree().current_scene
 	var room := sc != null and House.is_room(String(sc.scene_file_path))
 	var rc = sc.get("cam") if sc else null
@@ -120,6 +139,10 @@ func _process(dt: float) -> void:
 	elif _wrote_cy != INF and "cam_yaw" in sc and not (rc is CameraRig) and absf(wrapf(float(sc.cam_yaw) - _wrote_cy, -PI, PI)) > 0.0005:
 		yaw = float(sc.cam_yaw); _manual = 1.5   # v34: the room's mouse drag turned its cam_yaw: follow it (free, no ±1.3 clamp)
 	_manual = maxf(0.0, _manual - dt)
+	if pos == Vector3.INF: _trail.clear(); _tp = Vector3.INF
+	if _trail.is_empty() or (_trail[-1] as Vector3).distance_to(h) > 0.15:
+		_trail.append(h)
+		if _trail.size() > 40: _trail.pop_front()
 	var moving := _last_hero != Vector3.INF and dt > 0.0 and Vector2(h.x - _last_hero.x, h.z - _last_hero.z).length() / dt > 0.25
 	_last_hero = h
 	if tgt != Vector3.INF and Vector2(tgt.x - h.x, tgt.z - h.z).length() > 0.4:
@@ -141,6 +164,7 @@ func _process(dt: float) -> void:
 				if DIST * p < MIN_D: continue
 				if not _blocked(_spot(h, yaw, sd, p), chest, boxes): best = [sd, p]; found = true; break
 			if found: break
+		_tp = Vector3.INF if found or tgt != Vector3.INF else _trail_spot(h, chest, boxes)
 		if found:
 			# hysteresis: closing in / swapping happens at once, easing back out only after 0.35 s of clear view
 			if best[0] != side or best[1] < k - 0.01: side = best[0]; k = best[1]; _out_since = -1.0
@@ -152,13 +176,17 @@ func _process(dt: float) -> void:
 			k = PULLS[-1]   # nothing clear: close in on the hero, the room wall fade covers the rest
 			# fix33: but never INSIDE a wall (hero backed up against it = the solid grey / pale-green screen): swing to
 			# the nearest clear heading instead (unless the player is steering the camera)
-			if _in_wall(_spot(h, yaw, side, k), boxes) and _manual <= 0.0 and tgt == Vector3.INF: _swing = _clear_yaw(h, chest, yaw, boxes)
+			if _tp == Vector3.INF and _in_wall(_spot(h, yaw, side, k), boxes) and _manual <= 0.0 and tgt == Vector3.INF: _swing = _clear_yaw(h, chest, yaw, boxes)
 	if _swing != INF:
 		yaw = lerp_angle(yaw, _swing, 1.0 - exp(-dt * 4.0)) if dt > 0.0 else yaw
 		if absf(wrapf(_swing - yaw, -PI, PI)) < 0.05 or _manual > 0.0: _swing = INF
 	side_s = lerpf(side_s, side, 1.0 - exp(-dt / 0.25))
 	var want_pos := _spot(h, yaw, side_s, k)
 	if tgt != Vector3.INF: want_pos = _frame_both(h, chest, tgt, yaw, side_s, cam_fov(rc))
+	if _tp != Vector3.INF and tgt == Vector3.INF:   # fix33: blocked everywhere (a door just passed, a corner): follow the hero's own path
+		want_pos = _tp
+		var ty := atan2(_tp.x - h.x, _tp.z - h.z)
+		if _manual <= 0.0 and dt > 0.0: yaw = lerp_angle(yaw, ty, 1.0 - exp(-dt * 5.0))
 	want_pos = _out_of_walls(want_pos, chest, _boxes)
 	var fwd := Vector3(-sin(yaw), 0, -cos(yaw))
 	var want_look := chest + fwd * LOOK_AHEAD + Vector3(cos(yaw), 0, -sin(yaw)) * side_s * SHOULDER * 0.5
@@ -178,6 +206,20 @@ func _process(dt: float) -> void:
 	if pos.distance_to(look) > 0.05: cam.global_transform = Transform3D(Basis.looking_at(look - pos, Vector3.UP), pos)
 
 var _swing := INF
+var _trail: Array = []      # fix33: the hero's recent path (world, newest last, 0.15 m steps)
+var _tp := Vector3.INF      # fix33: camera spot on that path when every off-shoulder spot is blocked
+## a camera spot on the hero's own recent path, MIN_D..DIST behind him along it, with a clear line to the chest
+## (the path went through the door the hero just used, so the camera follows him through it instead of jamming on the wall)
+func _trail_spot(h: Vector3, chest: Vector3, boxes: Array) -> Vector3:
+	var acc := 0.0; var prev := h
+	for i in range(_trail.size() - 1, -1, -1):
+		var q: Vector3 = _trail[i]
+		acc += Vector2(q.x - prev.x, q.z - prev.z).length(); prev = q
+		if acc < MIN_D: continue
+		if acc > DIST * 1.15: break
+		var c := Vector3(q.x, h.y + HEIGHT, q.z)
+		if not _blocked(c, chest, boxes): return c
+	return Vector3.INF
 ## fix33: the first heading (from `y`, then alternating ±0.6 rad steps, then the opposite side) with a clear view at any pull
 func _clear_yaw(h: Vector3, chest: Vector3, y: float, boxes: Array) -> float:
 	for dy in [0.0, 0.6, -0.6, 1.2, -1.2, 1.8, -1.8, 2.4, -2.4, PI]:

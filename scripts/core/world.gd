@@ -347,6 +347,13 @@ func _process(dt: float) -> void:
 	if WorldState.day != _day: _fences_for_day()
 	_street_check(hp)
 	indoor_vis = _indoor_visible(region_at(hp))
+	if not indoor_vis.is_empty():   # fix33: the room the CAMERA is in stays drawn too (shoulder cam still behind the hero in the room he just left)
+		var vc := get_viewport().get_camera_3d()
+		if vc:
+			var cp := vc.global_position
+			for id in HOUSE_ROOMS:
+				var ab: AABB = regions.get(id, AABB())
+				if ab.size != Vector3.ZERO and cp.x >= ab.position.x and cp.x <= ab.end.x and cp.z >= ab.position.z and cp.z <= ab.end.z: indoor_vis[id] = true
 	for id in places:
 		if not regions.has(id): continue
 		var ab: AABB = regions[id]
@@ -442,6 +449,7 @@ func region_at(p: Vector3) -> String:
 	# living room was culled (indoor_vis) = the couch / evening / party cameras showed the street through an invisible room.
 	# Now: the live OwLink room when the hero is inside it, else the match whose floor rect is smallest.
 	var live_id := String(OwLink.inst.live_id) if OwLink.active() else ""
+	if live_id in HOUSE_ROOMS and is_instance_valid(OwLink.inst.live): return live_id   # house rooms change only through OwLink (doors)
 	var best := "street"; var best_a := INF
 	for id in regions:
 		var ab: AABB = regions[id]

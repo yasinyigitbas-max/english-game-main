@@ -256,7 +256,9 @@ func run() -> void:
 		var did := true
 		match [k, o]:
 			["main.tscn", "Take a shower."]: await go("res://bathroom.tscn", "bedroom")
-			["bathroom.tscn", "Take a shower."]: _verb(s, "bath", "takeshower")
+			["bathroom.tscn", "Take a shower."]:
+				if stage() in ["", "start", "shower"]: _verb(s, "bath", "takeshower")
+				else: did = false
 			["main.tscn", "Go to the living room."], ["main.tscn", "Go to the shop."]: await go("res://livingroom.tscn", "bedroom")
 			["bathroom.tscn", "Go to the living room."]: await go("res://livingroom.tscn", "bathroom")
 			["livingroom.tscn", "Go to the shop."]:
