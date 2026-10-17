@@ -66,6 +66,7 @@ func _ready() -> void:
 	hud.set_mission("Walk anywhere: open world preview.")
 	for l in find_children("*", "OmniLight3D", true, false) + find_children("*", "SpotLight3D", true, false): _lights.append(l)
 	_cull_setup()
+	OwLink.attach(self)   # red: story port (live room / place = current_scene, one hero, travel fades only)
 	print("WORLD ready places=%s doors=%s regions=%s lights=%d" % [places.keys(), doors.keys(), regions.keys(), _lights.size()])
 
 func _env() -> void:
