@@ -109,36 +109,23 @@ func live(en: String, tr_text := "") -> void:
 ## the TR button). tr_row() moves an existing English control into [EN | TR] (EN left, TR right, light blue) and returns the TR
 ## label; tr_button() puts the Turkish inside an answer button to the right of its English. opt_tr() = test-option meanings.
 const TR_COL_C := Color(0.30, 0.45, 0.78)
-static func tr_row(parent: Control, en_ctrl: Control, tr_text: String, fs := 18, tr_c := TR_COL_C, ratio := 0.62) -> Label:
-	var h := HBoxContainer.new(); h.name = String(en_ctrl.name) + "Row"; h.add_theme_constant_override("separation", 18); h.mouse_filter = Control.MOUSE_FILTER_IGNORE
+## fix33 (Yasin 00:33): learning-screen Turkish goes DIRECTLY UNDER its English line, both centred (no right column);
+## answer buttons show ONLY the English word (tr_button adds no Turkish). Same signatures / return values as ui33.
+static func tr_row(parent: Control, en_ctrl: Control, tr_text: String, fs := 18, tr_c := TR_COL_C, _ratio := 0.62) -> Label:
+	var h := VBoxContainer.new(); h.name = String(en_ctrl.name) + "Row"; h.add_theme_constant_override("separation", 2); h.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	h.alignment = BoxContainer.ALIGNMENT_CENTER; h.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if en_ctrl.get_parent(): en_ctrl.get_parent().remove_child(en_ctrl)
 	parent.add_child(h); h.add_child(en_ctrl)
-	en_ctrl.size_flags_horizontal = Control.SIZE_EXPAND_FILL; en_ctrl.size_flags_stretch_ratio = ratio
+	en_ctrl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if en_ctrl is Label:
-		(en_ctrl as Label).horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT; (en_ctrl as Label).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		en_ctrl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		(en_ctrl as Label).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; (en_ctrl as Label).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var t := Label.new(); t.name = String(en_ctrl.name) + "TR"; t.text = tr_text; t.add_theme_font_size_override("font_size", fs); t.add_theme_color_override("font_color", tr_c)
-	t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; t.size_flags_horizontal = Control.SIZE_EXPAND_FILL; t.size_flags_stretch_ratio = 1.0 - ratio
-	t.size_flags_vertical = Control.SIZE_SHRINK_CENTER; t.add_to_group("tr_column"); h.add_child(t)
+	t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	t.add_to_group("tr_column"); h.add_child(t)
 	return t
-static func tr_button(b: Button, tr_text: String, fs := 18, tr_c := TR_COL_C) -> Label:
-	if tr_text == "": return null
-	var en := b.text; b.text = ""
-	var h := HBoxContainer.new(); h.set_anchors_preset(Control.PRESET_FULL_RECT); h.alignment = BoxContainer.ALIGNMENT_CENTER; h.add_theme_constant_override("separation", 12); h.mouse_filter = Control.MOUSE_FILTER_IGNORE; b.add_child(h)
-	var e := Label.new(); e.name = "EN"; e.text = en; e.mouse_filter = Control.MOUSE_FILTER_IGNORE; e.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	e.add_theme_font_size_override("font_size", b.get_theme_font_size("font_size")); e.add_theme_font_override("font", b.get_theme_font("font"))
-	e.add_theme_color_override("font_color", b.get_theme_color("font_color")); h.add_child(e)
-	var t := Label.new(); t.name = "TR"; t.text = tr_text; t.mouse_filter = Control.MOUSE_FILTER_IGNORE; t.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	t.add_theme_font_size_override("font_size", fs); t.add_theme_color_override("font_color", tr_c); t.add_to_group("tr_column"); h.add_child(t)
-	# fit: the button grows (up to max_w) and the English shrinks until EN + TR fit inside it
-	var max_w := maxf(b.custom_minimum_size.x, 330.0)
-	var fs_en := e.get_theme_font_size("font_size")
-	while fs_en > 18 and e.get_minimum_size().x + t.get_minimum_size().x + 44.0 > max_w:
-		fs_en -= 2; e.add_theme_font_size_override("font_size", fs_en)
-	while fs > 12 and e.get_minimum_size().x + t.get_minimum_size().x + 44.0 > max_w:
-		fs -= 1; t.add_theme_font_size_override("font_size", fs)
-	b.custom_minimum_size.x = clampf(e.get_minimum_size().x + t.get_minimum_size().x + 44.0, b.custom_minimum_size.x, max_w)
-	b.set_meta("en", en); return t
+static func tr_button(b: Button, _tr_text: String, _fs := 18, _tr_c := TR_COL_C) -> Label:
+	b.set_meta("en", b.text)   # English only on answer buttons (Yasin 00:33)
+	return null
 static var _quiz_tr: Dictionary = {}
 static func quiz_tr(en: String) -> String:
 	if _quiz_tr.is_empty():
