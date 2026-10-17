@@ -228,14 +228,15 @@ static func travel(dest: String, door := "", covered := false) -> void:
 	if not active(): return
 	if not covered: await Game.fade(1.0, 0.45)
 	Game.busy = true
-	if dest == "street" or dest == "town":
+	if dest == "street" or dest == "town" or dest in PLACES:   # build 3.2 (red): a street place (cafe/shop) - the hero leaves the room first (he stayed in the bedroom under the cafe)
 		inst._sleep_live(); inst.get_tree().current_scene = inst.world
 		var h := the_hero(); var p := inst.world.player as Node3D
 		if h.get_parent() != p: h.reparent(p, false)
 		_reset_hero(h); h.transform = Transform3D.IDENTITY; h.visible = true
 		p.process_mode = Node.PROCESS_MODE_INHERIT; inst.world.cam.current = true
-		p.place_at(_door_id(door))
-		inst._street_hooks.call_deferred(door)
+		p.place_at(_door_id(door if door != "" else dest))
+		if dest in PLACES: await inst._enter(dest, "")
+		else: inst._street_hooks.call_deferred(door)
 	else:
 		if ROOM_PATH.has(dest):
 			var r: Node = inst.world.places[dest]

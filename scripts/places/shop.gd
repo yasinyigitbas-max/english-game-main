@@ -220,6 +220,7 @@ func run() -> void:
 		await beat("done"); mark("done")
 		await say_line("Well done! You finished the shop.")
 	set_meta("ow_exit_ready", true)
+	await get_tree().create_timer(1.5).timeout   # build 3.2 (v33.1): grace for a day errand (day 4 / 5 / 7) that starts on the entry hook to claim the visit
 	while has_meta("story_hold") and is_inside_tree(): await get_tree().process_frame   # build 3.2: a day-4/7 checkout story first, "Go outside." only after buying
 	await objective("exit", "Go outside.")
 	await leave()

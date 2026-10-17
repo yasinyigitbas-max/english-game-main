@@ -147,12 +147,14 @@ func say(who: String, en: String, tr: String) -> void:
 	if who == "narr": await speak(sc, "", "", en, tr); return
 	var s := spk(who)
 	var n = s[3]
+	var st := {}
 	if n is DemoCharacter and is_instance_valid(n):
-		n.play("talk", 0.25)
+		# build 3.2 (v33.1 universal rule): no pose switch while talking - the "talk" clip is SEATED (people sat on the ground)
 		var h = sc.get("hero") if sc else null
-		if h is Node3D: _face(n, (h as Node3D).global_position)
+		var hp: Vector3 = (h as Node3D).global_position if h is Node3D else n.global_position + n.global_transform.basis.z
+		st = NpcTalk.begin(n, hp)
 	await speak(sc, String(s[0]), String(s[1]), en, tr, String(s[2]))
-	if n is DemoCharacter and is_instance_valid(n): n.play(String(n.get_meta("pose", "idle")), 0.3)
+	if n is DemoCharacter and is_instance_valid(n): NpcTalk.end(n, st)
 
 func _face(who: Node3D, at: Vector3) -> void:
 	var y := atan2(at.x - who.global_position.x, at.z - who.global_position.z)

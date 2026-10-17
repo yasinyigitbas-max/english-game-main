@@ -152,11 +152,13 @@ func _enter(s: Node) -> void:
 				await _guide(s, _world_target(s, String(o.obj)), String(o.en), String(o.tr))
 			elif k == "shop" and day == 5:
 				set_stage(day, "event")
+				s.set_meta("story_hold", true)   # build 3.2 (v33.1): shop.gd holds its "Go outside." until the lost-child event is over
 				var ev = load("res://scripts/story/day5_shop.gd").new(); ev.name = "Day5Shop"; ev.day = day; ev.D = D; ev.sc = s; s.add_child(ev)
 				await ev.run()
 				if stage(day) == "home":
 					_cur = {"id": "Go outside.", "en": "Go outside.", "tr": "Dışarı çık."}
 					await ev.exit_prompt()
+				if is_instance_valid(s) and s.has_meta("story_hold"): s.remove_meta("story_hold")   # never leave the shop parked
 		"home":
 			if k == "outside":
 				var gh: Array = ["Go inside.", "İçeri gir."] if day == 6 else GO_HOME
