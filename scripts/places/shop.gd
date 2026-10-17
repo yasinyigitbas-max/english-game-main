@@ -221,6 +221,9 @@ func run() -> void:
 		await say_line("Well done! You finished the shop.")
 	set_meta("ow_exit_ready", true)
 	await get_tree().create_timer(1.5).timeout   # build 3.2 (v33.1): grace for a day errand (day 4 / 5 / 7) that starts on the entry hook to claim the visit
+	var t_wait := 0.0
+	while _errand_pending() and not has_meta("story_hold") and t_wait < 15.0 and is_inside_tree():   # the errand director starts late (its _wait_free): never a stale "Go outside." first
+		await get_tree().process_frame; t_wait += get_process_delta_time()
 	while has_meta("story_hold") and is_inside_tree(): await get_tree().process_frame   # build 3.2: a day-4/7 checkout story first, "Go outside." only after buying
 	await objective("exit", "Go outside.")
 	await leave()
@@ -302,3 +305,13 @@ func lively(dt: float) -> void:
 	w.position += d.normalized() * minf(dt * WALKER_V, d.length())
 	if Footsteps.contact(w.player, w.anim_length("walk"), _wsteps): Footsteps.npc_step(w, player.global_position)   # v32 polish: her steps are heard like the street NPCs'
 	w.rotation.y = lerp_angle(w.rotation.y, atan2(d.x, d.z), 1.0 - exp(-8.0 * dt))
+
+
+## build 3.2 (black): today's story errand in the shop is not done yet (day 4 candles, day 7 milk, day 5 the lost child)
+func _errand_pending() -> bool:
+	var d := maxi(WorldState.day, App.day)
+	var st = App.load_save().get("story", {})
+	if not (st is Dictionary): return false
+	if d == 4 or d == 7: return not bool(st.get("d%d_shop" % d, false))
+	if d == 5: return not bool(st.get("d5_shop_done", false))
+	return false

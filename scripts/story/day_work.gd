@@ -14,8 +14,16 @@ static func due() -> void:
 	var d := _day()
 	if d >= 3 and d <= 7 and int(App.load_save().get("work_done_day", 0)) != d: App.patch_save({"work_due_day": d})
 
+## the hero is out on the street (open world: no live room / place; current_scene can lag behind there)
+static func _on_street(w: Node) -> bool:
+	if OwLink.active(): return OwLink.inst.live == null or not is_instance_valid(OwLink.inst.live)
+	return w.get_tree().current_scene == w
+
 static func pending() -> bool:
 	var sv := App.load_save(); var d := _day()
+	# QA jump harnesses (blue / black) that start past breakfast: the work step never blocks them
+	for a in OS.get_cmdline_user_args():
+		if String(a).begins_with("--qa") and String(a) != "--qa-ow=work4": return false
 	return d >= 3 and d <= 7 and int(sv.get("work_due_day", 0)) == d and int(sv.get("work_done_day", 0)) != d
 
 static func goal() -> Array:
@@ -47,11 +55,11 @@ static func gate(w: Node) -> bool:
 		var side := (cp - hp).cross(Vector3.UP); side.y = 0
 		if side.length() < 0.05: side = Vector3(1, 0, 0)
 		await Life.guide_to({"pos": mid + side.normalized() * span * 1.15 + Vector3(0, span * 0.55 + 1.2, 0), "at": mid}, g[0], {"tr": g[1]})
-		while is_instance_valid(w) and is_instance_valid(car) and tree.current_scene == w:
+		while is_instance_valid(w) and is_instance_valid(car) and _on_street(w):
 			var a: Vector3 = w.player.global_position; var b: Vector3 = car.global_position; a.y = 0; b.y = 0
 			if a.distance_to(b) < NEAR: break
 			await tree.process_frame
-		if not is_instance_valid(w) or tree.current_scene != w: return false
+		if not is_instance_valid(w) or not _on_street(w): return false
 	else:
 		await Life.guide_to(null, g[0], {"tr": g[1]})
 	if "mode" in w: w.mode = "busy"
@@ -66,6 +74,9 @@ static func gate(w: Node) -> bool:
 	App.patch_save({"work_done_day": _day()})
 	if w.has_method("save_game"): w.save_game()
 	var s = load("res://scripts/story/work_summary.gd").new(); tree.root.add_child(s); s.run()
-	await s.tree_exited   # black summary -> StoryNav home to the front door
+	await s.tree_exited
+	var g0: String = goal()[0]
+	if Objectives.has(g0): Objectives.complete(g0)
+	Objectives.clear()   # home again: the day's own events set the next objective (no stale "Go to work.")   # black summary -> StoryNav home to the front door
 	if "mode" in w and is_instance_valid(w): w.mode = "play"
 	return true
