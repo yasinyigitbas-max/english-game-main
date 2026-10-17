@@ -119,16 +119,35 @@ func speak(who: String, en: String) -> void:
 ## NPC line in the NPC's own Piper voice, on the same queue as the narrator (nothing is cut); caption with TR toggle
 func npc_line(npc: DemoCharacter, en: String) -> void:
 	await voice_idle(0.1)
-	var pose: String = npc.get_meta("pose", "idle")
-	if pose == "idle": npc.play("talk", 0.25)
-	face(npc, player.global_position)
+	# v32 universal rule (Yasin): talking never changes the pose. The library "talk" clip is SEATED (standing NPCs sat down
+	# for the line and stood up again). Red's shared routine scripts/core/npc_talk.gd (turn + head nod, no clip change) is
+	# used when it is in the project; otherwise the NPC only turns to the player and nods.
+	var nt = _npc_talk()
+	var talk_st = nt.begin(npc, player.global_position) if nt != null else null
+	if nt == null:
+		if not String(npc.get_meta("pose", "idle")).begins_with("sit"): face(npc, player.global_position)   # a seated body never spins off its chair
+		nod(npc, 2.0)
 	_mute_next = true; hud.caption(en, read_secs(en, Voice.clip_len("v_%s %s" % [npc.get_meta("voice"), Audio.norm(en)])))   # v32 polish: reading time; _mute_next = false
 	if S.get("voice", true):
 		Audio.say_as(en, String(npc.get_meta("voice")))
 		await get_tree().create_timer(0.2).timeout
 		await voice_idle(0.25)
 	else: await get_tree().create_timer(2.2).timeout
-	npc.play(pose, 0.3)
+	if nt != null: nt.end(npc, talk_st)
+
+const NPC_TALK := "res://scripts/core/npc_talk.gd"   # red (v32-npc-pose); preload-free so the places run without it
+func _npc_talk():
+	return load(NPC_TALK) if ResourceLoader.exists(NPC_TALK) else null
+
+## subtle head nod on top of the current clip (bone offset, no clip change): "talking" / "busy" without a pose change
+func nod(n: DemoCharacter, secs := 1.8) -> void:
+	if n == null or not is_instance_valid(n) or n.bone_offsets.has("Head"): return
+	var tw := n.create_tween()
+	for i in maxi(1, int(secs / 0.9)):
+		tw.tween_method(func(a: float): n.bone_offsets["Head"] = [Vector3.RIGHT, a], 0.0, 0.12, 0.3).set_trans(Tween.TRANS_SINE)
+		tw.tween_method(func(a: float): n.bone_offsets["Head"] = [Vector3.RIGHT, a], 0.12, 0.0, 0.4).set_trans(Tween.TRANS_SINE)
+		tw.tween_interval(0.2)
+	tw.tween_callback(func(): if is_instance_valid(n): n.bone_offsets.erase("Head"))
 
 func face(who: Node3D, at: Vector3) -> void:
 	var y := atan2(at.x - who.global_position.x, at.z - who.global_position.z)

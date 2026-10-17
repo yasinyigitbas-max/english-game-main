@@ -78,6 +78,15 @@ func build() -> void:
 	label("1", CK + Vector3(0.32, 2.3, 0.9), 70, Color(0.15, 0.15, 0.15), -PI / 2, Color(1, 1, 1, 0))
 	label("1", CK + Vector3(0.38, 2.3, 0.9), 70, Color(0.15, 0.15, 0.15), PI / 2, Color(1, 1, 1, 0))
 	for k in 5: food(["candy-bar", "chocolate", "soda-can", "candy-bar", "chocolate"][k], CK + Vector3(-0.42, 0.5 + (k % 2) * 0.25, -0.6 + k * 0.25), 0.12)
+	# ---- sweets rack on the east wall (blue v32): x 6.35..6.85, z -0.7..1.5, faces west into the 2.3 m open lane between the
+	# checkout (x <= 4.0) and the wall; clear of the bakery customer (5.3, -1.0) and the bread spot
+	var SW := Vector3(6.6, 0, 0.4)
+	box(Vector3(0.5, 1.7, 2.2), SW + Vector3(0.05, 0.85, 0), Color(0.85, 0.45, 0.6), true)
+	for y in [0.35, 0.75, 1.15, 1.55]:
+		box(Vector3(0.62, 0.04, 2.2), SW + Vector3(-0.06, y, 0), Color(0.95, 0.9, 0.92), false)
+		for k in 7: food(["candy-bar", "chocolate", "cookie", "donut-sprinkles", "chocolate", "candy-bar", "cookie-chocolate"][(k + int(y * 10)) % 7], SW + Vector3(-0.15, y + 0.02, -0.9 + k * 0.3), 0.13, 90.0 + k * 15.0)
+	label("6  Sweets", SW + Vector3(-0.32, 1.95, 0), 44, Color.WHITE, -PI / 2, Color(0.55, 0.15, 0.35, 0.9))
+	label("Chocolate 1.00", SW + Vector3(-0.38, 0.6, -0.5), 24, Color(0.1, 0.1, 0.1), -PI / 2, Color(1, 1, 1, 0.9))
 	# basket stack by the door
 	for k in 4: model("res://props/places/basket.tscn", Vector3(-1.6, k * 0.12, 4.2), 0, 0.0, 0.42, k == 0)
 	label("Baskets", Vector3(-1.6, 1.0, 4.45), 36, Color(0.15, 0.15, 0.15), PI, Color(1, 1, 1, 0.9))
@@ -269,7 +278,7 @@ func lively(dt: float) -> void:
 		if _amb_t <= 0.0:
 			_amb_t = randf_range(5.0, 8.0)
 			if randi() % 2 == 0: gesture(npcs.c2, "pick_up", maxf(0.6, npcs.c2.anim_length("pick_up") - 0.1))
-			elif CK.distance_to(player.global_position) > 2.5: gesture(npcs.assistant, "typing", 3.0)
+			elif CK.distance_to(player.global_position) > 2.5: nod(npcs.assistant, 2.5)   # v32 rule: "typing" is a seated clip (the standing assistant sat down)
 	var w: DemoCharacter = npcs.c1
 	var tgt: Vector3 = walker_path[walker_i]
 	var d := tgt - w.position; d.y = 0

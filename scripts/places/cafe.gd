@@ -220,5 +220,5 @@ func lively(dt: float) -> void:
 	_lt = randf_range(-1.5, 1.0)
 	match randi() % 3:
 		0: gesture(npcs.c2, "phone_call", 6.0)
-		1: gesture(npcs.barista, "typing", 3.0)
-		_: gesture([npcs.c2, npcs.barista][randi() % 2], "talk", 1.8)
+		1: nod(npcs.barista, 2.5)   # v32 rule: "typing" / "talk" are seated clips -> a standing barista / customer sat down
+		_: nod([npcs.c2, npcs.barista][randi() % 2], 1.8)
