@@ -634,12 +634,12 @@ func _shower_sound(on: bool) -> void:
 	if shower_snd == null:
 		shower_snd = AudioStreamPlayer.new(); shower_snd.name = "ShowerLoop"; add_child(shower_snd)
 		var st: AudioStreamOggVorbis = load("res://sfx/shower_loop.ogg"); st = st.duplicate(); st.loop = true
-		shower_snd.stream = st; shower_snd.volume_db = -20.0   # v30.2: water at 50 %
+		shower_snd.stream = st; shower_snd.volume_db = Audio.WATER_LEVEL["shower_loop"]   # v32: same loudness as every water sound
 		shower_snd.bus = "SFX" if AudioServer.get_bus_index("SFX") >= 0 else "Master"
 	if on and not shower_snd.playing: shower_snd.play()
 	elif not on and shower_snd.playing:
-		var tw := create_tween(); tw.tween_property(shower_snd, "volume_db", -40.0, 0.4)
-		tw.tween_callback(func(): shower_snd.stop(); shower_snd.volume_db = -20.0)
+		var tw := create_tween(); tw.tween_property(shower_snd, "volume_db", -60.0, 0.4)
+		tw.tween_callback(func(): shower_snd.stop(); shower_snd.volume_db = Audio.WATER_LEVEL["shower_loop"])
 
 func _drops(n: int, life: float, r: float, dir: Vector3, spread: float, v0: float, v1: float) -> CPUParticles3D:
 	var p := CPUParticles3D.new(); p.amount = n; p.lifetime = life; p.emitting = false; p.local_coords = false
