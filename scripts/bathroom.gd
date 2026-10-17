@@ -201,7 +201,8 @@ func _live_ready() -> void:   # v32wh: the v32 _ready (also run when this room's
 
 ## room-entry objective (v33town: also on re-entry of the persistent room)
 func _entry_mission() -> void:
-	if (S.face_done and S.teeth_done) or WorldState.day >= 2:
+	if Objectives.d2_chat_done(): _set_mission("Go to bed.")   # Yasin 17:58
+	elif (S.face_done and S.teeth_done) or WorldState.day >= 2:
 		_set_mission("Go to the living room.")
 	else:
 		# Objectives feed only — bathroom-door / mirror pans: black bot via Life.guide_to
@@ -1507,6 +1508,7 @@ func caption_if_free(t: String) -> void:
 	if not voice_busy(): await caption(t)
 
 func _set_mission(t: String) -> void:
+	if Objectives.stale(t): return   # Yasin 17:58
 	mission = t
 	# Objectives owns the top-left list; keep GameHUD mission clear to avoid double text
 	if hud: hud.set_mission("")
@@ -1532,10 +1534,9 @@ func _vclip(key: String) -> AudioStream:
 
 var voice_log: Array = []   # QA: which clips were queued
 func say(t: String) -> void:
-	var alt := Audio.narrator_alt(t)   # v31: Male / Boy / Girl narrator pack first (universal narrator setting)
-	var en := alt if alt else _vclip("en:" + t)
-	if en: Audio.say_stream(en, t); voice_log.append("en:" + t)   # house.17: global queue
-	elif Voice.has_clip(t): Voice.say(t)   # v29 review: house/outdoor ljspeech clip only, never device TTS
+	var en := _vclip("en:" + t)
+	if en or Audio.narrator_alt(t): Audio.say_player(t, en); voice_log.append("en:" + t)   # universal narrator (one shared function)
+	else: Voice.say(t)
 	_vnext()
 
 func _vnext() -> void:

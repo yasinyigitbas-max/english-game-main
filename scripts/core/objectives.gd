@@ -211,7 +211,15 @@ func _keep_charge() -> bool:
 	if not Life.NEEDS_ENABLED: return false   # v32-polish: battery / needs switched off (Life.NEEDS_ENABLED)
 	return not Life.charging and Life.battery < 30.0
 
+## Yasin 17:58: after the day-2 family (couch) chat "Go to the living room." never appears or is spoken again (all paths)
+const STALE_LIVING := "Go to the living room."
+static func d2_chat_done() -> bool:
+	var sv = App.load_save().get("story", {})
+	return maxi(WorldState.day, App.day) == 2 and sv is Dictionary and bool(sv.get("d2_couch_done", false))
+static func stale(en: String) -> bool: return en.strip_edges() == STALE_LIVING and d2_chat_done()
+
 func set_list(list: Array, keep_charge: = true) -> void :
+	list = list.filter(func(it): return not stale(String(it if it is String else (it.get("en", it.get("id", "")) if it is Dictionary else ""))))
 	var ch: = _charge_item() if keep_charge and _keep_charge() else {}
 	items = []
 	for it in list:
@@ -241,6 +249,7 @@ func complete(id: String) -> void:
 
 ## v30.5: append one entry (no-op when already listed)
 func add(id: String, en: String, tr := "") -> void:
+	if stale(en): return
 	for it in items:
 		if String(it.id) == id: return
 	items.append({"id": id, "en": en, "tr": tr if tr != "" else String(TR_FALLBACK.get(en, "")), "done": false})

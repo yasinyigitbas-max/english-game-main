@@ -21,8 +21,25 @@ const BODY2 := [
 func _player_body() -> void:
 	super._player_body()
 	# child-scaled seat: the sit pose's hip height scales with the body, so a child sits ON the exam bed (no clipping)
-	var bs := CharacterHook.body_scale(body)
-	body.rotation = Vector3(0, 0, 0); body.position = Vector3(0, 0.2 + 0.42 * (1.0 - bs), -0.45 + 0.12 * (1.0 - bs)); body.play("sit_idle", 0.0)
+	body.rotation = Vector3(0, 0, 0); body.position = Vector3(0, 0.2, -0.45); body.play("sit_idle", 0.0)
+	_seat_fix.call_deferred()
+
+## Yasin 17:58: the seat comes from the hero's REAL bones in the sit pose. The adult reference (scale 1) sits at y 0.2 with
+## the hips joint H above that; a smaller body (child) is raised so its hips joint lands on the same seat height and moved
+## toward the bed edge by the thigh it lacks, so it sits ON the exam bed instead of sinking into it.
+func _seat_fix() -> void:
+	await get_tree().process_frame; await get_tree().process_frame
+	if not is_instance_valid(body): return
+	var s := CharacterHook.body_scale(body)
+	if absf(s - 1.0) < 0.02: return
+	var hips := _bone("Hips"); var ul := _bone("UpperLeg.L"); var ll := _bone("LowerLeg.L")
+	if hips == Vector3.INF: return
+	var hs := hips.y - body.global_position.y            # = s * H in the sit pose
+	var h_adult := hs / s
+	body.position.y = 0.2 + h_adult - hs
+	if ul != Vector3.INF and ll != Vector3.INF:
+		var thigh := Vector2(ul.x - ll.x, ul.z - ll.z).length()
+		body.position.z = -0.45 + thigh / s * (1.0 - s)
 
 func set_tr(on: bool) -> void:
 	S.tr = on
@@ -118,16 +135,50 @@ const FRAME := {
 	"stomach": [0.75, 0.75, 0.3], "hands and fingers": [0.6, 0.7, 0.4], "knees": [0.75, 0.65, 0.35], "feet": [0.85, 0.85, 0.35],
 	"mouth and teeth": [0.45, 0.0, 0.2], "nose": [0.45, 0.06, 0.3]}
 func _yaw_between(from: Vector3, to: Vector3) -> float: return atan2(to.x - from.x, to.z - from.z) + MODEL_YAW
-func _part_pos(word: String) -> Vector3:
+func _bone(n: String) -> Vector3:
 	var sk: Skeleton3D = body.skeleton
-	var p: Vector3 = body.global_position + Vector3(0, 0.8, 0)
-	for bn in PARTS[word][1]:
-		var i := sk.find_bone(bn)
-		if i >= 0: p = sk.global_transform * sk.get_bone_global_pose(i).origin; break
-	if word in ["ears", "eyes", "nose", "mouth and teeth", "head"]: p += Vector3(0, {"ears": 0.08, "eyes": 0.1, "nose": 0.075, "mouth and teeth": 0.04, "head": 0.16}[word], 0)   # v306: tuned for the close-ups
-	if word == "knees":
-		var i := sk.find_bone(PARTS[word][1][0]); if i >= 0: p = sk.global_transform * sk.get_bone_global_pose(i).origin
-	return p
+	var i := sk.find_bone(n)
+	return sk.global_transform * sk.get_bone_global_pose(i).origin if i >= 0 else Vector3.INF
+func _first(names: Array) -> Vector3:
+	for n in names:
+		var q := _bone(n)
+		if q != Vector3.INF: return q
+	return body.global_position + Vector3(0, 0.8, 0)
+## Yasin 17:58: the arrow's point and the framed region come from the hero's ACTUAL bones (adult and child bodies):
+## [anchor (arrow tip), points that must be in frame]. Face features are offset by the real head length, not metres.
+func _part_pts(word: String) -> Array:
+	var head := _first(["Head"]); var neck := _first(["Neck", "Chest"])
+	var hl := maxf(head.distance_to(neck), 0.05); var up := (head - neck).normalized()
+	var top := head + up * hl * 2.2
+	var fwd := (doctor.global_position - body.global_position); fwd.y = 0; fwd = fwd.normalized()
+	var face := head + up * hl * 0.9 + fwd * hl * 0.9
+	match word:
+		"head": return [head + up * hl * 1.4, [neck, top]]
+		"eyes": return [face + up * hl * 0.25, [face + up * hl * 0.6, face - up * hl * 0.5]]
+		"nose": return [face, [face + up * hl * 0.6, face - up * hl * 0.6]]
+		"mouth and teeth": return [face - up * hl * 0.45, [face + up * hl * 0.4, face - up * hl * 0.9]]
+		"ears": var side := fwd.cross(Vector3.UP); var ear := head + up * hl * 0.9 - side * hl * 0.85; return [ear, [ear + up * hl * 0.6, ear - up * hl * 0.6, face]]
+		"neck": return [neck.lerp(head, 0.5), [_first(["Chest", "Torso"]).lerp(neck, 0.6), top]]   # the head stays in frame
+		"shoulders": return [_first(["Shoulder.L", "UpperArm.L"]), [_first(["Shoulder.L", "UpperArm.L"]), _first(["Shoulder.R", "UpperArm.R"]), neck]]
+		"chest": var c := _first(["Chest", "Torso"]); return [c, [c, neck, _first(["UpperArm.L"]), _first(["UpperArm.R"])]]
+		"back": var t := _first(["Torso", "Chest"]); return [t, [t, _first(["Hips"]), neck]]
+		"stomach": var ab := _first(["Abdomen", "Torso"]); return [ab, [ab, _first(["Hips"]), _first(["Chest", "Torso"])]]
+		"arms": var la := _first(["LowerArm.L", "UpperArm.L"]); return [la, [_first(["UpperArm.L"]), la, _first(["Hand.L"])]]
+		"hands and fingers": var h := _first(["Hand.L"]); var tip := h + (h - _first(["LowerArm.L"])).normalized() * hl * 1.3; return [h, [h, tip]]
+		"legs": var ul := _first(["UpperLeg.L"]); return [ul.lerp(_first(["LowerLeg.L"]), 0.6), [ul, _first(["LowerLeg.L"]), _first(["Foot.L"])]]
+		"knees": var k := _first(["LowerLeg.L", "Knee.L", "Shin.L"]); return [k, [k, _first(["UpperLeg.L"]).lerp(k, 0.5), k.lerp(_first(["Foot.L"]), 0.4)]]
+		"feet": var f := _first(["Foot.L"]); var toe := _first(["Toe.L", "Toes.L", "Foot.L"]); return [f, [f, toe, f.lerp(_first(["LowerLeg.L"]), 0.3)]]
+	var q := _first(PARTS[word][1]); return [q, [q]]
+func _part_pos(word: String) -> Vector3: return _part_pts(word)[0]
+## centre + camera distance that fits every point (plus a margin) in the vertical FOV
+func _part_frame(word: String) -> Array:
+	var pp: Array = _part_pts(word)
+	var pts: Array = pp[1].duplicate(); pts.append(pp[0])
+	var ab := AABB(pts[0], Vector3.ZERO)
+	for q in pts: ab = ab.expand(q)
+	var r := maxf(ab.size.length() * 0.5, 0.06)
+	var fov := deg_to_rad(cam.fov if cam else 50.0)
+	return [ab.get_center(), clampf(r * 1.45 / tan(fov * 0.5), 0.28, 2.2)]
 func _cam_to(pos: Vector3, look: Vector3, t: float) -> void:
 	var x1 := Transform3D.IDENTITY.translated(pos).looking_at(look, Vector3.UP)
 	if t <= 0.0: cam.global_transform = x1; return
@@ -168,21 +219,21 @@ func _wide(t: float) -> void:
 ## v306: MUCH closer (the part fills most of the frame), front three-quarter (never a side view), red bobbing arrow on the part
 func _zoom_part(word: String, hold: float) -> void:
 	_arrow_show(false)
-	var p := _part_pos(word)
+	var p := _part_pos(word)   # arrow tip (bone based)
+	var pf := _part_frame(word); var ctr: Vector3 = pf[0]
 	var fwd := (doctor.global_position - body.global_position); fwd.y = 0; fwd = fwd.normalized()
 	var side := fwd.cross(Vector3.UP)
 	var fr: Array = FRAME[word]
-	var d: float = fr[0]
+	var d: float = pf[1]
 	if word == "back": fwd = -fwd   # the doctor looks at the back from behind
-	if word == "ears": p += -side * 0.075   # v306: the ear on the camera side
 	_show_label(word)
 	_set_iv_visible(word != "back")   # v31.1: the IV stand sits between the camera and the player's back
 	doctor.visible = false   # v306: the close camera sits where the doctor stands; never film his side
 	# v33 (red): the v306 framing (0.6 x distance, almost level) put the camera INSIDE the thigh / knee / forearm and so
 	# close to the head that the sit_idle sway turned "mouth and teeth" / "ears" into shots of the hair. Per-part distance,
 	# elevation (look down past the thighs at the stomach, hands, knees, feet; past the bed rail at the feet) and side.
-	var cp: Vector3 = p + (fwd - side * float(fr[2]) + Vector3(0, float(fr[1]), 0)).normalized() * d
-	await _cam_to(cp, p, 0.7)
+	var cp: Vector3 = ctr + (fwd - side * float(fr[2]) + Vector3(0, float(fr[1]), 0)).normalized() * d
+	await _cam_to(cp, ctr, 0.7)
 	_arrow_at(p, cp, d)
 	if hold > 0.0: await get_tree().create_timer(hold).timeout; _hide_label()
 

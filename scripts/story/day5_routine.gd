@@ -375,7 +375,7 @@ func _bedtime(b: Node) -> void:
 	b.mode = "busy"; b._hide_chips()
 	await speak(b, "", "", "I am going to bed.", "Yatmaya gidiyorum.")
 	await b.walk_to(bed.spot, 0.0)
-	await b.sit_on_bed(); await b.edge_to_bedsit(); await b.bedsit_to_lie()
+	await b.lie_down()   # shared lie-down = straight into the sleep pose
 	b.S.bed = "unmade"; b._apply_states()
 	_bed_xf = b.hero.transform; bed_lock = true
 	Objectives.complete(GO_BED[0])
