@@ -61,7 +61,9 @@ func run() -> void:
 		if t % 50 == 0: _diag(t)
 		_press_test()
 		var d := Day56Routine.active_day()
-		if d == 0 or (d > stop_day): break
+		if Day56.stage(stop_day) == "done" and (stop_day == 5 or WorldState.day >= 7):
+			await w(8.0); break   # day 6 -> 7: let the get-up + red's handoff run
+		if d == 0: continue
 		var s := cur(); if s == null: continue
 		var k := kind()
 		var dr := get_tree().root.get_node_or_null("Day56Routine")
@@ -109,7 +111,7 @@ func run() -> void:
 	var miss: Array = []
 	for x in said:
 		var nk := Audio.norm(String(x))
-		if not Audio.index.has(nk) and not miss.has(x): miss.append(x)
+		if not Audio.index.has(nk) and not Audio.alt_index.has(nk) and not miss.has(x): miss.append(x)
 	print("D56QA MISSING_VOICE ", JSON.stringify(miss))
 	print("D56QA OBJECTIVES ", JSON.stringify(objs))
 	print("D56QA TOTAL %d PASS %d FAIL  (%ds game-run)" % [log.filter(func(l): return l.begins_with("PASS")).size(), log.filter(func(l): return l.begins_with("FAIL")).size(), (Time.get_ticks_msec() - t_start) / 1000])
