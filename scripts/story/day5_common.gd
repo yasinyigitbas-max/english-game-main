@@ -205,8 +205,9 @@ func choice(c: Dictionary) -> Dictionary:
 	var box := PanelContainer.new(); box.name = "D56Choice"
 	var sb := StyleBoxFlat.new(); sb.bg_color = Color(1, 1, 1, 0.96); sb.set_corner_radius_all(20); sb.set_content_margin_all(18)
 	sb.border_color = Color(0.93, 0.52, 0.44); sb.set_border_width_all(3); box.add_theme_stylebox_override("panel", sb)
-	box.anchor_left = 0.5; box.anchor_right = 0.5; box.anchor_top = 0.5; box.anchor_bottom = 0.5
-	box.offset_left = -400; box.offset_right = 400; box.offset_top = -280; box.offset_bottom = 90; cl.add_child(box)
+	# lower half, above the caption box: the faces of the people talking stay visible
+	box.anchor_left = 0.5; box.anchor_right = 0.5; box.anchor_top = 1.0; box.anchor_bottom = 1.0; box.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	box.offset_left = -400; box.offset_right = 400; box.offset_top = -420; box.offset_bottom = -96; cl.add_child(box)
 	Objectives.ovl_register(box, 5)
 	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 10); box.add_child(v)
 	var trs: Array = []
