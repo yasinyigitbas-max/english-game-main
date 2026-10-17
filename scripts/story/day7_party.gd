@@ -117,7 +117,7 @@ func _week() -> Array:
 			if Life.photo(String(k)) != null: key = String(k); break
 		if key == "" and bool(w.get("blue", false)):
 			var r := _blue_recap(d)
-			if not r.is_empty(): key = r[0]; en = r[1]; tr = T.tr_of(en)
+			if not r.is_empty(): key = r[0]   # build 3.2 (Yasin 21:28): keep the event + lesson recount from data, only borrow the photo
 		if key == "": continue
 		out.append({"day": d, "key": key, "q": String(w.get("q", "")), "en": en, "tr": tr})
 	return out
@@ -141,6 +141,13 @@ func _blue_recap(d: int) -> Array:
 	return []
 
 func _photo_wall() -> void:
+	# build 3.2 (Yasin 21:28): each card = that day's BIGGEST event. Day 7 = the party itself (snapped now, the room lit
+	# and the family round the cake); missing event photos get the drawn stills (never a breakfast stand-in)
+	if Life.photo("d7_party") == null: await Life.snap("d7_party")
+	await load("res://scripts/story/d2_polaroids.gd").ensure_d2(self, ["d2_hospital", "d2_work"])
+	await load("res://scripts/story/d3_polaroids.gd").ensure_d3(self, ["d3_cafe", "d3_shop"])
+	await load("res://scripts/story/day4_polaroids.gd").ensure_d47(self, ["d4_candles"])
+	await load("res://scripts/story/polaroid_renderer.gd").ensure(self, ["accident", "hospital"])
 	var wk := _week()
 	if wk.is_empty(): return
 	var cl := CanvasLayer.new(); cl.layer = 30; add_child(cl)

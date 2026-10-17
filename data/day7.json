@@ -251,63 +251,72 @@
   {
    "day": 1,
    "keys": [
-    "breakfast",
-    "wake",
-    "home"
+    "accident",
+    "hospital",
+    "outside"
    ],
-   "q": "What did you do on day 1?",
-   "en": "I had breakfast with my family.",
-   "tr": "Ailemle kahvaltı yaptım."
+   "q": "What happened on day 1?",
+   "en": "A car hit me on the street and I went to the hospital. I learned 'can' and 'should': I should rest.",
+   "tr": "Sokakta bana bir araba çarptı ve hastaneye gittim. 'can' ve 'should' öğrendim: Dinlenmeliyim."
   },
   {
    "day": 2,
    "keys": [
-    "d2_couch",
-    "d2_breakfast",
-    "d2_work",
-    "d2_hospital"
+    "d2_hospital",
+    "d2_work"
    ],
    "q": "What did you do on day 2?",
-   "en": "I learned will, going to and have to.",
-   "tr": "will, going to ve have to öğrendim."
+   "en": "I went to the hospital for a checkup, and then I went to work. I learned 'will', 'going to' and 'have to'.",
+   "tr": "Kontrol için hastaneye gittim, sonra işe gittim. 'will', 'going to' ve 'have to' öğrendim."
   },
   {
    "day": 3,
    "keys": [
     "d3_cafe",
-    "d3_shop",
-    "d3_couch"
+    "d3_shop"
    ],
    "q": "What did you do on day 3?",
-   "en": "I went to the café and the shop.",
-   "tr": "Kafeye ve dükkâna gittim."
+   "en": "I ordered a hot chocolate at the café and I bought apples and milk at the shop. I learned 'how much' and 'how many'.",
+   "tr": "Kafede sıcak çikolata sipariş ettim ve dükkândan elma ile süt aldım. 'how much' ve 'how many' öğrendim."
   },
   {
    "day": 4,
    "keys": [
     "d4_candles",
-    "d4_shop",
-    "d4_breakfast"
+    "d4_shop"
    ],
-   "q": "What did you do on day 4?",
-   "en": "I bought candles. Then the lights went out!",
-   "tr": "Mum aldım. Sonra ışıklar söndü!"
+   "q": "What happened on day 4?",
+   "en": "There was a power cut! We lit candles and we found a torch. I learned 'there is' and 'there are'.",
+   "tr": "Elektrik kesildi! Mum yaktık ve bir el feneri bulduk. 'there is' ve 'there are' öğrendim."
   },
   {
    "day": 5,
-   "keys": [],
+   "keys": [
+    "d5_shop"
+   ],
    "blue": true,
-   "q": "What did you do on day 5?",
-   "en": "I had a good day.",
-   "tr": "Güzel bir gün geçirdim."
+   "q": "What happened on day 5?",
+   "en": "A little boy was lost in the shop. I described him and we found his mum. I learned how to describe people and clothes.",
+   "tr": "Dükkânda küçük bir çocuk kaybolmuştu. Onu tarif ettim ve annesini bulduk. İnsanları ve kıyafetleri tarif etmeyi öğrendim."
   },
   {
    "day": 6,
-   "keys": [],
+   "keys": [
+    "d6_storm"
+   ],
    "blue": true,
-   "q": "What did you do on day 6?",
-   "en": "I had a good day.",
-   "tr": "Güzel bir gün geçirdim."
+   "q": "What happened on day 6?",
+   "en": "There was a big storm and the bus broke down. I learned weather words and 'will'.",
+   "tr": "Büyük bir fırtına vardı ve otobüs bozuldu. Hava durumu kelimelerini ve 'will' öğrendim."
+  },
+  {
+   "day": 7,
+   "keys": [
+    "d7_party"
+   ],
+   "q": "And today?",
+   "en": "Today my family had a surprise party for me! I learned the past simple: I had a great week.",
+   "tr": "Bugün ailem bana sürpriz bir parti yaptı! Geçmiş zamanı öğrendim: Harika bir hafta geçirdim."
   }
  ],
  "recap": [
@@ -429,6 +438,18 @@
   "What did you do on day 3?": "3. günde ne yaptın?",
   "What did you do on day 4?": "4. günde ne yaptın?",
   "What did you do on day 5?": "5. günde ne yaptın?",
-  "What did you do on day 6?": "6. günde ne yaptın?"
+  "What did you do on day 6?": "6. günde ne yaptın?",
+  "A car hit me on the street and I went to the hospital. I learned 'can' and 'should': I should rest.": "Sokakta bana bir araba çarptı ve hastaneye gittim. 'can' ve 'should' öğrendim: Dinlenmeliyim.",
+  "I went to the hospital for a checkup, and then I went to work. I learned 'will', 'going to' and 'have to'.": "Kontrol için hastaneye gittim, sonra işe gittim. 'will', 'going to' ve 'have to' öğrendim.",
+  "I ordered a hot chocolate at the café and I bought apples and milk at the shop. I learned 'how much' and 'how many'.": "Kafede sıcak çikolata sipariş ettim ve dükkândan elma ile süt aldım. 'how much' ve 'how many' öğrendim.",
+  "There was a power cut! We lit candles and we found a torch. I learned 'there is' and 'there are'.": "Elektrik kesildi! Mum yaktık ve bir el feneri bulduk. 'there is' ve 'there are' öğrendim.",
+  "A little boy was lost in the shop. I described him and we found his mum. I learned how to describe people and clothes.": "Dükkânda küçük bir çocuk kaybolmuştu. Onu tarif ettim ve annesini bulduk. İnsanları ve kıyafetleri tarif etmeyi öğrendim.",
+  "There was a big storm and the bus broke down. I learned weather words and 'will'.": "Büyük bir fırtına vardı ve otobüs bozuldu. Hava durumu kelimelerini ve 'will' öğrendim.",
+  "Today my family had a surprise party for me! I learned the past simple: I had a great week.": "Bugün ailem bana sürpriz bir parti yaptı! Geçmiş zamanı öğrendim: Harika bir hafta geçirdim.",
+  "What happened on day 1?": "1. günde ne oldu?",
+  "What happened on day 4?": "4. günde ne oldu?",
+  "What happened on day 5?": "5. günde ne oldu?",
+  "What happened on day 6?": "6. günde ne oldu?",
+  "And today?": "Ya bugün?"
  }
 }

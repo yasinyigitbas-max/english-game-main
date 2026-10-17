@@ -910,10 +910,11 @@ func _lie_blend(t: float) -> void:
 	hero.position = LIE_ROOT.lerp(LIE_FLAT - Vector3(h, h, 0), t)
 	# the pose crossfade (standing idle <-> sitting) moves the hips inside the model: keep them on the mattress mid-way
 	var hy: float = to_local(sk.global_transform * sk.get_bone_global_pose(sk.find_bone("Hips")).origin).y   # open world: room-local like M
-	hero.position.y += (lerpf(M + 0.1, M + 0.16, t) - hy) * sin(t * PI)
+	hero.position.y += (lerpf(M + 0.1 * hero.model.scale.y, M + 0.12 * hero.model.scale.y, t) - hy) * (1.0 if t < 0.999 else sin(t * PI))   # build 3.2: pinned through the whole lean (was mid-way only -> float)
 
 func _pose_sleep() -> void:
 	sleep_clip = false
+	_blanket(true, 0.01)   # build 3.2: lying in bed = under the blanket (morning lying pose, hospital return, opening)
 	hero.rotation.y = PI / 2; _lie_blend(1.0)
 	hero.bone_offsets.clear(); hero.player.speed_scale = 1.0
 	hero.player.play("idle", 0.0); hero.player.seek(0.0, true); hero.player.speed_scale = 0.0
@@ -933,23 +934,101 @@ func _bone_w(bn: String) -> Vector3:
 	var sk := hero.skeleton; var i := sk.find_bone(bn)
 	return sk.global_transform * sk.get_bone_global_pose(i).origin if i >= 0 else hero.global_position
 func _feet_w() -> Vector3: return (_bone_w("Foot.L") + _bone_w("Foot.R")) * 0.5
-func sleep_pose() -> void:
+## build 3.2 (Yasin 22:00): the sleeper is UNDER the blanket - a soft quilt over the body from the chest to the foot end
+## (full bed width, deep enough that the legs never poke through); fades in over the lie-down, gone when getting up
+var blanket: MeshInstance3D
+func _blanket(on: bool, t := 0.8) -> void:
+	if on and blanket == null:
+		blanket = MeshInstance3D.new(); blanket.name = "SleepBlanket"
+		blanket.mesh = _drape_mesh()
+		var mat := StandardMaterial3D.new(); mat.albedo_color = Color(0.36, 0.62, 0.95); mat.roughness = 0.95
+		mat.cull_mode = BaseMaterial3D.CULL_DISABLED; mat.vertex_color_use_as_albedo = true
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS; blanket.material_override = mat
+		blanket.position = Vector3(B.x + 0.47, M, B.z)   # head at -x (pillow), feet toward +x (LIE_FLAT)
+		add_child(blanket)
+	elif on: return   # already covered (bed locks re-pose every frame: no re-fade)
+	if blanket == null: return
+	var mt := blanket.material_override as StandardMaterial3D
+	if on:
+		blanket.visible = true; mt.albedo_color.a = 0.0
+		create_tween().tween_property(mt, "albedo_color:a", 1.0, t)
+	else:
+		var b := blanket; blanket = null
+		var tw := create_tween(); tw.tween_property(mt, "albedo_color:a", 0.0, t); tw.tween_callback(b.queue_free)
+
+## a quilt draped over the sleeper: a soft mound along the body (high enough for the bent knee of the sleep clip), flat
+## on the mattress at the sides, hanging down over both bed edges; folded-back white hem at the chest
+func _drape_mesh() -> ArrayMesh:
+	var st := SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	const NX := 28; const NZ := 22; const L := 1.42; const HW := 0.52; const DROP := 0.26
+	var pts: Array = []
+	for i in NX + 1:
+		var row: Array = []
+		var x := -L / 2.0 + L * float(i) / NX
+		var u := float(i) / NX
+		var mound := 0.34 * (0.6 + 0.4 * sin(clampf(u * 1.25, 0.0, 1.0) * PI))   # high to the foot end (the sleep clip lifts a knee / foot)
+		for j in NZ + 1:
+			var v := -1.0 + 2.0 * float(j) / NZ          # -1..1 across, the outer parts hang over the edges
+			var z := v * (HW + DROP * 0.6)
+			var y: float
+			if absf(z) <= HW:
+				var g := exp(-pow(absf(z + 0.04) / 0.40, 4.0))   # a broad raised plateau over the whole body (knees / feet of the sleep clip stay under)
+				y = 0.035 + mound * g + 0.03 * (1.0 - g)
+			else:
+				var k := (absf(z) - HW) / (DROP * 0.6)
+				y = 0.05 - DROP * smoothstep(0.0, 1.0, k); z = signf(z) * (HW + 0.03 + 0.02 * k)
+			row.append(Vector3(x, y, z))
+		pts.append(row)
+	for i in NX:
+		for j in NZ:
+			var a: Vector3 = pts[i][j]; var b: Vector3 = pts[i + 1][j]; var c: Vector3 = pts[i + 1][j + 1]; var d: Vector3 = pts[i][j + 1]
+			for q in [a, b, c, a, c, d]:
+				st.set_color(Color(0.97, 0.97, 0.95) if (q as Vector3).x < -L / 2.0 + 0.14 else Color(1, 1, 1))
+				st.add_vertex(q)
+	st.generate_normals()
+	return st.commit()
+
+func sleep_pose(fade := 0.0) -> void:
 	if sleep_clip or not hero.player.has_animation("sleep"): return
+	_blanket(true, maxf(fade, 0.6))
 	var h0 := _bone_w("Head"); var f0 := _feet_w(); var p0 := _bone_w("Hips")
+	var g0: Transform3D = hero.model.global_transform
+	var prev := String(hero.player.current_animation); var prev_t := hero.player.current_animation_position if prev != "" else 0.0
+	var prev_sp := hero.player.speed_scale
+	var offs: Dictionary = hero.bone_offsets.duplicate(true)
 	hero.bone_offsets.clear()
 	hero.model.rotation = Vector3(0, hero.model.rotation.y, 0); hero.model.position = Vector3.ZERO
 	hero.player.speed_scale = SLEEP_SPEED; hero.player.play("sleep", 0.0); hero.player.seek(SLEEP_A, true)
+	hero.player.advance(0.0)
+	if hero.skeleton.has_method("force_update_all_bone_transforms"): hero.skeleton.force_update_all_bone_transforms()   # build 3.2: no frame with the new root and the old (standing) pose
 	var d0 := h0 - f0; d0.y = 0.0
 	var d1 := _bone_w("Head") - _feet_w(); d1.y = 0.0
 	if d0.length() > 0.1 and d1.length() > 0.1: hero.rotation.y += d1.signed_angle_to(d0, Vector3.UP)
 	var m0 := (h0 + f0) * 0.5; var m1 := (_bone_w("Head") + _feet_w()) * 0.5
 	hero.global_position += Vector3(m0.x - m1.x, p0.y - _bone_w("Hips").y, m0.z - m1.z)
 	sleep_clip = true; breathing = true
+	if fade > 0.0 and prev != "" and prev != "sleep":
+		# build 3.2 (Yasin 21:33): seamless crossfade into the sleep clip - the bones blend from the lie-down pose (AnimationPlayer
+		# blend) while the body root glides from where it lay to the aligned sleep transform (no pop)
+		hero.player.play(prev, 0.0); hero.player.seek(prev_t, true)
+		hero.player.speed_scale = SLEEP_SPEED; hero.player.play("sleep", fade); hero.player.seek(SLEEP_A, false)
+		var m_to: Transform3D = hero.model.transform
+		hero.model.global_transform = g0
+		var m_from: Transform3D = hero.model.transform
+		for k in offs: hero.bone_offsets[k] = offs[k]
+		var tw := create_tween()
+		tw.tween_method(func(t: float):
+			if not is_instance_valid(hero): return
+			hero.model.transform = m_from.interpolate_with(m_to, t)
+			for k in offs:
+				var v: Array = offs[k]; hero.bone_offsets[k] = [v[0], float(v[1]) * (1.0 - t)], 0.0, 1.0, fade).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tw.tween_callback(func():
+			for k in offs: hero.bone_offsets.erase(k))
 ## Yasin 17:58 SLEEP STANDARD: the ONE lie-down on a bed (player verb, day-1..7 bedtimes): sit, lie, and straight into
 ## the real sleep pose the moment the body is down (no flat idle frame in between).
 func lie_down() -> void:
 	await sit_on_bed(); await edge_to_bedsit(); await bedsit_to_lie()
-	sleep_pose()
+	sleep_pose()   # straight into the sleeping / breathing clip (aligned head/feet/hips: no pop; the blanket fades over it)
 
 func end_sleep_pose() -> void:
 	if sleep_clip: _pose_sleep()
@@ -960,6 +1039,7 @@ func _sleep_pingpong() -> void:
 	elif p <= SLEEP_A and hero.player.speed_scale < 0.0: hero.player.speed_scale = SLEEP_SPEED
 
 func bedsit_up() -> void:     # lying -> sitting up in bed (legs stay where they are)
+	_blanket(false, 0.6)
 	end_sleep_pose()
 	breathing = false; hero.bone_offsets.clear()
 	_tw_offset("UpperLeg.L", Vector3.RIGHT, LEG_FIX, 2.0); _tw_offset("UpperLeg.R", Vector3.RIGHT, LEG_FIX, 2.0)
@@ -983,21 +1063,49 @@ func stand_from_bed() -> void:
 	await _sit_to_stand()
 
 func sit_on_bed() -> void:
-	hero.player.play("stand_to_sit", 0.3); await wait(hero.anim_length("stand_to_sit") - 0.04)
+	hero.player.play("stand_to_sit", 0.3)
+	# build 3.2 (Yasin 22:00): the pelvis lands ON the mattress (not the clip's chair height): the root follows the hips down
+	# in the second half of the sit so the thighs end exactly on the mattress top
+	var dur := hero.anim_length("stand_to_sit") - 0.04; var t := 0.0
+	while t < dur:
+		await get_tree().process_frame; t += get_process_delta_time()
+		var k := clampf((t / dur - 0.5) * 2.0, 0.0, 1.0)
+		if k > 0.0: _pin_hips(_seat_hips_y(), k * 0.5)
 	hero.position = SIT_ROOT; hero.player.play("sit_idle", 0.0); hero.player.advance(0.0)
+	_pin_hips(_seat_hips_y(), 1.0)
+
+## hips bone height (room-local) of a body sitting on the mattress edge: mattress top + the thigh thickness of this body
+func _seat_hips_y() -> float: return M + 0.09 * hero.model.scale.y
+
+## move the root so the hips bone sits at height y (room-local; w = how much of the gap to close this call)
+func _pin_hips(y: float, w := 1.0) -> void:
+	var sk := hero.skeleton
+	var hy: float = to_local(sk.global_transform * sk.get_bone_global_pose(sk.find_bone("Hips")).origin).y
+	hero.position.y += (y - hy) * w
 
 func edge_to_bedsit() -> void:  # exact reverse of bedsit_to_edge
-	hero.player.play("wake_up", 0.9); hero.player.seek(0.0, true); hero.player.speed_scale = 0.0
-	var tw := create_tween()
-	tw.tween_property(hero, "position", Vector3(SIT_ROOT.x, M, SIT_ROOT.z - 0.12), 0.9).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tw.tween_property(hero, "position", LIE_ROOT, 0.6).set_trans(Tween.TRANS_SINE)
-	tw.tween_property(hero, "rotation:y", PI / 2, 1.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	await wait(2.6)
+	# build 3.2 (Yasin 21:33): one continuous, eased move - the body scoots back onto the mattress WHILE it turns and the legs
+	# swing up (pose crossfade 1.3 s), instead of three separate rigid steps
+	hero.player.play("wake_up", 1.3); hero.player.seek(0.0, true); hero.player.speed_scale = 0.0
+	var p0: Vector3 = hero.position; var y0: float = hero.rotation.y
+	var mid := Vector3(SIT_ROOT.x, 0, SIT_ROOT.z - 0.12)
+	var t := 0.0; const DUR := 1.6
+	while t < DUR:
+		await get_tree().process_frame; t += get_process_delta_time()
+		var k := clampf(t / DUR, 0.0, 1.0); var e := 0.5 - 0.5 * cos(k * PI)
+		var a: Vector3 = p0.lerp(mid, clampf(e * 1.8, 0.0, 1.0)); var b: Vector3 = mid.lerp(LIE_ROOT, clampf((e - 0.45) / 0.55, 0.0, 1.0))
+		var xz: Vector3 = a if e < 0.45 else b
+		hero.position = Vector3(xz.x, hero.position.y, xz.z)
+		hero.rotation.y = lerp_angle(y0, PI / 2, clampf((e - 0.1) / 0.9, 0.0, 1.0))
+		# the pelvis stays ON the mattress the whole time (the root follows the pose crossfade, no float)
+		_pin_hips(lerpf(_seat_hips_y(), M + 0.1 * hero.model.scale.y, e), 1.0)
+	await wait(0.05)
 
 func bedsit_to_lie() -> void:
-	hero.player.speed_scale = 1.0; hero.player.play("idle", 1.4, 0.0); hero.player.seek(0.0, true)
-	create_tween().tween_method(_lie_blend, 0.0, 1.0, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	await wait(1.6); hero.player.speed_scale = 0.0; breathing = true
+	# build 3.2 (Yasin 21:33): the torso leans back slowly (eased 1.8 s) while the long-sit pose relaxes into the lying pose
+	hero.player.speed_scale = 1.0; hero.player.play("idle", 1.8, 0.0); hero.player.seek(0.0, true)
+	create_tween().tween_method(_lie_blend, 0.0, 1.0, 1.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	await wait(1.85); hero.player.speed_scale = 0.0; breathing = true
 
 ## build 3.2 (Yasin 21:23): the alarm rings EVERY morning (days 1-7). True while today's alarm has not been turned off yet
 ## (mornings only: before 12:00 on the shared clock).
@@ -1005,6 +1113,14 @@ func alarm_due() -> bool:
 	var d := maxi(WorldState.day, App.day)
 	if int(App.load_save().get("alarm_off_day", 0)) >= d: return false
 	return WorldState.hour() < 12
+
+## the day is still at its wake-up step (nothing of the day's routine done yet): story.d<day> "" / "start" / "alarm"
+func at_wake_step() -> bool:
+	var d := maxi(WorldState.day, App.day)
+	var st = App.load_save().get("story", {})
+	var v := String(st.get("d%d" % d, "")) if st is Dictionary else ""
+	if d == 2 and st is Dictionary and String(st.get("day2", "")) not in ["", "bedroom"]: return false
+	return v in ["", "start", "alarm"]
 
 ## scripted morning alarm while lying in bed (wake-ups that are not the player's own): rings, then turned off from the bed
 func morning_alarm() -> void:
@@ -1497,7 +1613,9 @@ func _continue_game() -> void:
 	hero.set_mannequin(false); _apply_character()
 	hero.position = saved_pos if saved_pos != Vector3.INF and _free(saved_pos, R) else STAND_BED
 	hero.rotation.y = 0.0; hero.model.rotation.y = 0.0; hero.play("idle", 0.0)
-	S.alarm = "ringing" if alarm_due() else ("off" if S.alarm == "ringing" else S.alarm)   # build 3.2 (Yasin 21:23): Continue in the morning re-arms the alarm
+	var app_c = get_node_or_null("/root/App")
+	var wake_continue: bool = app_c != null and bool(app_c.continue_requested) and String(app_c.came_from) == "" and at_wake_step()
+	S.alarm = "ringing" if wake_continue and alarm_due() else ("off" if S.alarm == "ringing" else S.alarm)   # build 3.2 (Yasin 21:23/21:40): only a Continue AT the wake step re-arms it (never a trip home / room entry)
 	if S.book == "hand": S.book = "shelf"
 	_apply_states(); mode = "play"; _update_hand()
 	if S.alarm == "ringing": Audio.sfx("alarm", -4.0); _set_mission("Turn off the alarm clock.")
