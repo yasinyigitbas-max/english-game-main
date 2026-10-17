@@ -144,8 +144,8 @@ func run() -> void:
 	var gf: ColorRect = Game._fade
 	gf.color = Color(0, 0, 0, 1)
 	w.get_tree().create_timer(1.6).timeout.connect(gf.set.bind("color", Color(0.86, 0.89, 0.93, 0.0)))
-	if Game.busy: w.get_tree().change_scene_to_file("res://scenes/hospital.tscn")
-	else: Game.go_to("res://scenes/hospital.tscn")
+	if Game.busy: StoryNav.travel(w.get_tree(), "res://scenes/hospital.tscn", "", true)
+	else: StoryNav.travel(w.get_tree(), "res://scenes/hospital.tscn")
 
 ## red v28: HUD on/off for the cutscene. GameHUD._process re-shows its panels every frame, so it is paused while hidden.
 var _hud_vis := {}

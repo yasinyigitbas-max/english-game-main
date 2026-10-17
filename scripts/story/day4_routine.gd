@@ -61,7 +61,7 @@ func _process(d: float) -> void:
 	_t = 0.0
 	var st := stage_now()
 	if st in ["", "done"] or maxi(WorldState.day, App.day) != day_n: queue_free(); return
-	var sc := get_tree().current_scene
+	var sc := RoutineScope.current(get_tree())
 	if sc != _sc:
 		_sc = sc; _cur = {}
 		if sc and sc.has_signal("action_done") and _kind(sc) == "bathroom": sc.action_done.connect(_bath.bind(sc))
@@ -80,7 +80,7 @@ func _bath(_id, sc: Node) -> void:
 	if is_instance_valid(sc) and sc.has_method("caption"): sc.caption("I feel fresh and clean.")
 	await Audio.wait_idle(10.0)
 	await get_tree().create_timer(0.6, false).timeout
-	if is_instance_valid(sc) and sc == get_tree().current_scene:
+	if RoutineScope.alive(sc):
 		var f: Vector3 = sc.OBJ.door.focus
 		await _guide(sc, {"pos": f + Vector3(0.3, 1.0, -2.4), "at": f}, "Go to the living room.", "Go to the living room.", "Oturma odasına git.")
 	_busy = false
@@ -99,7 +99,7 @@ func _enter(sc: Node) -> void:
 	if k == "shop": await _shop(sc); _busy = false; return
 	if k in ["cafe", "other", ""]: _busy = false; return
 	await _wait_free(sc)
-	if not is_instance_valid(sc) or sc != get_tree().current_scene: _busy = false; return
+	if not RoutineScope.alive(sc): _busy = false; return
 	var st := stage_now()
 	match [st, k]:
 		["shower", "bedroom"]:
@@ -116,7 +116,7 @@ func _enter(sc: Node) -> void:
 			await _home_cue(sc)
 		["breakfast", "living"]:
 			await _breakfast(sc)
-			if is_instance_valid(sc) and sc == get_tree().current_scene:
+			if RoutineScope.alive(sc):
 				st_set(key, "outing")
 				await _guide(sc, _front_shot(sc), out_goal[0], out_goal[0], out_goal[1])
 		["outing", "bedroom"], ["outing", "bathroom"]:
@@ -128,7 +128,7 @@ func _enter(sc: Node) -> void:
 			else:
 				var first := not _guided.has(out_goal[0] + "|" + str(sc.get_instance_id()))
 				await _guide(sc, null, out_goal[0], out_goal[0], out_goal[1], false)
-				if first and is_instance_valid(sc) and sc == get_tree().current_scene: await _pan(sc, [_lot_view(sc, "corner_shop", "Here is the shop.")])
+				if first and RoutineScope.alive(sc): await _pan(sc, [_lot_view(sc, "corner_shop", "Here is the shop.")])
 		["home", "living"], ["evening", "living"]:
 			st_set(key, "evening")
 			await _evening(sc)
@@ -145,7 +145,7 @@ func _home_cue(sc: Node) -> void:
 	if st_of(key) == "outing": st_set(key, "home")
 	var first := not _guided.has("Go back home.|" + str(sc.get_instance_id()))
 	await _guide(sc, null, "Go back home.", "Go back home.", "Eve dön.", false)
-	if first and is_instance_valid(sc) and sc == get_tree().current_scene: await _pan(sc, [_lot_view(sc, "home", "Here is my home.")])
+	if first and RoutineScope.alive(sc): await _pan(sc, [_lot_view(sc, "home", "Here is my home.")])
 
 func _breakfast(sc: Node) -> void:
 	var b = load("res://scripts/story/day4_breakfast.gd").new(); b.lr = sc; b.data_path = data_path; sc.add_child(b)

@@ -1,0 +1,214 @@
+## OwLink (red, open world story port): runs the v33 room / place story code inside the ONE world (scenes/world.tscn).
+## - ONE hero: the WorldPlayer's DemoCharacter. A live room borrows it (reparented, same node, never a new one) and moves it
+##   in room-local coordinates exactly like v33; on the street it goes back to the WorldPlayer body.
+## - ONE room camera carrier shared by every room (ShoulderCam drives it like in v33town); the street uses the CameraRig.
+## - The live room / place is current_scene (as in v33 House), so the v33 room code and ShoulderCam run unchanged; on the
+##   street current_scene is the World again (story_accident / day routines get the World as their scene).
+## - Rooms never move, are never freed or rebuilt: sleep / wake (House._sleep/_wake) with all their state.
+## - Car / bus / ambulance: travel() = fade out, place, fade in (the only gameplay fade, Yasin 18:12) + sleep.
+class_name OwLink
+extends Node
+
+const House := preload("res://scripts/core/house.gd")
+const ROOM_PATH := {"bedroom": "res://main.tscn", "bathroom": "res://bathroom.tscn", "livingroom": "res://livingroom.tscn"}
+## story places that are not part of black's phase-1 layout yet: instanced ONCE at their reserved world slot
+const EXTRA := {"hospital": "res://scenes/hospital.tscn", "hospital_day2": "res://scenes/hospital_day2.tscn", "child_drive_stop": "res://scenes/child_drive_stop.tscn"}
+const EXTRA_SLOT := {"hospital": "hospital", "hospital_day2": "hospital", "child_drive_stop": "school"}
+const PLACES := ["cafe", "shop"]   # World-built street places: live with the WorldPlayer (hero stays on its body)
+
+static var inst: OwLink
+var world: Node            # World
+var live: Node = null      # the live room / place (current_scene) or null on the street
+var live_id := ""
+var room_cam: Camera3D
+var extras := {}
+
+static func active() -> bool: return is_instance_valid(inst) and is_instance_valid(inst.world)
+static func the_hero() -> DemoCharacter: return inst.world.player.hero if active() else null
+
+## World._ready end (one line in world.gd)
+static func attach(w: Node) -> void:
+	var n := OwLink.new(); n.name = "OwLink"; n.world = w; inst = n; w.add_child(n)
+	n.process_priority = -50
+	w.entered.connect(n._on_entered)
+	n._start.call_deferred()
+
+func _start() -> void:
+	for id in ROOM_PATH:   # rooms become root children (needed for current_scene); same global transform: nothing moves
+		var r: Node = world.places.get(id)
+		if r and r.get_parent() != get_tree().root: r.reparent(get_tree().root, true)
+	enter(String(App.get("ow_start")) if App.get("ow_start") else "bedroom", "")
+
+# ------------------------------------------------------------ room code helpers (v33 code calls these)
+## room _live_ready: `hero = OwLink.hero_for(self)` instead of DemoCharacter.new() + add_child
+static func hero_for(room: Node) -> DemoCharacter:
+	if not active():
+		var h := DemoCharacter.new(); room.add_child(h); return h
+	var hh := the_hero(); _adopt(hh, room); return hh
+
+## room _live_ready: `cam = OwLink.cam_for(self)` instead of Camera3D.new() + add_child
+static func cam_for(room: Node) -> Camera3D:
+	if not active():
+		var c := Camera3D.new(); room.add_child(c); return c
+	if not is_instance_valid(inst.room_cam): inst.room_cam = Camera3D.new(); inst.room_cam.name = "OwRoomCam"; room.add_child(inst.room_cam)
+	else: inst.room_cam.reparent(room, true)
+	return inst.room_cam
+
+static func _adopt(n: Node3D, parent: Node) -> void:
+	if n.get_parent() == parent: return
+	var g := n.global_transform
+	if n.get_parent(): n.reparent(parent, false)
+	else: parent.add_child(n)
+	n.global_transform = g
+	if n.has_meta("wh_hv"): n.remove_meta("wh_hv")
+	n.visible = true
+
+# ------------------------------------------------------------ going live
+## make place `id` live (house room or story place). from = room/place id the hero comes from ("" / "street")
+static func enter(id: String, from: String) -> void:
+	if active(): await inst._enter(id, from)
+
+func _enter(id: String, from: String) -> void:
+	if id == live_id and is_instance_valid(live): return
+	if id in PLACES:
+		_sleep_live()
+		var pl: Node = world.places.get(id)
+		if pl == null: return
+		live = pl; live_id = id
+		get_tree().current_scene = pl
+		pl.process_mode = Node.PROCESS_MODE_INHERIT
+		if pl.has_meta("ow_shell"): pl.remove_meta("ow_shell"); pl.call("_ow_live", world)
+		else: pl.call_deferred("_start")
+		return
+	var r: Node = world.places.get(id) if ROOM_PATH.has(id) else _extra(id)
+	if r == null: push_warning("OwLink: no place " + id); return
+	var h := the_hero()
+	var hp := h.global_position; var hy := h.global_rotation.y
+	_sleep_live()
+	var p := world.player as Node3D
+	p.process_mode = Node.PROCESS_MODE_DISABLED
+	world.hud.visible = false
+	live = r; live_id = id
+	get_tree().current_scene = r
+	if ROOM_PATH.has(id):
+		_adopt(h, r)
+		var first := not House.again(r)
+		if first:
+			r.remove_meta(House.SHELL); House._cheap(r, false); r.process_mode = Node.PROCESS_MODE_INHERIT
+			r.call("_live_ready")
+		else:
+			House._wake(r); r.process_mode = Node.PROCESS_MODE_INHERIT
+			if r.has_method("_wh_resume"): r.call("_wh_resume")
+		r.set_meta(House.ONCE, true)
+		h.visible = true
+		if from != "":
+			var sp: Array = r.call("_wh_spawn", from) if r.has_method("_wh_spawn") else []
+			if sp.size() == 2: House._walk_in(r, r.to_local(hp), hy, sp[0], sp[1])
+	else:
+		h.visible = false   # first-person story places (hospital): the player is the camera / bed body
+
+func _extra(id: String) -> Node:
+	if extras.has(id) and is_instance_valid(extras[id]): return extras[id]
+	var ps := load(EXTRA[id]) as PackedScene
+	var n: Node3D = ps.instantiate()
+	n.position = world.RESERVED.get(EXTRA_SLOT[id], Vector3(0, 0, -120))
+	get_tree().root.add_child(n)   # its _ready starts its story (as when v33 loaded the scene)
+	extras[id] = n
+	return n
+
+func _sleep_live() -> void:
+	if not is_instance_valid(live): return
+	if ROOM_PATH.has(live_id):
+		House._sleep(live)
+	elif live_id in PLACES:
+		live.process_mode = Node.PROCESS_MODE_DISABLED
+	else:
+		live.process_mode = Node.PROCESS_MODE_DISABLED
+		for c in live.find_children("*", "CanvasLayer", true, false): (c as CanvasLayer).visible = false
+		for c in live.find_children("*", "Camera3D", true, false): if not (c.get_viewport() is SubViewport): (c as Camera3D).current = false
+		var we := live.find_children("*", "WorldEnvironment", true, false)
+		for c in we: (c as WorldEnvironment).environment = null
+	live = null; live_id = ""
+
+## back on the street at the hero's current spot (or at door id `door`)
+static func to_street(door := "") -> void:
+	if active(): await inst._to_street(door)
+
+func _to_street(door: String) -> void:
+	var h := the_hero()
+	var p := world.player as Node3D
+	var g := h.global_transform
+	var was_room := ROOM_PATH.has(live_id) or live_id in PLACES
+	_sleep_live()
+	get_tree().current_scene = world
+	if h.get_parent() != p: h.reparent(p, false)
+	h.transform = Transform3D(Basis(Vector3.UP, g.basis.get_euler().y), Vector3.ZERO); h.visible = true
+	p.global_position = Vector3(g.origin.x, p.floor_y, g.origin.z)
+	p.process_mode = Node.PROCESS_MODE_INHERIT
+	world.hud.visible = true; world.cam.current = true
+	if door != "":
+		if was_room and world.doors.has(door): await (world.doors[door]).walk_through(p)
+		elif door != "": p.place_at(door)
+	_street_hooks(door)
+
+## world_exterior._ready story hooks, run on every arrival on the street (World is current_scene)
+func _street_hooks(door: String) -> void:
+	world.hud.visible = true
+	var lot = world.grid.find_lot("home")
+	if load("res://scripts/story/story_accident.gd").should_run():   # house.25: day-1 story starts the moment the hero is outside
+		var st = load("res://scripts/story/story_accident.gd").new(); st.w = world; world.add_child(st); st.run()
+	elif door == "home_car" and lot and ChildDrive.arriving_home(): ChildDrive.arrive_home(world, lot)
+	elif door == "home_car" and lot: _day2_go_inside.call_deferred(lot)
+	elif load("res://scripts/story/day2_car.gd").should_run() and not world.has_node("Day2Car"):
+		var d2 = load("res://scripts/story/day2_car.gd").new(); d2.name = "Day2Car"; d2.w = world; world.add_child(d2); d2.run()
+		ChildDrive.escort(world)
+
+func _day2_go_inside(lot) -> void:
+	await get_tree().process_frame
+	var door: Vector3 = lot.entrance_global() + Vector3(0, 1.1, 0)
+	var away: Vector3 = world.player.global_position - door; away.y = 0
+	if away.length() < 0.05: away = Vector3(0, 0, 1)
+	await Life.guide_to({"pos": door + away.normalized() * 5.5 + Vector3(0, 2.6, 0), "at": door}, "Go inside and talk to my family.", {"tr": "İçeri gir ve ailemle konuş."})
+
+## car / bus / ambulance: fade out, hero at dest (place id or door id), fade in. covered = screen already black.
+static func travel(dest: String, door := "", covered := false) -> void:
+	if not active(): return
+	if not covered: await Game.fade(1.0, 0.45)
+	Game.busy = true
+	if dest == "street" or dest == "town":
+		inst._sleep_live(); inst.get_tree().current_scene = inst.world
+		var h := the_hero(); var p := inst.world.player as Node3D
+		if h.get_parent() != p: h.reparent(p, false)
+		h.transform = Transform3D.IDENTITY; h.visible = true
+		p.process_mode = Node.PROCESS_MODE_INHERIT; inst.world.cam.current = true
+		p.place_at(_door_id(door))
+		inst._street_hooks.call_deferred(door)
+	else:
+		if ROOM_PATH.has(dest):
+			var r: Node = inst.world.places[dest]
+			var sp: Array = r.call("_wh_spawn", "livingroom" if dest == "bedroom" else "bedroom") if r.has_method("_wh_spawn") else []
+			var h := the_hero()
+			if sp.size() == 2: h.global_position = r.to_global(sp[0]); h.rotation.y = sp[1]
+		await inst._enter(dest, "")
+	await inst.get_tree().create_timer(0.3).timeout
+	Game.busy = false
+	await Game.fade(0.0, 0.45)
+
+static func _door_id(d: String) -> String:
+	return {"lot:home": "front", "front_door": "front", "home_car": "front", "lot:cafe": "cafe", "cafe_door": "cafe", "lot:corner_shop": "shop", "shop_door": "shop", "": "front"}.get(d, d)
+
+## World.entered: the hero walked into a region on his own (street -> house through the front door)
+func _on_entered(region: String, from: String) -> void:
+	if not is_instance_valid(live) and ROOM_PATH.has(region) and from == "street":
+		App.came_from = "outside"
+		_enter(region, "street")
+	elif not is_instance_valid(live) and region in PLACES and from == "street":
+		_enter(region, "street")
+	elif live_id in PLACES and region == "street":
+		_sleep_live(); get_tree().current_scene = world; App.came_from = from
+
+func _process(_dt: float) -> void:
+	# the WorldPlayer body follows the hero while a room drives him (World region / door / culling use its position)
+	if is_instance_valid(live) and ROOM_PATH.has(live_id):
+		var h := the_hero(); var p := world.player as Node3D
+		if is_instance_valid(h): p.global_position = Vector3(h.global_position.x, p.global_position.y, h.global_position.z)

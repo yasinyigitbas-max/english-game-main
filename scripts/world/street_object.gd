@@ -239,7 +239,7 @@ static func car_destinations() -> Array:
 	var st := CharacterHook.state()
 	var job := String(st.get("job", ""))
 	var out: Array = []
-	if WorldState.day >= 2:   # v31 day 2: the job option (work.json label) or the hospital check-up
+	if maxi(WorldState.day, App.day) >= 2:   # v33 (red): App.day too, so "Go to school" / "Go to work" never falls back to the "soon" chip (no summary); v31 day 2: the job option (work.json label) or the hospital check-up
 		var lbl := "Go to work"
 		if ResourceLoader.exists("res://scripts/story/work.gd"): lbl = load("res://scripts/story/work.gd").car_label(job, CharacterHook.is_child(st))
 		var sv = App.load_save().get("story", {})

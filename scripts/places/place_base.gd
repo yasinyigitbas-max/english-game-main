@@ -4,7 +4,7 @@
 ## Rules: every objective goes through Life.guide_to (camera pan + notify sound + Objectives); each scripted beat plays once
 ## (save.json "places".<id>.<beat>); EN by default, TR text only with the TR toggle (no TR voice); captions go through the
 ## shared caption queue (UniversalScene.caption) and the v30.5 no-overlap layer (Objectives.resolve_overlaps).
-## Entry: Game.go_to("res://scenes/places/cafe.tscn") / shop.tscn. Exit: the door -> Game.go_to(Game.WORLD_SCENE, "<id>_door").
+## Entry: StoryNav.goto("res://scenes/places/cafe.tscn") / shop.tscn. Exit: the door -> StoryNav.goto(Game.WORLD_SCENE, "<id>_door").
 class_name PlaceBase
 extends UniversalScene
 
@@ -43,7 +43,7 @@ var exit_spawn := ""
 signal used(id: String)
 ## hooks for other code (e.g. day-3 town cues). Both carry place_id ("cafe" / "shop"). The place scene is in group "places".
 ## place_entered: the interior is built and the player stands at the door (end of _ready, before the scripted flow).
-## place_exited: the player is leaving through the door (in leave(), right before Game.go_to(WORLD_SCENE, "lot:<world_lot>")).
+## place_exited: the player is leaving through the door (in leave(), right before StoryNav.goto(WORLD_SCENE, "lot:<world_lot>")).
 ## After the switch the world sees App.came_from == place_id and Game.spawn == "lot:<world_lot>".
 signal place_entered(place_id: String)
 signal place_exited(place_id: String)
@@ -65,6 +65,18 @@ func _ready() -> void:
 	hud.camera = cam; player.attach_camera(cam, 8.0, 0.9); cam.max_dist = 11.0
 	Objectives.set_list(Objectives.items.filter(func(it): return it is Dictionary and String(it.get("id", "")) == "charge"))   # v31: no stale outdoor objective inside (v31 QA: keep Life's "Charge my phone.")
 	setup_universal(place_en(), place_tr())
+	_after_setup()
+
+## open world (red): the place goes live inside the World with the World's ONE hero / camera / HUD (no own player)
+func _ow_live(w: Node) -> void:
+	WorldState.ensure_loaded()
+	hud = w.hud; player = w.player; cam = w.cam; room_phone = w.room_phone; menu = w.menu; phone_btn = w.phone_btn
+	S["tr"] = App.tr_saved()
+	if hud.has_method("set_place"): hud.set_place(place_en(), place_tr())
+	Objectives.set_list(Objectives.items.filter(func(it): return it is Dictionary and String(it.get("id", "")) == "charge"))
+	_after_setup()
+
+func _after_setup() -> void:
 	var base_tr: Callable = hud.tr_func
 	hud.tr_func = func(en: String) -> String: return String(TRD[en]) if TRD.has(en) else String(base_tr.call(en))
 	hud.set_tr(App.tr_saved())
@@ -349,7 +361,7 @@ func leave() -> void:
 	if "--qa-place" in OS.get_cmdline_user_args(): return
 	# back to the street in front of this building: world_exterior.gd puts the player at Lot.entrance_global() of "lot:<id>"
 	# (falls back to WorldState.player_pos, which Lot._on_enter stored on the way in)
-	Game.go_to(Game.WORLD_SCENE, "lot:" + world_lot)
+	StoryNav.goto(Game.WORLD_SCENE, "lot:" + world_lot)
 
 # ------------------------------------------------------------------ building helpers
 var _mats := {}

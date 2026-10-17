@@ -6,7 +6,7 @@ class_name HospitalScene
 ## v31: public entry for the day-2 hospital visit (black: call from the car choice 'hospital' on day 2)
 ##   HospitalScene.start_day2_visit(get_tree())
 static func start_day2_visit(tree: SceneTree) -> void:
-	tree.change_scene_to_file("res://scenes/hospital_day2.tscn")
+	StoryNav.travel(tree, "res://scenes/hospital_day2.tscn")
 
 var S := {"voice": true, "tr": false, "lesson_done": true}   # v29: TR off by default; real setting read from save.json state.tr in _ready
 var font: Font = UI.font
@@ -28,7 +28,7 @@ func _ready() -> void:
 	var lamp := OmniLight3D.new(); lamp.position = Vector3(0, 2.6, 0); lamp.omni_range = 7.0; lamp.light_energy = 0.7; lamp.light_specular = 0.0; add_child(lamp)
 	_room()
 	cam = Camera3D.new(); add_child(cam); cam.fov = 65.0
-	cam.position = Vector3(0, 0.95, -1.6); cam.look_at(Vector3(0, 1.3, 1.5)); cam.current = true
+	cam.position = Vector3(0, 0.95, -1.6); cam.look_at(to_global(Vector3(0, 1.3, 1.5))); cam.current = true
 	doctor = DemoCharacter.new(); add_child(doctor); doctor.setup("men"); doctor.top_color = Color(0.97, 0.97, 0.97); doctor.set_height("medium"); doctor._refresh()
 	doctor.position = Vector3(0.7, 0, 0.9); doctor.rotation.y = PI + 0.4; doctor.play("idle", 0.0)
 	if not ResourceLoader.exists("res://scripts/story/doctor_coat.gd"): _dress_doctor()   # v29: old static coat only as fallback
@@ -167,7 +167,7 @@ func _run() -> void:
 	await _snap_bed("fine")
 	await _set_blur(0.0, 1.0, 1.2)
 	App.came_from = "hospital"
-	get_tree().change_scene_to_file("res://main.tscn")
+	StoryNav.cut(get_tree(), "res://main.tscn")
 
 ## house.27: first-person look-around after waking: right (monitor) -> left (IV stand, window) -> centre, eased, short holds
 func _look_around() -> void:
@@ -370,9 +370,9 @@ func _already_seen() -> void:
 	var m: ShaderMaterial = blur.material; m.set_shader_parameter("amount", 0.0); m.set_shader_parameter("dark", 0.0); m.set_shader_parameter("lid", 0.0)
 	cam.cull_mask = 0xFFFFF; cam.fov = 55.0
 	if fam: fam.visible = false
-	cam.global_transform = Transform3D.IDENTITY.translated(Vector3(1.6, 1.6, 1.8)).looking_at(Vector3(0, 0.8, -0.3), Vector3.UP)
+	cam.transform = Transform3D.IDENTITY.translated(Vector3(1.6, 1.6, 1.8)).looking_at(Vector3(0, 0.8, -0.3), Vector3.UP)
 	await get_tree().create_timer(0.6).timeout
 	await ui.line("You already saw the doctor.")
 	await get_tree().create_timer(1.0).timeout
 	App.came_from = ""; App.continue_requested = true
-	get_tree().change_scene_to_file("res://main.tscn")
+	StoryNav.cut(get_tree(), "res://main.tscn")

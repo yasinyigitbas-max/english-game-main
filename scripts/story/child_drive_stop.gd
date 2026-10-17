@@ -49,7 +49,7 @@ func _run(plan: Dictionary) -> void:
 		await _leave(String(plan.to))
 		if String(plan.to) == "home":
 			ChildDrive.plan = {"mode": "home"}
-			App.came_from = "outside"; Game.go_to(Game.WORLD_SCENE, "home_car"); return
+			App.came_from = "outside"; StoryNav.travel(get_tree(), Game.WORLD_SCENE, "home_car"); return
 		await Game.fade(1.0, 0.5)
 		_place_arrive(String(plan.to)); _snap_cam()
 		Game.fade(0.0, 0.5)

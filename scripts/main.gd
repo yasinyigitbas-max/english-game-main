@@ -207,9 +207,9 @@ func _live_ready() -> void:   # v32wh: the v32 _ready (also run when this room's
 	water_fx.direction = Vector3(0, -1, 0); water_fx.spread = 8.0; water_fx.initial_velocity_min = 0.4; water_fx.initial_velocity_max = 0.7
 	var dm := SphereMesh.new(); dm.radius = 0.008; dm.height = 0.016; water_fx.mesh = dm
 	water_fx.material_override = _mat(Color(0.45, 0.7, 1.0), 0.3, 0.85); add_child(water_fx)
-	hero = DemoCharacter.new(); add_child(hero); hero.setup(S.gender)
+	hero = OwLink.hero_for(self); hero.setup(S.gender)
 	_pose_sleep()
-	cam = Camera3D.new(); cam.fov = 42; add_child(cam); cam.current = true
+	cam = OwLink.cam_for(self); cam.fov = 42; cam.current = true
 	cam_focus = Vector3(-0.6, 0, -1.0); _update_cam(1.0)
 	hand3d = Sprite3D.new(); hand3d.texture = load("res://ui/hand.png"); hand3d.pixel_size = 0.0013
 	hand3d.billboard = BaseMaterial3D.BILLBOARD_ENABLED; hand3d.no_depth_test = true; hand3d.modulate = Color(1, 1, 1, 0.95)
@@ -261,8 +261,15 @@ func _wh_resume() -> void:
 	_apply_character(); _apply_states()
 	menu.visible = false; hud.visible = true
 	mode = "play"; _update_hand(); cam_focus = hero.position
+	var _ow_from := App.came_from
 	App.came_from = ""
 	get_tree().create_timer(0.6, false).timeout.connect(func(): caption("I'm in the bedroom now.", false))   # house.17: silent room caption
+	# open world: the bedroom was already live; the hospital return (car trip) continues the story here (as _continue_game did)
+	var _svh = App.load_save().get("story", {})
+	if _ow_from == "hospital" and not (_svh is Dictionary and bool(_svh.get("day1_done", false))):
+		hero.position = STAND_BED; hero.rotation.y = 0.0; cam_focus = hero.position
+		_home_from_hospital(); _hosp_home = true
+	elif _ow_from == "hospital_day2": get_tree().create_timer(1.2, false).timeout.connect(func(): Day2After.run(self, "bedroom"))
 	load("res://scripts/story/bedtime.gd").hook_bedroom(self)   # idempotent (named child)
 	load("res://scripts/story/day5_routine.gd").attach(get_tree())
 	if not _hosp_home: _advance(false)
@@ -340,7 +347,7 @@ func _build_env() -> void:
 	env.ambient_light_energy = 0.6; env.tonemap_mode = Environment.TONE_MAPPER_FILMIC; env.tonemap_exposure = 0.95
 	we.environment = env; add_child(we)
 	sun = DirectionalLight3D.new(); sun.shadow_enabled = true; sun.light_color = Color(1.0, 0.95, 0.85); sun.light_specular = 0.25; get_tree().create_timer(0.5).timeout.connect(_stable_lights)
-	add_child(sun); sun.look_at_from_position(Vector3(1.5, 9, -9), Vector3(0, 0, 0)); sun.light_energy = 1.3
+	add_child(sun); sun.look_at_from_position(to_global(Vector3(1.5, 9, -9)), to_global(Vector3(0, 0, 0))); sun.light_energy = 1.3
 	sun.directional_shadow_max_distance = 40.0; sun.directional_shadow_fade_start = 1.0; sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
 	sun.shadow_blur = 2.5; sun.shadow_bias = 0.04; sun.shadow_normal_bias = 1.2
 
@@ -796,7 +803,7 @@ func do_verb(id: String, v: Array) -> void:
 		"door_s":
 			await gesture("door", id, func(): Audio.sfx("doorOpen_1"); create_tween().tween_property(N.door_s, "rotation:y", deg_to_rad(-82.0), 1.0))
 			S.door_opened = true; App.came_from = "bedroom"; save_game(); await wait(0.3)
-			await Audio.wait_idle(12.0); House.go(self, "res://livingroom.tscn"); return   # v32wh: walk through the door (same scene)
+			await Audio.wait_idle(12.0); StoryNav.room(self, "res://livingroom.tscn"); return   # v32wh: walk through the door (same scene)
 		"door" when S.door_locked:
 			await gesture("door", id, func(): _rattle_door())
 			await wait(0.3); caption("I should take my phone first." if (S.created and not S.has_phone) else "The door is locked. Look in the mirror first." if not S.created else ("The door is locked. Choose a job on your phone first." if S.job == "" else "The door is locked. Add your family on your phone first."))
@@ -805,7 +812,7 @@ func do_verb(id: String, v: Array) -> void:
 			await gesture("door", id, func(): S.door = "open"; Audio.sfx("doorOpen_1"); Audio.sfx("creak1", -3.0))
 			S.door_opened = true; _advance(false)
 			App.came_from = "bedroom"; save_game(); await wait(0.5)
-			await Audio.wait_idle(12.0); House.go(self, "res://bathroom.tscn"); return   # v32wh: walk through the door (same scene)
+			await Audio.wait_idle(12.0); StoryNav.room(self, "res://bathroom.tscn"); return   # v32wh: walk through the door (same scene)
 			await wait(2.2); caption("I am closing the door."); S.door = "closed"; _apply_states(true); await wait(0.9); Audio.sfx("doorClose_2")
 	cam_shot = {}
 	mode = "play"; _update_hand(); action_done.emit(id)
@@ -898,12 +905,48 @@ func _lie_blend(t: float) -> void:
 	hero.position.y += (lerpf(M + 0.1, M + 0.16, t) - hy) * sin(t * PI)
 
 func _pose_sleep() -> void:
+	sleep_clip = false
 	hero.rotation.y = PI / 2; _lie_blend(1.0)
 	hero.bone_offsets.clear(); hero.player.speed_scale = 1.0
 	hero.player.play("idle", 0.0); hero.player.seek(0.0, true); hero.player.speed_scale = 0.0
 	breathing = true
 
+## v33 (red): REAL sleep after "I am sleeping." (bedtime.gd) / "I am tired. I should rest." (story_home.gd day 1): the library
+## "sleep" clip (side-lying, knees bent, its own breathing) instead of the rigid idle frame tipped flat. The clip lies on the
+## floor along its own axis, so it is fitted onto the flat pose it replaces: same head->feet direction, same head/feet
+## midpoint on the mattress, same hips height (works for every body: man, woman, boy, girl - child scale included).
+## The clip's calm part (SLEEP_A..SLEEP_B, no tossing that would roll off the bed) ping-pongs slowly; Chest breathing on top.
+## end_sleep_pose() puts the flat lying pose back (under the black fade) so the morning get-up flow is unchanged.
+const SLEEP_A := 1.9
+const SLEEP_B := 5.4
+const SLEEP_SPEED := 0.55
+var sleep_clip := false
+func _bone_w(bn: String) -> Vector3:
+	var sk := hero.skeleton; var i := sk.find_bone(bn)
+	return sk.global_transform * sk.get_bone_global_pose(i).origin if i >= 0 else hero.global_position
+func _feet_w() -> Vector3: return (_bone_w("Foot.L") + _bone_w("Foot.R")) * 0.5
+func sleep_pose() -> void:
+	if sleep_clip or not hero.player.has_animation("sleep"): return
+	var h0 := _bone_w("Head"); var f0 := _feet_w(); var p0 := _bone_w("Hips")
+	hero.bone_offsets.clear()
+	hero.model.rotation = Vector3(0, hero.model.rotation.y, 0); hero.model.position = Vector3.ZERO
+	hero.player.speed_scale = SLEEP_SPEED; hero.player.play("sleep", 0.0); hero.player.seek(SLEEP_A, true)
+	var d0 := h0 - f0; d0.y = 0.0
+	var d1 := _bone_w("Head") - _feet_w(); d1.y = 0.0
+	if d0.length() > 0.1 and d1.length() > 0.1: hero.rotation.y += d1.signed_angle_to(d0, Vector3.UP)
+	var m0 := (h0 + f0) * 0.5; var m1 := (_bone_w("Head") + _feet_w()) * 0.5
+	hero.global_position += Vector3(m0.x - m1.x, p0.y - _bone_w("Hips").y, m0.z - m1.z)
+	sleep_clip = true; breathing = true
+func end_sleep_pose() -> void:
+	if sleep_clip: _pose_sleep()
+func _sleep_pingpong() -> void:
+	if not sleep_clip or hero.player.current_animation != "sleep": return
+	var p := hero.player.current_animation_position
+	if p >= SLEEP_B and hero.player.speed_scale > 0.0: hero.player.speed_scale = -SLEEP_SPEED
+	elif p <= SLEEP_A and hero.player.speed_scale < 0.0: hero.player.speed_scale = SLEEP_SPEED
+
 func bedsit_up() -> void:     # lying -> sitting up in bed (legs stay where they are)
+	end_sleep_pose()
 	breathing = false; hero.bone_offsets.clear()
 	_tw_offset("UpperLeg.L", Vector3.RIGHT, LEG_FIX, 2.0); _tw_offset("UpperLeg.R", Vector3.RIGHT, LEG_FIX, 2.0)
 	hero.player.speed_scale = 1.0; hero.player.play("wake_up", 2.0, 0.0)   # v11: slower, softer sit-up
@@ -1094,6 +1137,7 @@ func _process(dt: float) -> void:
 		var ph: float = fmod(hero.player.current_animation_position / hero.anim_length(hero.player.current_animation) * 2.0, 1.0)
 		if ph < last_step_ph: Audio.sfx("footstep0%d" % randi_range(0, 3), -10.0, randf_range(0.9, 1.1))
 		last_step_ph = ph
+	_sleep_pingpong()   # v33 (red)
 	if breathing:
 		var b := sin(Time.get_ticks_msec() * 0.0025) * 0.025
 		hero.bone_offsets["Chest"] = [Vector3.RIGHT, b * 0.6]
@@ -1121,10 +1165,10 @@ func _update_cam(dt: float) -> void:
 	if cam_override: return
 	if not cam_shot.is_empty():
 		var k := 1.0 - exp(-2.2 * dt)
-		if shot_at == Vector3.INF: shot_at = cam.global_position - cam.global_transform.basis.z * 6.0
+		if shot_at == Vector3.INF: shot_at = cam.position - cam.transform.basis.z * 6.0
 		cam.position = cam.position.lerp(cam_shot.pos, k); shot_at = shot_at.lerp(cam_shot.at, k)
 		cam.h_offset = lerpf(cam.h_offset, cam_shot.get("h", 0.0), k)
-		cam.look_at(shot_at, Vector3.UP); _fade_walls(dt); exit_xf = cam.transform; exit_t = 0.0; return
+		cam.look_at(to_global(shot_at), Vector3.UP); _fade_walls(dt); exit_xf = cam.transform; exit_t = 0.0; return
 	shot_at = Vector3.INF; cam.h_offset = lerpf(cam.h_offset, 0.0, 1.0 - exp(-3.0 * dt))
 	cam_yaw_s = lerp_angle(cam_yaw_s, cam_yaw, 1.0 - exp(-8.0 * dt)); cam_pitch_s = lerpf(cam_pitch_s, cam_pitch, 1.0 - exp(-8.0 * dt))
 	var off := Vector3(sin(cam_yaw_s) * cos(cam_pitch_s), sin(cam_pitch_s), cos(cam_yaw_s) * cos(cam_pitch_s)) * cam_dist * cam_zoom
@@ -1134,7 +1178,7 @@ func _update_cam(dt: float) -> void:
 	if cp.y < WALL_H + 0.4 and absf(cp.x) < 3.7 and cp.z > -3.2 and cp.z < 3.2: cp.y = WALL_H + 0.4
 	cam.position = cp
 	_fade_walls(dt)
-	cam.look_at(cam_focus + Vector3(0, 0.3, 0), Vector3.UP)
+	cam.look_at(to_global(cam_focus + Vector3(0, 0.3, 0)), Vector3.UP)
 	if exit_t < 1.0:   # ease back from a camera shot to the follow camera
 		exit_t = minf(1.0, exit_t + dt / 0.9)
 		cam.transform = exit_xf.interpolate_with(cam.transform, ease(exit_t, -2.0))
@@ -1312,7 +1356,7 @@ func _apply_character() -> void:
 	if hero.gender != S.gender:
 		var p := hero.position; var r := hero.rotation; var mr := hero.model.rotation.y; var an := hero.player.current_animation
 		hero.setup(S.gender); hero.position = p; hero.rotation = r; hero.model.rotation.y = mr
-		if breathing: _lie_blend(1.0)
+		if breathing and not sleep_clip: _lie_blend(1.0)
 		if an != "": hero.player.play(an, 0.0)
 	hero.apply_creator(S)   # house.18: shared creator -> player function (character.gd), same in every room
 	Audio.voice_player.volume_db = 0.0 if S.voice else -80.0
@@ -1415,7 +1459,7 @@ var saved_pos := Vector3.INF
 var _hosp_home := false   # v33: day-1 hospital return -> story_home runs the review / tests / night; no room objective meanwhile
 func _continue_game() -> void:
 	started = true; menu.visible = false; hud.visible = true
-	breathing = false; hero.bone_offsets.clear(); hero.player.speed_scale = 1.0; hero.model.rotation.x = 0.0; hero.model.position = Vector3.ZERO
+	sleep_clip = false; breathing = false; hero.bone_offsets.clear(); hero.player.speed_scale = 1.0; hero.model.rotation.x = 0.0; hero.model.position = Vector3.ZERO
 	hero.set_mannequin(false); _apply_character()
 	hero.position = saved_pos if saved_pos != Vector3.INF and _free(saved_pos, R) else STAND_BED
 	hero.rotation.y = 0.0; hero.model.rotation.y = 0.0; hero.play("idle", 0.0)
@@ -1912,6 +1956,14 @@ func _story_str(k: String) -> String:
 	var sv = App.load_save().get("story", {})
 	return String(sv.get(k, "")) if sv is Dictionary else ""
 
+## v33 (red): day-2 / day-3 evening: the couch talk is done and bedtime.gd has not run yet (story.d2_bed_pending / d3_bed_pending)
+func _bed_pending() -> bool:
+	var sv = App.load_save().get("story", {})
+	if not sv is Dictionary: return false
+	var d := maxi(WorldState.day, App.day)
+	return (d == 2 and bool(sv.get("d2_bed_pending", false)) and not bool(sv.get("d2_bedtime_done", false))) \
+		or (d == 3 and bool(sv.get("d3_bed_pending", false)) and not bool(sv.get("d3_bedtime_done", false)))
+
 ## v32 (red): story.d3 ("shower" -> "living" -> "outside" -> "done"), only on day 3+
 func _day3_stage() -> String:
 	if maxi(WorldState.day, App.day) < 3: return ""
@@ -1950,6 +2002,7 @@ func objective() -> Array:
 	if not _family_ok(): return ["Add your family.", "family"]
 	if not S.calendar_seen: return ["Open the Calendar.", "calendar"]
 	var d2 := _day2_stage()
+	if _bed_pending(): return ["Go to bed.", ""]   # v33 (red): evening after the couch talk -> bedtime.gd; never the stale "Go to the living room."
 	if d2 == "living": return ["Go to the living room.", ""]   # v31: day-2 morning
 	if d2 == "car": return ["Go outside to the car.", ""]
 	if _day3_stage() == "shower": return ["Take a shower.", ""]   # v32 (red): day-3 morning: the shower first, the living room only after it (Day3Morning)

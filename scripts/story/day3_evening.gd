@@ -35,7 +35,7 @@ static func load_tr(into: Dictionary) -> void:
 	for k in d.get("lines", {}): into[k] = d.lines[k]
 
 static func start(tree: SceneTree) -> void:
-	var sc := tree.current_scene
+	var sc := RoutineScope.current(tree)
 	if sc == null or not String(sc.scene_file_path).ends_with("livingroom.tscn"): return
 	if sc.has_node("Day3Evening"): return
 	var sv := story()
@@ -193,7 +193,7 @@ func _puzzle(sentence: String, tr_line := "") -> void:
 				lr.caption_live("Me: " + ans.text, ("Ben: " + tr_line) if done[0] and tr_line != "" else "")
 			else: Audio.bad())
 	while not done[0]:
-		askt.visible = App.tr_on()
+		askt.visible = true   # v33.1 (Yasin 17:41): Turkish on learning screens ALWAYS shows; the TR button only controls the caption box
 		await get_tree().process_frame
 	Audio.good()
 	await _w(0.5)

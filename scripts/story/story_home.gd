@@ -42,11 +42,14 @@ func run() -> void:
 	_story_save("test_score", [res[0], res[1]])
 	await ph.close(true)
 	# ---- sleep: the shared clock moves to the next day
-	await ui.line("I am tired. I should rest.")
+	await ui.line("I am tired. I should rest.", "", 0.0)
+	bed_lock = false; m.sleep_pose()   # v33 (red): the real sleep clip right after the line (main.gd sleep_pose)
+	await get_tree().create_timer(0.7).timeout
 	var black := ColorRect.new(); black.color = Color(0.05, 0.05, 0.12, 0.0); black.set_anchors_preset(Control.PRESET_FULL_RECT); cl.add_child(black)
 	var tw := create_tween(); tw.tween_property(black, "color:a", 1.0, 1.5); await tw.finished
 	Life.event("bedtime"); Life.advance_day(true)   # house.29: the day ends at exactly 00:00 with the dream
 	await _night(black)
+	m.end_sleep_pose(); _bed_xf = m.hero.transform; bed_lock = true   # v33 (red): under the black, the flat pose back for the get-up
 	# ---- day 2
 	ui.hide_caption()
 	tw = create_tween(); tw.tween_property(black, "color:a", 0.0, 1.5); await tw.finished
@@ -215,7 +218,7 @@ var bed_lock: = false
 var _bed_xf: Transform3D
 var bed_fixes: = 0
 func _process(d: float) -> void:
-	if bed_lock and m and is_instance_valid(m.hero):
+	if bed_lock and m and is_instance_valid(m.hero) and not m.get("sleep_clip"):   # v33 (red): not while the sleep clip plays (it moves the body on purpose)
 		if not m.breathing or m.hero.player.speed_scale != 0.0 or m.hero.transform.origin.distance_to(_bed_xf.origin) > 0.05 or not m.hero.visible:
 			m.hero.transform = _bed_xf;m.hero.visible = true;m._pose_sleep();bed_fixes += 1
 	if _calllbl and is_instance_valid(_calllbl):
@@ -258,7 +261,7 @@ func _puzzle(sentence: String) -> void:
 				ui.live("Me: " + ans.text, StoryUI.tr_of(sentence) if done[0] else "")
 			else: Audio.bad())
 	while not done[0]:
-		askt.visible = App.tr_on()
+		askt.visible = true   # v33.1 (Yasin 17:41): Turkish on learning screens ALWAYS shows; the TR button only controls the caption box
 		await get_tree().process_frame
 	Audio.good()
 	await ui.line(sentence, "Me")
