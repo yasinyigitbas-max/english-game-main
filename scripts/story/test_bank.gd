@@ -142,8 +142,10 @@ func run(h: Node, phone, d: int, opts := {}) -> Array:
 	Q = draw(_day, _n, _topics); qi = 0; score = 0
 	if Q.is_empty(): queue_free(); return [0, 0]
 	ph.page = "quiz"   # phone.gd lock: no close / home / back-out while the test runs
+	ph.set_meta("ext_test", true)   # v33 (red): phone.gd - no empty-page watchdog rebuild, no caption gap (full screen, low buttons)
 	_question()
 	var res: Array = await finished
+	ph.remove_meta("ext_test")
 	ph.page = "home"
 	queue_free()
 	return res
