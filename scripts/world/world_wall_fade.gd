@@ -79,6 +79,6 @@ func _ext_fades() -> bool:
 func _scan_root(r: Node) -> void:
 	for g in r.find_children("*", "MeshInstance3D", true, false):
 		var m := g as MeshInstance3D
-		if m.mesh == null or not (m.mesh is BoxMesh) or _owned(m): continue
+		if m.mesh == null or not (m.mesh is BoxMesh) or _owned(m) or WallFade.is_door(m, r.get_parent()) or not m.visible: continue
 		var ab: AABB = m.global_transform * m.get_aabb()
 		if ShoulderCam._is_wall(ab): _try(m)
