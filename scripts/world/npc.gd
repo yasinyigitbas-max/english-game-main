@@ -40,17 +40,24 @@ func setup(seed_: int) -> void:
 	hero.play(anim if mode == "idle" else "walk", 0.0, speed / 1.7 if mode == "walk" else 1.0)
 	hero.player.speed_scale = 1.0
 
+## v32-npc-pose: talking keeps the NPC's pose (shared NpcTalk routine). The old code played the "talk" clip, which is a
+## SEATED clip, so every standing NPC sat down for its line and stood back up. Now: turn toward the player + head nod only.
+## A walker still stops on the sidewalk for the line (idle = its standing pose, no foot sliding) and walks on after.
+## scripted_pose (opt-in): a clip name to play only for this NPC's line, for an explicitly scripted scene.
+const NpcTalk := preload("res://scripts/core/npc_talk.gd")
+var scripted_pose := ""
+
 func _talk() -> void:
 	var w := get_tree().current_scene
 	await w.say_line("I am saying hello.")
 	talking = 6.0
-	if mode == "walk":
-		var p: Node3D = w.player; var d := p.global_position - global_position
-		hero.rotation.y = atan2(d.x, d.z); hero.play("idle", 0.2)
-	if anim != "sit_idle": hero.play("talk", 0.2)
-	await w.say_line(line)          # the talk animation waits for the line (never cut)
+	if mode == "walk": hero.play("idle", 0.2)
+	var p: Node3D = w.get("player")
+	var st: Dictionary = NpcTalk.begin(hero, p.global_position if p else hero.global_position + Vector3(sin(hero.rotation.y), 0, cos(hero.rotation.y)), scripted_pose)
+	await w.say_line(line)          # the nod / head turn waits for the line (never cut)
 	await get_tree().create_timer(0.6).timeout
-	if anim != "sit_idle" or mode == "walk": hero.play("walk" if mode == "walk" else anim, 0.3)
+	NpcTalk.end(hero, st)
+	if mode == "walk": hero.play("walk", 0.3, speed / 1.7)
 
 func _process(dt: float) -> void:
 	var w := get_tree().current_scene
