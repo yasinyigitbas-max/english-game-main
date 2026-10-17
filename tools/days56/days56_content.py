@@ -1,4 +1,5 @@
 """Days 5 + 6 content -> data/day5.json, data/day6.json (+ docs/DAYS_5_6_SCRIPT.md via make_script_doc.py).
+# NOTE: after re-running this, run tools/days56/bank_d5_d6.py (it writes the bedtime quiz_* / bank entries into data/day5.json + day6.json).
 Step types (read by scripts/story/day5_common.gd run_steps):
   {"who": me|narr|fam0|fam1|<npc>, "en", "tr"}   a line (me = "Me:" caption, narrator voice; narr = plain caption)
   {"obj": tag, "en", "tr"}                         an objective: Life.guide_to(ctx target(tag)) + wait for ctx reach(tag)
