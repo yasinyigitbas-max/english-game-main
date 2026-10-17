@@ -1,0 +1,338 @@
+[
+ [
+  "v_child_f come and join us at the table",
+  6,
+  "Come and join us at the table.",
+  true
+ ],
+ [
+  "v_child_f did you sleep well",
+  6,
+  "Did you sleep well?",
+  true
+ ],
+ [
+  "v_child_f good morning to you too",
+  6,
+  "Good morning to you too!",
+  true
+ ],
+ [
+  "v_child_f good morning",
+  6,
+  "Good morning!",
+  true
+ ],
+ [
+  "v_child_f here you are",
+  6,
+  "Here you are.",
+  true
+ ],
+ [
+  "v_child_f how is your week looking",
+  6,
+  "How is your week looking?",
+  true
+ ],
+ [
+  "v_child_f i am fine thank you",
+  6,
+  "I am fine, thank you.",
+  true
+ ],
+ [
+  "v_child_f i am very well thanks",
+  6,
+  "I am very well, thanks.",
+  true
+ ],
+ [
+  "v_child_f i cook dinner in the evening",
+  6,
+  "I cook dinner in the evening.",
+  true
+ ],
+ [
+  "v_child_f i don't work on sunday",
+  6,
+  "I don't work on Sunday.",
+  true
+ ],
+ [
+  "v_child_f i get up at seven",
+  6,
+  "I get up at seven.",
+  true
+ ],
+ [
+  "v_child_f i go to the market on monday",
+  6,
+  "I go to the market on Monday.",
+  true
+ ],
+ [
+  "v_child_f i love you too",
+  6,
+  "I love you too.",
+  true
+ ],
+ [
+  "v_child_f i play football on saturday",
+  6,
+  "I play football on Saturday.",
+  true
+ ],
+ [
+  "v_child_f i read a book every night",
+  6,
+  "I read a book every night.",
+  true
+ ],
+ [
+  "v_child_f i visit my friends on friday",
+  6,
+  "I visit my friends on Friday.",
+  true
+ ],
+ [
+  "v_child_f i watch tv with my family",
+  6,
+  "I watch TV with my family.",
+  true
+ ],
+ [
+  "v_child_f i work every day",
+  6,
+  "I work every day.",
+  true
+ ],
+ [
+  "v_child_f let's go home",
+  6,
+  "Let's go home.",
+  true
+ ],
+ [
+  "v_child_f pass the bread please",
+  6,
+  "Pass the bread, please.",
+  true
+ ],
+ [
+  "v_child_f thank you",
+  6,
+  "Thank you!",
+  true
+ ],
+ [
+  "v_child_f thank you doctor",
+  6,
+  "Thank you, doctor!",
+  true
+ ],
+ [
+  "v_child_f the eggs are very good",
+  6,
+  "The eggs are very good.",
+  true
+ ],
+ [
+  "v_child_f this tea is good",
+  6,
+  "This tea is good.",
+  true
+ ],
+ [
+  "v_child_m come and join us at the table",
+  6,
+  "Come and join us at the table.",
+  true
+ ],
+ [
+  "v_child_m did you sleep well",
+  6,
+  "Did you sleep well?",
+  true
+ ],
+ [
+  "v_child_m good morning to you too",
+  6,
+  "Good morning to you too!",
+  true
+ ],
+ [
+  "v_child_m good morning",
+  6,
+  "Good morning!",
+  true
+ ],
+ [
+  "v_child_m here you are",
+  6,
+  "Here you are.",
+  true
+ ],
+ [
+  "v_child_m how is your week looking",
+  6,
+  "How is your week looking?",
+  true
+ ],
+ [
+  "v_child_m i am fine thank you",
+  6,
+  "I am fine, thank you.",
+  true
+ ],
+ [
+  "v_child_m i am very well thanks",
+  6,
+  "I am very well, thanks.",
+  true
+ ],
+ [
+  "v_child_m i cook dinner in the evening",
+  6,
+  "I cook dinner in the evening.",
+  true
+ ],
+ [
+  "v_child_m i don't work on sunday",
+  6,
+  "I don't work on Sunday.",
+  true
+ ],
+ [
+  "v_child_m i get up at seven",
+  6,
+  "I get up at seven.",
+  true
+ ],
+ [
+  "v_child_m i go to the market on monday",
+  6,
+  "I go to the market on Monday.",
+  true
+ ],
+ [
+  "v_child_m i love you too",
+  6,
+  "I love you too.",
+  true
+ ],
+ [
+  "v_child_m i play football on saturday",
+  6,
+  "I play football on Saturday.",
+  true
+ ],
+ [
+  "v_child_m i read a book every night",
+  6,
+  "I read a book every night.",
+  true
+ ],
+ [
+  "v_child_m i visit my friends on friday",
+  6,
+  "I visit my friends on Friday.",
+  true
+ ],
+ [
+  "v_child_m i watch tv with my family",
+  6,
+  "I watch TV with my family.",
+  true
+ ],
+ [
+  "v_child_m i work every day",
+  6,
+  "I work every day.",
+  true
+ ],
+ [
+  "v_child_m let's go home",
+  6,
+  "Let's go home.",
+  true
+ ],
+ [
+  "v_child_m pass the bread please",
+  6,
+  "Pass the bread, please.",
+  true
+ ],
+ [
+  "v_child_m thank you",
+  6,
+  "Thank you!",
+  true
+ ],
+ [
+  "v_child_m thank you doctor",
+  6,
+  "Thank you, doctor!",
+  true
+ ],
+ [
+  "v_child_m the eggs are very good",
+  6,
+  "The eggs are very good.",
+  true
+ ],
+ [
+  "v_child_m this tea is good",
+  6,
+  "This tea is good.",
+  true
+ ],
+ [
+  "v_child_f good morning teacher",
+  7,
+  "Good morning, teacher!",
+  true
+ ],
+ [
+  "v_child_m it is blue",
+  7,
+  "It is blue!",
+  true
+ ],
+ [
+  "v_child_f how was your day",
+  7,
+  "How was your day?",
+  true
+ ],
+ [
+  "v_child_m how was your day",
+  7,
+  "How was your day?",
+  true
+ ],
+ [
+  "v_child_f what a busy day well done",
+  7,
+  "What a busy day! Well done.",
+  true
+ ],
+ [
+  "v_child_m what a busy day well done",
+  7,
+  "What a busy day! Well done.",
+  true
+ ],
+ [
+  "v_child_f you must be tired go to bed",
+  7,
+  "You must be tired. Go to bed.",
+  true
+ ],
+ [
+  "v_child_m you must be tired go to bed",
+  7,
+  "You must be tired. Go to bed.",
+  true
+ ]
+]
