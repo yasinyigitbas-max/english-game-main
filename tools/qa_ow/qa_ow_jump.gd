@@ -15,6 +15,7 @@ func _ready() -> void:
 		"d4cut": st["d4"] = "evening"
 		"d4bk": st["d4"] = "breakfast"
 		"work4": st["d4"] = "outing"
+		"liedown": st["d4"] = "bed"
 		"d7party": st["d7"] = "evening"
 		"mirror2": st.merge({"day1_done": true, "day2": "living"}, true)
 	var sv: Dictionary = App.load_save(); var state: Dictionary = (sv.get("state", {}) if sv.get("state", {}) is Dictionary else {}).duplicate()
@@ -42,13 +43,15 @@ func _ready() -> void:
 			print("RED_MISSION ", bed.mission, " created=", bed.S.created)
 			await OwLink.enter("livingroom", "bedroom"); await _t(14.0); _shot(1); get_tree().quit(); return
 		"liedown":
+			WorldState.minutes = 22.0 * 60.0; App.patch_save({"alarm_off_day": 4})   # a real bedtime: evening, today's alarm long done
 			await OwLink.enter("bedroom", ""); await _t(6.0)
 			var bm = OwLink.inst.world.places.get("bedroom"); bm.mode = "busy"
 			bm.cam_shot = {"pos": bm.OBJ.bed.focus + Vector3(1.9, 1.5, 1.7), "at": bm.OBJ.bed.focus + Vector3(0, 0.3, 0)}
 			await bm.walk_to(bm.OBJ.bed.spot, 0.0); await _t(1.0)
 			bm.lie_down()
-			for i in 12:
-				await _t(0.45); _shot(i)
+			for i in 16:
+				await _t(0.5); _shot(i)
+			await _t(3.0); _shot(16)
 			get_tree().quit(); return
 		"work4":
 			App.patch_save({"work_due_day": 4, "work_done_day": 0})
