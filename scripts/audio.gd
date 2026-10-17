@@ -36,8 +36,11 @@ func _ready() -> void:
 	add_child(sfx_player)
 	sfx_player.play()
 	music_a = AudioStreamPlayer.new(); music_b = AudioStreamPlayer.new()
+	# v32 polish (blue): music runs on its own "Music" bus so it can duck under speech without touching the crossfades
+	if AudioServer.get_bus_index("Music") == -1:
+		AudioServer.add_bus(); AudioServer.set_bus_name(AudioServer.bus_count - 1, "Music"); AudioServer.set_bus_send(AudioServer.bus_count - 1, "Master")
 	for m in [music_a, music_b]:
-		m.volume_db = -80
+		m.volume_db = -80; m.bus = "Music"
 		add_child(m)
 	if DisplayServer.get_name() != "headless" and DisplayServer.has_feature(DisplayServer.FEATURE_TEXT_TO_SPEECH):
 		var v := DisplayServer.tts_get_voices_for_language("en")
@@ -434,7 +437,18 @@ func mic_silent() -> bool:
 
 var _log_t := 0.0
 
+## v32 polish (blue): music ducks 8 dB under any spoken line (narrator / NPC voices) and comes back smoothly
+const DUCK_DB := -8.0
+var duck_db := 0.0
+func _duck(d: float) -> void:
+	var bi := AudioServer.get_bus_index("Music")
+	if bi < 0: return
+	var talking := voice_player != null and voice_player.playing
+	duck_db = move_toward(duck_db, DUCK_DB if talking else 0.0, d * (40.0 if talking else 10.0))   # fast down (0.2 s), slow up (0.8 s)
+	AudioServer.set_bus_volume_db(bi, duck_db)
+
 func _process(_d: float) -> void:
+	_duck(_d)
 	if capture_effect == null or mic_player == null or not mic_player.playing:
 		mic_level = lerpf(mic_level, 0.0, 0.2)
 		return
@@ -528,9 +542,12 @@ static func _trim(e: PackedByteArray) -> PackedByteArray:
 var _sfx_pool: Array = []
 var _sfx_cache := {}
 var sfx_log: Array = []
-## v30.2 playtest: every water sound (tap, shower, watering, splash, flush, trickle) at 50 % volume (-6 dB)
+## v32 (Yasin 13:51): EVERY water sound plays at one and the same loudness, the tap's new level (20 % of before).
+## Per-clip dB = target (-39.6 LUFS) minus the clip's measured loudness (ebur128), so the caller's db is ignored.
+const WATER_LEVEL := {"water": -26.0, "water_drops": -18.5, "trickle": -21.5, "shower_loop": -23.3}
 const WATER_SFX := ["water", "water_drops", "trickle", "shower_loop"]
-const WATER_DB := -6.0
+func tap_sfx(_db := 0.0, pitch := 1.0) -> void:
+	sfx("water", 0.0, pitch)
 func sfx(name: String, db := 0.0, pitch := 1.0) -> void:
 	sfx_log.append(name)
 	if not _sfx_cache.has(name):
@@ -541,7 +558,7 @@ func sfx(name: String, db := 0.0, pitch := 1.0) -> void:
 		for i in 8:
 			var pl := AudioStreamPlayer.new(); add_child(pl); _sfx_pool.append(pl)
 	var pl: AudioStreamPlayer = _sfx_pool.pop_front(); _sfx_pool.append(pl)
-	pl.stream = _sfx_cache[name]; pl.volume_db = db + (WATER_DB if name in WATER_SFX else 0.0); pl.pitch_scale = pitch; pl.play()
+	pl.stream = _sfx_cache[name]; pl.volume_db = WATER_LEVEL[name] if WATER_LEVEL.has(name) else db; pl.pitch_scale = pitch; pl.play()
 
 ## house.28: (re)open voice banks; called again after downloaded packs are mounted.
 func reopen_banks() -> void:

@@ -97,8 +97,26 @@ func _ready() -> void:
 	nav.add_child(_navbtn("Back", "NavBack", back))
 	nav.add_child(_navbtn("Home", "NavHome", func(): Audio.click(); show_page("home")))
 	nav.add_child(_navbtn("Close", "NavClose", close))
-	var capgap := Control.new(); capgap.name = "CaptionGap"; capgap.custom_minimum_size.y = 74; capgap.mouse_filter = Control.MOUSE_FILTER_IGNORE; col.add_child(capgap)   # v29.1: full-size phone; the room caption sits here
+	capgap = Control.new(); capgap.name = "CaptionGap"; capgap.custom_minimum_size.y = CAPGAP_MIN; capgap.mouse_filter = Control.MOUSE_FILTER_IGNORE; col.add_child(capgap)   # v29.1: full-size phone; the room caption sits here
 	resized.connect(_fit)
+
+## v32 (Yasin 13:55): Back / Home / Close always sit ABOVE the bottom-centre caption box, in every scene.
+## The gap under the nav row tracks the real top of any visible caption box (HUD "Caption" / StoryUI "StoryCaption").
+const CAPGAP_MIN := 112.0
+var capgap: Control
+var _capgap_t := 0.0
+func _caption_top(nd: Node, best: float) -> float:
+	if nd == self or (nd is CanvasItem and not (nd as CanvasItem).is_visible_in_tree()): return best
+	if nd is Control and String(nd.name) in ["Caption", "StoryCaption"] and (nd as Control).size.y > 4:
+		return minf(best, (nd as Control).get_global_rect().position.y)
+	for c in nd.get_children(): best = _caption_top(c, best)
+	return best
+func _update_capgap() -> void:
+	if capgap == null or not is_visible_in_tree(): return
+	var h := get_viewport_rect().size.y
+	var top := _caption_top(get_tree().root, h)
+	var want := clampf(h - top + 14.0, CAPGAP_MIN, h * 0.42)
+	if absf(capgap.custom_minimum_size.y - want) > 1.0: capgap.custom_minimum_size.y = want
 
 func _fit() -> void:
 	var ps: Vector2 = (get_parent() as Control).size if get_parent() is Control else get_viewport_rect().size
@@ -1093,6 +1111,8 @@ func _tr_now() -> bool:
 func _trl(l: Label) -> Label:
 	_tr_lbls = _tr_lbls.filter(func(x): return is_instance_valid(x)); _tr_lbls.append(l); l.visible = _tr_now(); _tr_last = _tr_now(); return l
 func _process(dt: float) -> void:
+	_capgap_t -= dt
+	if _capgap_t <= 0.0: _capgap_t = 0.15; _update_capgap()
 	_lock_tick()
 	if visible and not _tr_lbls.is_empty() and _tr_now() != _tr_last:
 		_tr_last = _tr_now(); _tr_lbls = _tr_lbls.filter(func(x): return is_instance_valid(x))
@@ -1236,8 +1256,8 @@ func _words() -> void:
 		rh.mouse_filter = Control.MOUSE_FILTER_IGNORE; row.add_child(rh)
 		var we := _l(w.en, 22, true); we.size_flags_horizontal = Control.SIZE_EXPAND_FILL; we.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		we.size_flags_vertical = Control.SIZE_FILL; we.clip_text = true; we.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; rh.add_child(we)
-		var wt := _l(w.tr, 15, false, TR_C); wt.vertical_alignment = VERTICAL_ALIGNMENT_CENTER; wt.size_flags_vertical = Control.SIZE_FILL
-		wt.clip_text = true; wt.size_flags_horizontal = Control.SIZE_EXPAND_FILL; wt.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		var wt := _trl(_l(w.tr, 15, false, TR_C)); wt.vertical_alignment = VERTICAL_ALIGNMENT_CENTER; wt.size_flags_vertical = Control.SIZE_FILL
+		wt.clip_text = false; wt.size_flags_horizontal = Control.SIZE_SHRINK_END; wt.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT   # v32 polish (blue): full width for the meaning (words with ı/ç came out blank in the 50/50 split); the English word trims instead
 		wt.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; rh.add_child(wt)   # v32 polish (blue): meaning follows the TR toggle (Turkish showed with TR off)
 		var word: String = w.en
 		row.pressed.connect(func(): App.say_word(word)); grid.add_child(row)

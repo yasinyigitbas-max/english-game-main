@@ -634,12 +634,12 @@ func _shower_sound(on: bool) -> void:
 	if shower_snd == null:
 		shower_snd = AudioStreamPlayer.new(); shower_snd.name = "ShowerLoop"; add_child(shower_snd)
 		var st: AudioStreamOggVorbis = load("res://sfx/shower_loop.ogg"); st = st.duplicate(); st.loop = true
-		shower_snd.stream = st; shower_snd.volume_db = -20.0   # v30.2: water at 50 %
+		shower_snd.stream = st; shower_snd.volume_db = Audio.WATER_LEVEL["shower_loop"]   # v32: same loudness as every water sound
 		shower_snd.bus = "SFX" if AudioServer.get_bus_index("SFX") >= 0 else "Master"
 	if on and not shower_snd.playing: shower_snd.play()
 	elif not on and shower_snd.playing:
-		var tw := create_tween(); tw.tween_property(shower_snd, "volume_db", -40.0, 0.4)
-		tw.tween_callback(func(): shower_snd.stop(); shower_snd.volume_db = -20.0)
+		var tw := create_tween(); tw.tween_property(shower_snd, "volume_db", -60.0, 0.4)
+		tw.tween_callback(func(): shower_snd.stop(); shower_snd.volume_db = Audio.WATER_LEVEL["shower_loop"])
 
 func _drops(n: int, life: float, r: float, dir: Vector3, spread: float, v0: float, v1: float) -> CPUParticles3D:
 	var p := CPUParticles3D.new(); p.amount = n; p.lifetime = life; p.emitting = false; p.local_coords = false
@@ -810,7 +810,7 @@ func do_verb(id: String, v: Array) -> void:
 	mode = "play"; _update_hand(); action_done.emit(id)
 
 func _water_sfx() -> void:
-	if S.tap == "on": Audio.sfx("water", -6.0)
+	if S.tap == "on": Audio.tap_sfx(-6.0)
 
 func _hand_pos(sd: String) -> Vector3:
 	return hero._hand[sd].global_position
@@ -866,11 +866,11 @@ func wash_face() -> void:
 	await _tap(true)
 	await caption("I am washing my face.")
 	# v13: one scoop of water (about half the old length)
-	await _lean_basin(); Audio.sfx("water", -4.0, 1.1); await wait(0.25); await _straighten()
+	await _lean_basin(); Audio.tap_sfx(-4.0, 1.1); await wait(0.25); await _straighten()
 	await _hand_to_face(0.25)
 	_tw_offset("Neck", Vector3.RIGHT, 0.25, 0.25)
 	splash_fx.global_position = _hand_pos("R") + Vector3(0, 0.08, 0)
-	splash_fx.restart(); Audio.sfx("water", -2.0, 1.3); action_peak.emit("sink")
+	splash_fx.restart(); Audio.tap_sfx(-2.0, 1.3); action_peak.emit("sink")
 	get_tree().create_timer(0.15).timeout.connect(func(): Life.snap("wash_face"))   # house.27: day-1 polaroid
 	await wait(0.5); _tw_offset("Neck", Vector3.RIGHT, 0.0, 0.25); await _hand_down()
 	await _tap(false)
@@ -904,7 +904,7 @@ func wash_hands() -> void:
 	for i in 4:
 		_tw_offset("Hand.R", Vector3.UP, 0.35 if i % 2 == 0 else -0.35, 0.25); _tw_offset("Hand.L", Vector3.UP, -0.35 if i % 2 == 0 else 0.35, 0.25); await wait(0.28)
 	_tw_offset("Hand.R", Vector3.UP, 0.0, 0.2); _tw_offset("Hand.L", Vector3.UP, 0.0, 0.2)
-	Audio.sfx("water", -4.0); action_peak.emit("sink"); await wait(0.3); await _straighten(); hero.play("idle", 0.3)
+	Audio.tap_sfx(-4.0); action_peak.emit("sink"); await wait(0.3); await _straighten(); hero.play("idle", 0.3)
 	await _tap(false)
 
 func brush_teeth() -> void:
@@ -943,9 +943,9 @@ func brush_teeth() -> void:
 	await gesture("sink", "sink", func(): hero.release_item(); S.brush = "cup"; Audio.sfx("metalClick", -6.0))
 	await caption("I am rinsing my mouth.")
 	await gesture("sink", "sink", func(): N.cup.visible = false; hero.hold_item(PROPS + "Cup.tscn", "cylinder", 0.1, false))
-	await _hand_to_face(0.3); Audio.sfx("water", -6.0, 1.4); await wait(1.0); await _hand_down()
+	await _hand_to_face(0.3); Audio.tap_sfx(-6.0, 1.4); await wait(1.0); await _hand_down()
 	await _lean_basin(); splash_fx.global_position = Vector3(SINK.x, TOP_Y + 0.15, BZ + 0.3); splash_fx.restart()
-	Audio.sfx("water", -4.0, 0.9); await wait(0.6); await _straighten(); hero.play("idle", 0.3)
+	Audio.tap_sfx(-4.0, 0.9); await wait(0.6); await _straighten(); hero.play("idle", 0.3)
 	await gesture("sink", "sink", func(): hero.release_item(); N.cup.visible = true)
 	await _tap(false)
 	if not S.teeth_done:
