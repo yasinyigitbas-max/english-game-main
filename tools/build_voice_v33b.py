@@ -43,6 +43,7 @@ narr += [q["say"] for q in tb["questions"] if q.get("day") in (4, 5, 6, 7) and q
 g = {"__file__": f"{R}/tools/days56/build_voice_days56.py", "__name__": "x"}
 src = open(g["__file__"], encoding="utf8").read(); exec(src[:src.index("def collect():")] + src[src.index("def collect():"):src.index("    return narr, voiced") + len("    return narr, voiced")], g)
 narr += g["collect"]()[0]
+narr += ["I had a hot chocolate.", "Now I'm going to school.", "Now I'm going shopping."]   # red hospital2 (fe7fe58) lines
 narr = [t for t in dict.fromkeys(clean(t) for t in narr) if norm(t) and t not in ("...",)]
 fam = [t for t in dict.fromkeys(clean(t) for t in fam) if norm(t)]; shop = [t for t in dict.fromkeys(clean(t) for t in shop) if norm(t)]
 FAMV = {"amy": ("amy", ""), "kristin": ("kristin", ""), "hfc_female": ("hfc_female", ""), "lessac": ("lessac", ""), "ryan": ("ryan", ""),

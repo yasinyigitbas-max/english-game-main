@@ -39,6 +39,7 @@ func _say_me(t: String, p := 0.5) -> void:
 	await ui.line(t, "Me", p)
 
 func _run() -> void:
+	StoryUI.hide_all(get_tree())   # v33 (red): the work summary's "Now I'm going to the hospital." box lives on the root; never a 2nd box here
 	S.tr = App.tr_saved(); set_tr(S.tr)   # English by default; Turkish line only when the player's TR setting is on
 	var m: ShaderMaterial = blur.material; _ba = 0.0; m.set_shader_parameter("amount", 0.0); m.set_shader_parameter("lid", 0.0)
 	# third person: the player's body is visible (day 1 hid it on layer 2)
@@ -85,7 +86,7 @@ func _run() -> void:
 	# v32-polish: day 2, hospital first -> straight on to work (the same work flow the car starts); hospital second -> home as before
 	var sv = App.load_save().get("story", {})
 	if not (sv is Dictionary and bool(sv.get("day2_work_done", false))) and maxi(WorldState.day, App.day) == 2:
-		await ui.line("Now I'm going to work.")
+		await ui.line(_go_line())   # v33 (red): "Now I'm going to school." for pupils / teachers (the work summary then says "I went to school.")
 		if ChildDrive.active(): ChildDrive.trip(get_tree(), "hospital", "work"); return   # v33 child-drive
 		load("res://scripts/story/work_summary.gd").play(get_tree())
 		return
@@ -93,6 +94,12 @@ func _run() -> void:
 	if maxi(WorldState.day, App.day) == 2:   # v32-polish: both visits done -> outside beside the car on the home lot (not inside the house)
 		App.came_from = "outside"; Game.go_to(Game.WORLD_SCENE, "home_car"); return
 	if next_scene != "": get_tree().change_scene_to_file(next_scene)
+
+## v33 (red): the day-2 destination after the hospital in the job's own words (work.json label: Go to work / school / shopping)
+func _go_line() -> String:
+	var st := CharacterHook.state()
+	var lbl: String = load("res://scripts/story/work.gd").car_label(String(st.get("job", "")), CharacterHook.is_child(st))
+	return {"Go to school": "Now I'm going to school.", "Go shopping": "Now I'm going shopping."}.get(lbl, "Now I'm going to work.")
 
 ## ---- third-person camera + body-part close-ups on the PLAYER's skeleton
 const RECAP := ["legs", "arms", "chest", "ears", "eyes"]
@@ -102,6 +109,12 @@ const PARTS := {   # word: [TR, bone candidates, close-up distance, side offset]
 	"head": ["baş", ["Head"], 0.6], "neck": ["boyun", ["Neck"], 0.5], "shoulders": ["omuzlar", ["Shoulder.L", "UpperArm.L"], 0.7],
 	"back": ["sırt", ["Torso", "Chest"], 0.8], "stomach": ["karın", ["Abdomen", "Torso"], 0.7], "hands and fingers": ["eller ve parmaklar", ["Hand.L"], 0.45],
 	"knees": ["dizler", ["LowerLeg.L", "Knee.L", "Shin.L"], 0.6], "feet": ["ayaklar", ["Foot.L"], 0.6], "mouth and teeth": ["ağız ve dişler", ["Head"], 0.4], "nose": ["burun", ["Head"], 0.4]}
+## v33 (red): close-up framing per part: [distance m, elevation, side (toward the player's left = the camera side)]
+const FRAME := {
+	"legs": [1.0, 0.8, 0.45], "arms": [0.8, 0.3, 0.9], "chest": [0.75, 0.2, 0.3], "ears": [0.5, 0.08, 1.0], "eyes": [0.45, 0.08, 0.25],
+	"head": [0.6, 0.35, 0.3], "neck": [0.55, 0.08, 0.35], "shoulders": [0.8, 0.5, 0.35], "back": [0.85, 0.4, 0.35],
+	"stomach": [0.75, 0.75, 0.3], "hands and fingers": [0.6, 0.7, 0.4], "knees": [0.75, 0.65, 0.35], "feet": [0.85, 0.85, 0.35],
+	"mouth and teeth": [0.45, 0.0, 0.2], "nose": [0.45, 0.06, 0.3]}
 func _yaw_between(from: Vector3, to: Vector3) -> float: return atan2(to.x - from.x, to.z - from.z) + MODEL_YAW
 func _part_pos(word: String) -> Vector3:
 	var sk: Skeleton3D = body.skeleton
@@ -117,8 +130,33 @@ func _cam_to(pos: Vector3, look: Vector3, t: float) -> void:
 	var x1 := Transform3D.IDENTITY.translated(pos).looking_at(look, Vector3.UP)
 	if t <= 0.0: cam.global_transform = x1; return
 	var x0 := cam.global_transform
+	# v33 (red): never fly THROUGH the player (front -> back close-up, nose -> wide): detour round the camera side
+	var wp = _detour(x0.origin, pos)
+	if wp is Vector3:
+		var xm := Transform3D.IDENTITY.translated(wp).looking_at(look, Vector3.UP)
+		var t1 := create_tween(); t1.tween_method(func(k: float): cam.global_transform = x0.interpolate_with(xm, k), 0.0, 1.0, t * 0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		await t1.finished
+		x0 = xm
+		var t2 := create_tween(); t2.tween_method(func(k: float): cam.global_transform = x0.interpolate_with(x1, k), 0.0, 1.0, t * 0.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		await t2.finished
+		return
 	var tw := create_tween(); tw.tween_method(func(k: float): cam.global_transform = x0.interpolate_with(x1, k), 0.0, 1.0, t).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	await tw.finished
+## v33 (red): a waypoint beside the player when the straight camera move passes within 0.3 m of the body axis (hips -> head)
+func _detour(a: Vector3, b: Vector3):
+	var sk: Skeleton3D = body.skeleton
+	var hi := sk.find_bone("Hips"); var he := sk.find_bone("Head")
+	if hi < 0 or he < 0: return null
+	var h0: Vector3 = sk.global_transform * sk.get_bone_global_pose(hi).origin
+	var h1: Vector3 = sk.global_transform * sk.get_bone_global_pose(he).origin + Vector3(0, 0.1, 0)
+	var near := 9.0
+	for i in range(1, 12):
+		var q := a.lerp(b, i / 12.0)
+		near = minf(near, q.distance_to(Geometry3D.get_closest_point_to_segment(q, h0, h1)))
+	if near > 0.3: return null
+	var fwd := (doctor.global_position - body.global_position); fwd.y = 0; fwd = fwd.normalized()
+	var cam_side := -fwd.cross(Vector3.UP)   # the player's left (+X): the close-up camera side, away from the bedside cabinet
+	return (h0 + h1) * 0.5 + cam_side * 1.1 + Vector3(0, 0.25, 0)
 ## wide shot: three-quarter view from the room corner, player on the bed edge (left) and doctor facing them (right)
 func _wide(t: float) -> void:
 	_arrow_show(false); if doctor: doctor.visible = true   # v306
@@ -131,13 +169,17 @@ func _zoom_part(word: String, hold: float) -> void:
 	var p := _part_pos(word)
 	var fwd := (doctor.global_position - body.global_position); fwd.y = 0; fwd = fwd.normalized()
 	var side := fwd.cross(Vector3.UP)
-	var d: float = PARTS[word][2] * 0.6
+	var fr: Array = FRAME[word]
+	var d: float = fr[0]
 	if word == "back": fwd = -fwd   # the doctor looks at the back from behind
 	if word == "ears": p += -side * 0.075   # v306: the ear on the camera side
 	_show_label(word)
 	_set_iv_visible(word != "back")   # v31.1: the IV stand sits between the camera and the player's back
 	doctor.visible = false   # v306: the close camera sits where the doctor stands; never film his side
-	var cp := p + fwd * d * 0.92 - side * d * 0.3 + Vector3(0, d * 0.12, 0)
+	# v33 (red): the v306 framing (0.6 x distance, almost level) put the camera INSIDE the thigh / knee / forearm and so
+	# close to the head that the sit_idle sway turned "mouth and teeth" / "ears" into shots of the hair. Per-part distance,
+	# elevation (look down past the thighs at the stomach, hands, knees, feet; past the bed rail at the feet) and side.
+	var cp: Vector3 = p + (fwd - side * float(fr[2]) + Vector3(0, float(fr[1]), 0)).normalized() * d
 	await _cam_to(cp, p, 0.7)
 	_arrow_at(p, cp, d)
 	if hold > 0.0: await get_tree().create_timer(hold).timeout; _hide_label()

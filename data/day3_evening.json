@@ -39,7 +39,8 @@
   "I ordered a hot chocolate.": "Bir sıcak çikolata sipariş ettim.",
   "How much is the coffee?": "Kahve ne kadar?",
   "I took a shower in the morning.": "Sabah duş aldım.",
-  "I talked to my family.": "Ailemle konuştum."
+  "I talked to my family.": "Ailemle konuştum.",
+  "I had a hot chocolate.": "Sıcak çikolata içtim."
  },
  "talk": [
   [
@@ -49,8 +50,8 @@
   ],
   [
    "What did you order?",
-   "I'd like a hot chocolate, please.",
-   "Bir sıcak çikolata istiyorum, lütfen."
+   "I had a hot chocolate.",
+   "Sıcak çikolata içtim."
   ],
   [
    "How many cookies did you have?",

@@ -41,11 +41,19 @@ func run() -> void :
 	var tw: = create_tween();tw.tween_property(bg, "color:a", 1.0, 0.6); await tw.finished
 	var st: = CharacterHook.state()
 	Life.event("work")
+	# v33 (red): the same black summary for work AND school (lines_for: "I went to school." + the pupil / teacher tasks);
+	# the Turkish line under it when TR is on (StoryUI.tr_of -> data/extra_lines.json)
+	var trl := Label.new(); trl.set_anchors_preset(Control.PRESET_FULL_RECT); trl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	trl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER; trl.offset_top = 110; trl.add_theme_font_size_override("font_size", 30)
+	trl.add_theme_color_override("font_color", Color(0.75, 0.88, 1.0)); add_child(trl)
+	lbl.modulate.a = 0.0
 	for t in lines_for(String(st.get("job", "")), CharacterHook.is_child(st)):
 		lbl.text = t
-		var a: = create_tween();a.tween_property(lbl, "modulate:a", 1.0, 0.35); await a.finished
+		trl.text = StoryUI.tr_of(t) if App.tr_on() else ""; trl.modulate = lbl.modulate
+		var a: = create_tween();a.tween_property(lbl, "modulate:a", 1.0, 0.35);a.parallel().tween_property(trl, "modulate:a", 1.0, 0.35); await a.finished
 		await get_tree().create_timer(1.9).timeout
-		var b: = create_tween();b.tween_property(lbl, "modulate:a", 0.0, 0.35); await b.finished
+		var b: = create_tween();b.tween_property(lbl, "modulate:a", 0.0, 0.35);b.parallel().tween_property(trl, "modulate:a", 0.0, 0.35); await b.finished
+	trl.queue_free()
 	var sv = App.load_save().get("story", {});sv = sv.duplicate() if sv is Dictionary else {}
 	sv["day2_work_done"] = true;App.patch_save({"story": sv})
 	Life.event("work_end")
