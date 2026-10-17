@@ -21,6 +21,9 @@ var _shot_n := 0
 var _last_cs = null
 var _last_cam: Camera3D = null
 var acted := {}
+var world := true            # v34 (blue fix33): run through scenes/world.tscn (--rooms = the old change_scene harness)
+var _burst_until := -1.0
+var _pan_n := 0
 
 func ok(c: bool, t: String) -> void:
 	log.append(("PASS " if c else "FAIL ") + t); print("D47QA ", log[-1])
@@ -31,7 +34,9 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--day="): day = int(a.substr(6))
-	shots = "/tmp/qa_d47/shots_d%d/" % day
+		if a == "--rooms": world = false
+		if a.begins_with("--shots="): shots = a.substr(8)
+	if shots == "/tmp/qa_d47/shots/": shots = "/tmp/qa_d47/shots_d%d/" % day
 	DirAccess.make_dir_recursive_absolute(shots)
 	App.save_tr(true)
 	Engine.time_scale = 3.0; AudioServer.playback_speed_scale = 3.0
@@ -39,7 +44,9 @@ func _ready() -> void:
 	run.call_deferred()
 
 func cur() -> Node: return get_tree().current_scene
-func kind() -> String: return String(cur().scene_file_path).get_file() if cur() else ""
+func kind() -> String:
+	var f := String(cur().scene_file_path).get_file() if cur() else ""
+	return "world_exterior.tscn" if f == "world.tscn" else f
 
 func snap(n: String) -> Image:
 	if DisplayServer.get_name() == "headless": return null
@@ -70,10 +77,13 @@ func _process(d: float) -> void:
 	var sc := cur()
 	if sc == null: return
 	var cs = sc.get("cam_shot")
-	if cs is Dictionary and not cs.is_empty() and cs != _last_cs: pans.append(gt)
+	if cs is Dictionary and not cs.is_empty() and cs != _last_cs: pans.append(gt); _burst("shot")
 	_last_cs = cs
 	var cam := get_viewport().get_camera_3d()
-	if cam != _last_cam and cam != null and _last_cam != null and cam != sc.get("cam"): pans.append(gt)
+	if cam != _last_cam and cam != null and _last_cam != null and cam != sc.get("cam"): pans.append(gt); _burst("cam")
+	var sh = get_tree().root.get_node_or_null("ShoulderCam")
+	if sh and sh.get("_guide_on") == true and not _was_guide: pans.append(gt); _burst("guide")
+	_was_guide = sh != null and sh.get("_guide_on") == true
 	_last_cam = cam
 	var o := String(Objectives.items[0].en) if not Objectives.items.is_empty() else ""
 	if o != "" and o != _last_obj:
@@ -81,6 +91,17 @@ func _process(d: float) -> void:
 		steps.append({"t": gt, "obj": o, "scene": kind(), "day": WorldState.day})
 		print("D47QA OBJ t=%.1f day%d %s | %s" % [gt, WorldState.day, o, kind()])
 		_obj_shot.call_deferred(o)
+
+var _was_guide := false
+## several frames per pan (frame-by-frame check): 9 frames, 0.35 s game time apart
+func _burst(why: String) -> void:
+	if gt < _burst_until: return
+	_burst_until = gt + 3.2
+	_pan_n += 1
+	var tag := "pan%02d_%s_%s" % [_pan_n, why, _last_obj.left(24)]
+	for i in 9:
+		await snap("%s_f%d" % [tag, i])
+		await w(0.35)
 
 func _obj_shot(o: String) -> void:
 	await w(1.4)
@@ -177,10 +198,25 @@ func _evening() -> Node:
 
 # ------------------------------------------------------------------ driver
 func go(path: String, from: String) -> void:
+	if world: await wgo(path, from); return
 	App.came_from = from
 	if path == "res://main.tscn": App.continue_requested = true
 	get_tree().change_scene_to_file(path)
 	await w(1.0)
+
+## open world: the same moves the player makes (house doors, front door, street walk, shop door)
+func wgo(path: String, from: String) -> void:
+	App.came_from = from
+	var s := cur(); var k := kind()
+	print("D47QA WGO %s -> %s" % [k, path])
+	if House.is_room(path) and House.is_room(String(s.scene_file_path)): StoryNav.room(s, path)
+	elif House.is_room(path):   # street -> house: to the front door, walk in (World.entered -> OwLink)
+		await WorldTrip.go("front_door"); await w(0.6); await World.goto("livingroom", "front")
+	elif path == Game.WORLD_SCENE: StoryNav.goto(Game.WORLD_SCENE, "lot:home")
+	elif path.ends_with("shop.tscn"): await WorldTrip.go("shop_door"); await w(0.6); await World.goto("shop", "shop")
+	await w(1.5)
+
+const House := preload("res://scripts/core/house.gd")
 
 func stage() -> String:
 	var sv = App.load_save().get("story", {})
@@ -192,7 +228,10 @@ func run() -> void:
 		var scr = load("res://scripts/story/%s.gd" % f)
 		ok(scr != null and scr.can_instantiate(), "script compiles: %s.gd" % f)
 	ok(WorldState.day == day, "save at day %d (story.d%d=%s)" % [day, day, stage()])
-	await go("res://main.tscn", "")
+	if world:
+		App.continue_requested = true
+		get_tree().change_scene_to_file("res://scenes/world.tscn"); await w(3.0)
+	else: await go("res://main.tscn", "")
 	var t := 0
 	var end_t := -1.0
 	while t < 12000:
@@ -217,17 +256,23 @@ func run() -> void:
 		var did := true
 		match [k, o]:
 			["main.tscn", "Take a shower."]: await go("res://bathroom.tscn", "bedroom")
-			["bathroom.tscn", "Take a shower."]: _verb(s, "bath", "takeshower")
+			["bathroom.tscn", "Take a shower."]:
+				if stage() in ["", "start", "shower"]: _verb(s, "bath", "takeshower")
+				else: did = false
 			["main.tscn", "Go to the living room."], ["main.tscn", "Go to the shop."]: await go("res://livingroom.tscn", "bedroom")
 			["bathroom.tscn", "Go to the living room."]: await go("res://livingroom.tscn", "bathroom")
-			["livingroom.tscn", "Go to the shop."]: App.came_from = "livingroom"; Game.go_to(Game.WORLD_SCENE, "lot:home"); await w(2.0)
-			["world_exterior.tscn", "Go to the shop."]: WorldState.player_pos = Vector3(-3, 0, 27.6); Game.go_to("res://scenes/places/shop.tscn", "front_door"); await w(2.0)
+			["livingroom.tscn", "Go to the shop."]:
+				if world: await wgo(Game.WORLD_SCENE, "livingroom")
+				else: App.came_from = "livingroom"; Game.go_to(Game.WORLD_SCENE, "lot:home"); await w(2.0)
+			["world_exterior.tscn", "Go to the shop."]:
+				if world: await wgo("res://scenes/places/shop.tscn", "street")
+				else: WorldState.player_pos = Vector3(-3, 0, 27.6); Game.go_to("res://scenes/places/shop.tscn", "front_door"); await w(2.0)
 			["shop.tscn", "Go outside."]:
 				var sv = App.load_save().get("story", {})
 				if bool(sv.get("d%d_shop" % day, false)): await snap("shop_exit"); s.qa_use("exit"); await w(3.0)
 				else: did = false
 			["world_exterior.tscn", "Go back home."]: await go(Game.HOUSE_FRONT_DOOR_SCENE, "outside")
-			["livingroom.tscn", "Talk to my family."]: s.hero.global_position = Vector3(s.SOFA_X - 1.2, 0, 0.3)
+			["livingroom.tscn", "Talk to my family."]: s.hero.position = Vector3(s.SOFA_X - 1.2, 0, 0.3)   # room-local (the room is off the origin in the world)
 			["livingroom.tscn", "Go to bed."]: await go("res://main.tscn", "livingroom")
 			_: did = false
 		if did: acted[key] = gt; print("D47QA ACT t=%.1f %s" % [gt, key])

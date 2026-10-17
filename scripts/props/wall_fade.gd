@@ -109,6 +109,10 @@ static func _dist(ab: AABB, p: Vector3) -> float:
 func _process(dt: float) -> void:
 	if not enabled or _walls.is_empty(): return
 	var cp := _pos(cam); var pp := _pos(player)
+	# v34 (blue, Yasin 3.2): with the one shoulder camera (open world) the camera is INSIDE the room: the v33 fixed-camera
+	# rules ("out" = camera beyond the room's x, south-wall proximity fade) made side / south walls show the outside.
+	# Then every wall stays solid and fades only while it hides the player (occlusion), or during force_fade (breakfasts).
+	var shoulder := _shoulder_on()
 	var occ := {}   # v33: group -> blocked
 	for e in _walls.duplicate():
 		if not is_instance_valid(e.node): _walls.erase(e); continue
@@ -117,7 +121,7 @@ func _process(dt: float) -> void:
 		var hit: bool = bool(occ.get(key, false))
 		if not hit:
 			var oc = e.opt.get("out", null)
-			hit = (oc is Callable and bool((oc as Callable).call())) or occluded(e.node, cp, pp, AABB(), float(e.opt.get("near", OCC_NEAR)))
+			hit = (not shoulder and oc is Callable and bool((oc as Callable).call())) or occluded(e.node, cp, pp, AABB(), float(e.opt.get("near", OCC_NEAR)))
 		occ[key] = hit
 	for e in _walls:
 		var o: Dictionary = e.opt
@@ -127,6 +131,10 @@ func _process(dt: float) -> void:
 		var min_a: float = float(o.get("min_a", MIN_A))
 		var target := 1.0
 		if forced: target = min_a
+		elif shoulder:
+			target = OCC_MIN_A if occluded(e.node, cp, pp) else 1.0
+			for g in e.meshes: if is_instance_valid(g): step_occl(g, target, dt, bool(o.get("shadows", true)))
+			continue
 		elif cp != Vector3.INF:
 			var ab := _aabb_of(e.meshes)
 			var k := 0.0
@@ -138,6 +146,17 @@ func _process(dt: float) -> void:
 				k = maxf(k, 0.6 * (1.0 - clampf(_dist(ab, eye) / float(o.get("near_player", NEAR_PLAYER)), 0.0, 1.0)))
 			target = lerpf(1.0, min_a, k)
 		for g in e.meshes: if is_instance_valid(g): step_to(g, target, dt, SPEED, bool(o.get("shadows", true)))
+
+static var _sh_t := -1.0
+static var _sh_on := false
+static func _shoulder_on() -> bool:
+	var now := Time.get_ticks_msec() / 1000.0
+	if now - _sh_t > 0.5:
+		_sh_t = now
+		var tree := Engine.get_main_loop() as SceneTree
+		var n := tree.root.get_node_or_null("ShoulderCam") if tree else null
+		_sh_on = n != null and bool(n.get("enabled"))
+	return _sh_on
 
 ## blue-compatible single-mesh step (scripts/places/wall_fade_adapter.gd): hidden -> fully transparent (invisible)
 static func step(g: GeometryInstance3D, hidden: bool, dt: float, speed := SPEED) -> void:

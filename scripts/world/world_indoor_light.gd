@@ -1,0 +1,119 @@
+## v34 open world (blue, 3.2 lighting fix): the live room keeps its v33 lighting.
+## World._build_place nulls each room's WorldEnvironment and hides its DirectionalLight (one environment / sun in the
+## world), so every room was lit by the street setup (ambient 0.55, exposure 0.6, sun 1.1 with 2 splits) = far too
+## bright, and the room's own day / lamp ambient tuning (main.gd / livingroom.gd / bathroom.gd `env`, `sun`) went nowhere.
+## Here, every 0.2 s: the room / place the hero is in (OwLink.live, else World.region) decides the ONE environment + sun:
+##   * house room: its own `env` (the v33 Environment it keeps tuning) on the World's WorldEnvironment, its own `sun`
+##     visible, the World sun hidden
+##   * café / shop / work: the v33 place lighting (PlaceBase._env values: ambient 0.5, exposure 0.88, sun 0.75)
+##   * street: the World's environment and sun as built
+extends Node
+
+var host: Node = null
+var we: WorldEnvironment
+var _next := 0.0
+var _cur := ""
+var _room_sun: DirectionalLight3D
+var _place_env: Environment
+var _house_env: Environment   # a house room without its own env yet: the v33 bedroom values
+var _sun_e := 1.1
+var _sun_shadow_mode := 0
+
+func _ready() -> void:
+	name = "WorldIndoorLight"
+	if host == null: host = get_parent()
+	for c in host.get_children(): if c is WorldEnvironment: we = c; break
+	var s: DirectionalLight3D = host.get("sun")
+	if s: _sun_e = s.light_energy; _sun_shadow_mode = s.directional_shadow_mode
+	_place_env = Environment.new(); _place_env.background_mode = Environment.BG_COLOR; _place_env.background_color = Color(0.86, 0.89, 0.93)
+	_place_env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR; _place_env.ambient_light_color = Color(1.0, 0.95, 0.88); _place_env.ambient_light_energy = 0.5
+	_place_env.tonemap_mode = Environment.TONE_MAPPER_FILMIC; _place_env.tonemap_exposure = 0.88
+	_house_env = Environment.new(); _house_env.background_mode = Environment.BG_COLOR; _house_env.background_color = Color(0.72, 0.82, 0.92)
+	_house_env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR; _house_env.ambient_light_color = Color(1.0, 0.97, 0.93); _house_env.ambient_light_energy = 0.45
+	_house_env.tonemap_mode = Environment.TONE_MAPPER_FILMIC; _house_env.tonemap_exposure = 0.95
+
+func _live() -> Array:   # [id, node]
+	var ol = OwLink.inst if OwLink.active() else null
+	if ol and is_instance_valid(ol.get("live")) and String(ol.get("live_id")) != "": return [String(ol.live_id), ol.live]
+	var r := String(host.get("region"))
+	var pl = host.get("places")
+	if pl is Dictionary and pl.has(r): return [r, pl[r]]
+	return ["street", null]
+
+## fix33 (Yasin: ALL lighting = blue): ONE derived Environment on the World's WorldEnvironment, refreshed every 0.2 s
+## (and at once when the live place changes). It follows the live room's own `env` (so its lamp / power-cut / party
+## tuning still works) scaled down for the open world (the v33 rooms were closed boxes with a dark outside; here the sky
+## and the open south side made every room glare white), and it follows the clock: WorldState.daylight() dims the sun,
+## the ambient and the sky colour, so 18:00 is dusk and 23:30 is night (street, places and the windows of the rooms).
+const ROOM_AMB_K := 0.62     # room ambient x this
+const ROOM_EXP := 0.78       # tonemap exposure in rooms (v33 rooms: 0.95)
+const ROOM_SUN_K := 0.55     # room sun x this (it comes through the window)
+const PLACE_AMB := 0.42
+const PLACE_EXP := 0.8
+const STREET_AMB := 0.5
+const STREET_EXP := 0.62
+const SKY_DAY := Color(0.72, 0.82, 0.92)
+const SKY_DUSK := Color(0.85, 0.62, 0.48)
+const SKY_NIGHT := Color(0.05, 0.07, 0.14)
+var _out: Environment
+var _rs_e := -1.0   # last room sun energy the room itself wrote (we scale what the room wants)
+
+static func sky_for(d: float) -> Color:
+	return SKY_NIGHT.lerp(SKY_DUSK, clampf(d * 2.5, 0.0, 1.0)).lerp(SKY_DAY, clampf((d - 0.35) / 0.4, 0.0, 1.0))
+
+func _derive(src: Environment, amb_k: float, amb_add: float, expo: float, d: float, adj: Environment = null) -> void:
+	if _out == null:
+		_out = Environment.new(); _out.background_mode = Environment.BG_COLOR
+		_out.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR; _out.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+		_out.set_meta("ow_fog", true); _out.fog_enabled = false
+	_out.background_color = sky_for(d)
+	if src:
+		_out.ambient_light_color = src.ambient_light_color
+		_out.ambient_light_energy = src.ambient_light_energy * amb_k + amb_add
+		_out.glow_enabled = src.glow_enabled
+	else:
+		_out.ambient_light_color = Color(1.0, 0.97, 0.93).lerp(Color(0.55, 0.62, 0.9), 1.0 - d)
+		_out.ambient_light_energy = amb_k * (0.25 + 0.75 * d) + amb_add
+	_out.tonemap_exposure = expo
+	var a: Environment = adj if adj else src
+	if a:   # story looks (day-6 storm darkening, lightning flash) are tweened on the place's own env: carry them over
+		_out.adjustment_brightness = a.adjustment_brightness; _out.adjustment_saturation = a.adjustment_saturation; _out.adjustment_contrast = a.adjustment_contrast
+		_out.adjustment_enabled = a.adjustment_enabled or not is_equal_approx(a.adjustment_brightness, 1.0) or not is_equal_approx(a.adjustment_saturation, 1.0)
+	else: _out.adjustment_enabled = false
+	if we.environment != _out: we.environment = _out
+
+func _process(_dt: float) -> void:
+	if we == null: return
+	var lv := _live()
+	var id: String = lv[0]; var n: Node = lv[1]
+	var key := id + str(n.get_instance_id() if n else 0)
+	var now := Time.get_ticks_msec() / 1000.0
+	if now < _next and key == _cur: return
+	_next = now + 0.2
+	var d := WorldState.daylight()
+	var wsun: DirectionalLight3D = host.get("sun")
+	var renv = n.get("env") if n else null
+	var rsun = n.get("sun") if n else null
+	var house := id in OwLink.ROOM_PATH
+	if key != _cur:
+		_cur = key
+		if _room_sun and is_instance_valid(_room_sun): _room_sun.visible = false; _room_sun = null
+		_rs_e = -1.0
+	if house:
+		_derive(renv if renv is Environment else _house_env, ROOM_AMB_K, 0.0, ROOM_EXP, d)
+		if rsun is DirectionalLight3D and is_instance_valid(rsun):
+			_room_sun = rsun; _room_sun.visible = true
+			# the room writes its sun energy on state changes (curtains / clock): scale what it asked for, once
+			if not is_equal_approx(_room_sun.light_energy, _rs_e):   # the room wrote a new energy (curtains / clock): scale it
+				_rs_e = _room_sun.light_energy * ROOM_SUN_K; _room_sun.light_energy = _rs_e
+			if wsun: wsun.visible = false
+		elif wsun: wsun.visible = true; wsun.light_energy = _sun_e * 0.5 * d
+	elif n != null and (n.is_in_group("world_places") or id in ["cafe", "shop", "work", "school"]):
+		_derive(null, PLACE_AMB, 0.12, PLACE_EXP, d)   # shops / café: their own lights + a floor of ambient (lit at night)
+		if wsun: wsun.visible = true; wsun.light_energy = 0.6 * d
+	else:
+		var he: Environment = host.get("env")
+		_derive(null, STREET_AMB, 0.04, STREET_EXP, d, he)
+		var storm := clampf((1.0 - he.adjustment_brightness) / 0.38, 0.0, 1.0) if he else 0.0   # day-6 storm (it tweens brightness 1 -> 0.62)
+		if storm > 0.0: _out.background_color = _out.background_color.lerp(Color(0.4, 0.43, 0.48), storm)
+		if wsun: wsun.visible = d > 0.02; wsun.light_energy = _sun_e * d * (1.0 - 0.8 * storm)
