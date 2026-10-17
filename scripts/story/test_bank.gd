@@ -151,16 +151,32 @@ func run(h: Node, phone, d: int, opts := {}) -> Array:
 func _tr_on() -> bool: return App.tr_on()
 func _trl(l: Label) -> Label: _trs.append(l); l.visible = _tr_on() and l.text.strip_edges() != ""; return l
 func _process(_d: float) -> void:
+	_hide_caps()
 	if _tr_on() != _last_tr:
 		_last_tr = _tr_on(); _trs = _trs.filter(func(l): return is_instance_valid(l))
 		for l in _trs: l.visible = _last_tr and l.text.strip_edges() != ""
-func _cap(t: String) -> void: if host and host.has_method("caption"): host.caption(t, false)
-func _say(t: String) -> void: Audio.say(t); _cap(t)
+## Yasin's test-screen rule: the bottom caption box stays hidden during a test (every line the test speaks is already on the
+## page); only an OFF-screen line (_say_off) shows it, just while it is spoken.
+var _off_until := 0
+func _hide_caps() -> void:
+	if _off_live:
+		if Time.get_ticks_msec() < _off_until or Audio.is_speaking(): return
+		_off_live = false
+	for n in get_tree().get_nodes_in_group("caption_box"):
+		if n is CanvasItem and (n as CanvasItem).visible: (n as CanvasItem).visible = false
+	if host and host.get("cap_panel") is CanvasItem and host.cap_panel.visible: host.cap_panel.visible = false
+var _off_live := false
+func _say(t: String) -> void: Audio.say(t)   # on-screen line: voice only, no caption box
+func _say_off(t: String) -> void:            # off-screen line: caption box only while it is spoken
+	_off_until = Time.get_ticks_msec() + 600; _off_live = true
+	if host and host.has_method("caption"): host.caption(t, false)
+	Audio.say(t)
 
 func _question() -> void:
 	if _skipped: return
 	Audio.cancel_group("lesson"); _trs = []; _busy = false
-	var v: VBoxContainer = ph._clear(); v.alignment = BoxContainer.ALIGNMENT_CENTER; v.add_theme_constant_override("separation", 12)
+	var v: VBoxContainer = ph._clear(); v.alignment = BoxContainer.ALIGNMENT_BEGIN; v.add_theme_constant_override("separation", 10)
+	v.size_flags_vertical = Control.SIZE_EXPAND_FILL   # the whole phone screen, no scroll; answers sit at the bottom
 	var q: Dictionary = Q[qi]
 	if not _note:   # notebook-and-pencil reminder exactly once (Retake does not repeat it)
 		_note = true; var nl = ph._l(NOTE_EN, 16, true, ph.MUTED); nl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(nl)
@@ -169,9 +185,10 @@ func _question() -> void:
 	var ql = ph._l(String(q.q), 40, true); ql.name = "Question"; ql.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ql.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(ql)
 	var il = ph._l(ASK, 17, false, ph.MUTED); il.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(il)
 	var it = ph._l("%s  (%s)" % [ASK_TR, String(q.get("tr", ""))], 16, false, ph.TR_C); it.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; it.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(_trl(it))
-	var row := HBoxContainer.new(); row.name = "Options"; row.alignment = BoxContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("separation", 20); v.add_child(row)
 	var fb = ph._l(" ", 24, true, ph.GREEN); fb.name = "Feedback"; fb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; fb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(fb)
 	var fbt = ph._l("", 17, false, ph.TR_C); fbt.name = "FeedbackTR"; fbt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(fbt))
+	var gap := Control.new(); gap.name = "Gap"; gap.size_flags_vertical = Control.SIZE_EXPAND_FILL; gap.mouse_filter = Control.MOUSE_FILTER_IGNORE; v.add_child(gap)
+	var row := HBoxContainer.new(); row.name = "Options"; row.alignment = BoxContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("separation", 20); v.add_child(row)
 	for i in (q.opts as Array).size():
 		var b: Button = ph._btn(String(q.opts[i]), func(): pass, Vector2(230, 76), false, 28); b.name = "Opt%d" % i; row.add_child(b)
 		var ii: int = i; b.pressed.connect(func(): _answer(ii, b, row, fb, fbt))
@@ -223,7 +240,8 @@ func _retake() -> void:
 func _score_page() -> void:
 	if _skipped: return
 	_trs = []
-	var v: VBoxContainer = ph._clear(); v.alignment = BoxContainer.ALIGNMENT_CENTER; v.add_theme_constant_override("separation", 14)
+	var v: VBoxContainer = ph._clear(); v.alignment = BoxContainer.ALIGNMENT_BEGIN; v.add_theme_constant_override("separation", 12)
+	v.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var tot := Q.size()
 	for row in [["Your score", 22, ph.MUTED, true], ["%d / %d" % [score, tot], 60, ph.GREEN, true, "Score"], ["Puanın: %d / %d" % [score, tot], 18, ph.TR_C, false]]:
 		var l = ph._l(row[0], row[1], row[3], row[2])
@@ -233,8 +251,9 @@ func _score_page() -> void:
 		var sg = ph._l("You should study the grammar again.", 20, true, ph.INK); sg.name = "GrammarTip"; sg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(sg)
 		var st = ph._l("Dilbilgisi konusunu tekrar çalışmalısın.", 15, false, ph.TR_C); st.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(st))
 		if not _suggested: _suggested = true; _say("You should study the grammar again.")
+	var gap := Control.new(); gap.name = "Gap"; gap.size_flags_vertical = Control.SIZE_EXPAND_FILL; gap.mouse_filter = Control.MOUSE_FILTER_IGNORE; v.add_child(gap)
+	var bt = ph._l("Testi tekrarla  ·  Devam", 14, false, ph.TR_C); bt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(bt))
 	var bar := HBoxContainer.new(); bar.name = "ScoreBar"; bar.alignment = BoxContainer.ALIGNMENT_CENTER; bar.add_theme_constant_override("separation", 14); v.add_child(bar)
 	var rb: Button = ph._btn("Retake the test", _retake, Vector2(200, 64), false, 17); rb.name = "Retake"; bar.add_child(rb)
 	var cb: Button = ph._btn("Continue", func(): Audio.click(); finished.emit([score, tot]), Vector2(180, 64), true, 17); cb.name = "ScoreContinue"; bar.add_child(cb)
-	var bt = ph._l("Testi tekrarla  ·  Devam", 14, false, ph.TR_C); bt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(bt))
 	_last_tr = not _tr_on()

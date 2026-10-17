@@ -1675,6 +1675,7 @@ func _advance() -> void:
 		if not _out_guided and mission != nxt:
 			_out_guided = true; _set_mission(nxt)
 			_go_outside_guide.call_deferred(); return
+	if get_tree().root.has_node("Day4Routine") or get_tree().root.has_node("Day7Routine"): return   # v33 (red QA): the day-4 / day-7 routine owns the objective (no "Turn on the TV." flash)
 	_set_mission(nxt)
 	if tasks_panel and tasks_panel.visible: _fill_tasks()
 

@@ -37,6 +37,7 @@ func run() -> void:
 	if lr.wall_fade: lr.wall_fade.force_fade(true)
 	await Life.guide_to({"pos": lr.DINE_C + Vector3(0.2, 2.0, 2.2), "at": lr.DINE_C + Vector3(0, 0.9, 0)}, bk, {"tr": T.tr_of(bk)})
 	lr.mode = "busy"
+	if lr.get("touch"): lr.touch.visible = false   # v33 QA: no joystick over the breakfast cinematic
 	await Audio.wait_idle(12.0)
 	var n: int = hs.size(); var seat := ""
 	if n < lr.DINE_CHAIRS.size():
@@ -83,6 +84,7 @@ func run() -> void:
 	lr.cam_shot = {}
 	if lr.wall_fade: lr.wall_fade.force_fade(false)
 	if not hs.is_empty(): await lr.family_to_tv()
+	if lr.get("touch"): lr.touch.visible = true
 	lr.mode = "play"; lr._update_hand()
 
 ## breakfast polaroid (d4_breakfast / d7_breakfast): offscreen camera on the player at the table

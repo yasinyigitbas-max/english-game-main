@@ -52,7 +52,7 @@ func run() -> bool:
 				var en := String(e.get("en", ""))
 				if en == "": continue
 				if String(e.get("who", "me")) == "assistant" and a is DemoCharacter: await _npc(a, en)
-				else: await sc.say_line(en)
+				else: await _me(en)
 	if cam_on and is_instance_valid(sc): await sc.cine_end()
 	var sv = App.load_save().get("story", {}); sv = sv.duplicate() if sv is Dictionary else {}
 	sv[String(D.get("shop_flag", "d4_shop"))] = true; App.patch_save({"story": sv})
@@ -61,13 +61,22 @@ func run() -> bool:
 	Objectives.set_list([{"id": "Go outside.", "en": "Go outside.", "tr": "Dışarı çık."}])
 	return true
 
+## player line: Voice.say is silent without a clip, so those lines go to Audio.say (narrator clip / Piper fallback)
+func _me(en: String) -> void:
+	await Audio.wait_idle(12.0)
+	if not is_instance_valid(sc): return
+	if Voice.has_clip(en) or not sc.S.get("voice", true): await sc.say_line(en); return
+	sc.caption(en, false); Audio.say(en)
+	await _w(0.2); await Audio.wait_idle(12.0); await _w(0.25)
+
 ## assistant line: own Piper voice, the shared HUD caption box (TR inside), NpcTalk = turn + nod, pose unchanged
 func _npc(a: DemoCharacter, en: String) -> void:
-	await sc.voice_idle(0.1)
+	await Audio.wait_idle(12.0)
+	if not is_instance_valid(sc): return
 	var st: Dictionary = NpcTalk.begin(a, sc.hero.global_position)
 	sc._mute_next = true; sc.hud.caption(en, 6.0); sc._mute_next = false
 	if sc.S.get("voice", true):
 		Audio.say_as(en, String(a.get_meta("voice", "")))
-		await _w(0.2); await sc.voice_idle(0.25)
+		await _w(0.2); await Audio.wait_idle(12.0); await _w(0.25)   # v33 QA: voice_idle gave up after 8 s (lines ran 0.2 s apart)
 	else: await _w(2.2)
 	NpcTalk.end(a, st)

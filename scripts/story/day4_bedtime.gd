@@ -93,8 +93,12 @@ func _handoff() -> void:
 		if s == null: continue
 		for fn in ["start", "attach"]:
 			if _has_static(s, fn): s.call(fn, get_tree()); return
-	# no blue code yet: main.gd's own objective ("Go to the living room.")
-	if m.has_method("_advance"): m._advance(true)
+	# no blue code in this build: the next step with the standard pan + voice (v33 QA: _advance gave it without a pan)
+	await Audio.wait_idle(8.0)
+	var f: Vector3 = m.OBJ.door_s.focus
+	await Life.guide_to({"pos": f + Vector3(0.4, 1.0, -2.4), "at": f}, "Go to the living room.", {"tr": "Oturma odasına git.", "id": "Go to the living room.",
+		"list": [{"id": "Go to the living room.", "en": "Go to the living room.", "tr": "Oturma odasına git."}]})
+	if m.has_method("_advance"): m._advance(false)
 
 static func _has_static(s: Script, fn: String) -> bool:
 	for md in s.get_script_method_list():

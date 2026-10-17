@@ -71,8 +71,15 @@ func _guide(sc: Node, target, id: String, en: String, tr: String, speak := true)
 	var key := id + "|" + str(sc.get_instance_id())
 	if _guided.has(key): Objectives.set_list([_cur]); return
 	_guided[key] = true
-	if not speak and is_instance_valid(sc) and sc.has_method("caption"): sc.caption(en)   # outdoors: say it first, then the 2.6 s pan
+	if not speak and is_instance_valid(sc) and sc.has_method("caption"): _cap_out(sc, en)   # outdoors: say it first, then the 2.6 s pan
 	await Life.guide_to(target, en, {"id": id, "tr": tr, "list": [_cur], "speak": speak})
+
+## v33 (red QA): universal scenes (town, cafe, shop) speak through Voice.say, which is SILENT for a line without a clip;
+## such a line gets the caption without voice + Audio.say (the narrator clip or the live Piper fallback)
+static func _cap_out(sc: Node, line: String) -> void:
+	if sc.has_method("voice_idle") and not Voice.has_clip(line) and Audio.narrator_alt(line) == null:
+		sc.caption(line, false); Audio.say(line)
+	else: sc.caption(line)
 
 func _enter(sc: Node) -> void:
 	if not is_instance_valid(sc): _busy = false; return
@@ -174,7 +181,7 @@ func _fly(sc: Node, cam: Camera3D, to_pos: Vector3, to_at: Vector3, t: float) ->
 
 ## hold at a stop; line != "" goes through the scene's one caption queue (the single bottom caption box)
 func _hold(sc: Node, line: String) -> bool:
-	if line != "" and is_instance_valid(sc) and sc.has_method("caption"): sc.caption(line)
+	if line != "" and is_instance_valid(sc) and sc.has_method("caption"): _cap_out(sc, line)
 	await get_tree().create_timer(2.4, false).timeout
 	await Audio.wait_idle(6.0)
 	return is_instance_valid(sc) and sc == get_tree().current_scene
@@ -258,7 +265,7 @@ func _town_next() -> Array:
 func _town_cue(sc: Node, from_place: String) -> void:
 	var nx := _town_next()
 	if nx[2] == "home" and stage() == "town": set_stage("home")
-	var pan := from_place != "" and nx[2] != "" and not _guided.has(String(nx[0]) + "|" + str(sc.get_instance_id()))
+	var pan: bool = from_place != "" and nx[2] != "" and not _guided.has(String(nx[0]) + "|" + str(sc.get_instance_id()))
 	await _guide(sc, null, nx[0], nx[0], nx[1], false)   # objective + sound + caption (one caption box); no Life pan
 	if pan and is_instance_valid(sc) and sc == get_tree().current_scene: await _pan(sc, [_lot_view(sc, nx[2])])
 
