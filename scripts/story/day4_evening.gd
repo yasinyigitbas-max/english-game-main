@@ -91,7 +91,7 @@ func _couch() -> void:
 	_keep_obj = "Talk to my family."
 	var t0 := Time.get_ticks_msec()
 	while is_instance_valid(lr):
-		var h: Vector3 = lr.hero.position   # room-local like SOFA_X
+		var h: Vector3 = lr.to_local(lr.hero.global_position)   # room-local like SOFA_X
 		if String(lr.S.seat).begins_with("sofa") or Vector2(h.x, h.z).distance_to(Vector2(lr.SOFA_X, 0.0)) < 1.9: break
 		if Time.get_ticks_msec() - t0 > 600000: break
 		await _w(0.25)
@@ -175,9 +175,9 @@ func _props() -> void:
 	_mesh(bx, TABLE + Vector3(0.12, 0.008, 0.12), Color(0.8, 0.18, 0.15))
 	var tm := CylinderMesh.new(); tm.top_radius = 0.02; tm.bottom_radius = 0.026; tm.height = 0.2
 	torch = _mesh(tm, TABLE + Vector3(-0.05, 0.026, 0.32), Color(0.12, 0.13, 0.16)); torch.rotation.z = PI / 2
-	var cl := OmniLight3D.new(); cl.light_color = Color(1.0, 0.72, 0.42); cl.omni_range = 4.5; cl.light_energy = 0.0; cl.shadow_enabled = true
+	var cl := OmniLight3D.new(); cl.set_meta("d4_story", true); cl.light_color = Color(1.0, 0.72, 0.42); cl.omni_range = 4.5; cl.light_energy = 0.0; cl.shadow_enabled = true
 	cl.position = TABLE + Vector3(0, 0.35, -0.25); _n3().add_child(cl); candle_light = cl
-	var sp := SpotLight3D.new(); sp.light_color = Color(1.0, 0.97, 0.88); sp.spot_range = 7.0; sp.spot_angle = 28.0; sp.light_energy = 0.0
+	var sp := SpotLight3D.new(); sp.set_meta("d4_story", true); sp.light_color = Color(1.0, 0.97, 0.88); sp.spot_range = 7.0; sp.spot_angle = 28.0; sp.light_energy = 0.0
 	_n3().add_child(sp); sp.position = TABLE + Vector3(-0.15, 0.1, 0.32); sp.look_at(lr.to_global(Vector3(-3.0, 0.9, 0.6)), Vector3.UP); spot = sp
 
 ## build 3.2 (d4/060-067): in the open world the other rooms' lamps, the world sun and the world environment still lit the
@@ -187,10 +187,18 @@ var _dimmed: Array = []   # [Light3D, energy]
 var _env_e := -1.0
 func _dim_others(on: bool) -> void:
 	if on:
-		if not _dimmed.is_empty(): return
+		# build 3.2 (#14): every light except the story's own candles / torch and the room sun (zeroed by _dark_env) goes
+		# dark, re-checked every frame (street lamps / the room's extra fills switch themselves back on at 18:00 -> the near
+		# walls stayed bright white)
 		for l in get_tree().root.find_children("*", "Light3D", true, false):
-			if lr.is_ancestor_of(l) or (l as Light3D).light_energy <= 0.0: continue
-			_dimmed.append([l, (l as Light3D).light_energy]); (l as Light3D).light_energy = 0.0
+			var li := l as Light3D
+			if li.has_meta("d4_story") or li is DirectionalLight3D or li.light_energy <= 0.0: continue
+			var known := false
+			for d in _dimmed:
+				if d[0] == li: known = true
+			if not known: _dimmed.append([li, li.light_energy])
+			li.light_energy = 0.0
+		if not _dimmed.is_empty() and _env_e >= 0.0: return
 		var we := lr.get_viewport().find_world_3d()
 		if we and we.environment and we.environment != (lr.env if lr.get("env") else null): _env_e = we.environment.ambient_light_energy; we.environment.ambient_light_energy = 0.035
 	else:

@@ -28,6 +28,8 @@ static func start(tree: SceneTree) -> void:
 	attach(tree)
 
 static func active_day() -> int:
+	var today := maxi(WorldState.day, App.day)   # build 3.2 (black #4): today first (a stale d5 stage hijacked a day-6 Continue)
+	if today in [5, 6] and stage(today) != "" and stage(today) != "done": return today
 	for d in [5, 6]:
 		var st := stage(d)
 		if st != "" and st != "done": return d
@@ -36,6 +38,8 @@ static func active_day() -> int:
 static func attach(tree: SceneTree) -> void:
 	var d := active_day()
 	if d == 0 or tree.root.has_node("Day56Routine"): return
+	if stage(d) == "start":   # build 3.2 (black #4): Continue at d<N> = "start" (wake not run yet) -> the alarm step, standing
+		set_stage(d, "alarm"); flag("d56_lying", false)
 	var n = load("res://scripts/story/day5_routine.gd").new(); n.name = "Day56Routine"; n.day = d; tree.root.add_child(n)
 
 var _sc: Node = null
@@ -365,7 +369,7 @@ func _couch(lr: Node) -> void:
 	lr.mode = "play"; lr._update_hand()
 	var t0 := Time.get_ticks_msec()
 	while is_instance_valid(lr):
-		var h: Vector3 = lr.hero.position   # room-local like SOFA_X
+		var h: Vector3 = lr.to_local(lr.hero.global_position)   # room-local like SOFA_X
 		if String(lr.S.seat).begins_with("sofa") or Vector2(h.x, h.z).distance_to(Vector2(lr.SOFA_X, 0)) < 1.9: break
 		if "--qa-d56" in OS.get_cmdline_user_args() and Time.get_ticks_msec() - t0 > 3000: break
 		await _w(0.25)

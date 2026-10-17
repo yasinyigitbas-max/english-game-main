@@ -261,6 +261,7 @@ static func travel(dest: String, door := "", covered := false) -> void:
 		if cam and "focus" in cam: cam.focus = p.global_position
 		var shc = inst.get_tree().root.get_node_or_null("ShoulderCam")
 		if shc and shc.has_method("snap"): shc.snap()
+		if "region" in inst.world and inst.world.has_method("region_at"): inst.world.region = inst.world.region_at(p.global_position)   # red: no stale region change -> _on_entered("street") would sleep the place we just made live
 		if dest in PLACES: await inst._enter(dest, "")   # build 3.2 (red): cafe/shop go live after the hero is at their door
 		else: inst._street_hooks.call_deferred(door)
 	else:
