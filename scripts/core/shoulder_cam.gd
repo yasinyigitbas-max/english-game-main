@@ -150,9 +150,25 @@ func _process(dt: float) -> void:
 		yaw = (rc as CameraRig).yaw; _manual = 1.5   # the player dragged / turned the rig: follow that
 	var h: Vector3 = (hero as Node3D).global_position
 	var chest := h + Vector3(0, LOOK_H, 0)
+	# fix33 (#16/#17, Yasin's bedtime rule): sitting on the bed edge -> lying down under the blanket -> sleep is framed from
+	# beside the foot of the bed (the whole bed + the hero in view), not from behind the hero (the wall / wardrobe)
+	var bv := _bed_view(sc, face)
+	if not bv.is_empty() and tgt == Vector3.INF:
+		var bp: Vector3 = bv.pos; var bl: Vector3 = bv.at
+		if pos == Vector3.INF or _room != sc: pos = bp; look = bl
+		if dt > 0.0: pos = pos.lerp(bp, 1.0 - exp(-dt / 0.45)); look = look.lerp(bl, 1.0 - exp(-dt / 0.35))
+		_room = sc; _room_house = room; _last_hero = h
+		(rc as Camera3D).fov = lerpf((rc as Camera3D).fov, FOV, 1.0 - exp(-dt / 0.3)) if dt > 0.0 else (rc as Camera3D).fov
+		if pos.distance_to(look) > 0.05: (rc as Camera3D).global_transform = Transform3D(Basis.looking_at(look - pos, Vector3.UP), pos)
+		dbg = "bed"; return
 	if _room != sc:
 		# a house door keeps the view (House._swap shifted it); any other scene change starts fresh behind the hero
 		if not (room and _room_house): pos = Vector3.INF; look = Vector3.INF; _set_yaw = INF
+		elif pos != Vector3.INF:
+			# fix33: house door hand-over with the camera IN FRONT of the hero (an objective pan framed the door from the far
+			# side): one clean cut to behind the hero instead of a frame from the front / of the dark room we left
+			var cy := atan2(pos.x - (hero as Node3D).global_position.x, pos.z - (hero as Node3D).global_position.z)
+			if absf(wrapf(cy - ((face as Node3D).global_rotation.y + PI), -PI, PI)) > 1.75: pos = Vector3.INF; look = Vector3.INF
 		_room = sc; _room_house = room; _next = 0.0
 	# fix33: a teleport (story / trip moved the hero > 2.5 m in one frame): start fresh behind the hero, no swoop / stale room
 	if _last_hero != Vector3.INF and h.distance_to(_last_hero) > 2.5: pos = Vector3.INF; look = Vector3.INF
@@ -224,6 +240,14 @@ func _process(dt: float) -> void:
 	if pos == Vector3.INF: pos = want_pos; look = want_look
 	pos = pos.lerp(want_pos, 1.0 - exp(-dt / TAU_POS)) if dt > 0.0 else pos
 	if _in_wall(pos, _boxes): pos = want_pos   # the smoothing path itself must not cross through a wall slab
+	# fix33 (d4/103): the view stuck with a wall between camera and hero (trail spot in a door jamb after a guide shot):
+	# after 0.25 s of no line of sight, a clean restart on the nearest clear heading
+	if tgt == Vector3.INF and _manual <= 0.0 and dt > 0.0 and (_in_wall(pos, _boxes) or _blocked(pos, chest, _boxes)):
+		_los_bad += dt
+		if _los_bad > 0.25:
+			_los_bad = 0.0; yaw = _clear_yaw(h, chest, yaw, _boxes); _tp = Vector3.INF; _trail.clear()
+			pos = _out_of_walls(_spot(h, yaw, side_s, k), chest, _boxes); look = want_look
+	else: _los_bad = 0.0
 	look = look.lerp(want_look, 1.0 - exp(-dt / TAU_LOOK)) if dt > 0.0 else look
 	# the room's movement stays relative to this camera
 	if "cam_yaw" in sc and not (rc is CameraRig): sc.set("cam_yaw", yaw); _wrote_cy = yaw
@@ -236,6 +260,7 @@ func _process(dt: float) -> void:
 	if pos.distance_to(look) > 0.05: cam.global_transform = Transform3D(Basis.looking_at(_pitch_cap(look - pos), Vector3.UP), pos)
 
 var _swing := INF
+var _los_bad := 0.0
 var _gcam: Camera3D = null   # fix33: the live guide camera (objective pan) we frame for
 var _trail: Array = []      # fix33: the hero's recent path (world, newest last, 0.15 m steps)
 var _tp := Vector3.INF      # fix33: camera spot on that path when every off-shoulder spot is blocked
@@ -465,3 +490,15 @@ func _room_idle(sc: Node) -> bool:
 		var v = sc.get(k)
 		if v is Dictionary and not (v as Dictionary).is_empty(): return false
 	return true
+
+## fix33: the bedroom bed sequence (hero on the bed / sitting down on it): {pos, at} of the bed shot, else {}
+func _bed_view(sc: Node, face) -> Dictionary:
+	if not (sc is Node3D) or not ("LIE_ROOT" in sc) or not (face is Node3D) or not (sc.get("OBJ") is Dictionary) or not sc.OBJ.has("bed"): return {}
+	var lp: Vector3 = (sc as Node3D).to_local((face as Node3D).global_position)
+	if lp.x < -2.7 or lp.x > 0.3 or lp.z < -3.4 or lp.z > -1.55: return {}
+	var an := ""
+	var hp = sc.get("hero")
+	if hp and hp.get("player") is AnimationPlayer: an = String((hp.player as AnimationPlayer).current_animation)
+	if lp.y < 0.05 and not an in ["stand_to_sit", "sit_idle", "wake_up", "sleep"]: return {}
+	var f: Vector3 = sc.OBJ.bed.focus
+	return {"pos": (sc as Node3D).to_global(f + Vector3(1.4, 1.6, 1.6)), "at": (sc as Node3D).to_global(f + Vector3(-0.3, -0.1, 0))}

@@ -252,7 +252,9 @@ func _pan_shoulder(sc: Node, stops: Array) -> void:
 	# the hero is still stepping out of the front door: the pan starts once he is outside the house (else it framed the hall)
 	var t0 := Time.get_ticks_msec()
 	# (the hero itself: in a room it is lent to the room, the World player body stays behind on the street)
-	while Time.get_ticks_msec() - t0 < 90000 and RoutineScope.alive(sc) and World.inst and World.room_rect_at(World.inst.hero_pos(), 0.8) != "":
+	# fix33: and a few steps clear of the house / the shop door (framed from right at a door the camera had no room: the
+	# hero at the frame edge behind the house corner, or the home seen from under the shop awning)
+	while Time.get_ticks_msec() - t0 < 90000 and RoutineScope.alive(sc) and World.inst and _at_building(World.inst.hero_pos()):
 		await get_tree().process_frame
 	var restore := "mode" in sc and String(sc.mode) == "play"
 	if restore: sc.mode = "busy"
@@ -317,3 +319,14 @@ func _on_bath_action(_id, sc: Node) -> void:
 		var f: Vector3 = sc.OBJ.door.focus
 		await _guide(sc, {"pos": f + Vector3(0.3, 1.0, -2.4), "at": f}, "Go to the living room.", "Go to the living room.", "Oturma odasına git.")
 	_busy = false
+
+## fix33: the hero is inside / within a few steps of the house or a place (shop, café) door
+static func _at_building(p: Vector3) -> bool:
+	if World.room_rect_at(p, 3.0) != "": return true
+	var rg = World.inst.get("regions") if World.inst else null
+	if rg is Dictionary:
+		for id in rg:
+			if id in ["bedroom", "bathroom", "livingroom", "street"]: continue
+			var ab: AABB = (rg[id] as AABB).grow(2.5)
+			if ab.has_point(Vector3(p.x, ab.get_center().y, p.z)): return true
+	return false

@@ -102,6 +102,7 @@ func go(path: String, from: String) -> void:
 	get_tree().change_scene_to_file(path)
 	await w(1.0)
 
+var _work_t := -100
 func run() -> void:
 	t_start = Time.get_ticks_msec()
 	await w(1.0)
@@ -127,6 +128,15 @@ func run() -> void:
 		var s := cur(); if s == null: continue
 		var k := kind()
 		var dr := get_tree().root.get_node_or_null("Day56Routine")
+		# fix33: red's DayWork trip runs INSIDE the routine (busy): walk the hero to the car once the objective is up
+		if k == "world_exterior.tscn" and Objectives.items.size() >= 1 and String(Objectives.items[0].en) in ["Go to work.", "Go to school."] and not Audio.is_speaking() and t - _work_t > 30:
+			_work_t = t
+			var pl = s.get("player"); var car: Node3D = null
+			for so in s.find_children("*", "StreetObject", true, false):
+				if String(so.get("kind")) == "car" and pl and (car == null or so.global_position.distance_to(pl.global_position) < car.global_position.distance_to(pl.global_position)): car = so
+			print("D56QA WORK walk car=%s" % str(car.global_position if car else "-"))
+			if car and pl: await pl.move_to(car.global_position + (pl.global_position - car.global_position).normalized() * 2.4)
+			continue
 		if dr == null or dr._busy: continue
 		var o: String = String(dr._cur.get("en", ""))
 		if o == "" and Objectives.items.size() == 1: o = String(Objectives.items[0].en)
@@ -154,6 +164,20 @@ func run() -> void:
 					s.qa_use("exit"); await w(1.0); App.came_from = "shop"
 					if world: await w(4.0)
 					else: Game.go_to(Game.WORLD_SCENE, "lot:corner_shop"); await w(2.0)
+				else: did = false
+			["world_exterior.tscn", "Go to work."], ["world_exterior.tscn", "Go to school."]:   # fix33: red's DayWork trip (days 3-7)
+				var pl = s.get("player"); var car: Node3D = null
+				for so in s.find_children("*", "StreetObject", true, false):
+					if String(so.get("kind")) == "car" and pl and (car == null or so.global_position.distance_to(pl.global_position) < car.global_position.distance_to(pl.global_position)): car = so
+				if car and pl: await pl.move_to(car.global_position + (pl.global_position - car.global_position).normalized() * 2.4)
+				else: did = false
+			["livingroom.tscn", ""]:   # fix33: back from red's work trip (front door) the day-6 routine waits on the street with no objective
+				if Day56.stage(d) == "out" and t - _work_t > 60:
+					print("D56QA WORK back home with no objective: going out"); App.came_from = "livingroom"; await go(Game.WORLD_SCENE, "livingroom")
+				else: did = false
+			["livingroom.tscn", "Go to work."], ["livingroom.tscn", "Go to school."]:
+				App.came_from = "livingroom"
+				if world: await go(Game.WORLD_SCENE, "livingroom")
 				else: did = false
 			["world_exterior.tscn", "Go to the bus stop."]:
 				await snap("d6_world_stop_obj")

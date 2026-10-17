@@ -102,15 +102,19 @@ func _process(_dt: float) -> void:
 		if _room_sun and is_instance_valid(_room_sun): _room_sun.visible = false; _room_sun = null
 		_rs_e = -1.0
 	if house:
-		# the clock: ambient eases down to 60 % at night (the room's lamps carry the evening), the window sun goes to 0
-		_derive(renv if renv is Environment else _house_env, ROOM_AMB_K * (0.6 + 0.4 * d), 0.0, float(ROOM_EXP_BY.get(id, ROOM_EXP)), d)
+		# the clock: at dusk / night the ambient drops to 40 % and the exposure a little (the room's warm lamps carry the
+		# evening: rooms read as night, the 18:00 storm evening no longer looks like daytime), the window sun goes to 0
+		var nf := 1.0 - smoothstep(0.12, 0.65, d)   # 0 day .. 1 night (18:00 = 0.3 -> ~0.7)
+		_derive(renv if renv is Environment else _house_env, ROOM_AMB_K * (1.0 - 0.6 * nf), 0.0, float(ROOM_EXP_BY.get(id, ROOM_EXP)) * (1.0 - 0.18 * nf), d)
+		_out.ambient_light_color = _out.ambient_light_color.lerp(Color(0.62, 0.66, 0.9), 0.55 * nf)   # moonlit fill; the lamps stay warm
+		_window_sky(n, key, d)
 		if rsun is DirectionalLight3D and is_instance_valid(rsun):
 			_room_sun = rsun; _room_sun.visible = true
 			# the room writes its sun energy on state changes (curtains / clock): scale what it asked for, once
 			var le := _room_sun.light_energy
 			if not is_equal_approx(le, float(_room_sun.get_meta("ow_set", -1.0))): _room_sun.set_meta("ow_raw", le)   # the room wrote a new energy (curtains / clock)
 			_rs_raw = float(_room_sun.get_meta("ow_raw", le))
-			_rs_e = minf(_rs_raw * ROOM_SUN_K, 1.3 * ROOM_SUN_K * d)   # fix33: 18:00 dusk / 23:30 night (rooms built at 07:00 kept a day sun)
+			_rs_e = minf(_rs_raw * ROOM_SUN_K, 1.3 * ROOM_SUN_K * d * (1.0 - nf))   # fix33: 18:00 dusk / 23:30 night (rooms built at 07:00 kept a day sun)
 			_room_sun.light_energy = _rs_e; _room_sun.set_meta("ow_set", _rs_e)
 			_room_sun.visible = _rs_e > 0.01
 			if wsun: wsun.visible = false
@@ -124,3 +128,22 @@ func _process(_dt: float) -> void:
 		var storm := clampf((1.0 - he.adjustment_brightness) / 0.38, 0.0, 1.0) if he else 0.0   # day-6 storm (it tweens brightness 1 -> 0.62)
 		if storm > 0.0: _out.background_color = _out.background_color.lerp(Color(0.4, 0.43, 0.48), storm)
 		if wsun: wsun.visible = d > 0.02; wsun.light_energy = _sun_e * d * (1.0 - 0.8 * storm)
+
+## fix33: the rooms' window views are unshaded ui/sky.png quads (livingroom N.sky, the bedroom's sky quad): they
+## showed a bright day sky at 18:00 / 23:30. Tinted to the clock; a darker tint the room set itself (closed curtains,
+## the day-4 power cut) is kept.
+var _sky_key := ""
+var _sky_mats: Array = []
+func _window_sky(n: Node, key: String, d: float) -> void:
+	if n == null: return
+	if key != _sky_key:
+		_sky_key = key; _sky_mats.clear()
+		for m in n.find_children("*", "MeshInstance3D", true, false):
+			var sm = (m as MeshInstance3D).material_override
+			if sm is StandardMaterial3D and (sm as StandardMaterial3D).albedo_texture and String((sm as StandardMaterial3D).albedo_texture.resource_path).ends_with("ui/sky.png"): _sky_mats.append(sm)
+	var tint := Color(1, 1, 1).lerp(Color(0.95, 0.68, 0.55), clampf((0.75 - d) / 0.4, 0.0, 1.0)).lerp(Color(0.1, 0.12, 0.24), clampf((0.4 - d) / 0.35, 0.0, 1.0))
+	for sm in _sky_mats:
+		if not is_instance_valid(sm): continue
+		var c: Color = (sm as StandardMaterial3D).albedo_color
+		if c.get_luminance() > tint.get_luminance() + 0.02 or (sm as StandardMaterial3D).has_meta("ow_tint") and c.is_equal_approx((sm as StandardMaterial3D).get_meta("ow_tint")):
+			(sm as StandardMaterial3D).albedo_color = tint; (sm as StandardMaterial3D).set_meta("ow_tint", tint)
