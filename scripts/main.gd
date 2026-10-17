@@ -625,7 +625,7 @@ func _to(n: Object, prop: String, val, anim: bool, t := 0.8) -> void:
 	else: n.set_indexed(NodePath(prop), val)
 
 func _apply_states(anim := false) -> void:
-	N.unmade.visible = S.bed == "unmade"; N.made.visible = S.bed == "made"
+	N.unmade.visible = S.bed == "unmade" and not (blanket != null and is_instance_valid(blanket)); N.made.visible = S.bed == "made"   # Yasin 23:58: no rumpled mound under the sleep blanket
 	var lamp_on: bool = S.lamp == "on"
 	N.lamp_light.visible = lamp_on; N.lamp_glow.visible = lamp_on
 	_to(N.drawer, "position:z", -2.43 + (0.25 if S.drawer == "open" else 0.0), anim)
@@ -949,6 +949,7 @@ func _blanket(on: bool, t := 0.8) -> void:
 	elif on: return   # already covered (bed locks re-pose every frame: no re-fade)
 	if blanket == null: return
 	var mt := blanket.material_override as StandardMaterial3D
+	if N.has("unmade") and is_instance_valid(N.unmade): N.unmade.visible = (S.bed == "unmade") and not on   # no rumpled-sheet mound under / before the blanket
 	if on:
 		blanket.visible = true; mt.albedo_color.a = 0.0
 		create_tween().tween_property(mt, "albedo_color:a", 1.0, t)
@@ -1027,6 +1028,8 @@ func sleep_pose(fade := 0.0) -> void:
 ## Yasin 17:58 SLEEP STANDARD: the ONE lie-down on a bed (player verb, day-1..7 bedtimes): sit, lie, and straight into
 ## the real sleep pose the moment the body is down (no flat idle frame in between).
 func lie_down() -> void:
+	# Yasin 23:58: the bed is flat / made while getting in; the bulged sleep blanket only appears at the switch to the sleep pose
+	if S.bed == "unmade": S.bed = "made"; _apply_states()
 	await sit_on_bed(); await edge_to_bedsit(); await bedsit_to_lie()
 	sleep_pose()   # straight into the sleeping / breathing clip (aligned head/feet/hips: no pop; the blanket fades over it)
 
@@ -1039,8 +1042,8 @@ func _sleep_pingpong() -> void:
 	elif p <= SLEEP_A and hero.player.speed_scale < 0.0: hero.player.speed_scale = SLEEP_SPEED
 
 func bedsit_up() -> void:     # lying -> sitting up in bed (legs stay where they are)
-	_blanket(false, 0.6)
 	end_sleep_pose()
+	_blanket(false, 0.6)   # Yasin 23:58: AFTER end_sleep_pose (its _pose_sleep re-created the blanket: the bulge stayed on waking)
 	breathing = false; hero.bone_offsets.clear()
 	_tw_offset("UpperLeg.L", Vector3.RIGHT, LEG_FIX, 2.0); _tw_offset("UpperLeg.R", Vector3.RIGHT, LEG_FIX, 2.0)
 	hero.player.speed_scale = 1.0; hero.player.play("wake_up", 2.0, 0.0)   # v11: slower, softer sit-up
