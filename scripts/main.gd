@@ -1379,6 +1379,7 @@ func load_game() -> bool:
 	return S.created
 
 var saved_pos := Vector3.INF
+var _hosp_home := false   # v33: day-1 hospital return -> story_home runs the review / tests / night; no room objective meanwhile
 func _continue_game() -> void:
 	started = true; menu.visible = false; hud.visible = true
 	breathing = false; hero.bone_offsets.clear(); hero.player.speed_scale = 1.0; hero.model.rotation.x = 0.0; hero.model.position = Vector3.ZERO
@@ -1393,11 +1394,11 @@ func _continue_game() -> void:
 	else: get_tree().create_timer(0.6, false).timeout.connect(func(): caption("I'm in the bedroom now.", false))   # house.17: silent room caption
 	var _svh = App.load_save().get("story", {})
 	if App.came_from == "hospital" and not (_svh is Dictionary and bool(_svh.get("day1_done", false))):   # v30.5: once; house.25: day-1 story continues at home (v31: "hospital_day2" = day-2 check-up, no home story)
-		_home_from_hospital()
+		_home_from_hospital(); _hosp_home = true   # v33: no room objective after this (it fell back to "Go to the living room." during the review / night)
 	elif App.came_from == "hospital_day2": get_tree().create_timer(1.2, false).timeout.connect(func(): Day2After.run(self, "bedroom"))   # v30.5
 	load("res://scripts/story/bedtime.gd").hook_bedroom(self)   # v31c (red): day-2 bedtime / day-3 morning
 	load("res://scripts/story/day5_routine.gd").attach(get_tree())   # v33 (blue): days 5-6 routine (resume on Continue)
-	_advance(false)
+	if not _hosp_home: _advance(false)
 
 func _to_main_menu() -> void:
 	if S.created: save_game()
@@ -1460,12 +1461,8 @@ func creation_flow() -> void:
 	_show_alphabet()
 	await name_done
 	_close_side()
-	# v11: spell first, wait for the spelling to finish, then say the name once (clips queued, never overlapping)
-	caption("My name is %s." % S.name, false)
+	# v11: spell first, wait for the spelling to finish (v33: "My name is ..." comes after the look, in the chosen narrator's voice)
 	Audio.spell(S.name)
-	await Audio.wait_idle()
-	await wait(0.25)
-	Audio.say_name(S.name)   # house.26: one narrator clip for common names
 	await Audio.wait_idle()
 	await wait(0.4)
 	# ---- look
@@ -1475,6 +1472,11 @@ func creation_flow() -> void:
 	_show_creation()
 	await look_done
 	App.narrator_from_look(String(S.gender), String(S.age), true)   # v30.1: narrator voice follows the new character
+	_close_side()
+	caption("My name is %s." % S.name, false)   # v33: after the look -> the chosen narrator's own name clip / model
+	Audio.say_name(S.name)   # house.26: one narrator clip for common names
+	await Audio.wait_idle()
+	await wait(0.4)
 	await _after_look()
 
 func _after_look() -> void:
@@ -1920,6 +1922,9 @@ func objective() -> Array:
 	return ["Go to the living room.", ""]
 
 func _advance(sound: bool) -> void:
+	if _hosp_home:   # v33: day-1 night after the hospital (review / tests in bed): no room objective until the day-2 morning
+		var _st = App.load_save().get("story", {})
+		if not (_st is Dictionary and bool(_st.get("day1_done", false))): return
 	load("res://scripts/story/day4_routine.gd").start(get_tree())   # v33 (red): day-4 / day-7 routine (idempotent; day 7 starts from blue's day 6)
 	var o := objective()
 	var prev := mission
