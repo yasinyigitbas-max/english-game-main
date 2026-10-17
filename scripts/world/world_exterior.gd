@@ -66,11 +66,9 @@ func _ready() -> void:
 	caption("I'm outside now.", false)   # house.23: silent room caption, like the house rooms
 	if load("res://scripts/story/story_accident.gd").should_run():   # house.25: day-1 story
 		var st = load("res://scripts/story/story_accident.gd").new(); st.w = self; add_child(st); st.run()
-	elif _home_car and ChildDrive.arriving_home(): ChildDrive.arrive_home(self, lot)   # v33 child-drive: the parent drives into the driveway
 	elif _home_car: _day2_go_inside.call_deferred(lot)
 	elif load("res://scripts/story/day2_car.gd").should_run():   # v31: day-2 morning -> prompt to the car, hook day2_reached_car
 		var d2 = load("res://scripts/story/day2_car.gd").new(); d2.name = "Day2Car"; d2.w = self; add_child(d2); d2.run()
-		ChildDrive.escort(self)   # v33 child-drive: a child walks to the car with mom / dad (no-op for adults)
 
 ## v32-polish: after BOTH day-2 visits the player stands beside the car; objective + pan to the home's main door, in the
 ## one caption box (Life.guide_to -> HUD caption). Entering the door leads to the living room, where Day2After.run()
