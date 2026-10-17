@@ -45,7 +45,7 @@ func _ready() -> void:
 		"liedown":
 			WorldState.minutes = 22.0 * 60.0; App.patch_save({"alarm_off_day": 4})   # a real bedtime: evening, today's alarm long done
 			await OwLink.enter("bedroom", ""); await _t(6.0)
-			var bm = OwLink.inst.world.places.get("bedroom"); bm.mode = "busy"
+			var bm = OwLink.inst.world.places.get("bedroom"); bm.mode = "busy"; bm.S.created = true; bm.hero.set_mannequin(false); bm._apply_character(); bm.S.alarm = "off"; bm._apply_states(); bm._set_mission("")   # harness: the room was built at the 07:00 harness start (mannequin, alarm ringing) before the state patch
 			bm.cam_shot = {"pos": bm.OBJ.bed.focus + Vector3(1.9, 1.5, 1.7), "at": bm.OBJ.bed.focus + Vector3(0, 0.3, 0)}
 			await bm.walk_to(bm.OBJ.bed.spot, 0.0); await _t(1.0)
 			bm.lie_down()
@@ -89,6 +89,15 @@ func _shot(i: int) -> void:
 	var cs = get_tree().current_scene; print("RED_SHOT ", ev, " ", i, " ", cs.name if cs else "-", " cam=", get_viewport().get_camera_3d().get_path() if get_viewport().get_camera_3d() else "none", " obj=", Objectives.items)
 	if cs: print("RED_STATE mode=", cs.get("mode"), " speaking=", Audio.is_speaking(), " cam_shot=", cs.get("cam_shot"), " hero_l=", (cs as Node3D).to_local(OwLink.the_hero().global_position) if cs is Node3D else "")
 	if cs and cs.get("hero"): print("RED_HERO par=", cs.hero.get_parent().get_path(), " pos=", cs.hero.position, " same=", cs.hero == OwLink.the_hero(), " canproc=", cs.can_process(), " dt=", cs.get_process_delta_time(), " paused=", get_tree().paused, " anim=", cs.hero.get("current") if true else "")
+	var hh = OwLink.the_hero()
+	if hh:
+		print("RED_LOOK creator=", Game.creator(), " skin=", hh.skin, " gender=", hh.gender, " outfit=", hh.outfit)
+		var nn := 0
+		for k in hh._meshes:
+			var mi: MeshInstance3D = hh._meshes[k]; nn += 1
+			if nn > 6: break
+			var sm = mi.get_active_material(0)
+			print("RED_MAT ", k, " vis=", mi.visible, " ovr=", mi.material_override, " ovl=", mi.material_overlay, " act=", sm, " col=", sm.albedo_color if sm is BaseMaterial3D else "-", " tex=", sm.albedo_texture if sm is BaseMaterial3D else "-")
 	for n in get_tree().root.get_children():
 		if String(n.name).begins_with("Day"): print("RED_DIR ", n.name, " busy=", n.get("_busy"), " dbg=", n.get("_dbg"))
 	if ev == "street" and OwLink.active():
