@@ -13,24 +13,39 @@ const Places := preload("res://scripts/world/world_places.gd")
 const Merge := preload("res://scripts/world/world_merge.gd")
 const LOTS := {"cafe": "cafe", "corner_shop": "shop"}
 
+static var disabled := false   # tools/qa_ow/perf_ow.gd: measure the bare World first, then install(world, {"force": true})
+static var last := {}
+
+## sync part: the wall-fade manager (World / red's OwLink may use it at once); everything that needs the built places runs
+## a few frames later (the world-mode café / shop build in their deferred _world_init, World._late_places after that)
 static func install(world: Node, opts := {}) -> Dictionary:
+	if disabled and not bool(opts.get("force", false)): return {}
 	var out := {}
+	var wwf: Node = load("res://scripts/world/world_wall_fade.gd").new(); wwf.set("host", world); world.add_child(wwf); out.wall_fade = wwf
+	last = out
+	_late(world, opts, out)
+	return out
+
+static func _late(world: Node, opts: Dictionary, out: Dictionary) -> void:
+	for i in 3: await world.get_tree().process_frame
+	if not is_instance_valid(world): return
 	var doors = world.get("doors")
 	if doors is Dictionary:
 		for id in doors:
 			var lf = doors[id].get("leaf")
 			if lf is Node: (lf as Node).set_meta("no_fade", true); (lf as Node).add_to_group("doors")
-	var wwf: Node = load("res://scripts/world/world_wall_fade.gd").new(); wwf.set("host", world); world.add_child(wwf); out.wall_fade = wwf
 	var places = world.get("places")
 	if places is Dictionary:
 		for id in ["cafe", "shop"]:
-			if places.has(id): out["front_" + id] = Facades.build(places[id], id, wwf.wf)
+			if places.has(id): out["front_" + id] = Facades.build(places[id], id, out.wall_fade.wf)
 	_clear_lots(world)
-	if bool(opts.get("work", true)): out.places = Places.add_all(world)
+	if bool(opts.get("work", false)): out.places = Places.add_all(world)   # off: black's north strip has the work place
 	if bool(opts.get("merge", true)): out.merge = merge_all(world)
 	if bool(opts.get("culling", true)):
 		var wc: Node = load("res://scripts/world/world_culling.gd").new(); wc.set("host", world); world.add_child(wc); out.culling = wc
-	return out
+	if bool(opts.get("zones", true)):
+		var z: Node = load("res://scripts/world/world_zones.gd").new(); z.set("host", world); world.add_child(z); out.zones = z
+	out.ready = true
 
 ## the old street lot fronts under the new interiors: their Label3D sign and the building box (World._open_lot only hides
 ## a box narrower than 20 m: the corner shop's is wider, so its pale front showed instead of the green one)
@@ -49,15 +64,15 @@ static func _clear_lots(world: Node) -> void:
 				(m as MeshInstance3D).visible = false; m.remove_from_group("fade"); m.set_meta("ow_removed", true)
 
 ## one merged mesh per street block (WorldGrid.loaded; later-streamed blocks too), per room / place, and for other
-## direct children (fences, ...). Rooms / places keep a 40 m range, street blocks 120 m.
+## direct children (fences, ...). Small things: 40 m range in rooms / places, 60 m on the street (14 m cells); big things none.
 static func merge_all(world: Node) -> Dictionary:
 	var tot := {"roots": 0, "meshes": 0, "surfaces_in": 0, "surfaces_out": 0}
 	var roots: Array = []
 	var grid = world.get("grid")
 	if grid and grid.get("loaded") is Dictionary:
-		for c in grid.loaded: roots.append([grid.loaded[c], 120.0])
+		for c in grid.loaded: roots.append([grid.loaded[c], 60.0])
 		if grid.has_signal("block_loaded"):
-			grid.block_loaded.connect(func(_c, b): (func(): Merge.merge_root(b, 120.0)).call_deferred())
+			grid.block_loaded.connect(func(_c, b): (func(): Merge.merge_root(b, 60.0)).call_deferred())
 	var places = world.get("places")
 	if places is Dictionary:
 		for id in places: roots.append([places[id], 40.0])
@@ -65,7 +80,7 @@ static func merge_all(world: Node) -> Dictionary:
 		if c is Node3D and c != grid and not (places is Dictionary and c in (places as Dictionary).values()) and not (c is CharacterBody3D) and c.get_script() == null:
 			roots.append([c, 0.0])
 	for r in roots:
-		var s: Dictionary = Merge.merge_root(r[0], r[1])
+		var s: Dictionary = Merge.merge_tree(r[0], r[1])
 		if int(s.get("meshes", 0)) > 0: tot.roots += 1
 		for k in ["meshes", "surfaces_in", "surfaces_out"]: tot[k] += int(s.get(k, 0))
 	return tot
