@@ -184,6 +184,7 @@ static func to_street(door := "") -> void:
 	if active(): await inst._to_street(door)
 
 func _to_street(door: String) -> void:
+	if world.has_method("street_objective"): world.street_objective(door)   # black 3.1: the street objective from the first step out
 	var h := the_hero()
 	var p := world.player as Node3D
 	var g := h.global_transform
