@@ -219,19 +219,19 @@ func _build_car() -> void:
 	d.box(CarKit.GLASS, Vector3(0.04, 0.4, 0.98), Vector3(0, 0.52, 0.55), Color.WHITE)
 	d.box(CarKit.PAINT, Vector3(0.05, 0.035, 1.0), Vector3(-0.005, 0.315, 0.55), Color(0.82, 0.83, 0.85))
 	d.box(CarKit.PAINT, Vector3(0.03, 0.035, 0.14), Vector3(-0.04, 0.2, 0.9), Color(0.82, 0.83, 0.85))
-	var dn := Node3D.new(); dn.position = Vector3(-0.93, 0.6, -0.3); add_child(dn); d.commit(dn); parts["door"] = dn
+	var dn := Node3D.new(); dn.position = Vector3(0.75, 0.6, -0.93); dn.rotation.y = -PI / 2; add_child(dn)   # ui33: CarKit cars run along X, the old z-axis door floated off the back as a stray blue pane; now on the house-side flank; d.commit(dn); parts["door"] = dn
 	col(Vector3(1.9, 1.5, 4.3), Vector3(0, 0.75, 0))
-	it.position = Vector3(-1.6, 0, 0.3); it.radius = 1.6; it.focus = to_global(Vector3(-0.9, 1.0, 0.3))
+	it.position = Vector3(0.2, 0, -1.6); it.radius = 1.6; it.focus = to_global(Vector3(0.2, 1.0, -0.9))
 
 func _v_car() -> Array:
 	if S.locked: return [["Unlock the car", func(): S.locked = false; say("I am unlocking my car.")]]
-	if not S.open: return [["Open the car door", func(): S.open = true; swing(parts.door, "rotation:y", -1.1); say("I am opening the car door.")],
+	if not S.open: return [["Open the car door", func(): S.open = true; swing(parts.door, "rotation:y", -PI / 2 - 1.1); say("I am opening the car door.")],
 		["Lock the car", func(): S.locked = true; say("I am locking my car.")]]
 	var out: Array = []
 	for d in car_destinations():
 		var dd: Dictionary = d
 		out.append([dd.label, func(): _drive(dd)])
-	out.append(["Close the car door", func(): S.open = false; swing(parts.door, "rotation:y", 0.0); say("I am closing the car door.")])
+	out.append(["Close the car door", func(): S.open = false; swing(parts.door, "rotation:y", -PI / 2); say("I am closing the car door.")])
 	return out
 
 ## v25: destinations from the house job (save.json "state".job via CharacterHook.state, jobs.json like the phone)

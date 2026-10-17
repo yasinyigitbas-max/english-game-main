@@ -765,7 +765,7 @@ func do_verb(id: String, v: Array) -> void:
 		"alarm":
 			await gesture("mid", id, func(): Audio.sfx("metalClick"); S.alarm = {"off": "off", "set": "set", "check": S.alarm}.get(key, "off") if key != "set" else "set")
 			if key == "off":
-				if S.created and maxi(WorldState.day, App.day) <= 1: _set_mission("Explore your bedroom.")
+				if S.created and maxi(WorldState.day, App.day) <= 1 and not get_tree().root.has_node("Day56Routine"): _set_mission("Explore your bedroom.")   # int: day-1 mission only (ui33: never flashes after the day-5/6 alarm)
 				elif S.created: _advance(false)   # build 3.2 (black #19): day 2+ continues the story, never the day-1 "Explore your bedroom."
 				else:
 					Objectives.set_list(["Look in the mirror."]); _set_mission("Look in the mirror.")
