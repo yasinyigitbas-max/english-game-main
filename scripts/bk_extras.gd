@@ -224,11 +224,11 @@ func _cab_action(key: String, v: Array) -> void:
 	await m.walk_to(m.OBJ.sink.spot, m.OBJ.sink.yaw); m._sink_shot()
 	await m.caption("I am drinking water.")
 	await m.gesture("sink", "sink", func(): m.N.cup.visible = false; h.hold_item(P + "Cup.tscn", "cylinder", 0.1, false); Audio.sfx("metalClick", -10.0))
-	m.S.tap = "on"; m._apply_states(true); Audio.sfx("metalClick"); Audio.sfx("water", -6.0)
+	m.S.tap = "on"; m._apply_states(true); Audio.sfx("metalClick"); Audio.tap_sfx(-6.0)
 	await m._lean_basin(); await m.wait(0.9); await m._straighten(); _idle_now()
 	m.S.tap = "off"; m._apply_states(true); Audio.sfx("metalClick")
 	_arm(ARM_MOUTH, 0.8); await m.wait(0.7); m._tw_offset("Neck", Vector3.RIGHT, -0.25, 0.5); m.action_peak.emit("drink")
-	Audio.sfx("water", -10.0, 1.6); await m.wait(1.5)
+	Audio.tap_sfx(-10.0, 1.6); await m.wait(1.5)
 	m._tw_offset("Neck", Vector3.RIGHT, 0.0, 0.4); _arm([0.0, 0.0], 0.7); await m.wait(0.7)
 	await m.gesture("sink", "sink", func(): h.release_item(); m.N.cup.visible = true; Audio.sfx("metalClick", -10.0))
 
