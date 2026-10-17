@@ -42,7 +42,7 @@ func _ready() -> void:
 	hud.phone.map_provider = map_info
 	player = WorldPlayer.new(); add_child(player); player.hud = hud; hud.player = player; player.floor_y = 0.07
 	player.surface_func = surface_at
-	if not App.came_from in ["cafe", "shop"] and Game.spawn != "home_car": hud.set_mission("Walk to the street."); Objectives.set_list(["Walk to the street."] + _keep_objs())   # v31: not after a café / shop visit
+	if not App.came_from in ["cafe", "shop"] and Game.spawn != "home_car" and not _story_obj_active(): hud.set_mission("Walk to the street."); Objectives.set_list(["Walk to the street."] + _keep_objs())   # v31: not after a café / shop visit
 	var start := Vector3(-3, 0.07, 5)
 	grid.load_around_now(start)
 	var _sp: String = {"cafe_door": "lot:cafe", "shop_door": "lot:corner_shop"}.get(Game.spawn, Game.spawn)   # v31: café / shop door spawns
@@ -82,6 +82,16 @@ func _day2_go_inside(lot) -> void:
 	if away.length() < 0.05: away = Vector3(0, 0, 1)
 	Objectives.set_list(_keep_objs())   # v32 int: drop the stale morning steps ("Walk to the street." / "Go to the car.") before the new objective
 	await Life.guide_to({"pos": door + away.normalized() * 5.5 + Vector3(0, 2.6, 0), "at": door}, "Go inside and talk to my family.", {"tr": "İçeri gir ve ailemle konuş."})
+
+## v33: "Walk to the street." only when no story routine owns the objective (days 3-7 routines set their own step; it
+## used to flash for ~2 s on every street entry before the story objective replaced it)
+func _story_obj_active() -> bool:
+	for n in ["Day3Morning", "Day4Routine", "Day7Routine", "Day56Routine"]:
+		if get_tree().root.has_node(n): return true
+	var st = App.load_save().get("story", {})
+	var d := maxi(WorldState.day, App.day)
+	if st is Dictionary and d >= 3 and d <= 7 and not String(st.get("d%d" % d, "")) in ["", "done"]: return true
+	return false
 
 # ------------------------------------------------------------------ traffic
 func _spawn_traffic() -> void:
