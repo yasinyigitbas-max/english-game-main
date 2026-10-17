@@ -1099,14 +1099,13 @@ func edge_to_bedsit() -> void:  # exact reverse of bedsit_to_edge
 		hero.position = Vector3(xz.x, hero.position.y, xz.z)
 		hero.rotation.y = lerp_angle(y0, PI / 2, clampf((e - 0.1) / 0.9, 0.0, 1.0))
 		# the pelvis stays ON the mattress the whole time (the root follows the pose crossfade, no float)
-		_pin_hips(lerpf(_seat_hips_y(), M + 0.1 * hero.model.scale.y, e) - LIE_DROP * e, 1.0)   # Yasin 22:58: body 15 cm lower from the bed-sit on (eased in, kept through lying + sleep)
+		_pin_hips(lerpf(_seat_hips_y(), M + 0.1 * hero.model.scale.y, e) - LIE_DROP * e - LIE_DROP * smoothstep(0.45, 1.0, k), 1.0)   # Yasin 22:58: body 15 cm lower from the bed-sit on (eased in, kept through lying + sleep)
 	await wait(0.05)
 
 func bedsit_to_lie() -> void:
 	# build 3.2 (Yasin 21:33): the torso leans back slowly (eased 1.8 s) while the long-sit pose relaxes into the lying pose
 	hero.player.speed_scale = 1.0; hero.player.play("idle", 1.8, 0.0); hero.player.seek(0.0, true)
 	create_tween().tween_method(_lie_blend, 0.0, 1.0, 1.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	create_tween().tween_property(hero, "position:y", hero.position.y - LIE_DROP, 1.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)   # Yasin 23:02: 15 cm more while leaning back (0.30 total; bedsit_up restores)
 	await wait(1.85); hero.player.speed_scale = 0.0; breathing = true
 
 ## build 3.2 (Yasin 21:23): the alarm rings EVERY morning (days 1-7). True while today's alarm has not been turned off yet
