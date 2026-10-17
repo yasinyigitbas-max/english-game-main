@@ -183,8 +183,8 @@ func _puzzle(sentence: String, tr_line := "") -> void:
 	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 12); box.add_child(v)
 	var ask := Label.new(); ask.text = "Put the words in the right order."; ask.add_theme_font_size_override("font_size", 18); ask.add_theme_color_override("font_color", Color(0.4, 0.45, 0.6)); ask.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(ask)
 	var askt := Label.new(); askt.text = "Kelimeleri doğru sıraya koy."; askt.add_theme_font_size_override("font_size", 15); askt.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8)); askt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(askt)
-	var ans := Label.new(); ans.text = "..."; ans.add_theme_font_size_override("font_size", 30); ans.add_theme_color_override("font_color", Color(0.12, 0.15, 0.25)); ans.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ans.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(ans)
-	var ant := Label.new(); ant.text = tr_line; ant.add_theme_font_size_override("font_size", 16); ant.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8)); ant.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(ant)
+	var ans := Label.new(); ans.text = "..."; ans.add_theme_font_size_override("font_size", 30); ans.add_theme_color_override("font_color", Color(0.12, 0.15, 0.25)); ans.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ans.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; ans.visible = false; v.add_child(ans)   # v32-polish: built sentence -> standard caption box
+	var ant := Label.new(); ant.text = tr_line; ant.add_theme_font_size_override("font_size", 16); ant.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8)); ant.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ant.visible = false; v.add_child(ant)
 	var row := HFlowContainer.new(); row.alignment = FlowContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("h_separation", 10); row.add_theme_constant_override("v_separation", 10); v.add_child(row)
 	var got: Array = []
 	var done := [false]
@@ -195,9 +195,10 @@ func _puzzle(sentence: String, tr_line := "") -> void:
 			if wd == target[got.size()]:
 				Audio.click(); got.append(wd); bt.disabled = true; ans.text = " ".join(got)
 				if got.size() == target.size(): ans.text += end; done[0] = true
+				lr.caption_live("Me: " + ans.text, ("Ben: " + tr_line) if done[0] and tr_line != "" else "")
 			else: Audio.bad())
 	while not done[0]:
-		askt.visible = App.tr_on(); ant.visible = App.tr_on() and tr_line != ""
+		askt.visible = App.tr_on()
 		await get_tree().process_frame
 	Audio.good()
 	await _w(0.5)

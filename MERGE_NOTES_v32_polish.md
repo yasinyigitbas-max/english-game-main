@@ -67,3 +67,13 @@ Shelf tops measured from props/furniture/bookcaseOpen.glb: y = 0.13 / 0.37 / 0.6
 - NPCs keep their pose: scripts/world/npc.gd:47-59 routes through NpcTalk (verified, from v32-npc-pose-main).
 - QA probe: tools/qa_tr_probe.gd/.tscn (export-excluded tools folder).
 - New player-visible lines: none needing voice. The only new UI text is the "TR" button label and TR glosses (data only).
+
+## 10. Scramble rule: the built sentence goes in the ONE caption box (Yasin, added during v32)
+- scripts/livingroom.gd:240 new `caption_live(line, tr)`: puts "Me: <words so far>" in the standard room caption box (silent), with TR inside once the sentence is complete. `_say_me()` then speaks the same "Me: ..." line in the same box, so it shows once.
+- scripts/story/story_ui.gd:104 new `StoryUI.live(en, tr)`, the same for StoryUI scenes. `line()` reuses the box.
+- scripts/story/day2_evening.gd:152
+163 (couch talk; `_puzzle` now takes tr_line), scripts/story/day3_evening.gd:198 (day-3 evening), scripts/story/story_home.gd:260 (boss-call puzzle): the answer label in the puzzle panel (and day 3's TR label) is hidden. The panel only keeps the instruction and the word buttons.
+- Other "shuffle" code (day2_test, d2/d3 night tests, vocab_test, phone quiz) only shuffles multiple-choice options. These are not scrambles.
+
+## 11. Breakfast table clears silently
+- scripts/story/day2_morning.gd:90: the "The table is clearing itself." caption and voice are removed. The day-1 `_clear_table` (livingroom.gd) never announced it.

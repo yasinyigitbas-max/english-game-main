@@ -235,6 +235,12 @@ func voice_of(b: Dictionary) -> String:
 	return ""
 
 ## the player's own line in a conversation (narrator voice), "Me:" caption
+## v32-polish SCRAMBLE RULE: the sentence the player is building shows in the ONE standard caption box ("Me: ..."),
+## TR inside once complete; _say_me() then speaks the same line in the same box, so it shows once (no second panel)
+func caption_live(line: String, tr_line := "") -> void:
+	if tr_line != "": XTR[line] = tr_line
+	cap_text = line; cap_serial += 1; cap_panel.visible = line != ""; _refresh_text()
+
 func _say_me(en: String, tr_line: String) -> void:
 	var line := "Me: " + en; XTR[line] = "Ben: " + tr_line
 	await Audio.wait_idle(12.0); caption(line, false); Audio.say(en)

@@ -87,7 +87,7 @@ func run() -> void:
 	if lr.S.seat != "":
 		for bn in ["UpperArm.R", "LowerArm.R", "UpperArm.L", "LowerArm.L", "Neck"]: lr.hero.bone_offsets.erase(bn)
 		await lr.stand_up()
-	lr.caption("The table is clearing itself.")
+	# v32-polish: the table clears silently (no "The table is clearing itself." caption / voice)
 	lr._clear_table(true)
 	await _w(0.8); await Audio.wait_idle(12.0)
 	lr.cam_shot = {}

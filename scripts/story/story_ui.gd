@@ -100,6 +100,9 @@ func line(en: String, who := "", pause := 0.7, voice := "") -> void:
 	await get_tree().create_timer(pause).timeout
 
 func hide_caption() -> void: panel.visible = false
+## v32-polish SCRAMBLE RULE: show a line being built (silent, no wait) in the same standard box; line() then reuses it
+func live(en: String, tr_text := "") -> void:
+	en_l.text = en; tr_l.text = tr_text; _sync_tr(); panel.visible = en != ""; claim(panel)
 
 
 

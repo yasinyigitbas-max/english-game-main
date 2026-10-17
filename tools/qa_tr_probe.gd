@@ -73,4 +73,21 @@ func _ready() -> void:
 	sui.en_l.text = "Hello."; sui.panel.visible = true
 	await get_tree().process_frame
 	print("PROBE storyui other_hidden=", not other.visible, " tr_btn_inside=", sui.tr_btn.get_parent().get_parent() == sui.panel)
+	# scramble rule: the built sentence goes to the ONE caption box (lr.caption_live), the puzzle panel shows no sentence
+	var stub_src := GDScript.new()
+	stub_src.source_code = "extends Node\nvar lines := []\nfunc caption_live(l: String, t := \"\") -> void: lines.append([l, t])\n"
+	stub_src.reload()
+	var stub: Node = stub_src.new(); add_child(stub)
+	var d2 = load("res://scripts/story/day2_evening.gd").new(); d2.lr = stub; add_child(d2)
+	d2._puzzle("I am happy.", "Mutluyum.")
+	await get_tree().process_frame
+	var pz: Node = d2.find_child("D2Puzzle", true, false)
+	var row: Node = pz.find_children("*", "HFlowContainer", true, false)[0]
+	for wd in ["I", "am", "happy"]:
+		for b in row.get_children(): if b.text == wd and not b.disabled: b.pressed.emit(); break
+	var shown_in_panel := false
+	for l in pz.find_children("*", "Label", true, false): if l.visible and l.text.begins_with("I am"): shown_in_panel = true
+	print("PROBE scramble lines=", stub.lines, " sentence_in_panel=", shown_in_panel)
+	sui.live("Me: I am happy.", "Ben: Mutluyum."); await get_tree().process_frame
+	print("PROBE storyui live text=", sui.en_l.text, " visible=", sui.panel.visible)
 	get_tree().quit()
