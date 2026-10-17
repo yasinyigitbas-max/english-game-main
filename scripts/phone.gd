@@ -136,7 +136,8 @@ func _lock_tick() -> void:
 		if hck: hck.text = WorldState.clock_text()
 		if bt: bt.text = ("%s %d   4G   %d%%" % [App.tx("Day"), WorldState.day, int(Life.battery)]) if Life.NEEDS_ENABLED else ("%s %d   4G" % [App.tx("Day"), WorldState.day])   # v32-polish: no battery % while off
 	# house.24.2: safety - a locked lesson/quiz page that failed to build (empty body) is rebuilt, then released
-	if is_locked() and page in ["lesson", "quiz"] and body and find_child("LessonNext" if page == "lesson" else "Options", true, false) == null:
+	# v33 (red): not while a scripted test (TestBank / night test) owns the phone - its score page / puzzles have no "Options"
+	if is_locked() and page in ["lesson", "quiz"] and body and not has_meta("ext_test") and find_child("LessonNext" if page == "lesson" else "Options", true, false) == null:
 		_empty_t += get_process_delta_time()
 		if _empty_t > 2.0:
 			_empty_t = 0.0; _rebuilds += 1
