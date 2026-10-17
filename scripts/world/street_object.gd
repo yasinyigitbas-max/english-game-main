@@ -207,16 +207,15 @@ func _gate_auto() -> void:
 # ------------------------------------------------------------------ my car (door opens toward -X, driver side)
 func _build_car() -> void:
 	it.obj_name = "my car"; S = {"locked": true, "open": false}
-	var k := MeshKit.new()
-	k.box(Vector3(1.8, 0.7, 4.2), Vector3(0, 0.55, 0), color); k.box(Vector3(1.6, 0.6, 2.2), Vector3(0, 1.15, 0.2), color.lightened(0.1))
-	k.box(Vector3(1.62, 0.45, 2.0), Vector3(0, 1.17, 0.2), GLASS)
-	for wx in [-0.85, 0.85]:
-		for wz in [-1.3, 1.3]: k.box(Vector3(0.3, 0.6, 0.6), Vector3(wx, 0.3, wz), DARK)
-	k.box(Vector3(1.5, 0.12, 0.05), Vector3(0, 0.6, -2.11), Color(0.85, 0.4, 0.35)); for sx in [-0.65, 0.65]: k.box(Vector3(0.3, 0.12, 0.05), Vector3(sx, 0.7, 2.11), Color(1, 0.95, 0.8))
-	k.commit(self)
-	var d := MeshKit.new(); d.box(Vector3(0.06, 0.62, 1.1), Vector3(0, 0.0, 0.55), color.darkened(0.06)); d.box(Vector3(0.05, 0.4, 1.0), Vector3(0, 0.52, 0.55), GLASS)
-	d.box(Vector3(0.05, 0.04, 0.15), Vector3(-0.04, 0.15, 0.9), DARK)
-	part("door", Vector3(-0.93, 0.6, -0.3), d)
+	# v32: polished CarKit model (sedan, cabin shifted +0.2 like before) + blob shadow; door stays a separate part
+	var k := CarKit.new(); k.car(color, 0.2, 0); k.commit(self); CarKit.add_shadow(self, Vector2(2.3, 4.9))
+	var paint := CarKit.paint_for(color)
+	var d := CarKit.new()
+	d.box(CarKit.PAINT, Vector3(0.05, 0.56, 1.1), Vector3(-0.005, 0.02, 0.55), paint)
+	d.box(CarKit.GLASS, Vector3(0.04, 0.4, 0.98), Vector3(0, 0.52, 0.55), Color.WHITE)
+	d.box(CarKit.PAINT, Vector3(0.05, 0.035, 1.0), Vector3(-0.005, 0.315, 0.55), Color(0.82, 0.83, 0.85))
+	d.box(CarKit.PAINT, Vector3(0.03, 0.035, 0.14), Vector3(-0.04, 0.2, 0.9), Color(0.82, 0.83, 0.85))
+	var dn := Node3D.new(); dn.position = Vector3(-0.93, 0.6, -0.3); add_child(dn); d.commit(dn); parts["door"] = dn
 	col(Vector3(1.9, 1.5, 4.3), Vector3(0, 0.75, 0))
 	it.position = Vector3(-1.6, 0, 0.3); it.radius = 1.6; it.focus = to_global(Vector3(-0.9, 1.0, 0.3))
 
