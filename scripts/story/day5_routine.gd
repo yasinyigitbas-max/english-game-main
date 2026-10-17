@@ -128,6 +128,7 @@ func _enter(s: Node) -> void:
 	if not is_instance_valid(s): _busy = false; return
 	var k := _kind(s)
 	if k in ["", "other"]: _busy = false; return
+	if stage(day) == "start" and k == "bedroom": set_stage(day, "alarm")   # ui33: director attached before start(): "start" = the morning alarm (the step used to be skipped)
 	if stage(day) == "alarm" and k == "bedroom":   # ui33: the alarm is the first objective of the day (no stale "Go to the living room.")
 		_cur = _ALARM_OBJ.duplicate(); _alarm_pin = true; Objectives.set_list([_cur])
 	await _wait_free(s)

@@ -128,6 +128,9 @@ func run() -> void:
 		if s == null: continue
 		var k := _kind()
 		var o: String = String(Objectives.items[0].en) if Objectives.items.size() >= 1 else ""
+		if ev == "d5" and _t() % 10 == 0:
+			var dr = get_tree().root.get_node_or_null("Day56Routine")
+			P("D5DBG st5=" + Day56.stage(5) + " t=%d dr=%s busy=%s cur=%s pin=%s sc=%s kind=%s path=%s" % [_t(), str(dr != null), str(dr._busy) if dr else "-", str(dr._cur) if dr else "-", str(dr._alarm_pin) if dr else "-", str(dr._sc.name) if dr and is_instance_valid(dr._sc) else "-", dr._kind(s) if dr else "-", s.scene_file_path])
 		if _t() % 30 == 0: P("DIAG t=%d k=%s mode=%s obj=%s d6=%s d7=%s day=%d speaking=%s" % [_t(), k, str(s.get("mode")), o, Day56.stage(6), str(App.load_save().get("story", {}).get("d7", "")), App.day, Audio.is_speaking()]); await _snap("diag_" + k)
 		if ev in ["d6", "d6b", "d6c"] and Day56.stage(6) == "done" and App.day >= 7: await w(10.0); await _snap("end"); break
 		if ev == "d5" and Day56.stage(5) in ["home", "couch", "bed", "done"]: await w(4.0); await _snap("d5_after_shop"); P("D5 END stage=%s t=%d" % [Day56.stage(5), _t()]); break
