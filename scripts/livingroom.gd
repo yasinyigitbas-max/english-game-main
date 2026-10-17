@@ -923,6 +923,7 @@ func _build_lights() -> void:
 	shade.mesh = cm; shade.position = fx + Vector3(0, 1.55, 0); add_child(shade); N.shade = shade
 	N.flamp_light = OmniLight3D.new(); N.flamp_light.position = fx + Vector3(0.25, 1.35, 0.3); N.flamp_light.light_color = Color(1, 0.8, 0.55)
 	N.flamp_light.omni_range = 3.2; N.flamp_light.light_energy = 1.8; add_child(N.flamp_light)
+	N.flamp_light.add_to_group("ow_no_ceiling")   # Yasin 00:23: no lamps switching on while roaming the house (forced off every frame)
 	N.flamp_glow = cyl(0.15, 0.02, fx + Vector3(0, 1.41, 0), Color(1, 0.85, 0.6), self, 3.0)
 	obstacles.append(Rect2(fx.x - 0.18, fx.z - 0.18, 0.36, 0.36))
 	reg("floorlamp", "floor lamp", fx + Vector3(0, 1.3, 0), Vector3(-2.35, 0, -1.85), Vector3(0, 0, -1))

@@ -116,7 +116,7 @@ func _process(_dt: float) -> void:
 		# the clock: at dusk / night the ambient drops to 40 % and the exposure a little (the room's warm lamps carry the
 		# evening: rooms read as night, the 18:00 storm evening no longer looks like daytime), the window sun goes to 0
 		var nf := 1.0 - smoothstep(0.12, 0.65, d)   # 0 day .. 1 night (18:00 = 0.3 -> ~0.7)
-		_derive(renv if renv is Environment else _house_env, ROOM_AMB_K * (1.0 - 0.6 * nf), 0.12, float(ROOM_EXP_BY.get(id, ROOM_EXP)) * (1.0 - 0.18 * nf), d)
+		_derive(renv if renv is Environment else _house_env, ROOM_AMB_K * (1.0 - 0.6 * nf), 0.2, float(ROOM_EXP_BY.get(id, ROOM_EXP)) * (1.0 - 0.18 * nf), d)
 		_out.ambient_light_color = _out.ambient_light_color.lerp(Color(0.62, 0.66, 0.9), 0.55 * nf)   # moonlit fill; the lamps stay warm
 		_window_sky(n, key, d)
 		# Yasin 23:58: NO extra light on room entry. The room's own DirectionalLight "sun" used to be switched on here for

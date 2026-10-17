@@ -513,6 +513,7 @@ func _build_mirror() -> void:
 	N.mglow = box(Vector3(0.56, 0.02, 0.06), Vector3(MC.x, MC.y + MSIZE.y / 2 + 0.06, BZ + 0.05), Color(1, 0.93, 0.8), self, 3.0)
 	N.mlight = OmniLight3D.new(); N.mlight.position = Vector3(MC.x, MC.y + 0.4, BZ + 0.45); N.mlight.light_color = Color(1, 0.85, 0.6)
 	N.mlight.omni_range = 2.5; N.mlight.light_energy = 0.6; add_child(N.mlight)
+	N.mlight.add_to_group("ow_no_ceiling")   # Yasin 00:23: no lamps switching on while roaming the house (forced off every frame)
 
 func _update_mirror() -> void:
 	var v := Vector3(MC.x, 1.5, MZ + 1.3)
