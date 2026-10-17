@@ -90,6 +90,7 @@ func _process(_dt: float) -> void:
 	for l in get_tree().get_nodes_in_group("ow_no_ceiling"):
 		if (l as Light3D).visible: (l as Light3D).visible = false
 		if (l as Light3D).light_energy != 0.0: (l as Light3D).light_energy = 0.0
+	_sun_gate()
 	if we == null: return
 	var lv := _live()
 	var id: String = lv[0]; var n: Node = lv[1]
@@ -115,23 +116,23 @@ func _process(_dt: float) -> void:
 		# the clock: at dusk / night the ambient drops to 40 % and the exposure a little (the room's warm lamps carry the
 		# evening: rooms read as night, the 18:00 storm evening no longer looks like daytime), the window sun goes to 0
 		var nf := 1.0 - smoothstep(0.12, 0.65, d)   # 0 day .. 1 night (18:00 = 0.3 -> ~0.7)
-		_derive(renv if renv is Environment else _house_env, ROOM_AMB_K * (1.0 - 0.6 * nf), 0.12, float(ROOM_EXP_BY.get(id, ROOM_EXP)) * (1.0 - 0.18 * nf), d)
+		_derive(renv if renv is Environment else _house_env, ROOM_AMB_K * (1.0 - 0.6 * nf), 0.2, float(ROOM_EXP_BY.get(id, ROOM_EXP)) * (1.0 - 0.18 * nf), d)
 		_out.ambient_light_color = _out.ambient_light_color.lerp(Color(0.62, 0.66, 0.9), 0.55 * nf)   # moonlit fill; the lamps stay warm
 		_window_sky(n, key, d)
 		# Yasin 23:58: NO extra light on room entry. The room's own DirectionalLight "sun" used to be switched on here for
 		# every room the player entered (it blew the scene out): it stays off; the room keeps only its own lamps, the world
 		# sun keeps its outdoor value (nothing changes at the door).
 		if rsun is DirectionalLight3D and is_instance_valid(rsun): (rsun as DirectionalLight3D).visible = false
-		if wsun: wsun.visible = d > 0.02; wsun.light_energy = _sun_e * d
+		if wsun: wsun.visible = false   # Yasin 00:21: no sun in a building
 	elif n != null and (n.is_in_group("world_places") or id in ["cafe", "shop", "work", "school"]):
 		_derive(null, PLACE_AMB, 0.12, PLACE_EXP, d)   # shops / café: their own lights + a floor of ambient (lit at night)
-		if wsun: wsun.visible = true; wsun.light_energy = 0.6 * d
+		if wsun: wsun.visible = false   # Yasin 00:21: no sun in a building
 	else:
 		var he: Environment = host.get("env")
 		_derive(null, STREET_AMB, 0.04, STREET_EXP, d, he)
 		var storm := clampf((1.0 - he.adjustment_brightness) / 0.38, 0.0, 1.0) if he else 0.0   # day-6 storm (it tweens brightness 1 -> 0.62)
 		if storm > 0.0: _out.background_color = _out.background_color.lerp(Color(0.4, 0.43, 0.48), storm)
-		if wsun: wsun.visible = d > 0.02; wsun.light_energy = _sun_e * d * (1.0 - 0.8 * storm)
+		if wsun: wsun.visible = d > 0.02 and n == null and id == "street"; wsun.light_energy = _sun_e * d * (1.0 - 0.8 * storm)
 
 ## fix33: the rooms' window views are unshaded ui/sky.png quads (livingroom N.sky, the bedroom's sky quad): they
 ## showed a bright day sky at 18:00 / 23:30. Tinted to the clock; a darker tint the room set itself (closed curtains,
@@ -151,3 +152,23 @@ func _window_sky(n: Node, key: String, d: float) -> void:
 		var c: Color = (sm as StandardMaterial3D).albedo_color
 		if c.get_luminance() > tint.get_luminance() + 0.02 or (sm as StandardMaterial3D).has_meta("ow_tint") and c.is_equal_approx((sm as StandardMaterial3D).get_meta("ow_tint")):
 			(sm as StandardMaterial3D).albedo_color = tint; (sm as StandardMaterial3D).set_meta("ow_tint", tint)
+
+## Yasin 00:21: the sun only outdoors. Every frame (idempotent): the World's sun is on only while the hero is outdoors
+## (no live house room / place / hospital / school / work, World region street); every OTHER DirectionalLight (room,
+## place, hospital, work suns) is always off, so no room or story script can bring sunlight into a building. Indoors the
+## window light is only the window quads.
+var _dirs: Array = []
+var _dirs_t := 0.0
+func _sun_gate() -> void:
+	var now := Time.get_ticks_msec() / 1000.0
+	if now >= _dirs_t:
+		_dirs_t = now + 1.0
+		_dirs = get_tree().root.find_children("*", "DirectionalLight3D", true, false)
+	var wsun = host.get("sun") if host else null
+	var lv := _live()
+	var outdoors: bool = String(lv[0]) == "street" and lv[1] == null
+	for l in _dirs:
+		if not is_instance_valid(l) or (l as Node).get_viewport() is SubViewport: continue
+		var on: bool = outdoors and l == wsun
+		if not on and (l as Light3D).visible: (l as Light3D).visible = false
+		elif on and not (l as Light3D).visible and WorldState.daylight() > 0.02: (l as Light3D).visible = true
