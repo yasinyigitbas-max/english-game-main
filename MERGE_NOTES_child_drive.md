@@ -58,3 +58,11 @@ the normal Voice path. Never another voice. Parent lines: `v_amy` / `v_ryan` pac
   clip is voice_drive only through ChildDrive (work.gd's own say_line may play it silently for c/g narrators).
 - A child save from before v33 with family but no mom/dad: the bedroom door locks again until a parent is added
   (that is the hard rule); the drive then falls back to the v32 adult flow only if no parent exists.
+
+## QA (2026-10-17, xvfb opengl3, 1600x720)
+`XVFB=1 godot --path . --rendering-driver opengl3 --resolution 1600x720 res://tools/qa_child_drive/qa_child_drive.tscn -- --save-path=<fixture copy> --mode=<fam_child|fam_adult|child_d2|d2h>`
+- fam_child 19/0: hint EN+TR in the one caption box; Done, Back, Home, Close, close(force), member close/back, family_done, ui_cancel all blocked; door locked; objective stays; with a mom -> home page + door unlocks.
+- fam_adult 4/0 (v32 behaviour). d2h adult day-2 regression (qa_v32int run_d2) 11/0.
+- child_d2 12/0 on the first full run (before the final exit-order fix); the re-run after the fix was not done
+  (tests stopped on request). The QA now also unlocks/opens a locked car before choosing "Go to the hospital".
+- Open: the child still uses the v32 car verbs "Unlock the car" / "Open the car door" ("I am unlocking my car.").
