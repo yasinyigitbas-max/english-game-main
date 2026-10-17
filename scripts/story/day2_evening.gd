@@ -10,7 +10,6 @@ extends Node
 
 const DATA := "res://data/day2_evening.json"
 const D2 := preload("res://scripts/story/day2_morning.gd")
-const TestScreen := preload("res://scripts/core/test_screen.gd")
 var lr: Node
 var D := {}
 
@@ -144,21 +143,14 @@ func _puzzle(sentence: String, tr_line := "") -> void:
 	var cl := CanvasLayer.new(); cl.layer = 30; add_child(cl)
 	var words := sentence.trim_suffix(".").split(" "); var target := Array(words)
 	var pool := target.duplicate(); while pool == target and pool.size() > 1: pool.shuffle()
-	var box := PanelContainer.new(); box.name = "D2Puzzle"; var sb := StyleBoxFlat.new(); sb.bg_color = Color(1, 1, 1, 0.95); sb.set_corner_radius_all(20); sb.set_content_margin_all(18); box.add_theme_stylebox_override("panel", sb)
-	box.set_anchors_preset(Control.PRESET_FULL_RECT); box.offset_left = 16; box.offset_top = 16; box.offset_right = -16; box.offset_bottom = -16; cl.add_child(box)   # v33 test-screen rule: the puzzle uses the whole screen
-	box.add_to_group("game_phone"); TestScreen.mark(box, true)   # v33: Objectives step aside (full-screen test UI); caption box only for lines not on screen
-	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 14); box.add_child(v)
-	var ask := Label.new(); ask.text = "Put the words in the right order."; ask.add_theme_font_size_override("font_size", 24); ask.add_theme_color_override("font_color", Color(0.4, 0.45, 0.6)); ask.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(ask)
-	var askt := Label.new(); askt.text = "Kelimeleri doğru sıraya koy."; askt.add_theme_font_size_override("font_size", 18); askt.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8)); askt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; askt.visible = App.tr_on(); v.add_child(askt)
-	var gap0 := Control.new(); gap0.size_flags_vertical = Control.SIZE_EXPAND_FILL; gap0.mouse_filter = Control.MOUSE_FILTER_IGNORE; v.add_child(gap0)
-	var ans := Label.new(); ans.name = "PuzzleAnswer"; ans.text = "..."; ans.add_theme_font_size_override("font_size", 48); ans.add_theme_color_override("font_color", Color(0.12, 0.15, 0.25)); ans.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ans.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(ans)   # v33: the built sentence shows big on the full-screen puzzle (the caption box stays hidden: test_screen.gd)
-	var ant := Label.new(); ant.text = tr_line; ant.add_theme_font_size_override("font_size", 22); ant.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8)); ant.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ant.visible = false; v.add_child(ant)
-	var gap1 := Control.new(); gap1.size_flags_vertical = Control.SIZE_EXPAND_FILL; gap1.mouse_filter = Control.MOUSE_FILTER_IGNORE; v.add_child(gap1)
-	var row := HFlowContainer.new(); row.alignment = FlowContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("h_separation", 14); row.add_theme_constant_override("v_separation", 14); v.add_child(row)
+	var P := StoryUI.scramble_panel(cl, "D2Puzzle", pool)   # v33: standard compact scramble panel (low, above the caption box)
+	var box: PanelContainer = P.box; var askt: Label = P.askt
+	Objectives.ovl_register(box, 5)
+	var ans := Label.new(); ans.text = "..."; ans.visible = false   # v32-polish: the built sentence shows in the standard caption box (lr.caption_live), not here
 	var got: Array = []
 	var done := [false]
-	for wd in pool:
-		var b := Button.new(); b.text = wd; b.custom_minimum_size = Vector2(150, 88); b.add_theme_font_size_override("font_size", 34); row.add_child(b)
+	for b in P.buttons:
+		var wd: String = b.text
 		b.pressed.connect(func():
 			if b.disabled: return
 			if wd == target[got.size()]:
@@ -168,9 +160,8 @@ func _puzzle(sentence: String, tr_line := "") -> void:
 			else: Audio.bad())
 	while not done[0]:
 		askt.visible = App.tr_on()
-		ant.visible = false
 		await get_tree().process_frame
-	ant.visible = App.tr_on() and tr_line != ""
 	Audio.good()
 	await _w(0.5)
+	ans.free()
 	cl.queue_free()

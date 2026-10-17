@@ -2,7 +2,6 @@
 ## -> dream: past simple with polaroids -> day 2: phone call (boss / teacher), answer by putting the words in order.
 extends Node
 
-const TestScreen := preload("res://scripts/core/test_screen.gd")
 var m: Node     # bedroom main.gd
 var ui: StoryUI
 var cl: CanvasLayer
@@ -244,20 +243,13 @@ func _call_screen_task(who: String) -> void:
 func _puzzle(sentence: String) -> void:
 	var words := sentence.trim_suffix(".").split(" "); var target := Array(words)
 	var pool := target.duplicate(); while pool == target and pool.size() > 1: pool.shuffle()
-	var box := PanelContainer.new(); var sb := StyleBoxFlat.new(); sb.bg_color = Color(1, 1, 1, 0.95); sb.set_corner_radius_all(20); sb.set_content_margin_all(18); box.add_theme_stylebox_override("panel", sb)
-	box.set_anchors_preset(Control.PRESET_FULL_RECT); box.offset_left = 16; box.offset_top = 16; box.offset_right = -16; box.offset_bottom = -16; cl.add_child(box)   # v33 test-screen rule: the puzzle uses the whole screen
-	box.add_to_group("game_phone"); TestScreen.mark(box, true)   # v33: Objectives step aside (full-screen test UI); caption box only for lines not on screen
-	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 14); box.add_child(v)
-	var ask := Label.new(); ask.text = "Put the words in the right order."; ask.add_theme_font_size_override("font_size", 24); ask.add_theme_color_override("font_color", Color(0.4, 0.45, 0.6)); ask.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(ask)   # v33: the instruction (said just before) stays on the puzzle page
-	var gap0 := Control.new(); gap0.size_flags_vertical = Control.SIZE_EXPAND_FILL; gap0.mouse_filter = Control.MOUSE_FILTER_IGNORE; v.add_child(gap0)
-	var ans := Label.new(); ans.name = "PuzzleAnswer"; ans.text = "..."; ans.add_theme_font_size_override("font_size", 48); ans.add_theme_color_override("font_color", Color(0.12, 0.15, 0.25)); ans.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ans.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(ans)   # v33: built sentence big on the full-screen puzzle (caption box hidden: test_screen.gd)
-	var ant := Label.new(); ant.text = StoryUI.tr_of(sentence); ant.add_theme_font_size_override("font_size", 22); ant.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8)); ant.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ant.visible = false; v.add_child(ant)
-	var gap1 := Control.new(); gap1.size_flags_vertical = Control.SIZE_EXPAND_FILL; gap1.mouse_filter = Control.MOUSE_FILTER_IGNORE; v.add_child(gap1)
-	var row := HFlowContainer.new(); row.alignment = FlowContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("h_separation", 14); row.add_theme_constant_override("v_separation", 14); v.add_child(row)
+	var P := StoryUI.scramble_panel(cl, "CallPuzzle", pool)   # v33: standard compact scramble panel (low, above the caption box)
+	var box: PanelContainer = P.box; var askt: Label = P.askt
+	var ans := Label.new(); ans.text = "..."; ans.visible = false   # v32-polish: built sentence -> the standard caption box (ui.live)
 	var got: Array = []
 	var done := [false]
-	for wd in pool:
-		var b := Button.new(); b.text = wd; b.custom_minimum_size = Vector2(150, 88); b.add_theme_font_size_override("font_size", 34); row.add_child(b)
+	for b in P.buttons:
+		var wd: String = b.text
 		b.pressed.connect(func():
 			if b.disabled: return
 			if wd == target[got.size()]:
@@ -265,10 +257,12 @@ func _puzzle(sentence: String) -> void:
 				if got.size() == target.size(): ans.text += "."; done[0] = true
 				ui.live("Me: " + ans.text, StoryUI.tr_of(sentence) if done[0] else "")
 			else: Audio.bad())
-	while not done[0]: await get_tree().process_frame
-	ant.visible = App.tr_on() and ant.text != ""   # v33: TR of the finished sentence on the puzzle
+	while not done[0]:
+		askt.visible = App.tr_on()
+		await get_tree().process_frame
 	Audio.good()
 	await ui.line(sentence, "Me")
+	ans.free()
 	box.queue_free()
 
 

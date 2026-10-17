@@ -64,6 +64,7 @@ func _ready() -> void:
 	vt.finished.emit(0, 0); await w(0.6)
 	ph.visible = false; fm.ui.hide_caption()
 	# --- word-order puzzles
+	fm.caption("Put the words in the right order.", false); await w(0.3)
 	var d2e = load("res://scripts/story/day2_evening.gd").new(); d2e.lr = fm; add_child(d2e)
 	d2e._puzzle("I had breakfast with my family.", "Ailemle kahvaltı yaptım."); await w(0.6)
 	await shot("16_d2_puzzle_start"); await _tap(["I", "had", "breakfast"]); await w(0.3); await shot("16b_d2_puzzle_building")

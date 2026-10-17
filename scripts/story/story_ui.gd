@@ -107,6 +107,40 @@ func live(en: String, tr_text := "") -> void:
 
 
 
+## v33 (Yasin 16:37) STANDARD SCRAMBLE PANEL for every word-order puzzle (boss / teacher phone call, day-2 / day-3 couch
+## talk): one compact white card sized to its content (no empty white area, no scrolling), sitting low at the bottom-centre
+## just ABOVE the caption-box zone, so the ONE bottom-centre caption box (the sentence being built / the completed sentence,
+## TR inside) is never covered and the chips never sit under it. Big word chips (64 px) fill the card in centred rows.
+## Returns {box, row, askt, buttons} - buttons in pool order; the caller wires the taps (puzzle logic unchanged).
+const SCR_CAP_RESERVE := 170.0   # px kept free above the bottom edge for the caption box (1-2 lines + TR)
+static func scramble_panel(parent: Node, box_name: String, pool: Array, ask_en := "Put the words in the right order.", ask_tr := "Kelimeleri doğru sıraya koy.") -> Dictionary:
+	var box := PanelContainer.new(); box.name = box_name
+	var sb := StyleBoxFlat.new(); sb.bg_color = Color(1, 1, 1, 0.96); sb.set_corner_radius_all(20); sb.set_content_margin_all(16); box.add_theme_stylebox_override("panel", sb)
+	box.anchor_left = 0.5; box.anchor_right = 0.5; box.anchor_top = 1.0; box.anchor_bottom = 1.0
+	box.grow_horizontal = Control.GROW_DIRECTION_BOTH; box.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	box.offset_left = -500; box.offset_right = 500; box.offset_bottom = -SCR_CAP_RESERVE; box.offset_top = -SCR_CAP_RESERVE
+	parent.add_child(box)
+	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 10); box.add_child(v)
+	var ask := Label.new(); ask.name = "Ask"; ask.text = ask_en; ask.add_theme_font_size_override("font_size", 22); ask.add_theme_color_override("font_color", Color(0.4, 0.45, 0.6))
+	ask.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(ask)
+	var askt := Label.new(); askt.name = "AskTR"; askt.text = ask_tr; askt.add_theme_font_size_override("font_size", 16); askt.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8))
+	askt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; askt.visible = App.tr_on() and ask_tr != ""; v.add_child(askt)
+	var row := HFlowContainer.new(); row.name = "Words"; row.alignment = FlowContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("h_separation", 12); row.add_theme_constant_override("v_separation", 12); v.add_child(row)
+	var btns: Array = []
+	for wd in pool:
+		var b := Button.new(); b.text = String(wd); b.custom_minimum_size = Vector2(96, 64); b.add_theme_font_size_override("font_size", 30); b.focus_mode = Control.FOCUS_NONE
+		var ui := (Engine.get_main_loop() as SceneTree).root.get_node_or_null("UI")
+		if ui and ui.get("font_b"): b.add_theme_font_override("font", ui.font_b)
+		row.add_child(b); btns.append(b)
+	# no doubled line: the instruction now on the card leaves the caption box (it was just said there)
+	for o in parent.get_tree().get_nodes_in_group(CAP_GROUP):
+		if o is CanvasItem and (o as CanvasItem).visible:
+			var l0 := (o as Node).find_children("*", "Label", true, false)
+			if not l0.is_empty() and (l0[0] as Label).text.strip_edges() == ask_en: (o as CanvasItem).visible = false
+	return {"box": box, "row": row, "askt": askt, "buttons": btns}
+
+
 static func add_skip_button(test_page: Control, on_skip: Callable) -> Button:
 	var row: = HBoxContainer.new();row.name = "SkipRow";row.alignment = BoxContainer.ALIGNMENT_END;row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var b: = Button.new();b.name = "SkipTest";b.text = "Testi geç" if App.tr_on() else "Skip test"
