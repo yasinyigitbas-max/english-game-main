@@ -123,6 +123,11 @@ func _process(dt: float) -> void:
 		else: scripted = true
 	# a room's own CameraRig goes "uncontrolled" while the room plays a cam_shot; an objective (guide) shot is still ours
 	# (fix33: the bathroom pans flew the rig to the fixed shot and never framed the hero)
+	# fix33: after a cam_shot the bathroom eases its rig back to ITS OWN old framing (exit_t blend, rig still taken over):
+	# that is not a story shot, it flew the view out through the door to the lawn on bath -> living. End it, the
+	# follow below eases from the shot instead.
+	if rc is CameraRig and not (rc as CameraRig).controlled and tgt == Vector3.INF and _room_idle(sc) and sc.get("exit_t") != null and float(sc.get("exit_t")) < 1.0:
+		sc.set("exit_t", 1.0); (rc as CameraRig).release(false)
 	if sc.get("cam_override") == true or (rc is CameraRig and not (rc as CameraRig).controlled and tgt == Vector3.INF): scripted = true
 	_guide_on = tgt != Vector3.INF and not scripted
 	if scripted:
@@ -453,3 +458,10 @@ func _apply_now() -> void:
 	var c := get_viewport().get_camera_3d()
 	if c and pos != Vector3.INF and look != Vector3.INF and pos.distance_to(look) > 0.05:
 		c.global_transform = Transform3D(Basis.looking_at(look - pos, Vector3.UP), pos); c.fov = lerpf(c.fov, FOV, 1.0)
+
+## fix33: the room plays no story shot / QA close-up right now
+func _room_idle(sc: Node) -> bool:
+	for k in ["cam_shot", "qa_cam"]:
+		var v = sc.get(k)
+		if v is Dictionary and not (v as Dictionary).is_empty(): return false
+	return true
