@@ -205,7 +205,11 @@ func _world_target(w: Node, what: String) -> Dictionary:
 	var at: Vector3 = _world_pos(w, what) + Vector3(0, 1.0, 0)
 	var away: Vector3 = at - w.player.global_position; away.y = 0
 	if away.length() < 0.05: away = Vector3(0, 0, 1)
-	return {"pos": at + away.normalized() * 6.0 + Vector3(0, 3.0, 0), "at": at}
+	# build 3.2 (black #13): frame the player AND the target: look at their midpoint from the side, far enough for both
+	var hp: Vector3 = w.player.global_position + Vector3(0, 1.0, 0)
+	var mid := (hp + at) * 0.5; var sep := Vector2(at.x - hp.x, at.z - hp.z).length()
+	var side := Vector3(away.z, 0, -away.x).normalized()
+	return {"pos": mid + side * maxf(4.5, sep * 0.85 + 2.0) - away.normalized() * 1.5 + Vector3(0, 2.6 + sep * 0.15, 0), "at": mid}
 
 var _storm_on := false
 func _stop_check(w: Node) -> void:
@@ -342,7 +346,7 @@ func _couch(lr: Node) -> void:
 	lr.mode = "play"; lr._update_hand()
 	var t0 := Time.get_ticks_msec()
 	while is_instance_valid(lr):
-		var h: Vector3 = lr.hero.global_position
+		var h: Vector3 = lr.hero.position   # room-local like SOFA_X
 		if String(lr.S.seat).begins_with("sofa") or Vector2(h.x, h.z).distance_to(Vector2(lr.SOFA_X, 0)) < 1.9: break
 		if "--qa-d56" in OS.get_cmdline_user_args() and Time.get_ticks_msec() - t0 > 3000: break
 		await _w(0.25)

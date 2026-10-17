@@ -189,6 +189,11 @@ func run() -> void:
 		await beat("enter")
 		if pan.is_running(): await pan.finished
 		await cine_end(); mark("enter")
+	if has_meta("story_hold"):   # build 3.2 (black #21): a day-4 / day-7 errand owns the visit (its own list: candles, a bottle of milk...)
+		set_meta("ow_exit_ready", true)
+		while has_meta("story_hold") and is_inside_tree(): await get_tree().process_frame
+		await objective("exit", "Go outside.")
+		await leave(); return
 	if not done("teach"):   # first visit: the shopping list teaches countable / uncountable + how many / how much
 		show_list()
 		await beat("list"); await beat("teach")

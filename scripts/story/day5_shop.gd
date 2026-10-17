@@ -70,7 +70,7 @@ func play_mode(on: bool) -> void:
 		if n:
 			var it: Interactable = sc.its.get("d5_" + _tag)
 			if it == null: it = sc.target("d5_" + _tag, Vector3.ZERO, Vector3.ZERO, "Talk")
-			it.position = _near(n, 0.9); it.focus = n.global_position + Vector3(0, 1.1, 0); it.enabled = true
+			it.position = sc.to_local(_near(n, 0.9)); it.focus = n.global_position + Vector3(0, 1.1, 0); it.enabled = true
 			sc._mark_target = it
 	else:
 		sc._mark_target = null

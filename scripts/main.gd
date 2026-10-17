@@ -761,7 +761,8 @@ func do_verb(id: String, v: Array) -> void:
 		"alarm":
 			await gesture("mid", id, func(): Audio.sfx("metalClick"); S.alarm = {"off": "off", "set": "set", "check": S.alarm}.get(key, "off") if key != "set" else "set")
 			if key == "off":
-				if S.created: _set_mission("Explore your bedroom.")
+				if S.created and maxi(WorldState.day, App.day) <= 1: _set_mission("Explore your bedroom.")
+				elif S.created: _advance(false)   # build 3.2 (black #19): day 2+ continues the story, never the day-1 "Explore your bedroom."
 				else:
 					Objectives.set_list(["Look in the mirror."]); _set_mission("Look in the mirror.")
 					await _cine_mirror(); hint_t = 0.0; get_tree().create_timer(0.2, false).timeout.connect(_mirror_hint)
@@ -1176,7 +1177,7 @@ func _update_cam(dt: float) -> void:
 	if not cam_shot.is_empty():
 		var k := 1.0 - exp(-2.2 * dt)
 		if shot_at == Vector3.INF: shot_at = cam.position - cam.transform.basis.z * 6.0
-		cam.position = cam.position.lerp(cam_shot.pos, k); shot_at = shot_at.lerp(cam_shot.at, k)
+		cam.position = cam.position.lerp(_shot_l("pos"), k); shot_at = shot_at.lerp(_shot_l("at"), k)
 		cam.h_offset = lerpf(cam.h_offset, cam_shot.get("h", 0.0), k)
 		cam.look_at(to_global(shot_at), Vector3.UP); _fade_walls(dt); exit_xf = cam.transform; exit_t = 0.0; return
 	shot_at = Vector3.INF; cam.h_offset = lerpf(cam.h_offset, 0.0, 1.0 - exp(-3.0 * dt))
@@ -2012,6 +2013,7 @@ func objective() -> Array:
 	if not S.lesson_done: return ["Learn he, she and it.", "family"]
 	if not _family_ok(): return ["Add your family.", "family"]
 	if not S.calendar_seen: return ["Open the Calendar.", "calendar"]
+	if WorldState.day >= 2 and S.alarm == "ringing": return ["Turn off the alarm.", ""]   # build 3.2 (black #26): never "Take a shower." under a ringing alarm
 	var d2 := _day2_stage()
 	if _bed_pending(): return ["Go to bed.", ""]   # v33 (red): evening after the couch talk -> bedtime.gd; never the stale "Go to the living room."
 	if Objectives.d2_chat_done(): return ["Go to bed.", ""]   # Yasin 17:58: never "Go to the living room." after the day-2 family chat
@@ -2114,3 +2116,9 @@ func _south_wall(x0: float, x1: float, g0: float, g1: float, z: float, c: Color)
 	for w2 in walls_s: (w2.material_override as StandardMaterial3D).shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	walls_s.append(box(Vector3(g1 - g0, WALL_H - 2.12, 0.1), Vector3((g0 + g1) / 2, (WALL_H + 2.12) / 2, z), c.darkened(0.06)))
 	(walls_s[-1].material_override as StandardMaterial3D).shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+
+## build 3.2: Life.guide_to objective shots (cam_shot.guide) are WORLD space (ShoulderCam frames hero + target with them);
+## story cam_shots stay room-local
+func _shot_l(k: String) -> Vector3:
+	var v: Vector3 = cam_shot[k]
+	return to_local(v) if bool(cam_shot.get("guide", false)) else v

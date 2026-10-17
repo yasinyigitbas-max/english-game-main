@@ -1615,7 +1615,7 @@ func _update_cam(dt: float) -> void:
 	if not cam_shot.is_empty():
 		var k := 1.0 - exp(-2.2 * dt)
 		if shot_at == Vector3.INF: shot_at = cam.position - cam.transform.basis.z * 6.0
-		cam.position = cam.position.lerp(cam_shot.pos, k); shot_at = shot_at.lerp(cam_shot.at, k)
+		cam.position = cam.position.lerp(_shot_l("pos"), k); shot_at = shot_at.lerp(_shot_l("at"), k)
 		cam.look_at(to_global(shot_at), Vector3.UP); _fade_walls(dt); exit_xf = cam.transform; exit_t = 0.0; return
 	shot_at = Vector3.INF
 	cam_yaw_s = lerp_angle(cam_yaw_s, cam_yaw, 1.0 - exp(-8.0 * dt)); cam_pitch_s = lerpf(cam_pitch_s, cam_pitch, 1.0 - exp(-8.0 * dt))
@@ -1726,7 +1726,7 @@ func _advance() -> void:
 		if not _out_guided and mission != nxt:
 			_out_guided = true; _set_mission(nxt)
 			_go_outside_guide.call_deferred(); return
-	if get_tree().root.has_node("Day4Routine") or get_tree().root.has_node("Day7Routine"): return   # v33 (red QA): the day-4 / day-7 routine owns the objective (no "Turn on the TV." flash)
+	if get_tree().root.has_node("Day4Routine") or get_tree().root.has_node("Day7Routine") or get_tree().root.has_node("Day56Routine"): return   # v33 (red QA): the day-4 / day-7 routine owns the objective (no "Turn on the TV." flash)
 	_set_mission(nxt)
 	if tasks_panel and tasks_panel.visible: _fill_tasks()
 
@@ -2301,3 +2301,9 @@ func _south_wall(x0: float, x1: float, g0: float, g1: float, z: float, c: Color)
 	if not House.SHOULDER_CAM: for w2 in walls_s: (w2.material_override as StandardMaterial3D).shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	walls_s.append(box(Vector3(g1 - g0, WALL_H - 2.12, 0.1), Vector3((g0 + g1) / 2, (WALL_H + 2.12) / 2, z), c.darkened(0.06)))
 	if not House.SHOULDER_CAM: (walls_s[-1].material_override as StandardMaterial3D).shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+
+## build 3.2: Life.guide_to objective shots (cam_shot.guide) are WORLD space (ShoulderCam frames hero + target with them);
+## story cam_shots stay room-local
+func _shot_l(k: String) -> Vector3:
+	var v: Vector3 = cam_shot[k]
+	return to_local(v) if bool(cam_shot.get("guide", false)) else v

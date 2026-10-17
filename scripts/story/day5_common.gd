@@ -213,7 +213,7 @@ func choice(c: Dictionary) -> Dictionary:
 	var trs: Array = []
 	var pl := Label.new(); pl.text = String(c.prompt); pl.add_theme_font_size_override("font_size", 28); pl.add_theme_color_override("font_color", Color(0.12, 0.15, 0.25))
 	pl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; pl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(pl)
-	var pt := Label.new(); pt.text = String(c.get("prompt_tr", "")); pt.add_theme_font_size_override("font_size", 17); pt.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8))
+	var pt := Label.new(); pt.text = String(c.get("prompt_tr", "")) if String(c.get("prompt_tr", "")) != "" else StoryUI.tr_of(String(c.prompt))   # build 3.2 (black #17): TR always; pt.add_theme_font_size_override("font_size", 17); pt.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8))
 	pt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; pt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(pt); trs.append(pt)
 	var opts: Array = (c.opts as Array).duplicate(); opts.shuffle()
 	var btns: Array = []
@@ -222,8 +222,9 @@ func choice(c: Dictionary) -> Dictionary:
 		b.focus_mode = Control.FOCUS_NONE; b.disabled = true; b.set_meta("ok", bool(opts[i].get("ok", false))); b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		_style(b, Color(0.33, 0.47, 0.78))   # answers in blue; a wrong pick turns red and stays greyed, the right one green
 		var ii := i; b.pressed.connect(func(): _picked.emit(ii)); v.add_child(b); btns.append(b)
-		if String(opts[i].get("tr", "")) != "":
-			var bt := Label.new(); bt.text = String(opts[i].tr); bt.add_theme_font_size_override("font_size", 15); bt.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8))
+		var otr := String(opts[i].get("tr", "")) if String(opts[i].get("tr", "")) != "" else StoryUI.tr_of(String(opts[i].en))
+		if otr != "" and otr != String(opts[i].en):
+			var bt := Label.new(); bt.text = otr; bt.add_theme_font_size_override("font_size", 15); bt.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8))
 			bt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(bt); trs.append(bt)
 	var fb := Label.new(); fb.name = "D56Feedback"; fb.text = " "; fb.add_theme_font_size_override("font_size", 21); fb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	fb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(fb)

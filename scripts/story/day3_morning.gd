@@ -49,6 +49,9 @@ func _process(d: float) -> void:
 	var sc := RoutineScope.current(get_tree())
 	if sc != _sc:
 		_sc = sc; _cur = {}
+		# build 3.2 (black #22): a "go to X" step is done the moment we are in X (no stale "Go to the living room." in the living room)
+		var reached: Array = {"living": ["Go to the living room.", "Go back home."], "bathroom": ["Go to the bathroom.", "Go back home."], "bedroom": ["Go to bed.", "Go back home."], "shop": ["Go to the shop."], "cafe": ["Go to the café.", "Go to the cafe."]}.get(_kind(sc), [])
+		if not reached.is_empty(): Objectives.set_list(Objectives.items.filter(func(it): return not (it is Dictionary and String(it.get("en", "")) in reached)))
 		if sc and sc.has_signal("action_done") and _kind(sc) == "bathroom": sc.action_done.connect(_on_bath_action.bind(sc))
 		# v32 (red): read the exit marker now (before anything else rewrites it): back on the street from blue's cafe / shop
 		_from = String(App.came_from) if String(App.came_from) in ["cafe", "shop"] else ""

@@ -1369,7 +1369,7 @@ func _update_cam(dt: float) -> void:
 	if not cam_shot.is_empty():
 		var k := 1.0 - exp(-2.2 * dt)
 		if shot_at == Vector3.INF: shot_at = cam.position - cam.transform.basis.z * 6.0
-		cam.position = _over_walls(cam.position.lerp(cam_shot.pos, k)); shot_at = shot_at.lerp(cam_shot.at, k)
+		cam.position = _over_walls(cam.position.lerp(_shot_l("pos"), k)); shot_at = shot_at.lerp(_shot_l("at"), k)
 		cam.look_at(to_global(shot_at), Vector3.UP); _fade_walls(dt); exit_xf = cam.transform; exit_t = 0.0; return
 	shot_at = Vector3.INF
 	if exit_t < 1.0:
@@ -1568,3 +1568,9 @@ func _mirror_prompt(todo: Array) -> void:
 	await Life.guide_to({"pos": pos, "at": at}, "Go to the mirror.",
 		{"tr": "Aynaya git.", "list": [{"id": "Go to the mirror.", "en": "Go to the mirror.", "tr": "Aynaya git."}] + todo})
 	_set_mission("Go to the mirror.")
+
+## build 3.2: Life.guide_to objective shots (cam_shot.guide) are WORLD space (ShoulderCam frames hero + target with them);
+## story cam_shots stay room-local
+func _shot_l(k: String) -> Vector3:
+	var v: Vector3 = cam_shot[k]
+	return to_local(v) if bool(cam_shot.get("guide", false)) else v

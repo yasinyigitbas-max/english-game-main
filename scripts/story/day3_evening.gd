@@ -59,7 +59,7 @@ func run() -> void:
 	_keep_pose = true
 	# ---- objective: Talk to my family. (pan to the couch)
 	var at := Vector3(lr.SOFA_X, 0.7, 0.0)
-	if lr.get("N") is Dictionary and lr.N.has("sofa") and lr.N.sofa is Node3D: at = (lr.N.sofa as Node3D).global_position + Vector3(0, 0.7, 0)
+	if lr.get("N") is Dictionary and lr.N.has("sofa") and lr.N.sofa is Node3D: at = lr.to_local((lr.N.sofa as Node3D).global_position) + Vector3(0, 0.7, 0)   # build 3.2: room-local
 	lr.mode = "busy"
 	await Life.guide_to({"pos": at + Vector3(-3.0, 1.4, 0.4), "at": at}, "Talk to my family.", {"tr": "Ailemle konuş.", "id": "Talk to my family."})
 	lr.mode = "play"; lr._update_hand()

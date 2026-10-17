@@ -75,7 +75,7 @@ func _do(what: String, e: Dictionary) -> void:
 
 # ------------------------------------------------------------------ couch (day3_evening.gd pattern)
 func _sofa_at() -> Vector3:
-	if lr.get("N") is Dictionary and lr.N.has("sofa") and lr.N.sofa is Node3D: return (lr.N.sofa as Node3D).global_position + Vector3(0, 0.7, 0)
+	if lr.get("N") is Dictionary and lr.N.has("sofa") and lr.N.sofa is Node3D: return lr.to_local((lr.N.sofa as Node3D).global_position) + Vector3(0, 0.7, 0)   # build 3.2: room-local (was world -> D7 pans into the yard)
 	return Vector3(lr.SOFA_X, 0.7, 0.0)
 
 func _couch() -> void:
@@ -91,7 +91,7 @@ func _couch() -> void:
 	_keep_obj = "Talk to my family."
 	var t0 := Time.get_ticks_msec()
 	while is_instance_valid(lr):
-		var h: Vector3 = lr.hero.global_position
+		var h: Vector3 = lr.hero.position   # room-local like SOFA_X
 		if String(lr.S.seat).begins_with("sofa") or Vector2(h.x, h.z).distance_to(Vector2(lr.SOFA_X, 0.0)) < 1.9: break
 		if Time.get_ticks_msec() - t0 > 600000: break
 		await _w(0.25)
@@ -212,6 +212,7 @@ func _restore_dark() -> void:
 	if not _dark: return
 	lr.S.ceiling = "off"; lr.S.floorlamp = "off"; lr.S.tv = "off"; lr._apply_states()
 	_lamp_off = false; _dark_env()
+	_dim_others(true)   # build 3.2: also the day-7 dark room (black #1: 18:00 daylight / other lamps made it unreadable)
 
 func _dark_env() -> void:
 	if is_instance_valid(lr.sun): lr.sun.light_energy = 0.0
