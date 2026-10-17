@@ -189,6 +189,11 @@ func run() -> void:
 		await beat("enter")
 		if pan.is_running(): await pan.finished
 		await cine_end(); mark("enter")
+	if has_meta("story_hold"):   # build 3.2 (black #21): a day-4 / day-7 errand owns the visit (its own list: candles, a bottle of milk...)
+		set_meta("ow_exit_ready", true)
+		while has_meta("story_hold") and is_inside_tree(): await get_tree().process_frame
+		await objective("exit", "Go outside.")
+		await leave(); return
 	if not done("teach"):   # first visit: the shopping list teaches countable / uncountable + how many / how much
 		show_list()
 		await beat("list"); await beat("teach")
@@ -214,6 +219,9 @@ func run() -> void:
 	if not done("done"):
 		await beat("done"); mark("done")
 		await say_line("Well done! You finished the shop.")
+	set_meta("ow_exit_ready", true)
+	await get_tree().create_timer(1.5).timeout   # build 3.2 (v33.1): grace for a day errand (day 4 / 5 / 7) that starts on the entry hook to claim the visit
+	while has_meta("story_hold") and is_inside_tree(): await get_tree().process_frame   # build 3.2: a day-4/7 checkout story first, "Go outside." only after buying
 	await objective("exit", "Go outside.")
 	await leave()
 

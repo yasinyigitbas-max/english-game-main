@@ -60,7 +60,7 @@ func _interior(n: Node) -> bool:
 func _under_body(n: Node) -> bool:
 	var p := n
 	while p and p != host:
-		if p is CharacterBody3D: return true
+		if p is CharacterBody3D or p is DemoCharacter: return true   # red build 3.2: story characters (hospital doctor / family, NPC bodies) are never culled or re-layered
 		p = p.get_parent()
 	return false
 

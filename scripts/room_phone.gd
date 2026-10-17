@@ -39,6 +39,7 @@ func _process(_d: float) -> void:
 		var hide: bool = phone.visible or (pocket and pocket.busy)
 		phone_btn.modulate.a = 0.0 if hide else 1.0; phone_btn.disabled = hide
 
+const MONO := ["created", "lesson_done", "calendar_seen", "door_opened", "has_phone"]   # progress flags that never go back
 func _load() -> void:
 	var d := _read()
 	if d.get("state") is Dictionary:
@@ -55,11 +56,17 @@ func _read() -> Dictionary:
 func save() -> void:
 	var d := _read()
 	if d.is_empty(): d = {"version": 1}
-	d.state = S; d.has_phone = S.has_phone; d.family_breakfast = App.family_breakfast
+	# open world: every room (and its phone) is built at world start; S may be stale -> merge, never undo story progress
+	var st: Dictionary = (d.get("state") if d.get("state") is Dictionary else {}).duplicate()
+	for k in S:
+		if k in MONO and bool(st.get(k, false)) and not bool(S[k]): S[k] = st[k]; continue
+		st[k] = S[k]
+	d.state = st; d.has_phone = S.has_phone; d.family_breakfast = App.family_breakfast
 	var f := FileAccess.open(App.SAVE_PATH, FileAccess.WRITE)
 	if f: f.store_string(JSON.stringify(d, "\t"))
 
 func open_phone() -> void:
+	_load()   # open world: the save may have moved on since this room was built
 	if host.mode != "play" or phone.visible or pocket.busy: return
 	if not S.has_phone:
 		caption("My phone is in the bedroom."); return
@@ -126,7 +133,7 @@ func phone_event(p: String) -> void:
 		"calendar": caption("I am looking at my calendar.")
 
 func todo() -> Array:
-	return [["Turn off the alarm.", true], ["Look in the mirror.", S.created], ] + ([] if is_child() else [["Choose a job.", S.job != ""]]) + [
+	return [["Turn off the alarm clock.", true], ["Look in the mirror.", S.created], ] + ([] if is_child() else [["Choose a job.", S.job != ""]]) + [
 		["Learn he, she and it.", S.lesson_done], ["Add your family.", _family_ok()], ["Open the Calendar.", S.calendar_seen],
 		["Open the door.", S.door_opened], ["Explore the house.", false]] + \
 		(phone.tasks(S.job).map(func(t): return [t.do, false]) if S.job != "" else [])

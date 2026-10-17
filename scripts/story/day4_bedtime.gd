@@ -64,10 +64,13 @@ func _sleep() -> void:
 	m.cam_shot = {"pos": m.OBJ.bed.focus + Vector3(0.9, 1.3, 0.9), "at": m.OBJ.bed.focus + Vector3(-0.4, -0.15, 0)}
 	await _dline("Good night!")
 	m.S.lamp = "off"; m.S.ceiling = "off"; m.S.desklamp = "off"; m._apply_states(); Audio.sfx("metalClick", -6.0)
+	bed_lock = false; m.sleep_pose()   # build 3.2 (v33.1): the real sleep clip at every bedtime (days 4 + 7), as on day 2
 	await _dline("I am sleeping.")
+	await _w(2.5)
 	ui.hide_caption()
 	var black := ColorRect.new(); black.color = Color(0.05, 0.05, 0.12, 0.0); black.set_anchors_preset(Control.PRESET_FULL_RECT); cl.add_child(black)
 	var tw := create_tween(); tw.tween_property(black, "color:a", 1.0, 2.0); await tw.finished
+	m.end_sleep_pose(); _bed_xf = m.hero.transform; bed_lock = true   # under the black: the flat pose back for the get-up
 	var nd := day_n + 1
 	_flag("d%d_bedtime_done" % day_n, true); _flag("d%d_bed_pending" % day_n, false); _flag("d%d" % day_n, "done"); _flag("d%d" % nd, "start")
 	Life.advance_day(true)   # next day, 00:00

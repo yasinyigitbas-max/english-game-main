@@ -166,11 +166,24 @@ func _hide_caps() -> void:
 		if n is CanvasItem and (n as CanvasItem).visible: (n as CanvasItem).visible = false
 	if host and host.get("cap_panel") is CanvasItem and host.cap_panel.visible: host.cap_panel.visible = false
 var _off_live := false
+var said_note := false
 func _say(t: String) -> void: Audio.say(t)   # on-screen line: voice only, no caption box
 func _say_off(t: String) -> void:            # off-screen line: caption box only while it is spoken
 	_off_until = Time.get_ticks_msec() + 600; _off_live = true
 	if host and host.has_method("caption"): host.caption(t, false)
 	Audio.say(t)
+
+## build 3.2 (d4/095, 106, 107): EN | TR side by side (Turkish in the right column), lines spoken one after another
+func _pair(v: Control, en: String, tr: String, fs: int, bold: bool, col: Color, nm := "") -> Array:
+	var h := HBoxContainer.new(); h.add_theme_constant_override("separation", 24); v.add_child(h)
+	var a = ph._l(en, fs, bold, col); a.size_flags_horizontal = Control.SIZE_EXPAND_FILL; a.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT; a.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; h.add_child(a)
+	var b = ph._l(tr, maxi(fs - 2, 14), false, ph.TR_C); b.size_flags_horizontal = Control.SIZE_EXPAND_FILL; b.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT; b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; h.add_child(_trl(b))
+	if nm != "": a.name = nm; b.name = nm + "TR"
+	return [a, b]
+func _say_seq(lines: Array) -> void:
+	for i in lines.size():
+		if i > 0: await Audio.wait_idle(12.0); await get_tree().create_timer(0.15, false).timeout
+		Audio.say(String(lines[i]))
 
 func _question() -> void:
 	if _skipped: return
@@ -179,20 +192,18 @@ func _question() -> void:
 	v.size_flags_vertical = Control.SIZE_EXPAND_FILL   # the whole phone screen, no scroll; answers sit at the bottom
 	var q: Dictionary = Q[qi]
 	if not _note:   # notebook-and-pencil reminder exactly once (Retake does not repeat it)
-		_note = true; var nl = ph._l(NOTE_EN, 16, true, ph.MUTED); nl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(nl)
-		var nt = ph._l(NOTE_TR, 14, false, ph.TR_C); nt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(nt)); _say(NOTE_EN)
+		_note = true; _pair(v, NOTE_EN, NOTE_TR, 16, true, ph.MUTED); said_note = true
 	var t = ph._l("Test %d / %d" % [qi + 1, Q.size()], 18, true, ph.MUTED); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(t)
 	var ql = ph._l(String(q.q), 48, true); ql.name = "Question"; ql.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ql.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(ql)
-	var il = ph._l(ASK, 17, false, ph.MUTED); il.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(il)
-	var it = ph._l("%s  (%s)" % [ASK_TR, String(q.get("tr", ""))], 16, false, ph.TR_C); it.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; it.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(_trl(it))
-	var fb = ph._l(" ", 24, true, ph.GREEN); fb.name = "Feedback"; fb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; fb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(fb)
-	var fbt = ph._l("", 17, false, ph.TR_C); fbt.name = "FeedbackTR"; fbt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(fbt))
+	_pair(v, ASK, "%s  (%s)" % [ASK_TR, String(q.get("tr", ""))], 17, false, ph.MUTED)
+	var fp := _pair(v, " ", "", 24, true, ph.GREEN, "Feedback"); var fb = fp[0]; var fbt = fp[1]
 	var gap := Control.new(); gap.name = "Gap"; gap.size_flags_vertical = Control.SIZE_EXPAND_FILL; gap.mouse_filter = Control.MOUSE_FILTER_IGNORE; v.add_child(gap)
 	var row := HBoxContainer.new(); row.name = "Options"; row.alignment = BoxContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("separation", 20); v.add_child(row)
 	for i in (q.opts as Array).size():
 		var b: Button = ph._btn(String(q.opts[i]), func(): pass, Vector2(260, 100), false, 34); b.name = "Opt%d" % i; row.add_child(b)
 		var ii: int = i; b.pressed.connect(func(): _answer(ii, b, row, fb, fbt))
-	_say(ASK)
+	if said_note: said_note = false; _say_seq([NOTE_EN, ASK])
+	else: _say(ASK)
 	_enable_when_idle(row)
 	StoryUI.add_skip_button(v, _skip_test)
 
@@ -220,7 +231,7 @@ func _answer(i: int, b: Button, row: Control, fb: Label, fbt: Label) -> void:
 	if right: Audio.good(); fb.add_theme_color_override("font_color", ph.GREEN); fb.text = "That is right!  " + String(q.say); fbt.text = "Doğru!  " + String(q.get("tr", ""))
 	else: Audio.bad(); fb.add_theme_color_override("font_color", ph.RED); fb.text = "Not quite.  " + String(q.say); fbt.text = "Tam değil.  " + String(q.get("tr", ""))
 	_last_tr = not _tr_on()   # refresh TR visibility for the new feedback text
-	_say("That is right!" if right else "Not quite."); Audio.say(String(q.say))
+	_say_seq(["That is right!" if right else "Not quite.", String(q.say)])
 	await get_tree().create_timer(1.0, false).timeout
 	await Audio.wait_idle(15.0)
 	await get_tree().create_timer(0.3, false).timeout
@@ -248,9 +259,8 @@ func _score_page() -> void:
 		if row.size() > 4: l.name = row[4]
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(l if row[2] != ph.TR_C else _trl(l))
 	if tot - score >= ceili(tot / 2.0):   # half or more wrong: gentle study tip (never forced, no pass mark)
-		var sg = ph._l("You should study the grammar again.", 20, true, ph.INK); sg.name = "GrammarTip"; sg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(sg)
-		var st = ph._l("Dilbilgisi konusunu tekrar çalışmalısın.", 15, false, ph.TR_C); st.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(st))
-		if not _suggested: _suggested = true; _say("You should study the grammar again.")
+		_pair(v, "You should study the grammar again.", "Dilbilgisi konusunu tekrar çalışmalısın.", 20, true, ph.INK, "GrammarTip")
+		if not _suggested: _suggested = true; _say_off("You should study the grammar again.")   # build 3.2: spoken with the caption box
 	var gap := Control.new(); gap.name = "Gap"; gap.size_flags_vertical = Control.SIZE_EXPAND_FILL; gap.mouse_filter = Control.MOUSE_FILTER_IGNORE; v.add_child(gap)
 	var bt = ph._l("Testi tekrarla  ·  Devam", 14, false, ph.TR_C); bt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(bt))
 	var bar := HBoxContainer.new(); bar.name = "ScoreBar"; bar.alignment = BoxContainer.ALIGNMENT_CENTER; bar.add_theme_constant_override("separation", 14); v.add_child(bar)

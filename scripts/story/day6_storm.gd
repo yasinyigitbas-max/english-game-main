@@ -102,6 +102,7 @@ func act(tag: String) -> void:
 	match tag:
 		"storm_start":
 			WorldState.set_time(15, 0)
+			_storm_look(true, env)   # build 3.2 (black #11): open-world env has adjustments / fog off: grey sky, weak sun, dim ambient
 			if env:
 				var t := create_tween().set_parallel(true)
 				t.tween_property(env, "adjustment_brightness", 0.62, 4.0); t.tween_property(env, "adjustment_saturation", 0.7, 4.0)
@@ -219,6 +220,22 @@ func _park_buses(on: bool) -> void:
 		if on: vb.position.y = -60.0
 		else: vb.position.y = 0.0; vb.sync(WorldState.minutes)
 
+var _sl := {}
+func _storm_look(on: bool, env: Environment) -> void:
+	if env == null: return
+	var suns: Array = sc.find_children("*", "DirectionalLight3D", true, false) if is_instance_valid(sc) else []
+	if on and _sl.is_empty():
+		_sl = {"adj": env.adjustment_enabled, "bg": env.background_color, "amb": env.ambient_light_energy, "suns": suns.map(func(l): return [l, l.light_energy])}
+		env.adjustment_enabled = true
+		var t := create_tween().set_parallel(true)
+		t.tween_property(env, "background_color", Color(0.42, 0.45, 0.5), 4.0); t.tween_property(env, "ambient_light_energy", env.ambient_light_energy * 0.55, 4.0)
+		for l in suns: t.tween_property(l, "light_energy", (l as Light3D).light_energy * 0.25, 4.0)
+	elif not on and not _sl.is_empty():
+		env.adjustment_enabled = _sl.adj; env.background_color = _sl.bg; env.ambient_light_energy = _sl.amb
+		for p in _sl.suns: if is_instance_valid(p[0]): (p[0] as Light3D).light_energy = p[1]
+		_sl = {}
+
 func _exit_tree() -> void:
 	var env: Environment = sc.get("env") if is_instance_valid(sc) else null
+	_storm_look(false, env)
 	if env: env.adjustment_brightness = 1.0; env.adjustment_saturation = 1.18; env.fog_density = 0.0018

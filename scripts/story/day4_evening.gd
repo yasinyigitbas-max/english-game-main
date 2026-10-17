@@ -75,7 +75,7 @@ func _do(what: String, e: Dictionary) -> void:
 
 # ------------------------------------------------------------------ couch (day3_evening.gd pattern)
 func _sofa_at() -> Vector3:
-	if lr.get("N") is Dictionary and lr.N.has("sofa") and lr.N.sofa is Node3D: return (lr.N.sofa as Node3D).global_position + Vector3(0, 0.7, 0)
+	if lr.get("N") is Dictionary and lr.N.has("sofa") and lr.N.sofa is Node3D: return lr.to_local((lr.N.sofa as Node3D).global_position) + Vector3(0, 0.7, 0)   # build 3.2: room-local (was world -> D7 pans into the yard)
 	return Vector3(lr.SOFA_X, 0.7, 0.0)
 
 func _couch() -> void:
@@ -91,7 +91,7 @@ func _couch() -> void:
 	_keep_obj = "Talk to my family."
 	var t0 := Time.get_ticks_msec()
 	while is_instance_valid(lr):
-		var h: Vector3 = lr.hero.global_position
+		var h: Vector3 = lr.hero.position   # room-local like SOFA_X
 		if String(lr.S.seat).begins_with("sofa") or Vector2(h.x, h.z).distance_to(Vector2(lr.SOFA_X, 0.0)) < 1.9: break
 		if Time.get_ticks_msec() - t0 > 600000: break
 		await _w(0.25)
@@ -117,13 +117,14 @@ func _sit() -> void:
 	if String(lr.S.seat).begins_with("sofa"): return
 	var taken: Array = []
 	for f in lr.family: taken.append(String(f.get_meta("seat", "")))
+	for bm in lr.humans(): taken.append(String(bm.seat))   # build 3.2: the family at the TV holds sofa seats too (hero stood behind the sofa)
 	var seat := ""
 	for k in ["sofa_middle", "sofa_left", "sofa_right"]:
 		if not k in taken: seat = k; break
 	if seat != "":
 		await lr.walk_to(lr.sit_spot(seat), lr.SEATS[seat].yaw)
-		lr.caption("I am sitting on the sofa.")
 		await lr.sit_down(lr.hero, seat, true); lr.S.seat = seat
+		lr.caption("I am sitting on the sofa.")   # build 3.2: said once the hero really sits
 	else:
 		await lr.walk_to(Vector3(lr.SOFA_X - 1.3, 0, 0.0), PI / 2)
 		lr.caption("I am standing next to the sofa.")
@@ -131,9 +132,16 @@ func _sit() -> void:
 ## objective + Life.guide_to pan onto a prop, then back to the couch shot
 func _guide(en: String, at_id: String) -> void:
 	var at := _sofa_at()
-	if at_id == "torch" and torch: at = torch.global_position
+	if at_id == "torch" and torch: at = lr.to_local(torch.global_position)   # build 3.2: room-local like the shot (was world)
 	elif at_id in ["candles", "table", "cake"]: at = TABLE + Vector3(0, 0.1, 0)
 	var pos := at + Vector3(-1.6, 1.2, 0.9) if at_id != "sofa" else at + Vector3(-3.0, 1.4, 0.4)
+	if at_id != "sofa" and is_instance_valid(lr.hero):   # build 3.2 (d4/062, 065): the pan frames the player AND the target
+		var hp: Vector3 = lr.hero.position + Vector3(0, 1.0, 0)
+		var mid := (hp + at) * 0.5; var sep := hp.distance_to(at)
+		var across := (at - hp); across.y = 0; across = across.normalized() if across.length() > 0.01 else Vector3.RIGHT
+		var back := Vector3(across.z, 0, -across.x)   # perpendicular: both subjects side by side in frame
+		if (mid + back).distance_to(Vector3(lr.SOFA_X, 0, 0)) < (mid - back).distance_to(Vector3(lr.SOFA_X, 0, 0)): back = -back
+		at = mid; pos = mid + back * maxf(1.9, sep * 1.25 + 1.2) + Vector3(0, 0.9, 0)
 	await Life.guide_to({"pos": pos, "at": at}, en, {"tr": T.tr_of(en), "id": en})
 	if not _couch_shot.is_empty(): lr.cam_shot = _couch_shot
 	Objectives.complete(en)
@@ -172,9 +180,31 @@ func _props() -> void:
 	var sp := SpotLight3D.new(); sp.light_color = Color(1.0, 0.97, 0.88); sp.spot_range = 7.0; sp.spot_angle = 28.0; sp.light_energy = 0.0
 	_n3().add_child(sp); sp.position = TABLE + Vector3(-0.15, 0.1, 0.32); sp.look_at(lr.to_global(Vector3(-3.0, 0.9, 0.6)), Vector3.UP); spot = sp
 
+## build 3.2 (d4/060-067): in the open world the other rooms' lamps, the world sun and the world environment still lit the
+## living-room walls (no wall shadows) -> near walls stayed bright white in the power cut. Every light outside this room
+## (and outside our torch / candle holder) is dimmed for the cut and restored when the power comes back.
+var _dimmed: Array = []   # [Light3D, energy]
+var _env_e := -1.0
+func _dim_others(on: bool) -> void:
+	if on:
+		if not _dimmed.is_empty(): return
+		for l in get_tree().root.find_children("*", "Light3D", true, false):
+			if lr.is_ancestor_of(l) or (l as Light3D).light_energy <= 0.0: continue
+			_dimmed.append([l, (l as Light3D).light_energy]); (l as Light3D).light_energy = 0.0
+		var we := lr.get_viewport().find_world_3d()
+		if we and we.environment and we.environment != (lr.env if lr.get("env") else null): _env_e = we.environment.ambient_light_energy; we.environment.ambient_light_energy = 0.035
+	else:
+		for d in _dimmed: if is_instance_valid(d[0]): (d[0] as Light3D).light_energy = d[1]
+		_dimmed.clear()
+		var we := lr.get_viewport().find_world_3d()
+		if _env_e >= 0.0 and we and we.environment: we.environment.ambient_light_energy = _env_e
+		_env_e = -1.0
+
+func _exit_tree() -> void: _dim_others(false)
+
 func _power_cut() -> void:
 	Audio.sfx("metalClick", 2.0)
-	_dark = true; _restore_dark()
+	_dark = true; _restore_dark(); _dim_others(true)
 	await _w(0.8)
 
 ## everything off + dark ambient (re-applied every frame while _dark: the room's own _apply_states() may run)
@@ -182,6 +212,7 @@ func _restore_dark() -> void:
 	if not _dark: return
 	lr.S.ceiling = "off"; lr.S.floorlamp = "off"; lr.S.tv = "off"; lr._apply_states()
 	_lamp_off = false; _dark_env()
+	_dim_others(true)   # build 3.2: also the day-7 dark room (black #1: 18:00 daylight / other lamps made it unreadable)
 
 func _dark_env() -> void:
 	if is_instance_valid(lr.sun): lr.sun.light_energy = 0.0
@@ -208,7 +239,7 @@ func _candles(on: bool) -> void:
 	candle_light.light_energy = 1.6 if on else 0.0
 
 func _lights_on() -> void:
-	_dark = false
+	_dark = false; _dim_others(false)
 	lr.S.ceiling = "on"; _light_env(); Audio.sfx("metalClick", 2.0)
 	if spot: spot.light_energy = 0.0
 

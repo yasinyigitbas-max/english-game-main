@@ -138,6 +138,7 @@ func _world_tick(dt: float) -> void:
 		else:
 			App.came_from = place_id
 			if Objectives.has("Go outside."): Objectives.complete("Go outside.")
+			if place_id in ["shop", "cafe"]: Objectives.clear()   # build 3.2 (v33.1): no stale "Take a basket." on the street
 			if its.has("exit") and its.exit.enabled: used.emit("exit")
 			place_exited.emit(place_id)
 	if door_hinge and not door_hinge.has_meta("ow_world_door"):   # (World drives it in world.tscn) the door swings open (outwards) while the player is near it, closes behind them

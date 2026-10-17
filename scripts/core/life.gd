@@ -280,10 +280,14 @@ func _guide_say(sc: Node, text: String) -> void:
 
 func _guide_shot(sc: Node, target) -> Dictionary:
 	if target == null: return {}
+	# build 3.2 (open world): rooms (main / living room / bathroom: they have cam_shot) give room-local shots and points
+	# (OBJ focus, DOOR_*, SOFA_X, DINE_C ...); the guide shot is world space (ShoulderCam + rooms' _shot_l convert back)
+	var room_l: bool = sc is Node3D and "cam_shot" in sc
 	if target is Dictionary and target.has("pos") and target.has("at"):
+		if room_l: return {"pos": (sc as Node3D).to_global(target.pos), "at": (sc as Node3D).to_global(target.at), "h": float(target.get("h", 0.0))}
 		return {"pos": target.pos, "at": target.at, "h": float(target.get("h", 0.0))}
 	var at: Vector3
-	if target is Vector3: at = target
+	if target is Vector3: at = (sc as Node3D).to_global(target) if room_l else target
 	elif target is Node3D: at = (target as Node3D).global_position + Vector3(0, 1.15, 0)
 	else: return {}
 	var eye := Vector3.ZERO

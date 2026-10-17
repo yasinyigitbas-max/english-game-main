@@ -178,7 +178,7 @@ func _part_frame(word: String) -> Array:
 	for q in pts: ab = ab.expand(q)
 	var r := maxf(ab.size.length() * 0.5, 0.06)
 	var fov := deg_to_rad(cam.fov if cam else 50.0)
-	return [ab.get_center(), clampf(r * 1.45 / tan(fov * 0.5), 0.28, 2.2)]
+	return [ab.get_center(), clampf(r * 2.1 / tan(fov * 0.5), 0.5, 2.2)]   # build 3.2: more margin, never closer than 0.5 m (arrow + body part both framed)
 func _cam_to(pos: Vector3, look: Vector3, t: float) -> void:
 	var x1 := Transform3D.IDENTITY.translated(pos).looking_at(look, Vector3.UP)
 	if t <= 0.0: cam.global_transform = x1; return
@@ -255,8 +255,8 @@ func _arrow_at(part: Vector3, cam_pos: Vector3, d: float) -> void:
 	var to_cam := (cam_pos - part).normalized()
 	var right := to_cam.cross(Vector3.UP).normalized()
 	_arrow_dir = (Vector3.UP * 0.8 + right * 0.6).normalized()   # arrow comes from the upper side of the frame
-	_arrow_len = d * 0.32
-	_arrow_tip = part + to_cam * d * 0.15
+	_arrow_len = d * 0.2
+	_arrow_tip = part + to_cam * minf(d * 0.06, 0.05)   # build 3.2: tip ON the part (just in front of the surface), smaller arrow
 	_arrow_show(true)
 func _arrow_show(on: bool) -> void:
 	if _arrow: _arrow.visible = on

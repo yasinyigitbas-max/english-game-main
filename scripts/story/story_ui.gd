@@ -114,7 +114,7 @@ func live(en: String, tr_text := "") -> void:
 ## Returns {box, row, askt, buttons} - buttons in pool order; the caller wires the taps (puzzle logic unchanged).
 const SCR_CAP_RESERVE := 170.0   # px kept free above the bottom edge for the caption box (1-2 lines + TR)
 static func scramble_panel(parent: Node, box_name: String, pool: Array, ask_en := "Put the words in the right order.", ask_tr := "Kelimeleri doğru sıraya koy.") -> Dictionary:
-	var box := PanelContainer.new(); box.name = box_name
+	var box := PanelContainer.new(); box.name = box_name; box.add_to_group("tr_always")   # fix33 (black) J: learning panel (TR guard skips it)
 	var sb := StyleBoxFlat.new(); sb.bg_color = Color(1, 1, 1, 0.96); sb.set_corner_radius_all(20); sb.set_content_margin_all(16); box.add_theme_stylebox_override("panel", sb)
 	box.anchor_left = 0.5; box.anchor_right = 0.5; box.anchor_top = 1.0; box.anchor_bottom = 1.0
 	box.grow_horizontal = Control.GROW_DIRECTION_BOTH; box.grow_vertical = Control.GROW_DIRECTION_BEGIN
