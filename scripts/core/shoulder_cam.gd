@@ -85,7 +85,7 @@ func _process(dt: float) -> void:
 		else: scripted = true
 	var shot = sc.get("cam_shot")
 	if shot is Dictionary and not (shot as Dictionary).is_empty() and shot.has("at"):
-		if bool(shot.get("guide", false)): tgt = shot.at
+		if bool(shot.get("guide", false)): tgt = (sc as Node3D).to_global(shot.at) if sc is Node3D else shot.at   # v34 (blue): cam_shot values are room-local (rooms sit off the origin in the open world)
 		else: scripted = true
 	if sc.get("cam_override") == true or (rc is CameraRig and not (rc as CameraRig).controlled): scripted = true
 	if scripted:

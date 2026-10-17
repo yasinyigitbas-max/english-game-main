@@ -516,6 +516,7 @@ func _update_mirror() -> void:
 	var r := Vector3(v.x, v.y, 2.0 * MZ - v.z)
 	var d := MZ - r.z
 	N.mirror_cam.position = r; N.mirror_cam.rotation = Vector3(0, PI, 0)
+	N.mirror_cam.transform = global_transform * N.mirror_cam.transform   # v34 (blue): SubViewport camera = world space (room not at the origin)
 	N.mirror_cam.projection = Camera3D.PROJECTION_FRUSTUM
 	N.mirror_cam.near = maxf(0.05, d - 0.002)
 	var k: float = N.mirror_cam.near / d

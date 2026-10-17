@@ -595,6 +595,7 @@ func _update_mirror() -> void:
 	# off-axis frustum: the camera looks straight through the glass (near plane = glass plane), so nothing
 	# behind the mirror (wall, frame) leaks in, and the image matches the glass rectangle exactly.
 	N.mirror_cam.rotation = Vector3(0, -PI / 2, 0)
+	N.mirror_cam.transform = global_transform * N.mirror_cam.transform   # v34 (blue): a SubViewport camera is in WORLD space; the room is not at the origin in the open world
 	N.mirror_cam.projection = Camera3D.PROJECTION_FRUSTUM
 	N.mirror_cam.near = maxf(0.05, d - 0.002)
 	var k: float = N.mirror_cam.near / d

@@ -46,6 +46,8 @@ static func _late(world: Node, opts: Dictionary, out: Dictionary) -> void:
 		var wc: Node = load("res://scripts/world/world_culling.gd").new(); wc.set("host", world); world.add_child(wc); out.culling = wc
 	if bool(opts.get("zones", false)):   # off: World (build 3) shows only the current room + rooms seen through open doors
 		var z: Node = load("res://scripts/world/world_zones.gd").new(); z.set("host", world); world.add_child(z); out.zones = z
+	if bool(opts.get("indoor_light", true)):
+		var il: Node = load("res://scripts/world/world_indoor_light.gd").new(); il.set("host", world); world.add_child(il); out.indoor_light = il
 	out.ready = true
 
 ## the old street lot fronts under the new interiors: their Label3D sign and the building box (World._open_lot only hides

@@ -573,11 +573,11 @@ func _process(dt: float) -> void:
 		var near_s: bool = player != null and lp(player).z > hz - 1.8   # player close to the south wall
 		var occ := {}   # v33 rule: a side / back wall that hides the player fades (its trim + accent with it), then fades back
 		if player != null:
-			for w in walls: if (w[1] as Vector3).z <= 0.5 and not occ.get(w[1], false): occ[w[1]] = WallFade.occluded(w[0], c.global_position, player.global_position)
+			for w in walls: if ((w[1] as Vector3).z <= 0.5 or world_mode) and not occ.get(w[1], false): occ[w[1]] = WallFade.occluded(w[0], c.global_position, player.global_position)
 		for w in walls:
 			var m: MeshInstance3D = w[0]; var n: Vector3 = w[1]
 			var d: float = (c.global_position - m.global_position).dot(global_basis * n)
-			if n.z > 0.5:   # v32 rule: south wall (+ door, trim, accent) fades gradually when the camera or the player is near
+			if n.z > 0.5 and not world_mode:   # v32 rule (own scene, fixed camera); open world: solid, fades only while it hides the player: south wall (+ door, trim, accent) fades gradually when the camera or the player is near
 				WallFade.step(m, d > -0.8 or near_s, dt)
 			else: WallFade.step_occl(m, 0.0 if d >= 0.3 else (WallFade.OCC_MIN_A if occ.get(n, false) else 1.0), dt)   # v33: was an instant hide
 	lively(dt)
