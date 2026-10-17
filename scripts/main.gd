@@ -254,7 +254,10 @@ const WH_OBJ_KEYS := ["bed", "alarm", "lamp", "drawer", "ceiling", "curtains", "
 func _wh_resume() -> void:
 	var d: Dictionary = App.load_save()
 	if d.get("state") is Dictionary:
-		for k in d.state: if S.has(k) and not k in WH_OBJ_KEYS: S[k] = d.state[k]
+		for k in d.state:
+			if not S.has(k) or k in WH_OBJ_KEYS: continue
+			if k in ["created", "lesson_done", "calendar_seen", "door_opened", "has_phone"] and bool(S[k]) and not bool(d.state[k]): continue   # build 3.2: a stale room save never undoes the mirror (day-2 "Look in the mirror." again)
+			S[k] = d.state[k]
 	if d.has("has_phone"): S.has_phone = bool(d.has_phone)
 	S.tr = App.tr_saved(); _sync_app_phone(); _refresh_text.call_deferred()
 	S.door_locked = door_rule()
@@ -496,7 +499,7 @@ func _build_room() -> void:
 	# v30.5: hand towel on a wall hook next to the mirror (blue's ClothTowel, gentle indoor breeze)
 	box(Vector3(0.05, 0.03, 0.34), Vector3(-3.46, 1.56, 2.68), Color(0.6, 0.6, 0.62))
 	var btw := ClothTowel.new(); btw.size = Vector2(0.3, 0.5); btw.colour = Color(0.93, 0.78, 0.55); btw.breeze = 0.08; add_child(btw)
-	btw.hang_at(Transform3D(Basis(Vector3.UP, PI / 2), Vector3(-3.43, 1.55, 2.68))); N.bed_towel = btw
+	btw.attach_to(self, Transform3D(Basis(Vector3.UP, PI / 2), Vector3(-3.43, 1.55, 2.68))); btw.snap.call_deferred()   # build 3.2: room-local pin (top_level cloth; was world coords -> towel in the living room); N.bed_towel = btw
 	# ---------- plant front-left corner
 	N.plant = prop("pottedPlant", Vector3(-3.15, 0, 1.0), 0, 1.0)
 	block(N.plant)

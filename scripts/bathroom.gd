@@ -537,7 +537,7 @@ func _build_towel() -> void:
 	N.towel = Node3D.new(); N.towel.position = Vector3(x, 1.32, BZ + 0.07); add_child(N.towel)
 	# v30.5: blue's verlet cloth towel (scripts/props/cloth_towel.gd) hanging on the rail; gentle indoor breeze
 	var ct := ClothTowel.new(); ct.size = Vector2(0.46, 0.62); ct.colour = BLUE; ct.breeze = 0.08; N.towel.add_child(ct)
-	ct.hang_at(Transform3D(Basis(), Vector3(x, 1.31, BZ + 0.07))); N.towel_cloth = ct
+	ct.attach_to(self, Transform3D(Basis(), Vector3(x, 1.31, BZ + 0.07))); ct.snap.call_deferred()   # build 3.2: room-local pin; N.towel_cloth = ct
 	N.towel_used = Node3D.new(); N.towel_used.position = Vector3(x, 1.32, BZ + 0.07); add_child(N.towel_used)
 	sheet(Vector2(0.4, 0.5), Vector3(0.03, -0.24, 0.02), BLUE, 0.03, 9, N.towel_used).rotation.z = 0.25
 	reg("towel", "towel", Vector3(x, 1.1, BZ + 0.1), Vector3(x, 0, BZ + 0.62), Vector3(0, 0, -1))
