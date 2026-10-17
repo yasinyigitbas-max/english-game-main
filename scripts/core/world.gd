@@ -403,6 +403,12 @@ func _process(dt: float) -> void:
 			for id in HOUSE_ROOMS:
 				var ab: AABB = regions.get(id, AABB())
 				if ab.size != Vector3.ZERO and cp.x >= ab.position.x and cp.x <= ab.end.x and cp.z >= ab.position.z and cp.z <= ab.end.z: indoor_vis[id] = true
+	var vis_open := indoor_vis.duplicate()
+	if indoor_vis.size() > 0 and region_at(hp) in HOUSE_ROOMS:   # fix33: the neighbour house rooms stay drawn (a room door
+		# the story / room script swings open, or the auto door not yet open, showed the lawn through the empty door gap)
+		for d in doors.values():
+			var dr: WorldDoor = d
+			if dr.a in HOUSE_ROOMS and dr.b in HOUSE_ROOMS and (indoor_vis.has(dr.a) or indoor_vis.has(dr.b)): indoor_vis[dr.a] = true; indoor_vis[dr.b] = true
 	for id in places:
 		if not regions.has(id): continue
 		var ab: AABB = regions[id]
@@ -411,8 +417,10 @@ func _process(dt: float) -> void:
 		if active.get(id, null) != near:
 			active[id] = near
 			(places[id] as Node3D).visible = near
-			if (places[id] as Node).has_meta("ow_live"): (places[id] as Node).process_mode = Node.PROCESS_MODE_INHERIT if near else Node.PROCESS_MODE_DISABLED
 			active_changed.emit(id, near)
+		if (places[id] as Node).has_meta("ow_live"):
+			var pm := Node.PROCESS_MODE_INHERIT if near and (vis_open.is_empty() or vis_open.has(id) or not id in HOUSE_ROOMS) else Node.PROCESS_MODE_DISABLED
+			if (places[id] as Node).process_mode != pm: (places[id] as Node).process_mode = pm
 	var lit := []
 	for l in _lights:
 		if not is_instance_valid(l) or l is DirectionalLight3D: continue
