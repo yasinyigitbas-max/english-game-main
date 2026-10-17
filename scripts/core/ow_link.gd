@@ -161,6 +161,7 @@ func _extra(id: String) -> Node:
 	var ps := load(EXTRA[id]) as PackedScene
 	var n: Node3D = ps.instantiate()
 	n.position = world.RESERVED.get(EXTRA_SLOT[id], Vector3(0, 0, -120))
+	n.add_to_group("interiors")   # build 3.2: an indoor story set (WorldCulling: interior ranges, keeps its lamps on its props)
 	get_tree().root.add_child(n)   # its _ready starts its story (as when v33 loaded the scene)
 	extras[id] = n
 	return n

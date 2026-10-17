@@ -84,8 +84,8 @@ func run() -> void:
 	if not String(lr.S.seat).begins_with("sofa"):
 		var seat: String = lr._free_sofa_seat()
 		await lr.walk_to(lr.sit_spot(seat), lr.SEATS[seat].yaw)
-		lr.caption("I am sitting on the sofa.")
 		await lr.sit_down(lr.hero, seat, true); lr.S.seat = seat
+		lr.caption("I am sitting on the sofa.")   # build 3.2: said once the hero really sits
 	lr.cam_shot = {"pos": Vector3(lr.SOFA_X - 2.6, 1.55, 0.9), "at": Vector3(lr.SOFA_X, 0.85, 0.0)}
 	await _w(1.0)
 	_snap_couch()

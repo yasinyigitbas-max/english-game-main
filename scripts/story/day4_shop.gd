@@ -17,9 +17,9 @@ func _w(t: float) -> void: await get_tree().create_timer(t, false).timeout
 func run() -> bool:
 	D = App.load_json(data_path); D = D if D is Dictionary else {}
 	var t0 := Time.get_ticks_msec()
+	sc.set_meta("story_hold", true)   # build 3.2: shop.gd holds its "Go outside." until our checkout is done
 	while is_instance_valid(sc) and Time.get_ticks_msec() - t0 < 240000:
-		var its = sc.get("its")
-		if its is Dictionary and its.has("exit") and is_instance_valid(its.exit) and bool(its.exit.enabled) and String(sc.mode) == "play": break
+		if sc.has_meta("ow_exit_ready"): break
 		await get_tree().process_frame
 	if not is_instance_valid(sc) or not sc.is_inside_tree(): return false
 	await Audio.wait_idle(10.0); await _w(0.8)
@@ -58,7 +58,7 @@ func run() -> bool:
 	sv[String(D.get("shop_flag", "d4_shop"))] = true; App.patch_save({"story": sv})
 	if not is_instance_valid(sc): return true
 	sc.busy(false)
-	Objectives.set_list([{"id": "Go outside.", "en": "Go outside.", "tr": "Dışarı çık."}])
+	sc.remove_meta("story_hold")   # build 3.2: shop.gd now sets "Go outside." (once, after buying)
 	return true
 
 ## player line: Voice.say is silent without a clip, so those lines go to Audio.say (narrator clip / Piper fallback)

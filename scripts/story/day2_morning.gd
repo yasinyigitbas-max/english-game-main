@@ -55,8 +55,8 @@ func run() -> void:
 		lr.cam_shot = lr._breakfast_frame(lr.DINE_C + c[1], f)
 		await _w(0.8)
 		await lr.walk_to(lr.sit_spot(seat), lr.SEATS[seat].yaw)
-		lr.caption("I am sitting at the table.")
 		await lr.sit_down(lr.hero, seat, true); lr.S.seat = seat
+		lr.caption("I am sitting at the table.")   # build 3.2: said once the hero really sits
 	await Audio.wait_idle(12.0); await _w(0.6)
 	lr.caption("I am having breakfast."); lr.eat_tw = lr._breakfast_loop(lr.hero, lr.SEATS[seat].yaw if seat != "" else 0.0, 0)
 	await Audio.wait_idle(12.0); await _w(1.0)

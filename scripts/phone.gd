@@ -652,7 +652,8 @@ func _lesson() -> void:
 			# v32-polish: every EN cell without its own TR column gets a TR gloss under the EN (rows_tr in the lesson data,
 			# else data/extra_lines.json), shown only while TR is on (practice buttons he/she/it, am/is/are, examples)
 			var is_tr_col := k == 1 and not two and (lesson_i in [0, 3] or not fam)
-			var gl := _cell_tr(st, row_i, k, txt) if not is_tr_col else ""
+			var row_has_tr: bool = not two and (lesson_i in [0, 3] or not fam) and row.size() > 1 and String(row[1]) != ""
+			var gl := _cell_tr(st, row_i, k, txt) if not is_tr_col and not row_has_tr else ""   # build 3.2: TR only in the right column when the row has one (was doubled under the EN)
 			if gl != "":
 				lb.offset_bottom = -20
 				var gt := _l(gl, 14, false, TR_C); gt.set_anchors_preset(Control.PRESET_BOTTOM_WIDE); gt.offset_left = 20; gt.offset_top = -24; gt.offset_bottom = -4

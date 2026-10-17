@@ -126,8 +126,8 @@ func _sit() -> void:
 		if not k in taken: seat = k; break
 	if seat != "":
 		await lr.walk_to(lr.sit_spot(seat), lr.SEATS[seat].yaw)
-		lr.caption("I am sitting on the sofa.")
 		await lr.sit_down(lr.hero, seat, true); lr.S.seat = seat
+		lr.caption("I am sitting on the sofa.")   # build 3.2: said once the hero really sits
 	else:
 		await lr.walk_to(Vector3(lr.SOFA_X - 1.3, 0, 0.0), PI / 2)
 		lr.caption("I am standing next to the sofa.")

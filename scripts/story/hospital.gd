@@ -76,6 +76,7 @@ func toggle_tr(on: bool) -> void:
 # ---- host API used by phone.gd
 func caption(t: String, _speak := true) -> void:
 	if ui:
+		if phone and phone.visible: ui.panel.visible = false; return   # build 3.2: ONE box - the lesson screen owns the screen (no caption box over it)
 		ui.en_l.text = t; ui.tr_l.text = StoryUI.tr_of(t); ui._sync_tr(); ui.panel.visible = t != ""   # v32-polish: same box
 		if t != "": StoryUI.claim(ui.panel)   # v32-polish: hide any other bottom box even if this one was already up
 func phone_event(_a: String) -> void: pass
@@ -100,13 +101,6 @@ func _run() -> void:
 	await _blink(2)
 	await _look_around()
 	await ui.line("Where am I?")
-	# can / should lesson + quiz (phone UI stays sharp; phone locked until done)
-	var data: Dictionary = App.load_json("res://data/can_should.json")
-	phone.visible = true; phone.open(Rect2(), "home"); await get_tree().create_timer(0.5).timeout
-	phone.start_set(data, "lesson"); await phone.lesson_steps_done
-	phone.start_set(data, "quiz"); await phone.quiz_done
-	await phone.close(true)
-	ui.hide_caption()
 	_set_blur(0.8, 0.05, 4.0)
 	await ui.line("Can you hear me?", "Doctor", 0.7, "hfc_male")
 	await ui.line("Yes, I can.", "Me")
@@ -162,6 +156,13 @@ func _run() -> void:
 	_doc_look(0.0, 0.4)
 	await ui.line("Good. You are fine. You can go home.", "Doctor", 0.6, "hfc_male")
 	await ui.line("You should rest for one full day.", "Doctor", 0.7, "hfc_male")
+	# build 3.2 (Yasin): the exam first, then the can / should lesson + quiz (phone UI stays sharp; phone locked until done)
+	var data: Dictionary = App.load_json("res://data/can_should.json")
+	phone.visible = true; phone.open(Rect2(), "home"); await get_tree().create_timer(0.5).timeout
+	phone.start_set(data, "lesson"); await phone.lesson_steps_done
+	phone.start_set(data, "quiz"); await phone.quiz_done
+	await phone.close(true)
+	ui.hide_caption()
 	_frame(fam)
 	await ui.line("Let's go home.", fam_name, 0.7, fam_voice)
 	await _snap_bed("fine")

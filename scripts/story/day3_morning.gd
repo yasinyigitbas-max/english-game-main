@@ -71,6 +71,9 @@ func _guide(sc: Node, target, id: String, en: String, tr: String, speak := true)
 	var key := id + "|" + str(sc.get_instance_id())
 	if _guided.has(key): Objectives.set_list([_cur]); return
 	_guided[key] = true
+	var said := "said|" + id + "|" + str(maxi(WorldState.day, App.day))   # build 3.2 (d4/034): an objective is voiced ONCE (not again on the street)
+	if _guided.has(said): await Life.guide_to(target, en, {"id": id, "tr": tr, "list": [_cur], "speak": false}); return
+	_guided[said] = true
 	if not speak and is_instance_valid(sc) and sc.has_method("caption"): _cap_out(sc, en)   # outdoors: say it first, then the 2.6 s pan
 	await Life.guide_to(target, en, {"id": id, "tr": tr, "list": [_cur], "speak": speak})
 

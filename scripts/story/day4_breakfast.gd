@@ -39,6 +39,12 @@ func run() -> void:
 	lr.mode = "busy"
 	if lr.get("touch"): lr.touch.visible = false   # v33 QA: no joystick over the breakfast cinematic
 	await Audio.wait_idle(12.0)
+	# build 3.2 (d4/021): everyone at their own dining chair (a member left at the TV / standing from last night stood at the table)
+	for i in mini(hs.size(), lr.DINE_CHAIRS.size()):
+		var dc: String = lr.DINE_CHAIRS[i][0]
+		if String(hs[i].seat) != dc and lr.SEATS.has(dc):
+			if hs[i].has("tw") and hs[i].tw: hs[i].tw.kill()
+			hs[i].node.bone_offsets.clear(); lr.sit_down(hs[i].node, dc, false); hs[i].seat = dc
 	var n: int = hs.size(); var seat := ""
 	if n < lr.DINE_CHAIRS.size():
 		var c: Array = lr.DINE_CHAIRS[n]; seat = c[0]
@@ -49,8 +55,8 @@ func run() -> void:
 		lr.cam_shot = lr._breakfast_frame(lr.DINE_C + c[1], f)
 		await _w(0.8)
 		await lr.walk_to(lr.sit_spot(seat), lr.SEATS[seat].yaw)
-		lr.caption("I am sitting at the table.")
 		await lr.sit_down(lr.hero, seat, true); lr.S.seat = seat
+		lr.caption("I am sitting at the table.")   # build 3.2: said once the hero really sits
 	await Audio.wait_idle(12.0); await _w(0.6)
 	lr.caption("I am having breakfast."); lr.eat_tw = lr._breakfast_loop(lr.hero, lr.SEATS[seat].yaw if seat != "" else 0.0, 0)
 	await Audio.wait_idle(12.0); await _w(1.0)
