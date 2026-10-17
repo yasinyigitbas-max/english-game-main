@@ -26,8 +26,12 @@ const SPOTS := {}
 const OWPlaces := preload("res://scripts/world/ow_places.gd")   # hospital / school / work (north strip, behind the fence)
 const ACTIVE_R := 45.0           # places farther than this from the hero are hidden (and, once live, not processed)
 const FENCE_DAY := 8
-const LIGHT_NEAR := 14.0         # omni lights farther than this from the hero are off
-const VIS_END := 70.0            # small props are not drawn beyond this
+const LIGHT_NEAR := 15.0         # omni / spot lights farther than this from the hero are off (Yasin 19:03)
+const VIS_END := 28.0            # props, NPCs, street parts, place exteriors: not drawn beyond ~28 m (+ fade margin)
+const FAR := 35.0                # camera far plane (Yasin 19:03 draw distance), hidden by depth fog
+const FOG_BEGIN := 20.0
+const SHADOW_LIGHTS := 2         # only the nearest lights cast shadows
+const HOUSE_ROOMS := ["bedroom", "bathroom", "livingroom"]
 
 static var inst: World
 signal entered(region: String, from: String)
@@ -69,22 +73,35 @@ func _ready() -> void:
 	var start: Vector3 = places.bedroom.to_global(Vector3(-0.6, 0, 0.9))
 	player.global_position = Vector3(start.x, places.bedroom.global_position.y, start.z); player.face(PI)
 	player.floor_y = places.bedroom.global_position.y
-	cam = (load("res://ui/shared/camera_rig.tscn") as PackedScene).instantiate(); cam.far = 220.0; add_child(cam)
+	cam = (load("res://ui/shared/camera_rig.tscn") as PackedScene).instantiate(); cam.far = FAR; add_child(cam)
 	hud.camera = cam; player.attach_camera(cam, 8.0, 0.82)
 	setup_universal("Home", "Ev")
 	hud.set_mission("Walk anywhere: open world preview.")
 	for l in find_children("*", "OmniLight3D", true, false) + find_children("*", "SpotLight3D", true, false): _lights.append(l)
 	_cull_setup()
-	preload("res://scripts/world/world_blue.gd").install(self)   # blue: wall fade, cafe/shop fronts, culling, door no_fade
+	var _bo: Dictionary = preload("res://scripts/world/world_blue.gd").install(self, {"culling": false})   # blue: wall fade, cafe/shop fronts, merge, door no_fade
+	# blue's WorldCulling with the 19:03 draw-distance limits (~28 m; buildings / merged blocks bigger than 30 m stay on, cut by far + fog)
+	var wc: Node = load("res://scripts/world/world_culling.gd").new(); wc.set("host", self)
+	for kv in [["prop_range", 18.0], ["interior_range", 26.0], ["mid_range", VIS_END], ["far_range", VIS_END + 4.0], ["big_size", 30.0], ["light_range", LIGHT_NEAR], ["shadow_range", 8.0], ["sun_shadow", 24.0]]: wc.set(kv[0], kv[1])
+	add_child(wc)
 	OwLink.attach(self)   # red: story port (live room / place = current_scene, one hero, travel fades only)
 	print("WORLD ready places=%s doors=%s regions=%s lights=%d" % [places.keys(), doors.keys(), regions.keys(), _lights.size()])
+
+## depth fog that ends at the far plane (hides the draw-distance cut); applied to whatever environment is in use
+func _fog(e: Environment) -> void:
+	if e == null or e.has_meta("ow_fog"): return
+	e.set_meta("ow_fog", true)
+	e.fog_enabled = true; e.fog_mode = Environment.FOG_MODE_DEPTH
+	e.fog_depth_begin = FOG_BEGIN; e.fog_depth_end = FAR - 1.0; e.fog_depth_curve = 1.0
+	e.fog_light_color = e.background_color if e.background_mode == Environment.BG_COLOR else Color(0.72, 0.82, 0.92)
+	e.fog_light_energy = 1.0; e.fog_sun_scatter = 0.0; e.fog_sky_affect = 1.0; e.fog_density = 1.0
 
 func _env() -> void:
 	var we := WorldEnvironment.new(); env = Environment.new()
 	env.background_mode = Environment.BG_COLOR; env.background_color = Color(0.72, 0.82, 0.92)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR; env.ambient_light_color = Color(1.0, 0.97, 0.93); env.ambient_light_energy = 0.55
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC; env.tonemap_exposure = 0.6
-	env.fog_enabled = true; env.fog_density = 0.0018; env.fog_sky_affect = 0.0
+	_fog(env)
 	we.environment = env; add_child(we)
 	sun = DirectionalLight3D.new(); sun.shadow_enabled = true; sun.light_energy = 1.1; add_child(sun)
 	sun.look_at_from_position(Vector3(7, 8, -9), Vector3.ZERO)
@@ -317,7 +334,7 @@ func _cull_setup() -> void:
 	for id in places:
 		for g in (places[id] as Node).find_children("*", "GeometryInstance3D", true, false):
 			var gi2 := g as GeometryInstance3D
-			if gi2.get_aabb().size.length() < 1.2: gi2.visibility_range_end = 30.0; gi2.visibility_range_end_margin = 3.0
+			if gi2.get_aabb().size.length() < 1.2: gi2.visibility_range_end = 20.0; gi2.visibility_range_end_margin = 3.0
 	for l in _lights: (l as Light3D).shadow_enabled = false
 
 func _process(dt: float) -> void:
@@ -326,20 +343,29 @@ func _process(dt: float) -> void:
 	_t = 0.2
 	var hp := hero_pos()
 	if WorldState.day != _day: _fences_for_day()
+	indoor_vis = _indoor_visible(region_at(hp))
 	for id in places:
 		if not regions.has(id): continue
 		var ab: AABB = regions[id]
 		var c := ab.get_center(); var near := Vector2(c.x - hp.x, c.z - hp.z).length() - ab.size.length() * 0.5 < ACTIVE_R
+		if indoor_vis.size() > 0 and id in HOUSE_ROOMS + ["cafe", "shop", "work"] and not indoor_vis.has(id): near = false   # indoors: only rooms seen through open doors
 		if active.get(id, null) != near:
 			active[id] = near
 			(places[id] as Node3D).visible = near
 			if (places[id] as Node).has_meta("ow_live"): (places[id] as Node).process_mode = Node.PROCESS_MODE_INHERIT if near else Node.PROCESS_MODE_DISABLED
 			active_changed.emit(id, near)
+	var lit := []
 	for l in _lights:
-		if not is_instance_valid(l): continue
-		var near := (l as Node3D).global_position.distance_to(hp) < LIGHT_NEAR
+		if not is_instance_valid(l) or l is DirectionalLight3D: continue
+		var dl := (l as Node3D).global_position.distance_to(hp)
+		var near := dl < LIGHT_NEAR
 		if not l.has_meta("ow_vis"): l.set_meta("ow_vis", (l as Light3D).visible)
 		(l as Light3D).visible = near and bool(l.get_meta("ow_vis"))
+		if (l as Light3D).visible and (l as Node3D).is_visible_in_tree(): lit.append([dl, l])
+		else: (l as Light3D).shadow_enabled = false
+	lit.sort_custom(func(x, y): return x[0] < y[0])
+	for i in lit.size(): (lit[i][1] as Light3D).shadow_enabled = i < SHADOW_LIGHTS
+	_limit_camera()
 	for id in doors:
 		var dr: WorldDoor = doors[id]
 		if not dr.auto: continue
@@ -353,6 +379,30 @@ func _process(dt: float) -> void:
 		entered.emit(r, old)
 		player.floor_y = places[r].global_position.y if places.has(r) and PLACES.has(r) and HouseC.is_room(String(PLACES[r][0])) else 0.07
 		if hud.has_method("set_place"): hud.set_place(r.capitalize(), "")
+
+var indoor_vis := {}
+## indoors (house room / cafe / shop / work): the current room + every room reachable through OPEN doors ({} = outdoors)
+func _indoor_visible(r: String) -> Dictionary:
+	if r == "street" or r == "" or not places.has(r) or r in ["hospital", "school"]: return {}
+	var seen := {r: true}; var todo := [r]
+	while not todo.is_empty():
+		var cur: String = todo.pop_back()
+		for d in doors.values():
+			var dr: WorldDoor = d
+			if not (dr.a == cur or dr.b == cur): continue
+			if not (dr.is_open or absf(wrapf(dr.leaf.rotation.y - dr.closed_angle, -PI, PI)) > 0.15): continue
+			var o := dr.b if dr.a == cur else dr.a
+			if o == "street": continue   # the street stays drawn (windows), cut by the far plane + fog
+			if not seen.has(o): seen[o] = true; todo.append(o)
+	return seen
+
+## the camera in use (World rig, OwLink's room camera, story cameras): far plane FAR + fog on its environment
+func _limit_camera() -> void:
+	var c := get_viewport().get_camera_3d()
+	if c and c.far > FAR: c.far = FAR
+	var we := get_viewport().find_world_3d()
+	if we and we.environment: _fog(we.environment)
+	if c and c.environment: _fog(c.environment)
 
 ## the ONE hero's world position (in a house room red's OwLink lends the hero to the room: the WorldPlayer body stays behind)
 func hero_pos() -> Vector3:
