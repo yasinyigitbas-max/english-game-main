@@ -190,7 +190,9 @@ func _fade_buildings() -> void:
 		# only buildings between the camera and the player (not the one the player stands in front of)
 		var to_cam := (cp - eye).normalized()
 		var near_end := eye + to_cam * 1.2
-		var hit: bool = (ab.get_center() - eye).dot(to_cam) > 0.0 and ab.grow(0.1).intersects_segment(cp, near_end)
+		var on: bool = bool(mi.get_meta("wf_oc", false))   # v33: feet too + hysteresis (wider keep margin, short hold) -> no edge flicker
+		var gb := ab.grow(0.35 if on else 0.1); var feet := player.global_position + Vector3(0, 0.3, 0)
+		var hit: bool = WallFade.hold(mi, (ab.get_center() - eye).dot(to_cam) > 0.0 and (gb.intersects_segment(cp, near_end) or gb.intersects_segment(cp, feet + (cp - feet).normalized() * 1.2)))
 		# cutaway: swap the building for its open-top 1 m wall stub (no translucent haze)
 		var cut: MeshInstance3D = mi.get_meta("cut") if mi.has_meta("cut") else null
 		# v32 rule (blue): the building fades out / back gradually (was an instant swap); its open-top stub shows underneath

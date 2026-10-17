@@ -121,6 +121,8 @@ func _wall_fade_setup() -> void:
 	if wall_fade: return
 	wall_fade = WallFade.attach(self, func(): return cam.global_position if is_instance_valid(cam) else Vector3.INF, func(): return hero.global_position if is_instance_valid(hero) else Vector3.INF)
 	for w in walls_s: wall_fade.register(w)
+	for w in walls_l: wall_fade.register_occluder(w, {"group": "L", "hide_containers": true, "out": func(): return cam.position.x < LX})   # v33: side walls fade only while they hide the player
+	for w in walls_r: wall_fade.register_occluder(w, {"group": "R", "hide_containers": true, "out": func(): return cam.position.x > RX})
 var wall_alpha := {}
 var was_walking := false
 var last_step_ph := 1.0
@@ -170,6 +172,7 @@ func _ready() -> void:
 	if App.came_from == "livingroom": hero.position = Vector3((SD.x + SD.y) / 2, 0, FZ - 0.6); hero.rotation.y = PI   # inside the south door
 	App.came_from = ""
 	cam = (load("res://ui/shared/camera_rig.tscn") as PackedScene).instantiate(); add_child(cam)
+	cam.avoid_with_override = true   # v33: override_point is the room framing here (camera occlusion avoidance stays on)
 	cam.setup(hero, 7.6, 0.9025, 4.5, 11.0)     # shared rig: wheel / right-drag / pinch / two-finger drag / ring / Q,E,+,-
 	cam.override_point = Vector3(hero.position.x * 0.35, 0, -0.35 + hero.position.z * 0.3); cam.focus = cam.override_point; cam.snap()
 	hand3d = Sprite3D.new(); hand3d.texture = load("res://ui/hand.png"); hand3d.pixel_size = 0.0013
@@ -1357,7 +1360,7 @@ func _over_walls(p: Vector3) -> Vector3:
 ## walls between the camera and the player fade out (grout/tile containers just hide)
 func _fade_walls(dt: float) -> void:
 	var eye := hero.position + Vector3(0, 1.2, 0)
-	for group in [[walls_l, cam.position.x < LX], [walls_r, cam.position.x > RX]]:
+	for group in ([] if wall_fade else [[walls_l, cam.position.x < LX], [walls_r, cam.position.x > RX]]):   # v33: side walls -> WallFade occluders
 		var occl: bool = group[1]
 		for w in group[0]:
 			if w is MeshInstance3D:

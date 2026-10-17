@@ -141,6 +141,7 @@ func _sfx_for(anim: String) -> void:
 	else: Audio.sfx("metalClick", -6.0)
 
 ## a colleague / customer / pupil answers in their own Piper voice (same queue as the narrator: nothing is cut)
+const WallFade := preload("res://scripts/props/wall_fade.gd")   # v33: universal wall-occlusion fade
 const NpcTalk := preload("res://scripts/core/npc_talk.gd")   # v32-npc-pose: shared talk routine (keeps the pose)
 func _npc_line(npc: DemoCharacter, en: String) -> void:
 	await voice_idle(0.1)
@@ -214,10 +215,16 @@ func _process(dt: float) -> void:
 	_mt += dt
 	if marker and marker.visible and step >= 0: marker.global_position.y = (stations[step] as Interactable).focus.y + 0.95 + sin(_mt * 3.0) * 0.08
 	# cut-away walls: hide a wall while the camera is on its outer side
-	if cam:
+	# v33 rule: walls fade gradually (out when the camera is outside them, to ~0.2 while they hide the player), never pop
+	var c := get_viewport().get_camera_3d()
+	if cam and c:
+		var occ := {}
+		if player != null:
+			for w in walls: if (w[1] as Vector3).z <= 0.5 and not occ.get(w[1], false): occ[w[1]] = WallFade.occluded(w[0], c.global_position, player.global_position)
 		for w in walls:
 			var m: MeshInstance3D = w[0]; var n: Vector3 = w[1]
-			m.visible = (cam.global_position - m.global_position).dot(n) < 0.3
+			var out: bool = (cam.global_position - m.global_position).dot(n) >= 0.3
+			WallFade.step_occl(m, 0.0 if out else (WallFade.OCC_MIN_A if occ.get(n, false) else 1.0), dt)
 
 # ------------------------------------------------------------------ building helpers
 func _mat(c: Color) -> StandardMaterial3D:
