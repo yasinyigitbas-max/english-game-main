@@ -20,6 +20,13 @@ var cam_stick := Vector2.ZERO
 var _touches := {}
 var controlled := true                  # false while another system (pocket_phone) drives the camera
 var _saved: Array = []
+## v33 (blue): camera occlusion avoidance (scripts/props/wall_fade.gd CamAvoid): pull in / swing around walls that hide
+## the target, ease back when clear. Off while another system drives the camera (take_over), while the rig is not the
+## current camera (cut-scene temp cameras) and while override_point is set (cut-scenes) unless avoid_with_override.
+var avoid := true
+var avoid_with_override := false        # bathroom: override_point is its normal room framing, not a cut-scene
+var _avoid = preload("res://scripts/props/wall_fade.gd").CamAvoid.new()
+var _dt := 1.0
 
 ## temporary take-over (e.g. ui/pocket_phone.gd zooming in on the phone): release() hands control back and
 ## restores the exact framing that was active before.
@@ -51,11 +58,20 @@ func _process(dt: float) -> void:
 	if s.length() > 0.1:
 		yaw -= s.x * 1.8 * dt; pitch = clampf(pitch + s.y * 0.9 * dt, min_pitch, max_pitch)
 	if k.y != 0.0: zoom(1.0 + k.y * 1.5 * dt)
+	_dt = dt
 	_place(focus)
 
 func _place(f: Vector3) -> void:
 	var off := Vector3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * dist
 	position = f + off
+	if avoid and is_inside_tree():   # v33: occlusion avoidance (eases back to the plain offset when off)
+		var on: bool = controlled and current and target != null and is_instance_valid(target) and (override_point == Vector3.INF or avoid_with_override)
+		var tp: Vector3 = target.global_position + Vector3(0, 1.0, 0) if target != null and is_instance_valid(target) else Vector3.INF
+		var par := get_parent() as Node3D
+		var gf: Vector3 = par.to_global(f) if par else f
+		var gp: Vector3 = _avoid.adjust(gf, par.to_global(position) if par else position, tp, _dt, on, get_tree())
+		position = par.to_local(gp) if par else gp
+		_dt = 1.0
 	look_at(f + Vector3(0, 0.3, 0), Vector3.UP)
 
 func zoom(factor: float) -> void: dist = clampf(dist * factor, min_dist, max_dist)

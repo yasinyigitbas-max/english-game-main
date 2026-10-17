@@ -187,6 +187,7 @@ var cam_yaw_s := 0.0
 var cam_pitch_s := 0.9025
 var wall_alpha := {}
 var cam_override := false
+var cam_avoid = preload("res://scripts/props/wall_fade.gd").CamAvoid.new()   # v33 (blue): follow-camera occlusion avoidance
 var mission := ""
 
 # ============================================================ setup
@@ -1100,6 +1101,8 @@ func _update_cam(dt: float) -> void:
 	var off := Vector3(sin(cam_yaw_s) * cos(cam_pitch_s), sin(cam_pitch_s), cos(cam_yaw_s) * cos(cam_pitch_s)) * cam_dist * cam_zoom
 	var cp := cam_focus + off
 	if cp.y < WALL_H + 0.4 and absf(cp.x) < 3.7 and cp.z > -3.2 and cp.z < 3.2: cp.y = WALL_H + 0.4
+	cp = cam_avoid.adjust(cam_focus, cp, hero.position + Vector3(0, 1.0, 0), dt, mode == "play", get_tree())   # v33: camera occlusion avoidance
+	if cp.y < WALL_H + 0.4 and absf(cp.x) < 3.7 and cp.z > -3.2 and cp.z < 3.2: cp.y = WALL_H + 0.4
 	cam.position = cp
 	_fade_walls(dt)
 	cam.look_at(cam_focus + Vector3(0, 0.3, 0), Vector3.UP)
@@ -1110,7 +1113,7 @@ func _update_cam(dt: float) -> void:
 ## walls between the camera and the player (or with the camera behind them) fade out smoothly; they keep casting shadows
 func _fade_walls(dt: float) -> void:
 	var eye := hero.position + Vector3(0, 1.2, 0)
-	for group in [[walls_l, cam.position.x < -3.5], [walls_r, cam.position.x > 3.5]]:   # v32-polish: south walls -> WallFade
+	for group in ([] if wall_fade else [[walls_l, cam.position.x < -3.5], [walls_r, cam.position.x > 3.5]]):   # v33: side walls -> WallFade occluders   # v32-polish: south walls -> WallFade
 		var occl: bool = group[1]
 		for w in group[0]:
 			var ab: AABB = (w as MeshInstance3D).get_aabb(); ab.position += w.position
@@ -2003,6 +2006,8 @@ var wall_fade: Node
 func _wall_fade_setup() -> void:
 	wall_fade = WallFade.attach(self, func(): return cam.global_position if is_instance_valid(cam) else Vector3.INF, func(): return hero.global_position if is_instance_valid(hero) else Vector3.INF)
 	for w in walls_s: wall_fade.register(w)
+	for w in walls_l: wall_fade.register_occluder(w, {"group": "L", "out": func(): return cam.position.x < -3.5})   # v33: side walls fade only while they hide the player
+	for w in walls_r: wall_fade.register_occluder(w, {"group": "R", "out": func(): return cam.position.x > 3.5})
 const SOUTH_LOW := 0.9
 func _south_wall(x0: float, x1: float, g0: float, g1: float, z: float, c: Color) -> void:
 	for seg in [[x0, g0], [g1, x1]]:
