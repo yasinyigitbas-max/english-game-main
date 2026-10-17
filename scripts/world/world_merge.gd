@@ -146,7 +146,7 @@ static func merge_root(root: Node3D, range_end := 0.0, range_margin := 4.0) -> D
 			var mt: Material = gi.material_override
 			if mt == null and gi is MeshInstance3D: mt = (gi as MeshInstance3D).get_surface_override_material(s)
 			if mt == null: mt = mesh.surface_get_material(s)
-			if mesh.surface_get_primitive_type(s) != Mesh.PRIMITIVE_TRIANGLES or not _opaque_ok(mt): ok = false
+			if (mesh is ArrayMesh and (mesh as ArrayMesh).surface_get_primitive_type(s) != Mesh.PRIMITIVE_TRIANGLES) or not _opaque_ok(mt): ok = false
 			mats.append(mt)
 		if not ok: continue
 		var xf := inv * gi.global_transform
