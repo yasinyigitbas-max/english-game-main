@@ -1839,6 +1839,11 @@ func s_locked() -> bool:
 func _day2_stage() -> String:
 	return load("res://scripts/story/day2_morning.gd").stage()
 
+## v32c (red): one string from save.json "story"
+func _story_str(k: String) -> String:
+	var sv = App.load_save().get("story", {})
+	return String(sv.get(k, "")) if sv is Dictionary else ""
+
 ## v32 (red): story.d3 ("shower" -> "living" -> "outside" -> "done"), only on day 3+
 func _day3_stage() -> String:
 	if maxi(WorldState.day, App.day) < 3: return ""
@@ -1876,6 +1881,7 @@ func objective() -> Array:
 	if d2 == "living": return ["Go to the living room.", ""]   # v31: day-2 morning
 	if d2 == "car": return ["Go outside to the car.", ""]
 	if _day3_stage() == "shower": return ["Take a shower.", ""]   # v32 (red): day-3 morning: the shower first, the living room only after it (Day3Morning)
+	if maxi(WorldState.day, App.day) >= 4 and _story_str("d4") == "start": return ["Start your day.", ""]   # v32c (red): placeholder day-4 first objective (bedtime.gd)
 	if not App.bath_done and WorldState.day < 2: return ["Go to the bathroom.", ""]   # v31: not on day 2+; house.17: bathroom first, then the living room
 	return ["Go to the living room.", ""]
 
