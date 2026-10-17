@@ -92,7 +92,7 @@ func _run() -> void:
 	var sv = App.load_save().get("story", {}); sv = sv.duplicate() if sv is Dictionary else {}
 	sv["day2_work_done"] = true; App.patch_save({"story": sv})
 	Life.event("work_end")
-	await say_line(W.common["home"][0])
+	await say_line(ChildDrive.child_line(W.common["home"][0]))   # v33: a child says 'My mom is driving me home.'
 	App.came_from = "outside"; Game.go_to(Game.HOUSE_FRONT_DOOR_SCENE, "front_door")
 
 func _job_data() -> Dictionary:

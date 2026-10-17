@@ -266,6 +266,7 @@ static func _workplace(job: String) -> String:
 	return "work"
 
 func _drive(d: Dictionary) -> void:
+	if ChildDrive.wants_drive(d): ChildDrive.depart(self, d); return   # v33 child-drive: a parent drives a child (adults: unchanged below)
 	var w := W()
 	if not w.has_method("say_line"): return
 	if w.player: w.player.busy = true

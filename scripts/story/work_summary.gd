@@ -61,7 +61,10 @@ func run() -> void :
 	if not bool(sv.get("day2_hospital_done", false)) and maxi(WorldState.day, App.day) == 2:
 		var ui := StoryUI.new(); add_child(ui); ui.layer = 121   # the one standard caption box, above the black summary screen
 		await ui.line("Now I'm going to the hospital.")
-		HospitalScene.start_day2_visit(get_tree())
+		if ChildDrive.active(): ui.hide_caption(); ChildDrive.trip(get_tree(), "work", "hospital", true)   # v33 child-drive
+		else: HospitalScene.start_day2_visit(get_tree())
+	elif bool(sv.get("day2_hospital_done", false)) and maxi(WorldState.day, App.day) == 2 and ChildDrive.active():   # v33 child-drive
+		ChildDrive.trip(get_tree(), "work", "home", true)
 	elif bool(sv.get("day2_hospital_done", false)) and maxi(WorldState.day, App.day) == 2:   # v32-polish: both done -> outside beside the car
 		App.came_from = "outside";Game.go_to(Game.WORLD_SCENE, "home_car")
 	else:

@@ -188,6 +188,7 @@ func _dead_screen() -> void:
 	if visible and page == "dead": close(true)
 
 func close(force := false) -> void:
+	if _parent_block(): return   # v33 child-drive: a child cannot leave the family screen without a mom or a dad
 	if is_locked() and not force: return   # house.20
 	if page == "score": _score_continue(true)   # house.26: closing the score page = Continue
 	Audio.click(); _lesson_serial += 1; Audio.cancel_group("lesson")   # house.19: closing the lesson stops its narration
@@ -198,6 +199,7 @@ func back() -> void:
 	if is_locked() and not (page == "lesson" and lesson_i > 0): return   # house.20: only step back inside the lesson
 	Audio.click()
 	if page == "member": show_page("family", false); return
+	if _parent_block(): return   # v33 child-drive
 	if page in ["lesson", "quiz"]: _lesson_serial += 1; Audio.cancel_group("lesson")
 	if page in ["lesson", "quiz"] and lesson_i > 0 and page == "lesson": lesson_i -= 1; _lesson(); return
 	if history.is_empty(): close(); return
@@ -283,6 +285,7 @@ func _badge(parent: Control, pos: Vector2) -> void:
 
 func show_page(p: String, push := true) -> void:
 	if page == "dead" and visible: close(true); return   # v31.1 (O3): Home/Back on a dead phone just put it away
+	if not p in ["family", "member"] and _parent_block(): return   # v33 child-drive
 	if is_locked() and not p in ["lesson", "quiz", "score"] and not _unlocking: return   # house.20: can't leave a running lesson
 	_unlocking = false
 	if page in ["lesson", "quiz"] and p != page: _lesson_serial += 1; Audio.cancel_group("lesson")   # house.19
@@ -874,6 +877,19 @@ func _family() -> void:
 	add.name = "AddMember"; add.disabled = fam.size() >= MAX_FAMILY; bar.add_child(add)
 	var done := _btn("Done", family_done, Vector2(150, 56), not fam.is_empty())
 	done.name = "FamilyDone"; done.disabled = fam.is_empty(); bar.add_child(done)
+	if _needs_parent():   # v33 child-drive: Done stays dim (pressing it shows the hint) until a mom or a dad is added
+		done.modulate.a = 0.5
+		if not _parent_hinted: _parent_hinted = true; get_tree().create_timer(2.6, false).timeout.connect(func(): if visible and page == "family" and _needs_parent(): ChildDrive.hint_parent(get_tree()))
+
+## v33 child-drive (red): a CHILD player needs a mom or a dad; leaving the family screen any way (Done, Back, Home,
+## close) is blocked until one exists and shows the hint in the host's one caption box. Adults: never blocked.
+var _parent_hinted := false
+func _needs_parent() -> bool:
+	return main != null and main.has_method("is_child") and main.is_child() and main.get("S") is Dictionary and not ChildDrive.has_parent(main.S.get("family", []))
+func _parent_block() -> bool:
+	if visible and page in ["family", "member"] and _needs_parent():
+		ChildDrive.hint_parent(get_tree()); return true
+	return false
 
 func _edit_member(ii: int) -> void:
 	var fam: Array = main.S.family
@@ -885,6 +901,7 @@ func new_member() -> void:
 	if main: main.phone_event("member")
 
 func family_done() -> void:
+	if _parent_block(): return   # v33 child-drive
 	Audio.good(); speak_family(); family_saved.emit(); show_page("home")
 
 func speak_family() -> void:
