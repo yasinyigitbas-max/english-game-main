@@ -72,11 +72,12 @@ func _process(dt: float) -> void:
 	if st in ["", "done"]: queue_free(); return
 	var s := get_tree().current_scene
 	if s != _sc:
-		_sc = s; sc = s; _cur = {}
+		_sc = s; sc = s; _cur = {}; Objectives.set_list([])
 		if s and _kind(s) != "": reg_all(s, D.get("lines", {}))
 		if s and s.has_signal("action_done") and _kind(s) == "bathroom": s.action_done.connect(_on_bath_action.bind(s))
 		_busy = true; _enter.call_deferred(s); return
-	if not _cur.is_empty() and not Objectives.has(String(_cur.id)): Objectives.set_list([_cur])
+	# the director owns the list while a day-5/6 step is open (no stale room missions such as "Turn on the TV.")
+	if not _cur.is_empty() and (Objectives.items.size() != 1 or String(Objectives.items[0].get("id", "")) != String(_cur.id)): Objectives.set_list([_cur])
 	if day == 6 and st == "out" and _kind(s) == "outside": _stop_check(s)
 
 func _wait_free(s: Node) -> void:

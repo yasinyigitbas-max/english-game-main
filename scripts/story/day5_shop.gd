@@ -143,10 +143,10 @@ func act(tag: String) -> void:
 			_face(child, mum.global_position); _face(mum, child.global_position)
 			Audio.sfx("cloth1", -8.0)
 		"photo":
-			var c := (child.global_position + mum.global_position) * 0.5
-			var p := sc.player.global_position
-			var mid := (c + p) * 0.5
-			var side := (c - p).cross(Vector3.UP).normalized()
+			var c: Vector3 = (child.global_position + mum.global_position) * 0.5
+			var p: Vector3 = sc.player.global_position
+			var mid: Vector3 = (c + p) * 0.5
+			var side: Vector3 = (c - p).cross(Vector3.UP).normalized()
 			await snap("d5_shop", mid + side * 2.6 + Vector3(0, 1.4, 0), mid + Vector3(0, 0.8, 0), 50.0)
 		"npcs_leave":
 			var door := Vector3(0, 0, hz - 0.4)

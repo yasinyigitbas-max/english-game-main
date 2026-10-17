@@ -63,8 +63,9 @@ func run() -> void:
 		if d == 0 or (d > stop_day): break
 		var s := cur(); if s == null: continue
 		var k := kind()
-		var shown: Array = Objectives.items.filter(func(it): return not bool(it.get("done", false))).map(func(it): return String(it.en))
-		var o: String = shown[0] if not shown.is_empty() else ""
+		var dr := get_tree().root.get_node_or_null("Day56Routine")
+		if dr == null or dr._busy: continue
+		var o: String = String(dr._cur.get("en", ""))
 		if s.get("mode") != null and String(s.mode) != "play": continue
 		if Audio.is_speaking(): continue
 		var key := "%d|%s|%s|%s" % [d, Day56.stage(d), k, o]
@@ -74,6 +75,7 @@ func run() -> void:
 			["main.tscn", "Go to the bathroom."]: await go("res://bathroom.tscn", "bedroom")
 			["bathroom.tscn", "Wash your face and brush your teeth."]: _verb(s, "sink", "routine")
 			["bathroom.tscn", "Take a shower."]: _verb(s, "bath", "takeshower")
+			["livingroom.tscn", "Go to the bathroom."]: await go("res://bathroom.tscn", "livingroom")
 			["bathroom.tscn", "Go to the living room."], ["main.tscn", "Go to the living room."]: await go("res://livingroom.tscn", "bathroom" if k == "bathroom.tscn" else "bedroom")
 			["livingroom.tscn", "Go outside."]: await snap("d%d_%s_living_out" % [d, Day56.stage(d)]); App.came_from = "livingroom"; Game.go_to(Game.WORLD_SCENE, "lot:home"); await w(2.0)
 			["world_exterior.tscn", "Walk to the corner shop."]: await snap("d5_world_shop_obj"); WorldState.player_pos = Vector3(-3, 0, 27.6); Game.go_to("res://scenes/places/shop.tscn", "front_door"); await w(2.0)
