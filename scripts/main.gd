@@ -1348,7 +1348,7 @@ func save_game() -> void:
 	var keep := {}
 	if FileAccess.file_exists(SavePath.P()):
 		var old = JSON.parse_string(FileAccess.get_file_as_string(SavePath.P()))
-		if old is Dictionary: for k in ["living", "breakfast_done", "breakfast_score", "breakfast_day", "world", "life", "story"]: if old.has(k) and S.created: keep[k] = old[k]
+		if old is Dictionary: for k in ["living", "breakfast_done", "breakfast_score", "breakfast_day", "world", "life", "story", "places", "tests_skipped", "announced", "quiz_ver", "living_front"]: if old.has(k) and S.created: keep[k] = old[k]
 	var f := FileAccess.open(SavePath.P(), FileAccess.WRITE)
 	if f == null: return
 	_sync_app_phone()
@@ -1919,7 +1919,7 @@ func _advance(sound: bool) -> void:
 	elif o[0] != prev and o[0] == "Go to the living room." and App.bath_done and WorldState.day < 2:
 		await Life.guide_to({"pos": Vector3(0.2, 1.9, 0.6), "at": Vector3(1.8, 1.1, 3.0)}, o[0])
 	else:
-		if o[0] != prev and o[0] in ["Go to the living room."] and S.voice: Audio.say(o[0], false)
+		if o[0] != prev and o[0] in ["Go to the living room."] and S.voice and Life.once("say|main|" + o[0]): Audio.say(o[0], false)   # v32: not again on room re-entry
 		_set_mission(o[0])
 	if o[1] != notify_app:
 		if o[1] != "" and sound: notify(o[1])

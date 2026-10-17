@@ -136,7 +136,7 @@ func _end_cur() -> void:
 	_cur_log = -1
 
 func stop_all() -> void:
-	queue.clear(); voice_player.stop(); _end_cur(); cur_group = ""
+	queue.clear(); voice_player.stop(); _end_cur(); cur_group = ""; cur_what = ""; cur_v = ""
 	if tts_ok: DisplayServer.tts_stop()
 	tts_busy = false; _tts_serial += 1
 
@@ -152,8 +152,10 @@ func spell(word: String) -> void:
 	_kick()
 
 ## a free word (a name) through device TTS, queued like a clip
-func say_tts(text: String) -> void:
-	if tts_ok and text != "": queue.append({"tts": text, "what": text}); _kick()
+func say_tts(text: String) -> void:   # v32: narrator-consistent (no system voice); kept for old call sites
+	if text == "" or _dup(text): return
+	var gen: AudioStream = _device_tts(text) if narrator == "f" else null
+	if gen: queue.append({"stream": gen, "what": text}); _kick()
 
 func wait_idle(max_s := 15.0) -> void:
 	var t0 := _now()
@@ -177,19 +179,28 @@ func say_group(text: String, group: String) -> void:
 	var n := queue.size(); say(text)
 	for i in range(n, queue.size()): queue[i]["group"] = group
 
+## v32 (black): no doubled announcements. A line identical to one already waiting in the queue, or to the line that is
+## playing right now, is dropped (two callers announcing the same line = one clip). Spelling / letters do not use this.
+var cur_what := ""; var cur_v := ""
+func _dup(what: String, v := "") -> bool:
+	if what == "": return false
+	if (voice_player.playing or tts_busy) and what == cur_what and v == cur_v: return true
+	for it in queue: if String(it.get("what", "")) == what and String(it.get("v", "")) == v: return true
+	return false
+
 func say(text: String, interrupt := true) -> void:
 	if text.strip_edges() == "":
 		return
+	if _dup(text): return
 	# house.17: global voice queue - a new line NEVER cuts the current one (interrupt is ignored)
 	var st := _clip(norm(text))
 	if st:
 		queue.append({"stream": st, "what": text})
 		stats.clip += 1
-	elif tts_ok:
-		queue.append({"tts": text, "what": text})
-		stats.tts += 1
 	else:
-		stats.silent += 1
+		var gen: AudioStream = _device_tts(text) if narrator == "f" else null   # v32: same ljspeech model as the f pack
+		if gen: queue.append({"stream": gen, "what": text}); stats.tts += 1
+		else: stats.silent += 1   # v32: never the system TTS voice (narrator must not change)
 	if not st and not missing.has(text): missing.append(text)
 	spoke.emit(text)
 	_kick()
@@ -197,7 +208,8 @@ func say(text: String, interrupt := true) -> void:
 ## house.26: a family member / doctor line in that character's own Piper voice ("v_<voice> <line>" clips); falls back to the narrator
 func say_as(text: String, voice: String) -> void:
 	var st := _clip("v_%s %s" % [voice, norm(text)]) if voice != "" else null
-	if st: queue.append({"stream": st, "what": text}); stats.clip += 1; spoke.emit(text); _kick()
+	if st and _dup(text, voice): return
+	if st: queue.append({"stream": st, "what": text, "v": voice}); stats.clip += 1; spoke.emit(text); _kick()
 	else: say(text)
 
 var _sherpa = null
@@ -229,16 +241,28 @@ func _copy_dir(src: String, dst: String) -> void:
 		var o := FileAccess.open(dst + "/" + f, FileAccess.WRITE); if o: o.store_buffer(b)
 	for d in DirAccess.get_directories_at(src): _copy_dir(src + "/" + d, dst + "/" + d)
 
-## house.26: "My name is <Name>." in the narrator voice as ONE clip when the name is in the bundled name list, else narrator + device TTS
+## v32 (black): ONE narrator voice for the whole game, names included.
+## "My name is <Name>." / "This is <Name>.": 1) the chosen narrator pack's own full-line clip (141 bundled names, every pack);
+## 2) on-device sherpa ONLY when the chosen narrator is "f" (the plugin model IS the f pack's ljspeech voice, speed 1.0, sid 0),
+## rendered as ONE full line; 3) otherwise the narrator says the fixed part and the name stays caption-only.
+## Never DisplayServer TTS (system voice) and never ljspeech under the m / c / g narrators.
 func say_name(name: String) -> void:
-	# house.27: on-device ljspeech (sherpa-onnx Android plugin) for ANY name; bundled clips / TTS are the fallback
-	var gen := _device_tts("My name is %s." % name)
-	if gen: queue.append({"stream": gen, "what": "My name is " + name}); _kick(); return
-	var st := _clip(norm("My name is " + name))
-	if st: queue.append({"stream": st, "what": "My name is " + name}); _kick()
-	else:
-		say("My name is")
-		if tts_ok: say_tts(name)
+	_say_named("My name is", name)
+
+func say_this_is(name: String) -> void:
+	_say_named("This is", name)
+
+func _say_named(lead: String, name: String) -> void:
+	name = name.strip_edges()
+	var line := "%s %s" % [lead, name]
+	if name == "": say(lead); return
+	if _dup(line): return
+	var st := _clip(norm(line))
+	if st: queue.append({"stream": st, "what": line}); spoke.emit(line); _kick(); return
+	if narrator == "f":
+		var gen := _device_tts(line + ".")
+		if gen: queue.append({"stream": gen, "what": line}); spoke.emit(line); _kick(); return
+	say(lead)   # name not voiced in a different voice; the caption shows it
 
 func letter(l: String) -> void:
 	tone(500.0 + (l.to_upper().unicode_at(0) - 65) * 18.0, 0.5, 0.25)
@@ -254,7 +278,7 @@ func _next() -> void:
 	if queue.is_empty() or voice_player.playing or tts_busy:
 		return
 	var item: Dictionary = queue.pop_front()
-	cur_group = String(item.get("group", ""))
+	cur_group = String(item.get("group", "")); cur_what = String(item.get("what", "")); cur_v = String(item.get("v", ""))
 	voice_log.append({"what": item.get("what", ""), "start": _now(), "end": -1.0}); _cur_log = voice_log.size() - 1
 	if voice_log.size() > 200: voice_log.pop_front(); _cur_log -= 1
 	if item.has("stream"):
@@ -277,7 +301,7 @@ func _tts_wait(serial: int, text: String) -> void:
 
 ## house.17: rooms with their own voice banks queue their clips here too (one queue for the whole game)
 func say_stream(st: AudioStream, what: String) -> void:
-	if st == null: return
+	if st == null or _dup(what): return
 	queue.append({"stream": st, "what": what}); stats.clip += 1; spoke.emit(what); _kick()
 
 func is_speaking() -> bool:

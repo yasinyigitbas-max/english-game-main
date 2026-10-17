@@ -788,8 +788,7 @@ func sentence(m: Dictionary) -> String:
 func speak_member(m: Dictionary) -> void:
 	var first := true
 	if m.get("name", "") != "":
-		Audio.say("This is", true); first = false
-		Audio.say_tts(m.name)
+		Audio.say_this_is(String(m.name)); first = false   # v32: one narrator voice for names
 	if m.get("role", "") != "": Audio.say(role_sentence(m), first); first = false
 	var a := adj_sentence(m)
 	if a != "": Audio.say(a, first)
@@ -1044,7 +1043,7 @@ func _step_name(v: Control) -> void:
 func _name_ok() -> void:
 	Audio.click()
 	if edit.name == "": return
-	edit_step = "look"; _member(); Audio.say("This is"); Audio.say_tts(edit.name)
+	edit_step = "look"; _member(); Audio.say_this_is(String(edit.name))   # v32: one narrator voice for names
 
 func _backspace() -> void:
 	Audio.click(); edit.name = edit.name.substr(0, edit.name.length() - 1); _member()

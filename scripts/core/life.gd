@@ -191,10 +191,14 @@ func guide_to(target, text: String, opts := {}) -> void:
 		var entry := {"id": id, "en": text}
 		if tr != "": entry["tr"] = tr
 		cur.push_front(entry); Objectives.set_list(cur)
-	if bool(opts.get("sound", true)): Audio.sfx("notify", -4.0)
 	if sc:
 		if sc.has_method("_set_mission"): sc._set_mission(text)
 		elif sc.get("hud") and sc.hud.has_method("set_mission"): sc.hud.set_mission(text, tr)
+	# v32 (black): an objective is announced (sound + pan + spoken line) ONCE per day and scene. Re-entering a room only
+	# restores the top-left entry above; opts.repeat = true forces a deliberate re-announcement.
+	var scn: String = sc.scene_file_path if sc else ""
+	if not bool(opts.get("repeat", false)) and not once("guide|%s|%s" % [scn.get_file(), id]): return
+	if bool(opts.get("sound", true)): Audio.sfx("notify", -4.0)
 	var shot := _guide_shot(sc, target)
 	var speak := bool(opts.get("speak", true))
 	if shot.is_empty():
@@ -247,6 +251,18 @@ func guide_to(target, text: String, opts := {}) -> void:
 	if restore_play and sc:
 		sc.mode = "play"
 		if sc.has_method("_update_hand"): sc._update_hand()
+
+## v32 (black): played-once registry for announcements, kept in save.json "announced" (day-scoped keys).
+## Returns true the first time `key` is seen on the current day, false afterwards. New Game deletes the save -> reset.
+func once(key: String) -> bool:
+	var k := "%d|%s" % [maxi(WorldState.day, App.day), key]
+	var d := {}
+	if FileAccess.file_exists(SavePath.P()):
+		var x = JSON.parse_string(FileAccess.get_file_as_string(SavePath.P()))
+		if x is Dictionary and x.get("announced") is Dictionary: d = x.announced
+	if d.has(k) or _once_mem.has(k): return false
+	_once_mem[k] = true; d[k] = true; App.patch_save({"announced": d}); return true
+var _once_mem := {}
 
 func _guide_say(sc: Node, text: String) -> void:
 	if sc and sc.has_method("say_line"):

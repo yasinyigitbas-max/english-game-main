@@ -78,6 +78,7 @@ static func narrator_for(gender: String, age: String) -> String:
 	return ("g" if fem else "c") if child else ("f" if fem else "m")
 ## v30.1: the ONLY narrator source (no menu setting): creator confirmed + every save load
 func narrator_from_look(gender: String, age: String, creation := false) -> void:
+	if not creation and bool(settings.get("narrator_manual", false)): return   # v32: a save load never overrides the chosen narrator
 	var v := narrator_for(gender, age)
 	if v != String(settings.narrator) or creation: set_narrator(v, false)
 ## label in a given language ("tr"/"en"), independent of the menu language
@@ -169,3 +170,31 @@ func tx(en: String) -> String:
 ## v29.1: the in-game TR toggle of the current scene (room S.tr, or the shared HUD's show_tr outdoors)
 func tr_on() -> bool:
 	return tr_saved()
+
+## v32 (black): New Game = a full reset from zero, whatever the game was doing (paused, mid-cutscene, any day / room).
+## Clears the save + side files and every autoload's in-memory state; menu.gd then loads the opening (creator) scene.
+func new_game_reset() -> void:
+	var tree := get_tree()
+	if tree: tree.paused = false
+	Audio.stop_all()
+	if _voice: _voice.stop()
+	for p in [SAVE_PATH, "user://bathroom.json", "user://bk_bathroom.json"]:
+		if FileAccess.file_exists(p): DirAccess.remove_absolute(ProjectSettings.globalize_path(p))
+	for d in [SavePath.photos(), "user://portraits"]:
+		if DirAccess.dir_exists_absolute(d):
+			for f in DirAccess.get_files_at(d): DirAccess.remove_absolute(d + "/" + f)
+	has_phone = false; family_breakfast = false; day = 1; bath_done = false; came_from = ""; continue_requested = false; _trf = 0
+	settings.narrator_manual = false; save_settings()
+	WorldState.day = 1; WorldState.minutes = 7.0 * 60.0; WorldState.flags = {}; WorldState.scene = ""; WorldState.player_pos = Vector3.ZERO
+	WorldState.paused = false; WorldState.creep = 0.0; WorldState.set("_loaded", false); WorldState.set("_last_hour", -1)
+	Economy.wallet = Economy.START_CENTS; Economy.history = []; Economy.inventory = {}
+	Transit.tickets = 0
+	Game.spawn = ""; Game.busy = false
+	var fd = Game.get("_fade")
+	if fd is ColorRect: (fd as ColorRect).color.a = 0.0
+	Life.new_game(); Life.charging = false; Life.set("_once_mem", {}); Life.set("_last_min", -1.0)
+	Objectives.clear(false)
+	var pm = load("res://scripts/core/portraits.gd")
+	if pm: pm.mem = {}
+	load("res://scripts/phone.gd").active_locked = false
+	print("App: new game reset")
