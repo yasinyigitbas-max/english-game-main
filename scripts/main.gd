@@ -246,6 +246,34 @@ func _live_ready() -> void:   # v32wh: the v32 _ready (also run when this room's
 		var qa = load("res://scripts/qa.gd").new(); add_child(qa); qa.run(self)
 	House.live_ready(self)   # v32wh: the two other rooms as shells next door
 
+## v33town (one persistent house): the bedroom was live before and slept while the player was in another room. Nothing is
+## rebuilt or reloaded from defaults: every object (alarm, lamp, door, bed...) is exactly as it was left. Only what other
+## rooms / the pause menu can change in save.json "state" (look, TR, voice, family, job...) is taken over, then the usual
+## room-entry steps of _continue_game run (caption, story hooks, objective).
+const WH_OBJ_KEYS := ["bed", "alarm", "lamp", "drawer", "ceiling", "curtains", "window", "wardrobe", "laptop", "desklamp", "plant", "book", "door", "outfit", "phone", "clothes", "door_locked"]
+func _wh_resume() -> void:
+	var d: Dictionary = App.load_save()
+	if d.get("state") is Dictionary:
+		for k in d.state: if S.has(k) and not k in WH_OBJ_KEYS: S[k] = d.state[k]
+	if d.has("has_phone"): S.has_phone = bool(d.has_phone)
+	S.tr = App.tr_saved(); _sync_app_phone(); _refresh_text.call_deferred()
+	S.door_locked = door_rule()
+	_apply_character(); _apply_states()
+	menu.visible = false; hud.visible = true
+	mode = "play"; _update_hand(); cam_focus = hero.position
+	App.came_from = ""
+	get_tree().create_timer(0.6, false).timeout.connect(func(): caption("I'm in the bedroom now.", false))   # house.17: silent room caption
+	load("res://scripts/story/bedtime.gd").hook_bedroom(self)   # idempotent (named child)
+	load("res://scripts/story/day5_routine.gd").attach(get_tree())
+	if not _hosp_home: _advance(false)
+
+## v33town: the spot just inside the door the player comes through (same spots as the came_from match in _live_ready)
+func _wh_spawn(from: String) -> Array:
+	match from:
+		"bathroom": return [Vector3(2.85, 0, 1.2), -PI / 2]
+		"livingroom": return [Vector3(1.8, 0, 2.4), PI]
+	return []
+
 func _mat(c: Color, emit := 0.0, alpha := 1.0) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new(); m.albedo_color = Color(c, alpha); m.roughness = 0.85
 	if alpha < 1.0: m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -681,6 +709,7 @@ func verbs(id: String) -> Array:
 # ============================================================ actions
 func wait(t: float) -> void:
 	await get_tree().create_timer(t, false).timeout
+	while House.dormant(self) and is_inside_tree(): await get_tree().process_frame   # v33town: a sleeping room's steps wait until the player is back
 
 ## reach gesture: play the start of a clip up to the peak, apply the change, then play it back to the start.
 func gesture(kind: String, id: String, change: Callable) -> void:
@@ -1300,6 +1329,7 @@ func _start_game() -> void:
 
 var cap_serial := 0
 func caption(t: String, speak := true) -> void:
+	if House.dormant(self): return   # v33town: a sleeping room shows no caption (one caption box: the live room's)
 	cap_text = t; cap_panel.visible = t != ""
 	if cap_panel.visible: StoryUI.claim(cap_panel)   # v32-polish: also when the box was already up (no visibility_changed) -> any other box hides
 	if t != "": captioned.emit(t)

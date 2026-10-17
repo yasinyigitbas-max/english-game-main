@@ -186,6 +186,22 @@ func _live_ready() -> void:   # v32wh: the v32 _ready (also run when this room's
 		_intro.call_deferred()
 	House.live_ready(self)   # v32wh: the two other rooms as shells next door
 
+## v33town (one persistent house): the living room was live before and slept; the family, the table, the TV, the
+## breakfast... stay exactly as they were. Re-entry runs only the room-entry steps (TR, look, _intro: caption / story).
+func _wh_resume() -> void:
+	S.tr = App.tr_saved(); call_deferred("_refresh_text")
+	_apply_character(); _apply_states()
+	mode = "play"; _update_hand()
+	if "--qa" in OS.get_cmdline_user_args(): return
+	_intro.call_deferred()
+
+## v33town: the spot just inside the door the player comes through (same spots as in _house_enter)
+func _wh_spawn(from: String) -> Array:
+	if from in ["bedroom", "bathroom"]:
+		var dv: Vector2 = DOOR_BED if from == "bedroom" else DOOR_BATH
+		return [Vector3((dv.x + dv.y) / 2, 0, -2.1), 0.0]
+	return []
+
 func _intro() -> void:
 	load("res://scripts/story/day7_party.gd").prepare(self)   # v33 (red): day 7 coming home: dark room, the family hides (surprise)
 	load("res://scripts/story/day4_routine.gd").start(get_tree())   # v33 (red): day-4 / day-7 routine (idempotent)
@@ -1123,6 +1139,7 @@ func verbs(id: String) -> Array:
 # ============================================================ actions
 func wait(t: float) -> void:
 	await get_tree().create_timer(t, false).timeout
+	while House.dormant(self) and is_inside_tree(): await get_tree().process_frame   # v33town: a sleeping room's steps wait until the player is back
 
 func gesture(kind: String, id: String, change: Callable) -> void:
 	var g: Array = {"reach": ["pick_up", 1.35], "low": ["pick_up", 2.6], "mid": ["pick_up", 1.75], "door": ["open_door", 2.7]}[kind]
@@ -1837,6 +1854,7 @@ func _fill_tasks() -> void:
 
 var cap_serial := 0
 func caption(t: String, speak := true) -> void:
+	if House.dormant(self): return   # v33town: a sleeping room shows no caption
 	cap_text = t; cap_panel.visible = t != ""
 	if cap_panel.visible: StoryUI.claim(cap_panel)   # v32-polish: also when the box was already up (no visibility_changed) -> any other box hides
 	if t != "": captioned.emit(t)

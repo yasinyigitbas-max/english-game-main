@@ -186,16 +186,7 @@ func _live_ready() -> void:   # v32wh: the v32 _ready (also run when this room's
 	hand3d.billboard = BaseMaterial3D.BILLBOARD_ENABLED; hand3d.no_depth_test = true; hand3d.render_priority = 10; hand3d.visible = false; add_child(hand3d)
 	_load_voice(); _build_ui(); _apply_states()
 	_stable_lights()   # v304: final omni settings from frame 0 (no shadow/variant switch 0.5 s in, right before the mirror pan)
-	if (S.face_done and S.teeth_done) or WorldState.day >= 2:
-		_set_mission("Go to the living room.")
-	else:
-		# Objectives feed only — bathroom-door / mirror pans: black bot via Life.guide_to
-		var todo: Array = []
-		if not S.face_done: todo.append("Wash your face.")
-		if not S.teeth_done: todo.append("Brush your teeth.")
-		if todo.is_empty(): todo = ["Go to the mirror."]
-		Objectives.set_list(todo); _set_mission(String(todo[0]))
-		if WorldState.day < 2: _mirror_prompt.call_deferred(todo)   # v30.4: pan to the mirror
+	_entry_mission()
 	get_tree().create_timer(0.6, false).timeout.connect(func(): caption("I'm in the bathroom now.", false))   # house.17: silent room caption
 	action_done.connect(func(_i): _save_progress())
 	if ResourceLoader.exists("res://scripts/bk_extras.gd"):   # black bot extras (HOOKS.md)
@@ -207,6 +198,35 @@ func _live_ready() -> void:   # v32wh: the v32 _ready (also run when this room's
 	if "--qa-bath" in OS.get_cmdline_user_args():
 		var q = load("res://scripts/qa_bathroom.gd").new(); add_child(q); q.run(self)
 	House.live_ready(self)   # v32wh: the two other rooms as shells next door
+
+## room-entry objective (v33town: also on re-entry of the persistent room)
+func _entry_mission() -> void:
+	if (S.face_done and S.teeth_done) or WorldState.day >= 2:
+		_set_mission("Go to the living room.")
+	else:
+		# Objectives feed only — bathroom-door / mirror pans: black bot via Life.guide_to
+		var todo: Array = []
+		if not S.face_done: todo.append("Wash your face.")
+		if not S.teeth_done: todo.append("Brush your teeth.")
+		if todo.is_empty(): todo = ["Go to the mirror."]
+		Objectives.set_list(todo); _set_mission(String(todo[0]))
+		if WorldState.day < 2: _mirror_prompt.call_deferred(todo)   # v30.4: pan to the mirror
+
+## v33town (one persistent house): the bathroom was live before and slept; everything in it stays as it was. Re-entry runs
+## only the room-entry steps of _live_ready (event clock, the player's look / TR from save.json, objective, caption).
+func _wh_resume() -> void:
+	Life.event("bathroom")
+	_load_player(); _apply_character(); _apply_states()
+	App.came_from = ""
+	mode = "play"; _update_hand()
+	_entry_mission()
+	get_tree().create_timer(0.6, false).timeout.connect(func(): caption("I'm in the bathroom now.", false))
+
+## v33town: the spot just inside the door the player comes through (same spots as in _live_ready)
+func _wh_spawn(from: String) -> Array:
+	if from == "livingroom": return [Vector3((SD.x + SD.y) / 2, 0, FZ - 0.6), PI]
+	if from == "bedroom": return [Vector3(LX + 0.65, 0, (WD.x + WD.y) / 2), PI / 2]
+	return []
 
 ## reads the bedroom's user://save.json (same keys) so the player keeps the look they created
 func _load_player() -> void:
@@ -721,6 +741,7 @@ func verbs(id: String) -> Array:
 # ============================================================ actions
 func wait(t: float) -> void:
 	await get_tree().create_timer(t, false).timeout
+	while House.dormant(self) and is_inside_tree(): await get_tree().process_frame   # v33town: a sleeping room's steps wait until the player is back
 
 ## reach gesture (bedroom): play a clip up to the peak, apply the change, play it back
 func gesture(kind: String, id: String, change: Callable) -> void:
@@ -1473,6 +1494,7 @@ func clip_len(t: String) -> float:
 	return c.get_length() if c else 0.0
 
 func caption(t: String, speak := true) -> void:
+	if House.dormant(self): return   # v33town: a sleeping room shows no caption
 	if t != "" and speak and S.voice: await voice_idle(0.05)
 	cap_text = t
 	if t != "": captioned.emit(t)

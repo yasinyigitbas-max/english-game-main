@@ -6,9 +6,8 @@ extends RefCounted
 ## The room the player is in is the "live" room: it is current_scene, sits at the world origin (all room code uses
 ## room-local world coordinates) and runs exactly the v32 code. The two other rooms are "shells": geometry only
 ## (their _build_room / decor), no environment, no hero/camera/UI/story, processing disabled, lights and
-## shadow casting off, mirror viewports stopped. Walking through a door frees the room left (as change_scene did),
-## shifts the house so the room entered sits at the origin, turns its shell live in place (it keeps the geometry it
-## already built and runs the rest of its v32 _ready) and rebuilds the room left as a shell.
+## shadow casting off, mirror viewports stopped. v33town: walking through a door no longer frees / rebuilds anything:
+## the room left falls asleep with all its state (see _swap below).
 const OFS := {"res://livingroom.tscn": Vector3.ZERO, "res://main.tscn": Vector3(0, 0, -6.0), "res://bathroom.tscn": Vector3(5.95, 0, -4.75)}
 const ZSPAN := {"res://livingroom.tscn": Vector2(-3.0, 3.0), "res://main.tscn": Vector2(-3.0, 3.0), "res://bathroom.tscn": Vector2(-1.75, 1.75)}
 const SHELL := "house_shell"
@@ -25,10 +24,25 @@ static func shell_ready(room: Node, build: Callable) -> bool:
 ## room script, end of the live _ready: make sure the two other rooms exist as shells around this one
 static func live_ready(room: Node) -> void:
 	if not is_room(room.scene_file_path): return
+	room.set_meta(ONCE, true)   # v33town: from now on this instance is never rebuilt, only put to sleep / woken
 	_dark_outside(room)
 	if not room.has_meta("wh_hooked"):
 		room.set_meta("wh_hooked", true); room.tree_exiting.connect(func(): _on_live_exit(room))
 	(func(): _ensure(room)).call_deferred()
+
+## v33town: ONE persistent house. Every room is instanced once and never freed or rebuilt while the player is in the house:
+##   shell   = never entered yet (geometry only, as in v32wh)
+##   live    = current_scene, at the world origin, runs its code
+##   dormant = was live before; processing / lights / UI / camera / hero off, every node and its state kept as it was
+## A door is just walking: the room left falls asleep, the house shifts so the room entered sits at the origin (floating
+## origin, all room code uses room-local == world coordinates), the room entered wakes (or a shell turns live once), its
+## hero takes over exactly where the other one stood and walks on through the door, and the camera blends over.
+const ONCE := "wh_live_once"
+const DORMANT := "wh_dormant"
+const ROOM_NAME := {"res://livingroom.tscn": "livingroom", "res://main.tscn": "bedroom", "res://bathroom.tscn": "bathroom"}
+const WALK_IN := 1.7   # m/s, the bedroom walk clip speed
+static func again(room: Node) -> bool: return room.has_meta(ONCE)
+static func dormant(room: Node) -> bool: return is_instance_valid(room) and room.has_meta(DORMANT)
 
 ## a door between two house rooms: walk through it in the same scene instead of change_scene_to_file(path)
 static func go(from: Node, path: String) -> void:
@@ -41,25 +55,163 @@ static func go(from: Node, path: String) -> void:
 static func _swap(from: Node, target: Node) -> void:
 	if not is_instance_valid(from) or not is_instance_valid(target): return
 	var tree := target.get_tree()
+	if tree.current_scene != from: return
+	# hand-over point: where the camera and the hero of the room left are right now
+	var vc := from.get_viewport().get_camera_3d()
+	var cxf: Transform3D = vc.global_transform if vc else Transform3D.IDENTITY
+	var cfov: float = vc.fov if vc else 42.0
+	var h = from.get("hero")
+	var hp := Vector3.INF; var hy := 0.0
+	if h is Node3D and is_instance_valid(h): hp = (h as Node3D).global_position; hy = (h as Node3D).global_rotation.y
+	_sleep(from)
 	var base: Vector3 = target.position
-	swapping = true
-	from.get_parent().remove_child(from); from.queue_free()   # like change_scene: the room left (and its awaits) goes away
-	swapping = false
-	for s in _shells(tree): s.position -= base
+	for s in _rooms(tree): s.position -= base   # floating origin: the room entered moves to (0,0,0), the rest with it
+	cxf.origin -= base
+	if hp != Vector3.INF: hp -= base
 	target.position = Vector3.ZERO
-	_ensure(target, [target])                  # rebuild the room left as a shell (same frame, no gap at the door)
-	target.remove_meta(SHELL); _cheap(target, false)
 	tree.current_scene = target
-	target.call("_live_ready")
+	_ensure(target)
+	if again(target):
+		_wake(target)
+		if target.has_method("_wh_resume"): target.call("_wh_resume")
+	else:
+		target.remove_meta(SHELL); _cheap(target, false)
+		target.call("_live_ready")
+	target.set_meta(ONCE, true)
+	_blend_cam(target, cxf, cfov)
+	var sp: Array = target.call("_wh_spawn", String(ROOM_NAME.get(from.scene_file_path, ""))) if target.has_method("_wh_spawn") else []
+	if hp != Vector3.INF and sp.size() == 2: _walk_in(target, hp, hy, sp[0], sp[1])
+
+## the room left: everything stays exactly as it is, it only stops running and drawing its own UI / camera / lights
+static func _sleep(r: Node) -> void:
+	r.set_meta(DORMANT, true)
+	var all: Array = []; _walk(r, all)
+	for c in all:
+		if c is CanvasLayer: c.set_meta("wh_cl", c.visible); c.visible = false
+		elif c is WorldEnvironment: c.set_meta("wh_env", c.environment); c.environment = null   # one active environment
+		elif c is Camera3D and c.current and not (c.get_viewport() is SubViewport): c.set_meta("wh_cur", true); c.current = false
+		# nodes with their own process mode (the room UI, HUD, pause menu, phone are ALWAYS) ignore the room's DISABLED:
+		# stop them too, or a sleeping room would still answer the back key / run its HUD
+		if c.process_mode != Node.PROCESS_MODE_INHERIT and c.process_mode != Node.PROCESS_MODE_DISABLED:
+			c.set_meta("wh_pm", c.process_mode); c.process_mode = Node.PROCESS_MODE_DISABLED
+	for k in ["hero", "hand3d"]:
+		var n = r.get(k)
+		if n is Node3D and is_instance_valid(n): n.set_meta("wh_hv", n.visible); n.visible = false
+	_cheap(r, true)
+
+static func _wake(r: Node) -> void:
+	_cheap(r, false)
+	var all: Array = []; _walk(r, all)
+	for c in all:
+		if c.has_meta("wh_cl"): c.visible = c.get_meta("wh_cl"); c.remove_meta("wh_cl")
+		if c.has_meta("wh_env"): c.environment = c.get_meta("wh_env"); c.remove_meta("wh_env")
+		if c.has_meta("wh_cur"): c.current = true; c.remove_meta("wh_cur")
+		if c.has_meta("wh_hv"): c.visible = c.get_meta("wh_hv"); c.remove_meta("wh_hv")
+		if c.has_meta("wh_pm"): c.process_mode = c.get_meta("wh_pm"); c.remove_meta("wh_pm")
+	r.remove_meta(DORMANT)
+
+## the hero of the room entered starts where the other one stood (same spot, same facing) and walks on to the room's
+## usual "just inside the door" spot. Hands over at once if a story step moves the hero itself.
+static func _walk_in(r: Node, hp: Vector3, hy: float, to: Vector3, yaw: float) -> void:
+	var hero = r.get("hero")
+	if not (hero is Node3D) or not is_instance_valid(hero): return
+	var tree := r.get_tree()
+	hero.position = Vector3(hp.x, 0, hp.z); hero.rotation.y = hy
+	var took := false
+	if String(r.get("mode")) == "play": r.set("mode", "busy"); took = true
+	var d: Vector3 = to - hero.position; d.y = 0
+	var last: Vector3 = hero.position
+	var own := true
+	if d.length() > 0.05:
+		var dir_yaw := atan2(d.x, d.z)
+		var sc := 1.0
+		if hero.get("model") is Node3D: sc = maxf(0.3, (hero.model as Node3D).scale.y)
+		if hero.has_method("play"): hero.play("walk", 0.15, clampf(WALK_IN / (1.7 * sc), 0.5, 1.8))
+		while true:
+			await tree.process_frame
+			if not is_instance_valid(r) or not is_instance_valid(hero) or dormant(r) or tree.current_scene != r: return
+			if hero.position.distance_to(last) > 0.001: own = false; break   # somebody else moved the hero
+			if tree.paused: continue
+			var dt := r.get_process_delta_time()
+			var rem: Vector3 = to - hero.position; rem.y = 0
+			hero.rotation.y = lerp_angle(hero.rotation.y, dir_yaw, 1.0 - exp(-14.0 * dt))
+			if rem.length() <= WALK_IN * dt: hero.position = Vector3(to.x, 0, to.z); last = hero.position; break
+			hero.position += rem.normalized() * WALK_IN * dt; last = hero.position
+	if own:
+		if hero.has_method("play"): hero.play("idle", 0.25)
+		var t := 0.0
+		while t < 0.35:
+			await tree.process_frame
+			if not is_instance_valid(r) or not is_instance_valid(hero) or dormant(r) or tree.current_scene != r: return
+			if hero.position.distance_to(last) > 0.001: break
+			var dt2 := r.get_process_delta_time(); t += dt2
+			hero.rotation.y = lerp_angle(hero.rotation.y, yaw, 1.0 - exp(-12.0 * dt2))
+		if is_instance_valid(hero) and hero.position.distance_to(last) <= 0.001: hero.rotation.y = yaw
+	if took and is_instance_valid(r) and String(r.get("mode")) == "busy":
+		r.set("mode", "play")
+		if r.has_method("_update_hand"): r.call("_update_hand")
+
+## the camera does not cut: for 0.9 s the picture blends from the old room camera to the new one (drawn on top of the
+## room's own camera logic, which keeps running untouched: CamPre puts its own transform back before the rooms run)
+static var _blend: Node
+static func _blend_cam(r: Node, from_xf: Transform3D, from_fov: float) -> void:
+	if is_instance_valid(_blend): _blend.queue_free()
+	var b := CamBlend.new(); b.from_xf = from_xf; b.from_fov = from_fov; b.name = "WHCamBlend"
+	var pre := CamPre.new(); pre.b = b; pre.name = "WHCamPre"
+	r.get_tree().root.add_child(b); r.get_tree().root.add_child(pre)
+	b.pre = pre; _blend = b
+	var c := r.get_viewport().get_camera_3d()   # this very frame already shows the old view (no one-frame cut)
+	if c:
+		b.cam = c; b.own_xf = c.global_transform; b.own_fov = c.fov
+		c.global_transform = from_xf; c.fov = from_fov
+
+class CamBlend extends Node:
+	var from_xf := Transform3D.IDENTITY
+	var from_fov := 42.0
+	var dur := 0.9
+	var t := 0.0
+	var cam: Camera3D
+	var own_xf := Transform3D.IDENTITY
+	var own_fov := 42.0
+	var pre: Node
+	func _ready() -> void:
+		process_priority = 1000; process_mode = Node.PROCESS_MODE_ALWAYS
+	func _process(dt: float) -> void:
+		if not get_tree().paused: t += dt
+		var c := get_viewport().get_camera_3d()
+		if c == null or t >= dur:
+			restore(); queue_free(); return
+		var k := ease(clampf(t / dur, 0.0, 1.0), -2.0)
+		cam = c; own_xf = c.global_transform; own_fov = c.fov
+		c.global_transform = from_xf.interpolate_with(own_xf, k); c.fov = lerpf(from_fov, own_fov, k)
+	func restore() -> void:
+		if is_instance_valid(cam): cam.global_transform = own_xf; cam.fov = own_fov
+		cam = null
+	func _exit_tree() -> void:
+		restore()
+		if is_instance_valid(pre): pre.queue_free()
+
+class CamPre extends Node:
+	var b: Node
+	func _ready() -> void:
+		process_priority = -1000; process_mode = Node.PROCESS_MODE_ALWAYS
+	func _process(_dt: float) -> void:
+		if is_instance_valid(b): b.restore()
+		else: queue_free()
 
 static func _on_live_exit(room: Node) -> void:
-	if swapping: return
-	# leaving the house (world, hospital, menu...) or a plain scene change: the shells go with the live room
-	for s in _shells(room.get_tree()):
+	if swapping or room.has_meta("house_dead"): return
+	# leaving the house (world, hospital, menu...) or a plain scene change: every other room (shell or dormant) goes too
+	for s in _rooms(room.get_tree()):
+		if s == room: continue
 		s.set_meta("house_dead", true); s.queue_free()
 
+## every house room in the tree (shells, dormant rooms and the live one)
+static func _rooms(tree: SceneTree) -> Array:
+	return tree.root.get_children().filter(func(c): return is_room(String(c.scene_file_path)) and not c.has_meta("house_dead"))
+
 static func _shells(tree: SceneTree) -> Array:
-	return tree.root.get_children().filter(func(c): return is_shell(c) and not c.has_meta("house_dead"))
+	return _rooms(tree).filter(func(c): return c != tree.current_scene)
 
 static func _find(tree: SceneTree, path: String) -> Node:
 	for s in _shells(tree): if s.scene_file_path == path: return s
