@@ -13,10 +13,11 @@ HOSP = ["My legs are strong.", "My chest is okay.", "My ears are good.", "My eye
         "My shoulders are strong.", "My stomach is not hurting.", "My hands and fingers are perfect.", "My knees are healthy.",
         "My feet are great.", "My nose is good."]
 TOWN = ["Here is the café.", "Here is the shop.", "Go to the café.", "Go to the shop.", "Go back home."]
+ROUTE = ["Now I'm going to the hospital.", "Now I'm going to work.", "Go inside and talk to my family."]   # red v32-polish 12-13 (day-2 routing)
 FAM = ["How was your day?", "Thank you for the shopping! Well done.", "You must be tired. Go to bed."]
 D = json.load(open(f"{R}/data/day3_evening.json", encoding="utf8"))
 fam = list(dict.fromkeys(FAM + [t[0] for t in D["talk"] if t[0].strip()]))
-narr = HOSP + TOWN + [t[1] for t in D["talk"]] + [r[1] for r in D["recap"]]
+narr = HOSP + TOWN + ROUTE + [t[1] for t in D["talk"]] + [r[1] for r in D["recap"]]
 for k in ("quiz", "quiz_b", "quiz_c"): narr += [q["say"] for q in D[k]]
 narr += [k for k in D["lines"] if k not in fam and k != "Day 4"]
 narr += ["Talk to my family.", "It was a good day.", "Apples are countable, so we ask: How many apples?", "Milk is uncountable, so we ask: How much milk?",
