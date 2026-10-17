@@ -102,3 +102,4 @@ The day-2 car (scripts/world/street_object.gd car_destinations/_drive) offers wh
 - Unchanged on purpose: the bedside "Charge my phone" / "Charge the phone" verbs and the toilet verbs ("I need to pee.") are optional player actions, not need-driven prompts. No story step waits on a need or a charge (checked: no story script reads Life.battery, Life.needs or S.phone).
 - No new player lines and no voice needs.
 - Not run in Godot: the lock was held by another agent's run (qa_v32, PIDs 166153-166167) at 14:10, so the run was skipped. #12, #13 and #14 are not parse-checked yet.
+- (follow-up) scripts/main.gd:638 and :641: the bedside "Charge my phone" verb and the "Charge the phone" / "Unplug the phone" verbs are hidden while Life.NEEDS_ENABLED is false. "Pick up the phone" stays. Toilet verbs are untouched. These are the only charge-phone interactions (checked by grep). Not run in Godot: black's QA owns the box until v32 ships.
