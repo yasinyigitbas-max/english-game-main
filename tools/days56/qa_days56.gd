@@ -171,6 +171,10 @@ func run() -> void:
 					if String(so.get("kind")) == "car" and pl and (car == null or so.global_position.distance_to(pl.global_position) < car.global_position.distance_to(pl.global_position)): car = so
 				if car and pl: await pl.move_to(car.global_position + (pl.global_position - car.global_position).normalized() * 2.4)
 				else: did = false
+			["livingroom.tscn", ""]:   # fix33: back from red's work trip (front door) the day-6 routine waits on the street with no objective
+				if Day56.stage(d) == "out" and t - _work_t > 60:
+					print("D56QA WORK back home with no objective: going out"); App.came_from = "livingroom"; await go(Game.WORLD_SCENE, "livingroom")
+				else: did = false
 			["livingroom.tscn", "Go to work."], ["livingroom.tscn", "Go to school."]:
 				App.came_from = "livingroom"
 				if world: await go(Game.WORLD_SCENE, "livingroom")
