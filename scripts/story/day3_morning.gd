@@ -251,7 +251,8 @@ func _pan(sc: Node, stops: Array) -> void:
 func _pan_shoulder(sc: Node, stops: Array) -> void:
 	# the hero is still stepping out of the front door: the pan starts once he is outside the house (else it framed the hall)
 	var t0 := Time.get_ticks_msec()
-	while Time.get_ticks_msec() - t0 < 5000 and RoutineScope.alive(sc) and World.inst and sc.get("player") is Node3D and World.room_rect_at((sc.player as Node3D).global_position, 0.8) != "":
+	# (the hero itself: in a room it is lent to the room, the World player body stays behind on the street)
+	while Time.get_ticks_msec() - t0 < 90000 and RoutineScope.alive(sc) and World.inst and World.room_rect_at(World.inst.hero_pos(), 0.8) != "":
 		await get_tree().process_frame
 	var restore := "mode" in sc and String(sc.mode) == "play"
 	if restore: sc.mode = "busy"

@@ -286,6 +286,15 @@ func run() -> void:
 				var sv = App.load_save().get("story", {})
 				if bool(sv.get("d%d_shop" % day, false)): await snap("shop_exit"); s.qa_use("exit"); await w(3.0)
 				else: did = false
+			["livingroom.tscn", "Go to work."], ["livingroom.tscn", "Go to school."]:   # fix33: red's DayWork trip (days 3-7)
+				if world: await wgo(Game.WORLD_SCENE, "livingroom")
+				else: did = false
+			["world_exterior.tscn", "Go to work."], ["world_exterior.tscn", "Go to school."], ["world.tscn", "Go to work."], ["world.tscn", "Go to school."]:
+				var pl = s.get("player"); var car: Node3D = null
+				for so in s.find_children("*", "StreetObject", true, false):
+					if String(so.get("kind")) == "car" and pl and (car == null or so.global_position.distance_to(pl.global_position) < car.global_position.distance_to(pl.global_position)): car = so
+				if car and pl: await _walk_to(pl, car.global_position + (pl.global_position - car.global_position).normalized() * 2.4)
+				else: did = false
 			["world_exterior.tscn", "Go back home."]: await go(Game.HOUSE_FRONT_DOOR_SCENE, "outside")
 			["livingroom.tscn", "Talk to my family."]: s.hero.global_position = s.to_global(Vector3(s.SOFA_X - 1.2, 0, 0.3))   # room-local (the room is off the origin in the world)
 			["livingroom.tscn", "Go to bed."]: await go("res://main.tscn", "livingroom")
@@ -372,3 +381,13 @@ func _report() -> void:
 	print("D47QA CAPBAD_LIST ", JSON.stringify(cap_bad.slice(0, 30)))
 	print("D47QA TOTAL %d PASS %d FAIL" % [log.filter(func(l): return l.begins_with("PASS")).size(), log.filter(func(l): return l.begins_with("FAIL")).size()])
 	get_tree().quit()
+
+## fix33: walk the hero (velocity, not a teleport) up to p
+func _walk_to(pl: Node3D, p: Vector3) -> void:
+	p.y = pl.global_position.y
+	var t0 := Time.get_ticks_msec()
+	while is_instance_valid(pl) and Time.get_ticks_msec() - t0 < 25000:
+		var dv := p - pl.global_position; dv.y = 0
+		if dv.length() < 0.5: break
+		if pl.has_method("move_to"): await pl.move_to(p); break
+		pl.global_position += dv.normalized() * minf(dv.length(), 0.08); await get_tree().process_frame
