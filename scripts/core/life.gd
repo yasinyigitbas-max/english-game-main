@@ -213,6 +213,7 @@ func guide_to(target, text: String, opts := {}) -> void:
 	var pan_tw: Tween = null
 	var tmp: Camera3D = null
 	var rig: Camera3D = null
+	shot["guide"] = true   # v33 (blue): the shoulder camera frames hero + target for objective pans (scripts/core/shoulder_cam.gd)
 	if sc and "cam_shot" in sc:
 		sc.cam_shot = shot
 	else:
@@ -221,6 +222,7 @@ func guide_to(target, text: String, opts := {}) -> void:
 		if rig == null: rig = get_viewport().get_camera_3d()
 		if rig:
 			used_temp = true; tmp = Camera3D.new(); tmp.fov = rig.fov; sc.add_child(tmp)
+			tmp.set_meta("guide_cam", true); tmp.set_meta("guide_at", shot.at)   # v33 (blue): shoulder camera frames hero + target
 			tmp.global_transform = rig.global_transform; tmp.current = true
 			pan_tw = sc.create_tween() if sc else create_tween()
 			var from_pos := rig.global_position

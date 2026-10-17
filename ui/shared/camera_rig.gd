@@ -41,6 +41,10 @@ var _pinch0 := 0.0
 
 func _ready() -> void:
 	fov = 42.0; current = true
+	_ensure_shoulder.call_deferred()   # v33: the shoulder camera (scripts/core/shoulder_cam.gd) drives the rig
+
+func _ensure_shoulder() -> void:
+	if is_inside_tree(): load("res://scripts/core/shoulder_cam.gd").ensure(get_tree())
 	if target: focus = target.global_position
 
 func setup(t: Node3D, d: float, p: float, dmin := 4.0, dmax := 22.0) -> void:

@@ -213,7 +213,7 @@ static func occludes(ab: AABB, cp: Vector3, feet: Vector3, grow := OCC_GROW_IN, 
 		if l < 0.05: continue
 		if (ab.get_center() - p).dot(d) <= 0.0: continue        # wall behind the player (seen from the camera)
 		var p2 := p + d / l * minf(grow + 0.1, l)                   # start just outside the sphere (a wall the player leans on but
-		if gb.intersects_segment(cp, p2): return true              # that is not between player and camera never fades)
+		if gb.intersects_segment(cp, p2) != null: return true              # that is not between player and camera never fades)
 	return false
 
 ## throttled (~10 Hz) + hysteresis occlusion state for one node (metas wf_ot / wf_oc / wf_ol)
@@ -338,5 +338,5 @@ class CamAvoid extends RefCounted:
 				var p: Vector3 = target + Vector3(0, h, 0); var d := cp - p; var l := d.length()
 				if l < 0.1: continue
 				if (ab.get_center() - p).dot(d) <= 0.0: continue
-				if gb.intersects_segment(cp, p + d / l * minf(0.4, l)): return true
+				if gb.intersects_segment(cp, p + d / l * minf(0.4, l)) != null: return true
 		return false
