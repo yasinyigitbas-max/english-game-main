@@ -24,7 +24,8 @@ static func goto(path: String, door := "") -> void:
 		var pl := place_of(path)
 		if pl == "town": OwLink.to_street(_world_door(door)); return
 		if OwLink.ROOM_PATH.has(pl): OwLink.enter(pl, "street"); return
-		World.goto(pl, pl); return   # cafe / shop: walk through their world door
+		if pl in OwLink.PLACES: World.goto(pl, pl); return   # cafe / shop: walk through their world door
+		OwLink.travel(pl, door); return   # cafe / shop: walk through their world door
 	Game.go_to(path, door)
 
 ## v33 spawn ids -> world door / spot ids
@@ -43,7 +44,7 @@ static func travel(tree: SceneTree, path: String, door := "", covered := false) 
 		var pl := place_of(path)
 		if pl == "town": pl = "street"
 		if path.ends_with("hospital_day2.tscn"): pl = "hospital_day2"
-		OwLink.travel(pl, _world_door(door), covered); return
+		OwLink.travel(pl, door, covered); return
 	if covered: tree.change_scene_to_file(path); WorldState.scene = path; return
 	Game.go_to(path, door)
 

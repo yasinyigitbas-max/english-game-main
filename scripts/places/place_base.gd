@@ -65,6 +65,18 @@ func _ready() -> void:
 	hud.camera = cam; player.attach_camera(cam, 8.0, 0.9); cam.max_dist = 11.0
 	Objectives.set_list(Objectives.items.filter(func(it): return it is Dictionary and String(it.get("id", "")) == "charge"))   # v31: no stale outdoor objective inside (v31 QA: keep Life's "Charge my phone.")
 	setup_universal(place_en(), place_tr())
+	_after_setup()
+
+## open world (red): the place goes live inside the World with the World's ONE hero / camera / HUD (no own player)
+func _ow_live(w: Node) -> void:
+	WorldState.ensure_loaded()
+	hud = w.hud; player = w.player; cam = w.cam; room_phone = w.room_phone; menu = w.menu; phone_btn = w.phone_btn
+	S["tr"] = App.tr_saved()
+	if hud.has_method("set_place"): hud.set_place(place_en(), place_tr())
+	Objectives.set_list(Objectives.items.filter(func(it): return it is Dictionary and String(it.get("id", "")) == "charge"))
+	_after_setup()
+
+func _after_setup() -> void:
 	var base_tr: Callable = hud.tr_func
 	hud.tr_func = func(en: String) -> String: return String(TRD[en]) if TRD.has(en) else String(base_tr.call(en))
 	hud.set_tr(App.tr_saved())

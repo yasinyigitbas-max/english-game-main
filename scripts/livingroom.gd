@@ -1783,7 +1783,7 @@ func _build_menu(rootc: Control) -> void:
 	vb.pressed.connect(func(): S.voice = not S.voice; vb.text = "Voice: " + ("On" if S.voice else "Off"); Audio.voice_player.volume_db = 0.0 if S.voice else -80.0)
 	var gb := _menu_btn(v, "Character: Man", func(): pass)
 	gb.pressed.connect(func(): set_gender("women" if S.gender == "men" else "men"); gb.text = "Character: " + ("Man" if S.gender == "men" else "Woman"))
-	_menu_btn(v, "Restart", func(): get_tree().paused = false; get_tree().reload_current_scene())
+	_menu_btn(v, "Restart", func(): get_tree().paused = false; (get_tree().change_scene_to_file(App.GAME_SCENE) if OwLink.active() else get_tree().reload_current_scene()))
 
 var _creator_extra := {}
 func _apply_character() -> void:

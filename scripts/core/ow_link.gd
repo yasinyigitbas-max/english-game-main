@@ -12,8 +12,9 @@ extends Node
 const House := preload("res://scripts/core/house.gd")
 const ROOM_PATH := {"bedroom": "res://main.tscn", "bathroom": "res://bathroom.tscn", "livingroom": "res://livingroom.tscn"}
 ## story places that are not part of black's phase-1 layout yet: instanced ONCE at their reserved world slot
-const EXTRA := {"hospital": "res://scenes/hospital.tscn", "hospital_day2": "res://scenes/hospital_day2.tscn"}
-const EXTRA_SLOT := {"hospital": "hospital", "hospital_day2": "hospital"}
+const EXTRA := {"hospital": "res://scenes/hospital.tscn", "hospital_day2": "res://scenes/hospital_day2.tscn", "child_drive_stop": "res://scenes/child_drive_stop.tscn"}
+const EXTRA_SLOT := {"hospital": "hospital", "hospital_day2": "hospital", "child_drive_stop": "school"}
+const PLACES := ["cafe", "shop"]   # World-built street places: live with the WorldPlayer (hero stays on its body)
 
 static var inst: OwLink
 var world: Node            # World
@@ -69,6 +70,16 @@ static func enter(id: String, from: String) -> void:
 
 func _enter(id: String, from: String) -> void:
 	if id == live_id and is_instance_valid(live): return
+	if id in PLACES:
+		_sleep_live()
+		var pl: Node = world.places.get(id)
+		if pl == null: return
+		live = pl; live_id = id
+		get_tree().current_scene = pl
+		pl.process_mode = Node.PROCESS_MODE_INHERIT
+		if pl.has_meta("ow_shell"): pl.remove_meta("ow_shell"); pl.call("_ow_live", world)
+		else: pl.call_deferred("_start")
+		return
 	var r: Node = world.places.get(id) if ROOM_PATH.has(id) else _extra(id)
 	if r == null: push_warning("OwLink: no place " + id); return
 	var h := the_hero()
@@ -109,6 +120,8 @@ func _sleep_live() -> void:
 	if not is_instance_valid(live): return
 	if ROOM_PATH.has(live_id):
 		House._sleep(live)
+	elif live_id in PLACES:
+		live.process_mode = Node.PROCESS_MODE_DISABLED
 	else:
 		live.process_mode = Node.PROCESS_MODE_DISABLED
 		for c in live.find_children("*", "CanvasLayer", true, false): (c as CanvasLayer).visible = false
@@ -125,27 +138,51 @@ func _to_street(door: String) -> void:
 	var h := the_hero()
 	var p := world.player as Node3D
 	var g := h.global_transform
-	var was_room := ROOM_PATH.has(live_id)
+	var was_room := ROOM_PATH.has(live_id) or live_id in PLACES
 	_sleep_live()
 	get_tree().current_scene = world
-	h.reparent(p, false); h.transform = Transform3D(Basis(Vector3.UP, g.basis.get_euler().y), Vector3.ZERO); h.visible = true
+	if h.get_parent() != p: h.reparent(p, false)
+	h.transform = Transform3D(Basis(Vector3.UP, g.basis.get_euler().y), Vector3.ZERO); h.visible = true
 	p.global_position = Vector3(g.origin.x, p.floor_y, g.origin.z)
 	p.process_mode = Node.PROCESS_MODE_INHERIT
 	world.hud.visible = true; world.cam.current = true
 	if door != "":
 		if was_room and world.doors.has(door): await (world.doors[door]).walk_through(p)
 		elif door != "": p.place_at(door)
+	_street_hooks(door)
+
+## world_exterior._ready story hooks, run on every arrival on the street (World is current_scene)
+func _street_hooks(door: String) -> void:
+	world.hud.visible = true
+	var lot = world.grid.find_lot("home")
 	if load("res://scripts/story/story_accident.gd").should_run():   # house.25: day-1 story starts the moment the hero is outside
 		var st = load("res://scripts/story/story_accident.gd").new(); st.w = world; world.add_child(st); st.run()
+	elif door == "home_car" and lot and ChildDrive.arriving_home(): ChildDrive.arrive_home(world, lot)
+	elif door == "home_car" and lot: _day2_go_inside.call_deferred(lot)
+	elif load("res://scripts/story/day2_car.gd").should_run() and not world.has_node("Day2Car"):
+		var d2 = load("res://scripts/story/day2_car.gd").new(); d2.name = "Day2Car"; d2.w = world; world.add_child(d2); d2.run()
+		ChildDrive.escort(world)
+
+func _day2_go_inside(lot) -> void:
+	await get_tree().process_frame
+	var door: Vector3 = lot.entrance_global() + Vector3(0, 1.1, 0)
+	var away: Vector3 = world.player.global_position - door; away.y = 0
+	if away.length() < 0.05: away = Vector3(0, 0, 1)
+	await Life.guide_to({"pos": door + away.normalized() * 5.5 + Vector3(0, 2.6, 0), "at": door}, "Go inside and talk to my family.", {"tr": "İçeri gir ve ailemle konuş."})
 
 ## car / bus / ambulance: fade out, hero at dest (place id or door id), fade in. covered = screen already black.
 static func travel(dest: String, door := "", covered := false) -> void:
 	if not active(): return
 	if not covered: await Game.fade(1.0, 0.45)
 	Game.busy = true
-	if dest == "street" or dest == "town": await inst._to_street("")
 	if dest == "street" or dest == "town":
-		if door != "": inst.world.player.place_at(door)
+		inst._sleep_live(); inst.get_tree().current_scene = inst.world
+		var h := the_hero(); var p := inst.world.player as Node3D
+		if h.get_parent() != p: h.reparent(p, false)
+		h.transform = Transform3D.IDENTITY; h.visible = true
+		p.process_mode = Node.PROCESS_MODE_INHERIT; inst.world.cam.current = true
+		p.place_at(_door_id(door))
+		inst._street_hooks.call_deferred(door)
 	else:
 		if ROOM_PATH.has(dest):
 			var r: Node = inst.world.places[dest]
@@ -157,11 +194,18 @@ static func travel(dest: String, door := "", covered := false) -> void:
 	Game.busy = false
 	await Game.fade(0.0, 0.45)
 
+static func _door_id(d: String) -> String:
+	return {"lot:home": "front", "front_door": "front", "home_car": "front", "lot:cafe": "cafe", "cafe_door": "cafe", "lot:corner_shop": "shop", "shop_door": "shop", "": "front"}.get(d, d)
+
 ## World.entered: the hero walked into a region on his own (street -> house through the front door)
 func _on_entered(region: String, from: String) -> void:
 	if not is_instance_valid(live) and ROOM_PATH.has(region) and from == "street":
 		App.came_from = "outside"
 		_enter(region, "street")
+	elif not is_instance_valid(live) and region in PLACES and from == "street":
+		_enter(region, "street")
+	elif live_id in PLACES and region == "street":
+		_sleep_live(); get_tree().current_scene = world; App.came_from = from
 
 func _process(_dt: float) -> void:
 	# the WorldPlayer body follows the hero while a room drives him (World region / door / culling use its position)

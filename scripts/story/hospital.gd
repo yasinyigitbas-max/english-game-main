@@ -6,7 +6,7 @@ class_name HospitalScene
 ## v31: public entry for the day-2 hospital visit (black: call from the car choice 'hospital' on day 2)
 ##   HospitalScene.start_day2_visit(get_tree())
 static func start_day2_visit(tree: SceneTree) -> void:
-	StoryNav.cut(tree, "res://scenes/hospital_day2.tscn")
+	StoryNav.travel(tree, "res://scenes/hospital_day2.tscn")
 
 var S := {"voice": true, "tr": false, "lesson_done": true}   # v29: TR off by default; real setting read from save.json state.tr in _ready
 var font: Font = UI.font
