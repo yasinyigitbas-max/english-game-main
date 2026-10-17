@@ -257,5 +257,4 @@ func _score_page() -> void:
 	var rb: Button = ph._btn("Retake the test", _retake, Vector2(200, 64), false, 17); rb.name = "Retake"; bar.add_child(rb)
 	var cb: Button = ph._btn("Continue", func(): Audio.click(); finished.emit([score, tot]), Vector2(180, 64), true, 17); cb.name = "ScoreContinue"; bar.add_child(cb)
 	ph.dock_bar(bar)   # v33: Retake bottom-left, Continue bottom-right (phone.gd test page dock)
-	var bt = ph._l("Testi tekrarla  ·  Devam", 14, false, ph.TR_C); bt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(bt))
 	_last_tr = not _tr_on()
