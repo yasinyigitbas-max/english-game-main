@@ -663,7 +663,7 @@ func verbs(id: String) -> Array:
 			return [["Look", "The plant is happy now.", "look"]]
 		"switch":
 			return [["Turn off the light", "I am turning off the light.", "toggle"] if S.ceiling == "on" else ["Turn on the light", "I am turning on the light.", "toggle"]]
-		"door": return [["Go to the bathroom", "I am trying to open the door.", "try"]] if (S.door_locked or not S.has_phone) else [["Go to the bathroom", "I am opening the door.", "open"]]
+		"door": return [["Go to the bathroom", "I am trying to open the door.", "try"]] if (S.door_locked or (not S.has_phone and WorldState.day < 2)) else [["Go to the bathroom", "I am opening the door.", "open"]]   # v32 (red): "take your phone first" is a day-1 rule (day 3: the phone is still charging from bedtime)
 		"door_s": return [["Go to the living room", "I am trying to open the door.", "try"]] if s_locked() else [["Go to the living room", "I am opening the door.", "go"]]
 	return []
 
@@ -1839,6 +1839,16 @@ func s_locked() -> bool:
 func _day2_stage() -> String:
 	return load("res://scripts/story/day2_morning.gd").stage()
 
+## v32c (red): one string from save.json "story"
+func _story_str(k: String) -> String:
+	var sv = App.load_save().get("story", {})
+	return String(sv.get(k, "")) if sv is Dictionary else ""
+
+## v32 (red): story.d3 ("shower" -> "living" -> "outside" -> "done"), only on day 3+
+func _day3_stage() -> String:
+	if maxi(WorldState.day, App.day) < 3: return ""
+	return load("res://scripts/story/day3_morning.gd").stage()
+
 ## v31: after the day-2 wake-up call: camera pan to the living-room door (same shot pattern as _cine_mirror), sound,
 ## top-left mission "Go to the living room." (spoken once), then free play
 func day2_living_prompt() -> void:
@@ -1870,6 +1880,8 @@ func objective() -> Array:
 	var d2 := _day2_stage()
 	if d2 == "living": return ["Go to the living room.", ""]   # v31: day-2 morning
 	if d2 == "car": return ["Go outside to the car.", ""]
+	if _day3_stage() == "shower": return ["Take a shower.", ""]   # v32 (red): day-3 morning: the shower first, the living room only after it (Day3Morning)
+	if maxi(WorldState.day, App.day) >= 4 and _story_str("d4") == "start": return ["Start your day.", ""]   # v32c (red): placeholder day-4 first objective (bedtime.gd)
 	if not App.bath_done and WorldState.day < 2: return ["Go to the bathroom.", ""]   # v31: not on day 2+; house.17: bathroom first, then the living room
 	return ["Go to the living room.", ""]
 

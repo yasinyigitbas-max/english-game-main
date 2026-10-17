@@ -116,8 +116,19 @@ func run_c() -> void:
 	App.came_from = "livingroom"; Game.go_to(Game.WORLD_SCENE, "lot:home")
 	ok(await wait_until(func(): return Objectives.has("Explore the town."), 60.0), "outside: Explore the town. objective")
 	await w(2.0); await snap("12_outside")
-	await w(4.0)
-	ok(Day3Morning.stage() == "done", "d3 stage done")
+	ok(await wait_until(func(): return Day3Morning.stage() == "town", 40.0), "d3 stage town (after the cafe -> shop pan)")   # v32 (red): was "done"
+	# v32 (red): town cues. Simulate blue's PlaceBase.leave() (App.came_from + spawn lot:<id>) without the interiors.
+	App.came_from = "cafe"; Game.go_to(Game.WORLD_SCENE, "lot:cafe")
+	ok(await wait_until(func(): return Objectives.has("Go to the shop."), 60.0), "after the cafe: Go to the shop. objective")
+	ok(Day3Morning.flag("d3_cafe"), "story.d3_cafe set")
+	await w(14.0); await snap("13_go_shop")
+	App.came_from = "shop"; Game.go_to(Game.WORLD_SCENE, "lot:corner_shop")
+	ok(await wait_until(func(): return Objectives.has("Go back home."), 60.0), "after the shop: Go back home. objective")
+	ok(Day3Morning.flag("d3_shop") and Day3Morning.stage() == "home", "story.d3_shop set, d3 stage home")
+	await w(14.0); await snap("14_go_home")
+	App.came_from = "outside"; get_tree().change_scene_to_file("res://livingroom.tscn")
+	ok(await wait_until(func(): return Day3Morning.stage() == "done", 40.0), "home again: d3 stage done")
+	ok(await wait_until(func(): return Objectives.has("Talk to my family."), 40.0), "v32c: day-3 evening: Talk to my family. objective")   # couch talk needs the family seated + puzzles (not driven here)
 	var miss := []
 	for s in said_c: if not _voiced(s) and not s in miss: miss.append(s)
 	print("V31C MISSING_VOICE ", JSON.stringify(miss))

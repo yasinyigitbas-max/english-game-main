@@ -1,0 +1,303 @@
+{
+ "_doc": "v32c (red): day-3 evening couch talk (scripts/story/day3_evening.gd) + day-3 bedtime test (scripts/story/d3_night_test.gd). lines = EN -> TR (also merged into data/extra_lines.json).",
+ "lines": {
+  "Talk to my family.": "Ailemle konuş.",
+  "How was your day?": "Günün nasıldı?",
+  "It was a good day.": "Güzel bir gündü.",
+  "Put the words in the right order.": "Kelimeleri doğru sıraya koy.",
+  "Where did you go?": "Nereye gittin?",
+  "What did you order?": "Ne sipariş ettin?",
+  "How many cookies did you have?": "Kaç kurabiye yedin?",
+  "And then?": "Peki sonra?",
+  "How many apples did you buy?": "Kaç elma aldın?",
+  "How much milk did you buy?": "Ne kadar süt aldın?",
+  "Apples are countable, so we ask: How many apples?": "Elmalar sayılabilir, bu yüzden sorarız: Kaç elma?",
+  "Milk is uncountable, so we ask: How much milk?": "Süt sayılamaz, bu yüzden sorarız: Ne kadar süt?",
+  "Thank you for the shopping! Well done.": "Alışveriş için teşekkürler! Aferin.",
+  "You must be tired. Go to bed.": "Yorgun olmalısın. Yatmaya git.",
+  "Good night!": "İyi geceler!",
+  "Go to bed.": "Yatmaya git.",
+  "I am sitting on the sofa.": "Kanepeye oturuyorum.",
+  "I am standing next to the sofa.": "Kanepenin yanında duruyorum.",
+  "I took a shower.": "Duş aldım.",
+  "I went to the café.": "Kafeye gittim.",
+  "I went to the shop.": "Dükkâna gittim.",
+  "Went, ordered, bought: this is the past simple.": "Went, ordered, bought: bu geçmiş zaman (past simple).",
+  "I'm waking up.": "Uyanıyorum.",
+  "I'm getting up.": "Kalkıyorum.",
+  "Start your day.": "Gününe başla.",
+  "Day 4": "4. Gün",
+  "I'd like a hot chocolate, please.": "Bir sıcak çikolata istiyorum, lütfen.",
+  "I had two cookies.": "İki kurabiye yedim.",
+  "I bought six apples.": "Altı elma aldım.",
+  "I bought a bottle of milk.": "Bir şişe süt aldım.",
+  "I bought a loaf of bread.": "Bir somun ekmek aldım.",
+  "Can I have a cookie, please?": "Bir kurabiye alabilir miyim, lütfen?",
+  "How many cookies would you like?": "Kaç kurabiye istersin?",
+  "Milk is uncountable.": "Süt sayılamaz.",
+  "Apples are countable.": "Elmalar sayılabilir.",
+  "I ordered a hot chocolate.": "Bir sıcak çikolata sipariş ettim.",
+  "How much is the coffee?": "Kahve ne kadar?",
+  "I took a shower in the morning.": "Sabah duş aldım.",
+  "I talked to my family.": "Ailemle konuştum."
+ },
+ "talk": [
+  [
+   "Where did you go?",
+   "I went to the café.",
+   "Kafeye gittim."
+  ],
+  [
+   "What did you order?",
+   "I'd like a hot chocolate, please.",
+   "Bir sıcak çikolata istiyorum, lütfen."
+  ],
+  [
+   "How many cookies did you have?",
+   "I had two cookies.",
+   "İki kurabiye yedim."
+  ],
+  [
+   "And then?",
+   "I went to the shop.",
+   "Dükkâna gittim."
+  ],
+  [
+   "How many apples did you buy?",
+   "I bought six apples.",
+   "Altı elma aldım."
+  ],
+  [
+   "How much milk did you buy?",
+   "I bought a bottle of milk.",
+   "Bir şişe süt aldım."
+  ],
+  [
+   "",
+   "I bought a loaf of bread.",
+   "Bir somun ekmek aldım."
+  ]
+ ],
+ "recap": [
+  [
+   "d3_shower",
+   "I took a shower."
+  ],
+  [
+   "d3_cafe",
+   "I went to the café."
+  ],
+  [
+   "d3_shop",
+   "I went to the shop."
+  ],
+  [
+   "d3_couch",
+   "I talked to my family."
+  ]
+ ],
+ "quiz": [
+  {
+   "q": "I ___ to the café.",
+   "opts": [
+    "went",
+    "go",
+    "goed"
+   ],
+   "a": 0,
+   "say": "I went to the café.",
+   "tr": "Kafeye gittim."
+  },
+  {
+   "q": "I'd ___ a hot chocolate, please.",
+   "opts": [
+    "like",
+    "likes",
+    "liked"
+   ],
+   "a": 0,
+   "say": "I'd like a hot chocolate, please.",
+   "tr": "Bir sıcak çikolata istiyorum, lütfen."
+  },
+  {
+   "q": "How ___ apples did you buy?",
+   "opts": [
+    "many",
+    "much",
+    "lot"
+   ],
+   "a": 0,
+   "say": "How many apples did you buy?",
+   "tr": "Kaç elma aldın?"
+  },
+  {
+   "q": "How ___ milk did you buy?",
+   "opts": [
+    "much",
+    "many",
+    "lot"
+   ],
+   "a": 0,
+   "say": "How much milk did you buy?",
+   "tr": "Ne kadar süt aldın?"
+  },
+  {
+   "q": "I bought a ___ of milk.",
+   "opts": [
+    "bottle",
+    "loaf",
+    "six"
+   ],
+   "a": 0,
+   "say": "I bought a bottle of milk.",
+   "tr": "Bir şişe süt aldım."
+  },
+  {
+   "q": "I ___ six apples.",
+   "opts": [
+    "bought",
+    "buy",
+    "buyed"
+   ],
+   "a": 0,
+   "say": "I bought six apples.",
+   "tr": "Altı elma aldım."
+  }
+ ],
+ "quiz_b": [
+  {
+   "q": "Can I ___ a cookie, please?",
+   "opts": [
+    "have",
+    "has",
+    "had"
+   ],
+   "a": 0,
+   "say": "Can I have a cookie, please?",
+   "tr": "Bir kurabiye alabilir miyim, lütfen?"
+  },
+  {
+   "q": "I ___ two cookies.",
+   "opts": [
+    "had",
+    "have",
+    "haved"
+   ],
+   "a": 0,
+   "say": "I had two cookies.",
+   "tr": "İki kurabiye yedim."
+  },
+  {
+   "q": "I bought a ___ of bread.",
+   "opts": [
+    "loaf",
+    "bottle",
+    "glass"
+   ],
+   "a": 0,
+   "say": "I bought a loaf of bread.",
+   "tr": "Bir somun ekmek aldım."
+  },
+  {
+   "q": "How ___ cookies would you like?",
+   "opts": [
+    "many",
+    "much",
+    "any"
+   ],
+   "a": 0,
+   "say": "How many cookies would you like?",
+   "tr": "Kaç kurabiye istersin?"
+  },
+  {
+   "q": "Milk is ___.",
+   "opts": [
+    "uncountable",
+    "countable",
+    "many"
+   ],
+   "a": 0,
+   "say": "Milk is uncountable.",
+   "tr": "Süt sayılamaz."
+  },
+  {
+   "q": "I ___ to the shop.",
+   "opts": [
+    "went",
+    "goes",
+    "going"
+   ],
+   "a": 0,
+   "say": "I went to the shop.",
+   "tr": "Dükkâna gittim."
+  }
+ ],
+ "quiz_c": [
+  {
+   "q": "Apples are ___.",
+   "opts": [
+    "countable",
+    "uncountable",
+    "much"
+   ],
+   "a": 0,
+   "say": "Apples are countable.",
+   "tr": "Elmalar sayılabilir."
+  },
+  {
+   "q": "I ___ a hot chocolate.",
+   "opts": [
+    "ordered",
+    "order",
+    "orders"
+   ],
+   "a": 0,
+   "say": "I ordered a hot chocolate.",
+   "tr": "Bir sıcak çikolata sipariş ettim."
+  },
+  {
+   "q": "How ___ is the coffee?",
+   "opts": [
+    "much",
+    "many",
+    "lot"
+   ],
+   "a": 0,
+   "say": "How much is the coffee?",
+   "tr": "Kahve ne kadar?"
+  },
+  {
+   "q": "I ___ a shower in the morning.",
+   "opts": [
+    "took",
+    "take",
+    "taked"
+   ],
+   "a": 0,
+   "say": "I took a shower in the morning.",
+   "tr": "Sabah duş aldım."
+  },
+  {
+   "q": "I bought ___ apples.",
+   "opts": [
+    "six",
+    "a",
+    "much"
+   ],
+   "a": 0,
+   "say": "I bought six apples.",
+   "tr": "Altı elma aldım."
+  },
+  {
+   "q": "I ___ to my family.",
+   "opts": [
+    "talked",
+    "talk",
+    "talks"
+   ],
+   "a": 0,
+   "say": "I talked to my family.",
+   "tr": "Ailemle konuştum."
+  }
+ ]
+}

@@ -188,6 +188,7 @@ func _intro() -> void:
 	if Day2After.pending() != "": await wait(1.0); await Day2After.run(self, "living"); return   # v30.5: back from work / hospital
 	if D2.stage() == "living" and maxi(WorldState.day, App.day) >= 2:   # v31-fixes: day 2+ only; v31: day-2 morning scripted breakfast (scripts/story/day2_morning.gd)
 		await wait(1.2); var d2 = D2.new(); d2.lr = self; add_child(d2); await d2.run(); _advance(); return
+	load("res://scripts/story/day3_evening.gd").start(get_tree())   # v32c (red): day-3 evening couch talk (after the cafe + the shop) / "Go to bed."
 	if breakfast_pending(): await wait(2.0); breakfast_call()
 
 # ============================================================ house.17: breakfast with the family (present simple lesson + quiz)
