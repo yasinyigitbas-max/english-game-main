@@ -548,8 +548,9 @@ func _process(dt: float) -> void:
 	if marker == null: return   # world mode before _world_init
 	if world_mode:
 		_world_tick(dt)
-		if not inside:   # from the street the place is a normal building: walls opaque (the world's occluder fade handles views)
-			for w in walls: WallFade.step_occl(w[0], 1.0, dt)
+		if not inside:   # from the street the place is a building: a wall fades only while it hides the player (occluder rule)
+			var vc := get_viewport().get_camera_3d()
+			for w in walls: WallFade.step_occl(w[0], WallFade.OCC_MIN_A if vc and WallFade.occluded(w[0], vc.global_position, player.global_position) else 1.0, dt)
 			marker.visible = false
 			return
 	marker.visible = _mark_target != null and is_instance_valid(_mark_target) and mode == "play"

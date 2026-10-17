@@ -274,8 +274,9 @@ func _process(dt: float) -> void:
 	if world_mode:
 		if marker == null: return
 		_world_tick(dt)
-		if not inside:
-			for w in walls: WallFade.step_occl(w[0], 1.0, dt)
+		if not inside:   # from the street: a wall fades only while it hides the player
+			var vc := get_viewport().get_camera_3d()
+			for w in walls: WallFade.step_occl(w[0], WallFade.OCC_MIN_A if vc and WallFade.occluded(w[0], vc.global_position, player.global_position) else 1.0, dt)
 			return
 	if marker and marker.visible and step >= 0: marker.global_position.y = (stations[step] as Interactable).focus.y + 0.95 + sin(_mt * 3.0) * 0.08
 	# cut-away walls: hide a wall while the camera is on its outer side

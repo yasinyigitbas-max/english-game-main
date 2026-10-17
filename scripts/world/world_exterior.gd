@@ -198,6 +198,7 @@ func _fade_buildings() -> void:
 	var eye := player.global_position + Vector3(0, 1.0, 0); var cp := cam.global_position
 	for n in get_tree().get_nodes_in_group("fade"):
 		var mi := n as MeshInstance3D
+		mi.set_meta("wf_ext", true)   # v34: faded here (scripts/world/world_wall_fade.gd leaves it alone)
 		var ab: AABB = mi.global_transform * mi.get_aabb()
 		# only buildings between the camera and the player (not the one the player stands in front of)
 		var to_cam := (cp - eye).normalized()
