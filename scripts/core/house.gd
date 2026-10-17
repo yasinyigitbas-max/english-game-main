@@ -26,6 +26,7 @@ static func live_ready(room: Node) -> void:
 	if not is_room(room.scene_file_path): return
 	room.set_meta(ONCE, true)   # v33town: from now on this instance is never rebuilt, only put to sleep / woken
 	if SHOULDER_CAM: load("res://scripts/core/shoulder_cam.gd").ensure(room.get_tree())
+	if OwLink.active(): return   # open world: rooms are World-built at fixed positions; no black void, no shells, no floating origin
 	_dark_outside(room)
 	if not room.has_meta("wh_hooked"):
 		room.set_meta("wh_hooked", true); room.tree_exiting.connect(func(): _on_live_exit(room))

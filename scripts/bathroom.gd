@@ -174,7 +174,7 @@ func _live_ready() -> void:   # v32wh: the v32 _ready (also run when this room's
 	_build_env()
 	if not has_meta("wh_built"): _build_room()   # v32wh: a shell turning live already has its geometry
 	_build_grid(); _build_fx()
-	hero = DemoCharacter.new(); add_child(hero); hero.setup(S.gender); _apply_character()
+	hero = OwLink.hero_for(self); hero.setup(S.gender); _apply_character()
 	hero.position = Vector3(LX + 0.65, 0, (WD.x + WD.y) / 2); hero.rotation.y = PI / 2   # from the bedroom: inside the west door
 	if App.came_from == "livingroom": hero.position = Vector3((SD.x + SD.y) / 2, 0, FZ - 0.6); hero.rotation.y = PI   # inside the south door
 	App.came_from = ""

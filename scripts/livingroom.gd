@@ -169,10 +169,10 @@ func _live_ready() -> void:   # v32wh: the v32 _ready (also run when this room's
 	water_fx.direction = Vector3(0, -1, 0); water_fx.spread = 8.0; water_fx.initial_velocity_min = 0.4; water_fx.initial_velocity_max = 0.7
 	var dm := SphereMesh.new(); dm.radius = 0.008; dm.height = 0.016; water_fx.mesh = dm
 	water_fx.material_override = _mat(Color(0.45, 0.7, 1.0), 0.3, 0.85); add_child(water_fx)
-	hero = DemoCharacter.new(); add_child(hero); hero.setup(S.gender)
+	hero = OwLink.hero_for(self); hero.setup(S.gender)
 	_apply_character()   # house.18: the bedroom creator's player (child/adult, gender, look) from save.json
 	hero.position = Vector3(RCX, 0, 2.3); hero.rotation.y = PI
-	cam = Camera3D.new(); cam.fov = 42; add_child(cam); cam.current = true
+	cam = OwLink.cam_for(self); cam.fov = 42; cam.current = true
 	cam_focus = _cam_target(); _update_cam(1.0)
 	hand3d = Sprite3D.new(); hand3d.texture = load("res://ui/hand.png"); hand3d.pixel_size = 0.0013
 	hand3d.billboard = BaseMaterial3D.BILLBOARD_ENABLED; hand3d.no_depth_test = true; hand3d.modulate = Color(1, 1, 1, 0.95)

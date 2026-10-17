@@ -207,9 +207,9 @@ func _live_ready() -> void:   # v32wh: the v32 _ready (also run when this room's
 	water_fx.direction = Vector3(0, -1, 0); water_fx.spread = 8.0; water_fx.initial_velocity_min = 0.4; water_fx.initial_velocity_max = 0.7
 	var dm := SphereMesh.new(); dm.radius = 0.008; dm.height = 0.016; water_fx.mesh = dm
 	water_fx.material_override = _mat(Color(0.45, 0.7, 1.0), 0.3, 0.85); add_child(water_fx)
-	hero = DemoCharacter.new(); add_child(hero); hero.setup(S.gender)
+	hero = OwLink.hero_for(self); hero.setup(S.gender)
 	_pose_sleep()
-	cam = Camera3D.new(); cam.fov = 42; add_child(cam); cam.current = true
+	cam = OwLink.cam_for(self); cam.fov = 42; cam.current = true
 	cam_focus = Vector3(-0.6, 0, -1.0); _update_cam(1.0)
 	hand3d = Sprite3D.new(); hand3d.texture = load("res://ui/hand.png"); hand3d.pixel_size = 0.0013
 	hand3d.billboard = BaseMaterial3D.BILLBOARD_ENABLED; hand3d.no_depth_test = true; hand3d.modulate = Color(1, 1, 1, 0.95)
@@ -261,8 +261,15 @@ func _wh_resume() -> void:
 	_apply_character(); _apply_states()
 	menu.visible = false; hud.visible = true
 	mode = "play"; _update_hand(); cam_focus = hero.position
+	var _ow_from := App.came_from
 	App.came_from = ""
 	get_tree().create_timer(0.6, false).timeout.connect(func(): caption("I'm in the bedroom now.", false))   # house.17: silent room caption
+	# open world: the bedroom was already live; the hospital return (car trip) continues the story here (as _continue_game did)
+	var _svh = App.load_save().get("story", {})
+	if _ow_from == "hospital" and not (_svh is Dictionary and bool(_svh.get("day1_done", false))):
+		hero.position = STAND_BED; hero.rotation.y = 0.0; cam_focus = hero.position
+		_home_from_hospital(); _hosp_home = true
+	elif _ow_from == "hospital_day2": get_tree().create_timer(1.2, false).timeout.connect(func(): Day2After.run(self, "bedroom"))
 	load("res://scripts/story/bedtime.gd").hook_bedroom(self)   # idempotent (named child)
 	load("res://scripts/story/day5_routine.gd").attach(get_tree())
 	if not _hosp_home: _advance(false)
