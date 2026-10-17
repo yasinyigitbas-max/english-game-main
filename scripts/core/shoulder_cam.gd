@@ -47,6 +47,10 @@ static func ensure(tree: SceneTree) -> Node:
 func _ready() -> void:
 	process_priority = 900; process_mode = Node.PROCESS_MODE_ALWAYS
 
+## v34 (blue): start fresh behind the hero next frame (WorldTrip arrival at a destination door: no swoop across town)
+func snap() -> void:
+	pos = Vector3.INF; look = Vector3.INF; _set_yaw = INF; _last_hero = Vector3.INF
+
 ## House._swap: the whole house moved by d (floating origin)
 func shift(d: Vector3) -> void:
 	if pos != Vector3.INF: pos += d

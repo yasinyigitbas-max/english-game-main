@@ -19,6 +19,20 @@ var step := -1
 var walls: Array = []            # [MeshInstance3D, outward normal]
 var room := Vector2(8.0, 7.0)
 signal task_done
+## v34 open world (blue): work / school as a world place (same rules as PlaceBase world mode): world_mode when the node is
+## not the scene root. The world's hud / player / cam are used; the room is built place-local at the node's transform with
+## a real swinging door in the south wall; the routine starts when the player walks in (no scene change, no fade) and the
+## drive home at the end is a WorldTrip (fade to black -> the house front door -> fade in, no card text).
+signal place_entered(id: String)
+signal place_exited(id: String)
+@export var world_mode := false
+@export var home_door := "house_front"   # WorldTrip door id for the drive home
+var host: Node = null
+var inside := false
+var door_hinge: Node3D
+var _started := false
+const DOOR_GAP := 1.4
+const DOOR_W := 1.0
 
 ## category for a job id (children always go to school as pupils)
 static func category_of(job_id: String, child := false) -> String:
@@ -42,6 +56,8 @@ func _ready() -> void:
 		TRD[c.label] = c.label_tr; TRD[c.end] = c.end_tr
 		for t in c.tasks: TRD[t[0]] = t[1]; TRD[t[2]] = t[3]; if t[6] != "": TRD[t[6]] = t[7]
 	for k in W.common: TRD[W.common[k][0]] = W.common[k][1]
+	if world_mode or (get_parent() != null and get_parent() != get_tree().root):
+		world_mode = true; _world_init.call_deferred(); return
 	var we := WorldEnvironment.new(); var e := Environment.new(); e.background_mode = Environment.BG_COLOR
 	var outdoor: bool = C.setting == "garden"
 	e.background_color = Color(0.62, 0.8, 0.95) if outdoor else Color(0.86, 0.89, 0.93)
@@ -66,6 +82,45 @@ func _ready() -> void:
 	hud.set_tr(App.tr_saved())
 	_people(); _stations()
 	_run()
+
+func _world_init() -> void:
+	if host == null: host = get_tree().current_scene
+	hud = host.get("hud"); player = host.get("player"); cam = host.get("cam"); room_phone = host.get("room_phone"); menu = host.get("menu")
+	_room(C.setting == "garden")
+	call("_set_" + String(C.setting))
+	if hud and hud.get("tr_func") is Callable:
+		var base_tr: Callable = hud.tr_func
+		hud.tr_func = func(en: String) -> String: return String(TRD[en]) if TRD.has(en) else String(base_tr.call(en))
+	_people(); _stations()
+	add_to_group("places"); add_to_group("world_places")
+
+func is_inside_place(world_pos: Vector3, margin := 0.0) -> bool:
+	var l := to_local(world_pos)
+	return absf(l.x) < room.x / 2.0 - margin and absf(l.z) < room.y / 2.0 - margin and l.y > -0.5 and l.y < 3.5
+
+func _world_tick(dt: float) -> void:
+	if player == null or not is_instance_valid(player): return
+	var now_in := is_inside_place(player.global_position, 0.1)
+	if now_in != inside:
+		inside = now_in
+		if inside:
+			if hud and hud.has_method("set_place"): hud.set_place(_place_en(), _place_tr())
+			place_entered.emit("work")
+			if not _started and not bool((App.load_save().get("story", {}) as Dictionary).get("day2_work_done", false)):
+				_started = true; _run()
+		else: place_exited.emit("work")
+	if door_hinge:
+		var dl := to_local(player.global_position) - Vector3(0, 0, room.y / 2.0)
+		var want := -1.75 if Vector2(dl.x, dl.z).length() < 2.2 else 0.0
+		door_hinge.rotation.y = lerpf(door_hinge.rotation.y, want, 1.0 - exp(-dt * 5.0))
+
+## world mode: one caption queue (the world's)
+func caption(t: String, speak = true) -> void:
+	if world_mode and host and host.has_method("caption"): await host.caption(t, speak); return
+	await super.caption(t, speak)
+func say_line(t: String) -> void:
+	if world_mode and host and host.has_method("say_line"): await host.say_line(t); return
+	await super.say_line(t)
 
 func _place_en() -> String: return "School" if C.setting.begins_with("classroom") else ("Shop" if cid == "home" else "Work")
 func _place_tr() -> String: return "Okul" if C.setting.begins_with("classroom") else ("Dükkan" if cid == "home" else "İş")
@@ -93,7 +148,9 @@ func _run() -> void:
 	sv["day2_work_done"] = true; App.patch_save({"story": sv})
 	Life.event("work_end")
 	await say_line(ChildDrive.child_line(W.common["home"][0]))   # v33: a child says 'My mom is driving me home.'
-	App.came_from = "outside"; Game.go_to(Game.HOUSE_FRONT_DOOR_SCENE, "front_door")
+	App.came_from = "outside"
+	if world_mode: await WorldTrip.go(home_door, INF, Game.HOUSE_FRONT_DOOR_SCENE, "front_door")   # v34: fade to black, no driving shown
+	else: Game.go_to(Game.HOUSE_FRONT_DOOR_SCENE, "front_door")
 
 func _job_data() -> Dictionary:
 	var d = App.load_json("res://data/jobs.json")
@@ -163,7 +220,8 @@ func _face(who: Node3D, at: Vector3) -> void:
 func _lap() -> void:
 	player.hero.play("run", 0.2)
 	var pts := [Vector3(-2.6, 0, 1.6), Vector3(-2.6, 0, -1.6), Vector3(2.6, 0, -1.6), Vector3(2.6, 0, 1.6), Vector3(2.0, 0, 1.0)]
-	for p in pts:
+	for lpt in pts:
+		var p: Vector3 = to_global(lpt)   # v34: place-local lap
 		var d: Vector3 = p - player.global_position
 		player.hero.rotation.y = atan2(d.x, d.z)
 		var tw := create_tween(); tw.tween_property(player, "global_position", p, d.length() / 3.6); await tw.finished
@@ -201,7 +259,7 @@ func _stations() -> void:
 			var sp: Array = spots[clampi(int(t[8]), 0, spots.size() - 1)]
 			pos = sp[0]; focus = sp[1]
 		var it := Interactable.new(); it.obj_name = String(t[0]); it.radius = 1.6; it.position = pos; add_child(it)
-		it.focus = focus; it.enabled = false
+		it.focus = to_global(focus) if world_mode else focus; it.enabled = false   # focus = world point
 		var idx: int = i
 		it.verbs = func() -> Array: return [[String(C.tasks[idx][0]), func(): await _do_task(idx)]]
 		stations.append(it)
@@ -213,6 +271,12 @@ func _stations() -> void:
 var _mt := 0.0
 func _process(dt: float) -> void:
 	_mt += dt
+	if world_mode:
+		if marker == null: return
+		_world_tick(dt)
+		if not inside:
+			for w in walls: WallFade.step_occl(w[0], 1.0, dt)
+			return
 	if marker and marker.visible and step >= 0: marker.global_position.y = (stations[step] as Interactable).focus.y + 0.95 + sin(_mt * 3.0) * 0.08
 	# cut-away walls: hide a wall while the camera is on its outer side
 	# v33 rule: walls fade gradually (out when the camera is outside them, to ~0.2 while they hide the player), never pop
@@ -223,7 +287,7 @@ func _process(dt: float) -> void:
 			for w in walls: if (w[1] as Vector3).z <= 0.5 and not occ.get(w[1], false): occ[w[1]] = WallFade.occluded(w[0], c.global_position, player.global_position)
 		for w in walls:
 			var m: MeshInstance3D = w[0]; var n: Vector3 = w[1]
-			var out: bool = (cam.global_position - m.global_position).dot(n) >= 0.3
+			var out: bool = (cam.global_position - m.global_position).dot(global_basis * n) >= 0.3
 			WallFade.step_occl(m, 0.0 if out else (WallFade.OCC_MIN_A if occ.get(n, false) else 1.0), dt)
 
 # ------------------------------------------------------------------ building helpers
@@ -301,13 +365,24 @@ func _room(outdoor: bool) -> void:
 	var floor_c: Color = Color(0.45, 0.66, 0.38) if outdoor else (FL.get(C.setting, Color(0.8, 0.66, 0.5)) as Color).darkened(0.15)
 	box(Vector3(room.x, 0.1, room.y), Vector3(0, -0.05, 0), floor_c, false)
 	for i in range(1, int(room.y / 0.5)): box(Vector3(room.x, 0.004, 0.012), Vector3(0, 0.002, -hz + i * 0.5), floor_c.darkened(0.12), false)
-	box(Vector3(40, 0.1, 40), Vector3(0, -0.16, 0), Color(0.42, 0.62, 0.36) if outdoor else Color(0.80, 0.84, 0.88), false)
+	if not world_mode: box(Vector3(40, 0.1, 40), Vector3(0, -0.16, 0), Color(0.42, 0.62, 0.36) if outdoor else Color(0.80, 0.84, 0.88), false)
 	_collider(Vector3(room.x, 0.1, room.y), Vector3(0, -0.05, 0))
 	var wc := Color(0.93, 0.91, 0.86)
 	var h := 0.9 if outdoor else 2.8
 	if outdoor: wc = Color(0.62, 0.45, 0.3)   # low wooden fence
-	for d in [[Vector3(room.x, h, 0.12), Vector3(0, h / 2, -hz), Vector3(0, 0, -1)], [Vector3(room.x, h, 0.12), Vector3(0, h / 2, hz), Vector3(0, 0, 1)],
-			[Vector3(0.12, h, room.y), Vector3(-hx, h / 2, 0), Vector3(-1, 0, 0)], [Vector3(0.12, h, room.y), Vector3(hx, h / 2, 0), Vector3(1, 0, 0)]]:
+	var sides := [[Vector3(room.x, h, 0.12), Vector3(0, h / 2, -hz), Vector3(0, 0, -1)], [Vector3(room.x, h, 0.12), Vector3(0, h / 2, hz), Vector3(0, 0, 1)],
+			[Vector3(0.12, h, room.y), Vector3(-hx, h / 2, 0), Vector3(-1, 0, 0)], [Vector3(0.12, h, room.y), Vector3(hx, h / 2, 0), Vector3(1, 0, 0)]]
+	if world_mode:   # v34: the south wall gets a real opening (two parts + lintel) and a hinged door
+		sides.remove_at(1)
+		var sw := (room.x - DOOR_GAP) / 2.0
+		for sx in [-1.0, 1.0]: walls.append([box(Vector3(sw, h, 0.12), Vector3(sx * (DOOR_GAP / 2.0 + sw / 2.0), h / 2, hz), wc), Vector3(0, 0, 1)])
+		if not outdoor:
+			walls.append([box(Vector3(DOOR_GAP, h - 2.2, 0.12), Vector3(0, 2.2 + (h - 2.2) / 2.0, hz), wc, false), Vector3(0, 0, 1)])
+			door_hinge = Node3D.new(); door_hinge.name = "FrontDoor"; door_hinge.position = Vector3(-DOOR_W / 2.0, 0, hz + 0.02); add_child(door_hinge)
+			door_hinge.add_to_group("doors")
+			var dmi := MeshInstance3D.new(); var dbm := BoxMesh.new(); dbm.size = Vector3(DOOR_W, 2.1, 0.06); dmi.mesh = dbm
+			dmi.material_override = _mat(Color(0.55, 0.38, 0.25)); dmi.position = Vector3(DOOR_W / 2.0, 1.05, 0); door_hinge.add_child(dmi)
+	for d in sides:
 		var m := box(d[0], d[1], wc); walls.append([m, d[2]])
 		if not outdoor:   # accent paint on the inner side
 			var n: Vector3 = d[2]; var sz: Vector3 = d[0]
@@ -315,7 +390,7 @@ func _room(outdoor: bool) -> void:
 			a.mesh.size = Vector3(0.01, h * 0.45, sz.z - 0.02) if n.x != 0 else Vector3(sz.x - 0.02, h * 0.45, 0.01); a.position.y = h * 0.225
 			walls.append([a, n])
 	# entrance door on the front wall (decor; the player came in here)
-	if not outdoor:
+	if not outdoor and not world_mode:
 		var dm := box(Vector3(1.0, 2.1, 0.06), Vector3(0, 1.05, hz - 0.08), Color(0.55, 0.38, 0.25), false); walls.append([dm, Vector3(0, 0, 1)])
 
 # ------------------------------------------------------------------ settings (spots: [stand position, focus point])

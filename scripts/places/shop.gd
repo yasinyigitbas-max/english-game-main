@@ -278,7 +278,7 @@ func lively(dt: float) -> void:
 		if _amb_t <= 0.0:
 			_amb_t = randf_range(5.0, 8.0)
 			if randi() % 2 == 0: gesture(npcs.c2, "pick_up", maxf(0.6, npcs.c2.anim_length("pick_up") - 0.1))
-			elif CK.distance_to(player.global_position) > 2.5: nod(npcs.assistant, 2.5)   # v32 rule: "typing" is a seated clip (the standing assistant sat down)
+			elif CK.distance_to(lp(player)) > 2.5: nod(npcs.assistant, 2.5)   # v32 rule: "typing" is a seated clip (the standing assistant sat down)
 	var w: DemoCharacter = npcs.c1
 	var tgt: Vector3 = walker_path[walker_i]
 	var d := tgt - w.position; d.y = 0
