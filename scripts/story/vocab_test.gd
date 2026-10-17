@@ -49,7 +49,7 @@ func _pick_version(next: = false) -> void :
 	Q.shuffle()
 	qv = qv.duplicate(); qv[KEY] = (vi + 1) % vers.size(); App.patch_save({"quiz_ver": qv})
 
-func _tr_on() -> bool: return App.tr_on()
+func _tr_on() -> bool: return true   # v33.1 (Yasin 17:41): Turkish on learning screens ALWAYS shows; the TR button only controls the caption box
 func _trl(l: Label) -> Label: _trs.append(l); l.visible = _tr_on() and l.text.strip_edges() != ""; return l
 func _tr_refresh() -> void:
 	_trs = _trs.filter(func(l): return is_instance_valid(l))

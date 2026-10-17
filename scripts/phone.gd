@@ -658,7 +658,7 @@ func _lesson() -> void:
 				var gt := _l(gl, 14, false, TR_C); gt.set_anchors_preset(Control.PRESET_BOTTOM_WIDE); gt.offset_left = 20; gt.offset_top = -24; gt.offset_bottom = -4
 				gt.name = "RowGloss"; gt.offset_right = -12
 				gt.clip_text = true; gt.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; b.add_child(gt)
-			if k == 1 and not two and (lesson_i in [0, 3] or not fam): _trl(lb)   # v31: TR column only with the TR toggle
+			# v33.1 (Yasin 17:41): the Turkish (right) column ALWAYS shows - never gated by the TR toggle
 			var say := txt if (k == 0 or two) else (txt.split(": ")[1] if txt.contains(": ") else "")
 			if lesson_i == 1 and k == 0 and fam: say = ""
 			if not fam: say = txt if k == 0 else ""
@@ -1241,7 +1241,7 @@ func _update_preview() -> void:
 var _tr_lbls: Array = []
 var _tr_last := false
 func _tr_now() -> bool:
-	return App.tr_on()   # v30.5: single persisted TR flag
+	return App.tr_on() or test_mode()   # v33.1 (Yasin 17:41): Turkish on learning screens ALWAYS shows; the TR button only controls the caption box
 func _trl(l: Label) -> Label:
 	_tr_lbls = _tr_lbls.filter(func(x): return is_instance_valid(x)); _tr_lbls.append(l); l.visible = _tr_now(); _tr_last = _tr_now(); return l
 func _process(dt: float) -> void:

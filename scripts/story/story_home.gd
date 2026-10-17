@@ -261,7 +261,7 @@ func _puzzle(sentence: String) -> void:
 				ui.live("Me: " + ans.text, StoryUI.tr_of(sentence) if done[0] else "")
 			else: Audio.bad())
 	while not done[0]:
-		askt.visible = App.tr_on()
+		askt.visible = true   # v33.1 (Yasin 17:41): Turkish on learning screens ALWAYS shows; the TR button only controls the caption box
 		await get_tree().process_frame
 	Audio.good()
 	await ui.line(sentence, "Me")

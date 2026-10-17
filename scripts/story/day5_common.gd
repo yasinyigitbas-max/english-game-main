@@ -229,7 +229,7 @@ func choice(c: Dictionary) -> Dictionary:
 	fb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(fb)
 	var fbt := Label.new(); fbt.text = ""; fbt.add_theme_font_size_override("font_size", 16); fbt.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8))
 	fbt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; fbt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(fbt); trs.append(fbt)
-	var tr_vis := func(): for l in trs: if is_instance_valid(l): (l as Label).visible = App.tr_on() and (l as Label).text.strip_edges() != ""
+	var tr_vis := func(): for l in trs: if is_instance_valid(l): (l as Label).visible = (l as Label).text.strip_edges() != ""   # v33.1 (Yasin 17:41): Turkish on learning screens ALWAYS shows; the TR button only controls the caption box
 	tr_vis.call()
 	box.modulate.a = 0.0; create_tween().tween_property(box, "modulate:a", 1.0, 0.3)
 	Audio.say(String(c.get("speak", c.prompt)))
