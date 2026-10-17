@@ -251,29 +251,26 @@ func _close_doors() -> void:
 	for d in doors: create_tween().tween_property(d, "position:z", d.get_meta("z0"), 0.6)
 	if board: board.enabled = false
 
+## v32: polished procedural models via CarKit (one merged mesh, 4 materials) + blob shadow. Same node names
+## ("Body", door nodes, route Label3D), same footprint (car 1.8 x 4.2, bus 2.5 x 11), same half_len.
 func _build_mesh() -> void:
-	var k := MeshKit.new()
+	var k := CarKit.new()
 	body = Node3D.new(); body.name = "Body"; add_child(body)
 	if is_bus:
 		half_len = 5.5
-		k.box(Vector3(2.5, 2.6, 11.0), Vector3(0, 1.6, 0), Color(0.40, 0.56, 0.76))
-		k.box(Vector3(2.52, 0.4, 11.02), Vector3(0, 0.5, 0), Color(0.96, 0.95, 0.93))
-		k.box(Vector3(2.54, 1.0, 9.8), Vector3(0, 2.15, -0.3), GLASS)
-		k.box(Vector3(2.3, 1.2, 0.05), Vector3(0, 2.0, 5.51), GLASS)
-		k.box(Vector3(1.6, 0.35, 0.06), Vector3(0, 2.75, 5.52), DARK)
-		for wz in [-3.6, 3.4]:
-			for wx in [-1.2, 1.2]: k.box(Vector3(0.35, 0.9, 0.9), Vector3(wx, 0.45, wz), DARK)
-		k.box(Vector3(2.4, 0.15, 10.8), Vector3(0, 2.95, 0), Color(0.96, 0.95, 0.93))
+		k.bus()
+		CarKit.add_shadow(self, Vector2(3.0, 11.8))
 		var lbl := Label3D.new(); Lines.set_sign(lbl, "1  Maple St - Market - Park", "1  Akçaağaç Sk. - Çarşı - Park"); lbl.font = load("res://fonts/Nunito.ttf"); lbl.font_size = 40
-		lbl.pixel_size = 0.005; lbl.modulate = Color(1.0, 0.85, 0.4); lbl.outline_size = 0; lbl.position = Vector3(0, 2.75, 5.56); body.add_child(lbl)
-		# doors on the right (curb) side, local -X when driving +Z?  right of forward (0,0,1) is (-1,0,0)... use r = (f.z,0,-f.x) -> (1,0,0)?
+		lbl.pixel_size = 0.005; lbl.modulate = Color(1.0, 0.85, 0.4); lbl.outline_size = 0; lbl.position = Vector3(0, 2.75, 5.57); body.add_child(lbl)
+		# doors on the right (curb) side, local -X; they slide along Z when the bus stops
 		for dz in [3.6, -1.0]:
-			var dk := MeshKit.new(); dk.box(Vector3(0.06, 2.2, 1.1), Vector3(0, 1.35, 0), GLASS.darkened(0.2)); dk.box(Vector3(0.07, 0.08, 1.1), Vector3(0, 2.45, 0), DARK)
+			var dk := MeshKit.new()
+			dk.box(Vector3(0.06, 2.2, 1.1), Vector3(0, 1.35, 0), Color(0.10, 0.12, 0.15))
+			dk.box(Vector3(0.07, 0.08, 1.12), Vector3(0, 2.45, 0), DARK); dk.box(Vector3(0.07, 0.08, 1.12), Vector3(0, 0.27, 0), DARK)
+			dk.box(Vector3(0.07, 2.2, 0.05), Vector3(0, 1.35, 0), DARK)
+			dk.box(Vector3(0.08, 0.04, 0.5), Vector3(-0.01, 1.3, 0.25), Color(0.8, 0.81, 0.83))
 			var dn := Node3D.new(); dn.position = Vector3(-1.27, 0, dz); dn.set_meta("z0", dz); body.add_child(dn); dk.commit(dn); doors.append(dn)
 	else:
-		k.box(Vector3(1.8, 0.7, 4.2), Vector3(0, 0.55, 0), color); k.box(Vector3(1.6, 0.6, 2.2), Vector3(0, 1.15, -0.2), color.lightened(0.1))
-		k.box(Vector3(1.62, 0.45, 2.0), Vector3(0, 1.17, -0.2), GLASS)
-		for wx in [-0.85, 0.85]:
-			for wz in [-1.3, 1.3]: k.box(Vector3(0.3, 0.6, 0.6), Vector3(wx, 0.3, wz), DARK)
-		for sx in [-0.65, 0.65]: k.box(Vector3(0.3, 0.12, 0.05), Vector3(sx, 0.7, 2.11), Color(1, 0.95, 0.8)); k.box(Vector3(0.3, 0.12, 0.05), Vector3(sx, 0.7, -2.11), Color(0.85, 0.3, 0.3))
+		k.car(color, -0.2, int(absf(color.r * 7.0 + color.g * 13.0 + color.b * 3.0)) % 2)
+		CarKit.add_shadow(self, Vector2(2.3, 4.9))
 	k.commit(body)
