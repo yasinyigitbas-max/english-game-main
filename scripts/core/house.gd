@@ -25,6 +25,7 @@ static func shell_ready(room: Node, build: Callable) -> bool:
 static func live_ready(room: Node) -> void:
 	if not is_room(room.scene_file_path): return
 	room.set_meta(ONCE, true)   # v33town: from now on this instance is never rebuilt, only put to sleep / woken
+	if SHOULDER_CAM: load("res://scripts/core/shoulder_cam.gd").ensure(room.get_tree())
 	_dark_outside(room)
 	if not room.has_meta("wh_hooked"):
 		room.set_meta("wh_hooked", true); room.tree_exiting.connect(func(): _on_live_exit(room))
@@ -41,6 +42,7 @@ const ONCE := "wh_live_once"
 const DORMANT := "wh_dormant"
 const ROOM_NAME := {"res://livingroom.tscn": "livingroom", "res://main.tscn": "bedroom", "res://bathroom.tscn": "bathroom"}
 const WALK_IN := 1.7   # m/s, the bedroom walk clip speed
+const SHOULDER_CAM := true   # v33town (Yasin 17:33): one continuous over-the-shoulder camera (scripts/core/shoulder_cam.gd)
 static func again(room: Node) -> bool: return room.has_meta(ONCE)
 static func dormant(room: Node) -> bool: return is_instance_valid(room) and room.has_meta(DORMANT)
 
@@ -66,6 +68,8 @@ static func _swap(from: Node, target: Node) -> void:
 	_sleep(from)
 	var base: Vector3 = target.position
 	for s in _rooms(tree): s.position -= base   # floating origin: the room entered moves to (0,0,0), the rest with it
+	var sc_cam := tree.root.get_node_or_null("ShoulderCam")
+	if sc_cam: sc_cam.shift(-base)   # the shoulder camera keeps following in house space: no cut at the door
 	cxf.origin -= base
 	if hp != Vector3.INF: hp -= base
 	target.position = Vector3.ZERO
@@ -78,7 +82,7 @@ static func _swap(from: Node, target: Node) -> void:
 		target.remove_meta(SHELL); _cheap(target, false)
 		target.call("_live_ready")
 	target.set_meta(ONCE, true)
-	_blend_cam(target, cxf, cfov)
+	if not (SHOULDER_CAM and sc_cam): _blend_cam(target, cxf, cfov)
 	var sp: Array = target.call("_wh_spawn", String(ROOM_NAME.get(from.scene_file_path, ""))) if target.has_method("_wh_spawn") else []
 	if hp != Vector3.INF and sp.size() == 2: _walk_in(target, hp, hy, sp[0], sp[1])
 
@@ -230,7 +234,7 @@ static func _ensure(live: Node, skip: Array = []) -> void:
 		s.position = OFS[p] - OFS[lp]
 		# a room on the camera side (south) of the live room would hide it: keep only its floor-level parts visible there
 		var z0: float = OFS[p].z + ZSPAN[p].x
-		_hide_tall(s, z0 >= OFS[lp].z + ZSPAN[lp].y - 0.05)
+		_hide_tall(s, not SHOULDER_CAM and z0 >= OFS[lp].z + ZSPAN[lp].y - 0.05)   # the low shoulder camera needs no cut-away
 
 static func _walk(n: Node, out: Array) -> void:
 	for c in n.get_children():
