@@ -332,6 +332,7 @@ func _build_room() -> void:
 	for bx in [[Vector3(7.4, 0.1, 6.4), Vector3(0, WALL_H + 0.05, 0), Color(0.97, 0.97, 0.96)], [Vector3(7.4, WALL_H, 0.1), Vector3(0, WALL_H / 2, 3.1), wall_c]]:
 		var sbx := box(bx[0], bx[1], bx[2]); sbx.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY; N.closed.append(sbx)
 	_south_wall(-3.5, 3.5, 1.35, 2.25, 2.97, wall_c)   # v30.5
+	_wall_fade_setup()
 	# skirting boards
 	box(Vector3(7.0, 0.08, 0.02), Vector3(0, 0.04, -2.99), Color(1, 1, 1))
 	box(Vector3(0.02, 0.08, 6.0), Vector3(-3.49, 0.04, 0), Color(1, 1, 1))
@@ -1102,7 +1103,7 @@ func _update_cam(dt: float) -> void:
 ## walls between the camera and the player (or with the camera behind them) fade out smoothly; they keep casting shadows
 func _fade_walls(dt: float) -> void:
 	var eye := hero.position + Vector3(0, 1.2, 0)
-	for group in [[walls_l, cam.position.x < -3.5], [walls_r, cam.position.x > 3.5], [walls_s, false]]:
+	for group in [[walls_l, cam.position.x < -3.5], [walls_r, cam.position.x > 3.5]]:   # v32-polish: south walls -> WallFade
 		var occl: bool = group[1]
 		for w in group[0]:
 			var ab: AABB = (w as MeshInstance3D).get_aabb(); ab.position += w.position
@@ -1973,6 +1974,12 @@ func _bath_guide() -> void:
 ## v30.5: visible south (camera-side) wall: a solid low part (0..LOW) with the door gap, the upper part + lintel fade like
 ## the side walls when they hide the player (walls_s). The shadow-only N.closed box stays as before (daylight / cine shots).
 var walls_s: Array = []
+const WallFade := preload("res://scripts/props/wall_fade.gd")   # v32-polish: shared wall-fade helper
+var wall_fade: Node
+## v32-polish: the south (camera-side) wall segments fade through the shared helper (gradual, distance based)
+func _wall_fade_setup() -> void:
+	wall_fade = WallFade.attach(self, func(): return cam.global_position if is_instance_valid(cam) else Vector3.INF, func(): return hero.global_position if is_instance_valid(hero) else Vector3.INF)
+	for w in walls_s: wall_fade.register(w)
 const SOUTH_LOW := 0.9
 func _south_wall(x0: float, x1: float, g0: float, g1: float, z: float, c: Color) -> void:
 	for seg in [[x0, g0], [g1, x1]]:

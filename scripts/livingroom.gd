@@ -251,6 +251,7 @@ func breakfast_call() -> void:
 	var h: Dictionary = humans()[0]
 	var nm: String = String(room_phone.S.get("name", "")) if room_phone and room_phone.S.get("name", "") != "" else "friend"
 	mode = "busy"; _hide_chips(); hand3d.visible = false; stick = Vector2.ZERO
+	if wall_fade: wall_fade.force_fade(true)   # v32-polish: the south wall never blocks the breakfast pan / camera
 	await Life.guide_to({"pos": DINE_C + Vector3(0.2, 2.0, 2.2), "at": DINE_C + Vector3(0, 0.9, 0)}, "Have breakfast with your family.")
 	await Audio.wait_idle(12.0)
 	var who := "%s (my %s)" % [String(h.data.get("name", "")), String(h.data.get("role", ""))]
@@ -331,6 +332,7 @@ func start_breakfast() -> void:
 		for bn in ["UpperArm.R", "LowerArm.R", "UpperArm.L", "LowerArm.L", "Neck"]: hero.bone_offsets.erase(bn)
 		await stand_up()
 	cam_shot = {}
+	if wall_fade: wall_fade.force_fade(false)   # v32-polish
 	_clear_table(true)
 	mode = "play"; _advance(); _update_hand()
 	await family_to_tv()
@@ -626,6 +628,7 @@ func _build_room() -> void:
 	for bx in [[Vector3(12.1, 0.1, 6.4), Vector3(RCX, WALL_H + 0.05, 0), Color(0.97, 0.97, 0.96)], [Vector3(12.1, WALL_H, 0.1), Vector3(RCX, WALL_H / 2, 3.1), C_WALL]]:
 		var sbx := box(bx[0], bx[1], bx[2]); sbx.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY; N.closed.append(sbx)
 	_south_wall(RCX - 6.0, RCX + 6.0, DOOR_FRONT.x, DOOR_FRONT.y, 2.97, C_WALL)   # v30.5
+	_wall_fade_setup()
 	box(Vector3(0.02, 0.08, 6.0), Vector3(-3.49, 0.04, 0), C_WHITE)
 	box(Vector3(0.02, 0.08, 6.0), Vector3(EX - 0.01, 0.04, 0), C_WHITE)
 	_build_window()
@@ -1581,7 +1584,7 @@ func _fade_walls(dt: float) -> void:
 			var fm: StandardMaterial3D = w.material_override
 			fm.albedo_color.a = front_alpha * (0.4 if w.has_meta("glass") else 1.0)
 			fm.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED if front_alpha > 0.99 and not w.has_meta("glass") else (BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS if w.has_meta("glass") else BaseMaterial3D.TRANSPARENCY_ALPHA_HASH)
-	for group in [[walls_l, cam.position.x < -3.5], [walls_r, cam.position.x > EX], [walls_s, false]]:
+	for group in [[walls_l, cam.position.x < -3.5], [walls_r, cam.position.x > EX]]:   # v32-polish: south walls -> WallFade
 		var occl: bool = group[1]
 		for w in group[0]:
 			var ab: AABB = (w as MeshInstance3D).get_aabb(); ab.position += w.position
@@ -2213,6 +2216,12 @@ func _tea_arm(p: Array, t: float) -> void:
 ## v30.5: visible south (camera-side) wall: a solid low part (0..LOW) with the door gap, the upper part + lintel fade like
 ## the side walls when they hide the player (walls_s). The shadow-only N.closed box stays as before (daylight / cine shots).
 var walls_s: Array = []
+const WallFade := preload("res://scripts/props/wall_fade.gd")   # v32-polish: shared wall-fade helper
+var wall_fade: Node
+## v32-polish: south walls fade through the shared helper; force_fade(true) during both breakfasts (day 1 here, day 2 in day2_morning.gd)
+func _wall_fade_setup() -> void:
+	wall_fade = WallFade.attach(self, func(): return cam.global_position if is_instance_valid(cam) else Vector3.INF, func(): return hero.global_position if is_instance_valid(hero) else Vector3.INF)
+	for w in walls_s: wall_fade.register(w)
 const SOUTH_LOW := 0.9
 func _south_wall(x0: float, x1: float, g0: float, g1: float, z: float, c: Color) -> void:
 	for seg in [[x0, g0], [g1, x1]]:
