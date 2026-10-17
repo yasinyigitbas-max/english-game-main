@@ -32,7 +32,7 @@ static func load_tr(into: Dictionary) -> void:
 
 ## the entry point (static): attaches itself to the current living-room scene
 static func start(tree: SceneTree) -> void:
-	var sc := tree.current_scene
+	var sc := RoutineScope.current(tree)
 	if sc == null or not String(sc.scene_file_path).ends_with("livingroom.tscn"): return
 	if sc.has_node("Day2Evening"): return
 	if not ready_to_run():

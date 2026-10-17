@@ -98,7 +98,7 @@ static func hint_parent(tree: SceneTree) -> void:
 	var now := Time.get_ticks_msec() / 1000.0
 	if now - _hint_t < 2.5: return
 	_hint_t = now
-	var sc := tree.current_scene
+	var sc := RoutineScope.current(tree)
 	if sc and sc.has_method("caption"):
 		if sc.get_method_argument_count("caption") >= 2: sc.caption(HINT, false)
 		else: sc.caption(HINT)
@@ -116,7 +116,7 @@ static func escort(w: Node) -> void:
 ## street_object.gd _drive: true when the child flow took over (the adult code below the hook is skipped)
 static func wants_drive(d: Dictionary) -> bool: return String(d.get("day2", "")) != "" and active()
 static func depart(car: Node3D, d: Dictionary) -> void:
-	var w := car.get_tree().current_scene
+	var w := RoutineScope.current(car.get_tree())
 	var cd: ChildDrive = w.get_node_or_null("ChildDrive")
 	if cd == null:
 		cd = _make(w); cd.spawn_parent(w.player.global_position + Vector3(-1.0, 0, -0.6))
@@ -127,8 +127,8 @@ static func depart(car: Node3D, d: Dictionary) -> void:
 static func trip(tree: SceneTree, from: String, to: String, covered := false) -> void:
 	plan = {"mode": "leave", "from": from, "to": to}
 	print("CHILD_DRIVE trip ", from, " -> ", to)
-	if covered: tree.change_scene_to_file(STOP_SCENE); WorldState.scene = STOP_SCENE
-	else: Game.go_to(STOP_SCENE)
+	if covered: StoryNav.travel(tree, STOP_SCENE, "", true)
+	else: StoryNav.travel(tree, STOP_SCENE)
 
 ## world_exterior with spawn home_car: the parent drives into the home driveway
 static func arriving_home() -> bool: return String(plan.get("mode", "")) == "home" and active()
@@ -346,7 +346,7 @@ func run_depart(c: Node3D, d: Dictionary) -> void:
 		if car.global_position.distance_to(p0) > 34.0: break
 	plan = {"mode": "arrive", "from": "home", "to": String(d.get("day2", "work"))}
 	print("CHILD_DRIVE depart home -> ", plan.to)
-	Game.go_to(STOP_SCENE)
+	StoryNav.travel(car.get_tree(), STOP_SCENE)
 
 # ------------------------------------------------------------------ world: the drive back into the home driveway
 func run_arrive_home(lot: Node) -> void:

@@ -811,7 +811,7 @@ func do_verb(id: String, v: Array) -> void:
 			else:
 				await gesture("door", id, func(): S.door_bed = "open"; Audio.sfx("doorOpen_1"))
 				if bedroom_scene != "" and ResourceLoader.exists(bedroom_scene):
-					App.came_from = "bathroom"; await wait(0.6); await voice_idle(0.0); House.go(self, bedroom_scene); return   # v32wh: walk through the door (same scene)
+					App.came_from = "bathroom"; await wait(0.6); await voice_idle(0.0); StoryNav.room(self, bedroom_scene); return   # v32wh: walk through the door (same scene)
 		"door":
 			if not (S.face_done and S.teeth_done) and WorldState.day < 2:   # v31: day 2+ has no bathroom requirement
 				await gesture("door", id, func(): Audio.sfx("handleSmallLeather"))
@@ -821,7 +821,7 @@ func do_verb(id: String, v: Array) -> void:
 				await walk_to(Vector3((SD.x + SD.y) / 2, 0, FZ + 0.35), 0.0)
 				bathroom_completed.emit()
 				if next_scene != "" and ResourceLoader.exists(next_scene):
-					App.came_from = "bathroom"; await wait(0.3); await voice_idle(0.0); House.go(self, next_scene); return   # v32wh: walk through the door (same scene)
+					App.came_from = "bathroom"; await wait(0.3); await voice_idle(0.0); StoryNav.room(self, next_scene); return   # v32wh: walk through the door (same scene)
 				await caption("The living room comes later."); await wait(2.2)
 				await walk_to(OBJ.door.spot, PI)
 	await voice_idle(0.4)

@@ -46,7 +46,7 @@ func _process(d: float) -> void:
 	_t = 0.0
 	var st := stage()
 	if st in ["", "done"]: queue_free(); return
-	var sc := get_tree().current_scene
+	var sc := RoutineScope.current(get_tree())
 	if sc != _sc:
 		_sc = sc; _cur = {}
 		if sc and sc.has_signal("action_done") and _kind(sc) == "bathroom": sc.action_done.connect(_on_bath_action.bind(sc))
@@ -86,7 +86,7 @@ func _enter(sc: Node) -> void:
 	var k := _kind(sc)
 	if k in ["cafe", "shop", "other"]: _busy = false; return   # v32 (red): blue's interiors / other scenes: nothing to cue (no 30 s wait)
 	await _wait_free(sc)
-	if not is_instance_valid(sc) or sc != get_tree().current_scene: _busy = false; return
+	if not RoutineScope.alive(sc): _busy = false; return
 	var st := stage()
 	match [st, k]:
 		["shower", "bedroom"]:
@@ -117,7 +117,7 @@ func _enter(sc: Node) -> void:
 			# home spawn is our own house, and Life's straight lerp went through its walls.
 			var first := not _guided.has("Explore the town.|" + str(sc.get_instance_id()))
 			await _guide(sc, null, "Explore the town.", "Explore the town.", "Kasabayı keşfet.", false)
-			if first and is_instance_valid(sc) and sc == get_tree().current_scene:
+			if first and RoutineScope.alive(sc):
 				await _pan(sc, [_lot_view(sc, "cafe", "Here is the café."), _lot_view(sc, "corner_shop", "Here is the shop.")])
 			set_stage("town")   # v32 (red): was "done"; the town cues below run until the player is back home
 		# ---- v32 (red): town cues
@@ -173,7 +173,7 @@ func _fly(sc: Node, cam: Camera3D, to_pos: Vector3, to_at: Vector3, t: float) ->
 	var p0 := cam.global_position; var a0 := _look; var el := 0.0
 	while el < t:
 		await get_tree().process_frame
-		if not is_instance_valid(cam) or not is_instance_valid(sc) or sc != get_tree().current_scene: return false
+		if not is_instance_valid(cam) or not RoutineScope.alive(sc): return false
 		el += get_process_delta_time()
 		var k := smoothstep(0.0, 1.0, minf(el / t, 1.0))
 		cam.global_position = p0.lerp(to_pos, k); _look = a0.lerp(to_at, k); _aim(cam)
@@ -184,7 +184,7 @@ func _hold(sc: Node, line: String) -> bool:
 	if line != "" and is_instance_valid(sc) and sc.has_method("caption"): _cap_out(sc, line)
 	await get_tree().create_timer(2.4, false).timeout
 	await Audio.wait_idle(6.0)
-	return is_instance_valid(sc) and sc == get_tree().current_scene
+	return RoutineScope.alive(sc)
 
 ## stops: Array of _lot_view() dictionaries, visited in order, then back to the player's follow camera
 func _pan(sc: Node, stops: Array) -> void:
@@ -267,7 +267,7 @@ func _town_cue(sc: Node, from_place: String) -> void:
 	if nx[2] == "home" and stage() == "town": set_stage("home")
 	var pan: bool = from_place != "" and nx[2] != "" and not _guided.has(String(nx[0]) + "|" + str(sc.get_instance_id()))
 	await _guide(sc, null, nx[0], nx[0], nx[1], false)   # objective + sound + caption (one caption box); no Life pan
-	if pan and is_instance_valid(sc) and sc == get_tree().current_scene: await _pan(sc, [_lot_view(sc, nx[2])])
+	if pan and RoutineScope.alive(sc): await _pan(sc, [_lot_view(sc, nx[2])])
 
 func _on_bath_action(_id, sc: Node) -> void:
 	if stage() != "shower" or not is_instance_valid(sc): return
@@ -279,7 +279,7 @@ func _on_bath_action(_id, sc: Node) -> void:
 	if is_instance_valid(sc) and sc.has_method("caption"): sc.caption("I feel fresh and clean.")
 	await Audio.wait_idle(10.0)
 	await get_tree().create_timer(0.6, false).timeout
-	if is_instance_valid(sc) and sc == get_tree().current_scene:
+	if RoutineScope.alive(sc):
 		var f: Vector3 = sc.OBJ.door.focus
 		await _guide(sc, {"pos": f + Vector3(0.3, 1.0, -2.4), "at": f}, "Go to the living room.", "Go to the living room.", "Oturma odasına git.")
 	_busy = false

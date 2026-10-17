@@ -66,9 +66,9 @@ func run() -> void :
 	elif bool(sv.get("day2_hospital_done", false)) and maxi(WorldState.day, App.day) == 2 and ChildDrive.active():   # v33 child-drive
 		ChildDrive.trip(get_tree(), "work", "home", true)
 	elif bool(sv.get("day2_hospital_done", false)) and maxi(WorldState.day, App.day) == 2:   # v32-polish: both done -> outside beside the car
-		App.came_from = "outside";Game.go_to(Game.WORLD_SCENE, "home_car")
+		App.came_from = "outside";StoryNav.travel(get_tree(), Game.WORLD_SCENE, "home_car")
 	else:
-		App.came_from = "outside";Game.go_to(Game.HOUSE_FRONT_DOOR_SCENE, "front_door")
+		App.came_from = "outside";StoryNav.travel(get_tree(), Game.HOUSE_FRONT_DOOR_SCENE, "front_door")
 	await get_tree().create_timer(0.9).timeout
 	var o: = create_tween();o.tween_property(bg, "color:a", 0.0, 0.6); await o.finished
 	queue_free()

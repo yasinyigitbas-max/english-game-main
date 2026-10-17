@@ -120,7 +120,7 @@ func _on_enter() -> void:
 		await Audio.wait_idle(12.0)   # house.24: silent transition; one tap: the door swings open, then the living room
 		if door_pivot:
 			Audio.sfx("doorOpen_1", 0.0, 0.85); var tw := create_tween(); tw.tween_property(door_pivot, "rotation:y", -1.45, 0.6).set_trans(Tween.TRANS_SINE); await tw.finished
-		w.save_game(); WorldState.player_pos = entrance_global(); Game.go_to(interior_scene, "front_door")
+		w.save_game(); WorldState.player_pos = entrance_global(); StoryNav.goto(interior_scene, "front_door")
 	elif w.has_method("caption"):
 		await w.say_line("I am knocking on the door."); await get_tree().create_timer(1.2).timeout; await w.say_line("Nobody is at home.")
 

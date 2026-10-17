@@ -2016,8 +2016,8 @@ func _house_enter() -> void:
 			S.front = "closed"; S.lock = "unlocked"
 			if room_phone: room_phone.save()
 			App.patch_save({"living_front": "closed"})
-			Life.event("going_out"); Game.go_to(Game.WORLD_SCENE, "lot:home"); return
-		House.go(self, "res://main.tscn" if t == "bedroom" else "res://bathroom.tscn"))   # v32wh: walk through the door (same scene; House.go defers like call_deferred did)
+			Life.event("going_out"); StoryNav.goto(Game.WORLD_SCENE, "lot:home"); return
+		StoryNav.room(self, "res://main.tscn" if t == "bedroom" else "res://bathroom.tscn"))   # v32wh: walk through the door (same scene; House.go defers like call_deferred did)
 
 func spawn_family_breakfast(family_data: Array) -> Array:
 	clear_family_breakfast()

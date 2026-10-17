@@ -767,7 +767,7 @@ func do_verb(id: String, v: Array) -> void:
 		"door_s":
 			await gesture("door", id, func(): Audio.sfx("doorOpen_1"); create_tween().tween_property(N.door_s, "rotation:y", deg_to_rad(-82.0), 1.0))
 			S.door_opened = true; App.came_from = "bedroom"; save_game(); await wait(0.3)
-			await Audio.wait_idle(12.0); House.go(self, "res://livingroom.tscn"); return   # v32wh: walk through the door (same scene)
+			await Audio.wait_idle(12.0); StoryNav.room(self, "res://livingroom.tscn"); return   # v32wh: walk through the door (same scene)
 		"door" when S.door_locked:
 			await gesture("door", id, func(): _rattle_door())
 			await wait(0.3); caption("I should take my phone first." if (S.created and not S.has_phone) else "The door is locked. Look in the mirror first." if not S.created else ("The door is locked. Choose a job on your phone first." if S.job == "" else "The door is locked. Add your family on your phone first."))
@@ -776,7 +776,7 @@ func do_verb(id: String, v: Array) -> void:
 			await gesture("door", id, func(): S.door = "open"; Audio.sfx("doorOpen_1"); Audio.sfx("creak1", -3.0))
 			S.door_opened = true; _advance(false)
 			App.came_from = "bedroom"; save_game(); await wait(0.5)
-			await Audio.wait_idle(12.0); House.go(self, "res://bathroom.tscn"); return   # v32wh: walk through the door (same scene)
+			await Audio.wait_idle(12.0); StoryNav.room(self, "res://bathroom.tscn"); return   # v32wh: walk through the door (same scene)
 			await wait(2.2); caption("I am closing the door."); S.door = "closed"; _apply_states(true); await wait(0.9); Audio.sfx("doorClose_2")
 	cam_shot = {}
 	mode = "play"; _update_hand(); action_done.emit(id)

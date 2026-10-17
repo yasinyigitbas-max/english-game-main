@@ -4,7 +4,7 @@
 ## Rules: every objective goes through Life.guide_to (camera pan + notify sound + Objectives); each scripted beat plays once
 ## (save.json "places".<id>.<beat>); EN by default, TR text only with the TR toggle (no TR voice); captions go through the
 ## shared caption queue (UniversalScene.caption) and the v30.5 no-overlap layer (Objectives.resolve_overlaps).
-## Entry: Game.go_to("res://scenes/places/cafe.tscn") / shop.tscn. Exit: the door -> Game.go_to(Game.WORLD_SCENE, "<id>_door").
+## Entry: StoryNav.goto("res://scenes/places/cafe.tscn") / shop.tscn. Exit: the door -> StoryNav.goto(Game.WORLD_SCENE, "<id>_door").
 class_name PlaceBase
 extends UniversalScene
 
@@ -43,7 +43,7 @@ var exit_spawn := ""
 signal used(id: String)
 ## hooks for other code (e.g. day-3 town cues). Both carry place_id ("cafe" / "shop"). The place scene is in group "places".
 ## place_entered: the interior is built and the player stands at the door (end of _ready, before the scripted flow).
-## place_exited: the player is leaving through the door (in leave(), right before Game.go_to(WORLD_SCENE, "lot:<world_lot>")).
+## place_exited: the player is leaving through the door (in leave(), right before StoryNav.goto(WORLD_SCENE, "lot:<world_lot>")).
 ## After the switch the world sees App.came_from == place_id and Game.spawn == "lot:<world_lot>".
 signal place_entered(place_id: String)
 signal place_exited(place_id: String)
@@ -348,7 +348,7 @@ func leave() -> void:
 	if "--qa-place" in OS.get_cmdline_user_args(): return
 	# back to the street in front of this building: world_exterior.gd puts the player at Lot.entrance_global() of "lot:<id>"
 	# (falls back to WorldState.player_pos, which Lot._on_enter stored on the way in)
-	Game.go_to(Game.WORLD_SCENE, "lot:" + world_lot)
+	StoryNav.goto(Game.WORLD_SCENE, "lot:" + world_lot)
 
 # ------------------------------------------------------------------ building helpers
 var _mats := {}

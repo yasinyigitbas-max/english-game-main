@@ -92,8 +92,8 @@ func _run() -> void:
 		return
 	if maxi(WorldState.day, App.day) == 2 and ChildDrive.active(): ChildDrive.trip(get_tree(), "hospital", "home"); return   # v33 child-drive
 	if maxi(WorldState.day, App.day) == 2:   # v32-polish: both visits done -> outside beside the car on the home lot (not inside the house)
-		App.came_from = "outside"; Game.go_to(Game.WORLD_SCENE, "home_car"); return
-	if next_scene != "": get_tree().change_scene_to_file(next_scene)
+		App.came_from = "outside"; StoryNav.travel(get_tree(), Game.WORLD_SCENE, "home_car"); return
+	if next_scene != "": StoryNav.cut(get_tree(), next_scene)
 
 ## v33 (red): the day-2 destination after the hospital in the job's own words (work.json label: Go to work / school / shopping)
 func _go_line() -> String:
