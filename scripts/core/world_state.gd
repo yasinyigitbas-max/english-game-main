@@ -54,6 +54,7 @@ func has_save() -> bool: return App.has_save() and (App.load_save().get("world")
 func load_game() -> bool:
 	if not has_save(): return false
 	var d = App.load_save().get("world")
+	if d is Dictionary: d = SaveMigration.migrate(d)
 	if not d is Dictionary: return false
 	minutes = float(d.get("minutes", minutes)); day = int(d.get("day", 1)); scene = str(d.get("scene", ""))
 	flags = d.get("flags", {})
