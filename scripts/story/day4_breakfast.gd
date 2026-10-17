@@ -5,6 +5,7 @@
 ## the family goes to the TV. The south wall is force-faded for the whole scene.
 ## ENTRY (Day4Routine / Day7Routine): var b = load(this).new(); b.lr = lr; b.data_path = ...; lr.add_child(b); await b.run()
 extends Node
+const DayWork := preload("res://scripts/story/day_work.gd")
 
 const T := preload("res://scripts/story/day4_talk.gd")
 const TB := preload("res://scripts/story/test_bank.gd")
@@ -80,6 +81,7 @@ func run() -> void:
 		else: await T.line(lr, en)
 	App.patch_save({"breakfast_done": true, "breakfast_day": App.day})
 	lr.breakfast_done = true
+	DayWork.due()   # build 3.2 (Yasin 21:26): work / school right after breakfast, the day's events after it
 	if lr.eat_tw: lr.eat_tw.kill()
 	await T.line(lr, "Breakfast is over.")
 	if String(lr.S.seat) != "":

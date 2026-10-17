@@ -148,6 +148,8 @@ func _enter(s: Node) -> void:
 			elif k == "bathroom": await _guide(s, _obj_shot(s, "door"), GO_LIVING[0], GO_LIVING[1])
 			elif k == "living": await _guide(s, _living_door(s, "front"), GO_OUT[0], GO_OUT[1]); s.mode = "play"
 			elif k == "outside":
+				if await DayWork.gate(s): _cur = {}
+				if not RoutineScope.alive(s): return
 				var o: Dictionary = D.outing
 				await _guide(s, _world_target(s, String(o.obj)), String(o.en), String(o.tr))
 			elif k == "shop" and day == 5:
@@ -309,6 +311,7 @@ func _breakfast(lr: Node) -> void:
 	lr.cam_shot = {}
 	if not hs.is_empty(): await lr.family_to_tv()
 	set_stage(day, "out")
+	DayWork.due()   # build 3.2 (Yasin 21:26): work / school first, then the day's outing
 	await _guide(lr, _living_door(lr, "front"), GO_OUT[0], GO_OUT[1])
 	lr.mode = "play"; lr._update_hand()
 

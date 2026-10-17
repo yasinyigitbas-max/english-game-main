@@ -4,6 +4,7 @@
 ## ENTRY: Day3Morning.attach(get_tree())  (static, idempotent; bedtime.gd calls it, and Bedtime.hook_bedroom on a day-3 continue)
 class_name Day3Morning
 extends Node
+const DayWork := preload("res://scripts/story/day_work.gd")
 
 var _sc: Node = null
 var _guided := {}      # stage|scene -> true (one pan per objective per room visit)
@@ -34,7 +35,7 @@ func _kind(sc: Node) -> String:
 	if p.ends_with("menu.tscn") or p == "": return ""
 	if p.contains("/places/cafe"): return "cafe"   # v32 (red): blue's interiors are not "outside"
 	if p.contains("/places/shop"): return "shop"
-	if p.ends_with("world_exterior.tscn"): return "outside"
+	if p.ends_with("world_exterior.tscn") or p.ends_with("/world.tscn"): return "outside"   # build 3.2: the open world
 	return "other"   # v32 (red): hospital / work / QA scenes get no day-3 town cues or pans (was "outside")
 
 var _t := 0.0
@@ -111,13 +112,14 @@ func _enter(sc: Node) -> void:
 			var f: Vector3 = sc.OBJ.door_s.focus
 			await _guide(sc, {"pos": f + Vector3(0.4, 1.0, -2.4), "at": f}, "Go to the living room.", "Go to the living room.", "Oturma odasına git.")
 		["living", "living"], ["outside", "living"]:
-			set_stage("outside")
+			set_stage("outside"); DayWork.due()   # build 3.2 (Yasin 21:26): work / school before exploring the town
 			var dx: float = (sc.DOOR_FRONT.x + sc.DOOR_FRONT.y) / 2
 			await _guide(sc, {"pos": Vector3(dx - 1.6, 2.0, 0.2), "at": Vector3(dx, 1.1, 3.0)}, "Go outside.", "Go outside.", "Dışarı çık.")
 		["outside", "bedroom"], ["outside", "bathroom"]:
 			var f: Vector3 = sc.OBJ.door_s.focus if k == "bedroom" else sc.OBJ.door.focus
 			await _guide(sc, {"pos": f + Vector3(0.4, 1.0, -2.4), "at": f}, "Go to the living room.", "Go to the living room.", "Oturma odasına git.")
 		["outside", "outside"], ["living", "outside"]:
+			if await DayWork.gate(sc) and not RoutineScope.alive(sc): _busy = false; return
 			# v32 (red): objective + sound via Life.guide_to (no target = no Life pan), then our own two-stop pan:
 			# the cafe, then the shop, then back to the player. The old single pan aimed 6 m "ahead" of the player, which at the
 			# home spawn is our own house, and Life's straight lerp went through its walls.
