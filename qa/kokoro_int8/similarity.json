@@ -1,0 +1,118 @@
+{
+ "c": {
+  "lines": [
+   {
+    "line": "My name is Zandor.",
+    "spk_cos": 0.7012,
+    "dtw_logmel_db": 5.47,
+    "ltas_cos": 0.9609,
+    "f0_fp32": 254.0,
+    "f0_int8": 245.3,
+    "dur_fp32": 1.5,
+    "dur_int8": 1.5
+   },
+   {
+    "line": "This is Brixley.",
+    "spk_cos": 0.7655,
+    "dtw_logmel_db": 4.94,
+    "ltas_cos": 0.9656,
+    "f0_fp32": 223.7,
+    "f0_int8": 222.4,
+    "dur_fp32": 1.25,
+    "dur_int8": 1.25
+   },
+   {
+    "line": "My name is Jaxtyn.",
+    "spk_cos": 0.7529,
+    "dtw_logmel_db": 5.51,
+    "ltas_cos": 0.9501,
+    "f0_fp32": 222.4,
+    "f0_int8": 218.6,
+    "dur_fp32": 1.58,
+    "dur_int8": 1.58
+   },
+   {
+    "line": "This is Orvella.",
+    "spk_cos": 0.6082,
+    "dtw_logmel_db": 5.06,
+    "ltas_cos": 0.9629,
+    "f0_fp32": 214.2,
+    "f0_int8": 209.9,
+    "dur_fp32": 1.31,
+    "dur_int8": 1.32
+   },
+   {
+    "line": "Good morning! It is time to brush your teeth.",
+    "spk_cos": 0.766,
+    "dtw_logmel_db": 5.38,
+    "ltas_cos": 0.9542,
+    "f0_fp32": 255.5,
+    "f0_int8": 239.7,
+    "dur_fp32": 2.62,
+    "dur_int8": 2.62
+   }
+  ],
+  "mean_spk_cos": 0.7188,
+  "mean_dtw_db": 5.27,
+  "voice_centroid_cos": 0.7715
+ },
+ "g": {
+  "lines": [
+   {
+    "line": "My name is Zandor.",
+    "spk_cos": 0.5975,
+    "dtw_logmel_db": 5.26,
+    "ltas_cos": 0.9619,
+    "f0_fp32": 290.1,
+    "f0_int8": 264.5,
+    "dur_fp32": 1.15,
+    "dur_int8": 1.15
+   },
+   {
+    "line": "This is Brixley.",
+    "spk_cos": 0.6662,
+    "dtw_logmel_db": 4.87,
+    "ltas_cos": 0.9694,
+    "f0_fp32": 281.8,
+    "f0_int8": 277.8,
+    "dur_fp32": 1.02,
+    "dur_int8": 1.03
+   },
+   {
+    "line": "My name is Jaxtyn.",
+    "spk_cos": 0.5754,
+    "dtw_logmel_db": 5.04,
+    "ltas_cos": 0.9621,
+    "f0_fp32": 280.2,
+    "f0_int8": 264.5,
+    "dur_fp32": 1.29,
+    "dur_int8": 1.24
+   },
+   {
+    "line": "This is Orvella.",
+    "spk_cos": 0.6689,
+    "dtw_logmel_db": 4.81,
+    "ltas_cos": 0.9633,
+    "f0_fp32": 248.2,
+    "f0_int8": 240.4,
+    "dur_fp32": 0.98,
+    "dur_int8": 0.98
+   },
+   {
+    "line": "Good morning! It is time to brush your teeth.",
+    "spk_cos": 0.6903,
+    "dtw_logmel_db": 5.35,
+    "ltas_cos": 0.9612,
+    "f0_fp32": 279.4,
+    "f0_int8": 264.5,
+    "dur_fp32": 2.32,
+    "dur_int8": 2.34
+   }
+  ],
+  "mean_spk_cos": 0.6397,
+  "mean_dtw_db": 5.07,
+  "voice_centroid_cos": 0.6913
+ },
+ "reference_c_vs_g_fp32_spk_cos": 0.8632,
+ "reference_c_vs_g_same_line_dtw_db": 9.54
+}
