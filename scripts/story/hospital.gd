@@ -305,8 +305,8 @@ func _doc_face(yaw: float, t := 0.7) -> void:
 
 ## v28: right-arm pose for the penlight + head glance for the body check (bone offsets, as in bathroom.gd)
 const ARM_LIGHT := [-1.4, -0.1, 0.0]
-const BODY := [["How are your legs?", "My legs are fine.", 0.55], ["How are your arms?", "My arm hurts a little.", 0.35],
-	["How is your chest?", "My chest is fine.", 0.3], ["How are your ears?", "My ears are fine.", 0.0], ["How are your eyes?", "My eyes are fine.", -0.05]]
+const BODY := [["How are your legs?", "My legs are strong.", 0.55], ["How are your arms?", "My arm hurts a little.", 0.35],
+	["How is your chest?", "My chest is okay.", 0.3], ["How are your ears?", "My ears are good.", 0.0], ["How are your eyes?", "My eyes are perfect.", -0.05]]
 ## v28: two-bone aim - upper arm and forearm both point at the target (player's eyes), offsets in skeleton space
 func _aim_arm(target: Vector3) -> Array:
 	var sk: Skeleton3D = doctor.skeleton

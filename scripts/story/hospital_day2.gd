@@ -11,11 +11,11 @@ const CAM_SEAT := Vector3(0.0, 1.25, -0.3)   # player's eyes, sitting up on the 
 const MODEL_YAW := 0.13                       # character model yaw quirk (FACE_ME calibration from day 1)
 var next_scene := "res://main.tscn"
 const BODY2 := [
-	["How is your head?", "My head is fine.", "head"], ["How is your neck?", "My neck is fine.", "neck"],
-	["How are your shoulders?", "My shoulders are fine.", "shoulders"], ["How is your back?", "My back hurts a little.", "back"],
-	["How is your stomach?", "My stomach is fine.", "stomach"], ["Show me your hands and fingers.", "My hands and fingers are fine.", "hands and fingers"],
-	["How are your knees?", "My knees are fine.", "knees"], ["How are your feet?", "My feet are fine.", "feet"],
-	["Open your mouth, please. Your teeth look good.", "I brush my teeth every day.", "mouth and teeth"], ["How is your nose?", "My nose is fine.", "nose"]]
+	["How is your head?", "My head is okay.", "head"], ["How is your neck?", "My neck is all right.", "neck"],
+	["How are your shoulders?", "My shoulders are strong.", "shoulders"], ["How is your back?", "My back hurts a little.", "back"],
+	["How is your stomach?", "My stomach is not hurting.", "stomach"], ["Show me your hands and fingers.", "My hands and fingers are perfect.", "hands and fingers"],
+	["How are your knees?", "My knees are healthy.", "knees"], ["How are your feet?", "My feet are great.", "feet"],
+	["Open your mouth, please. Your teeth look good.", "I brush my teeth every day.", "mouth and teeth"], ["How is your nose?", "My nose is good.", "nose"]]
 
 ## the player sits on the bed edge (third person: visible)
 func _player_body() -> void:
