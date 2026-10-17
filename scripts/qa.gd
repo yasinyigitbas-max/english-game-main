@@ -533,7 +533,7 @@ func run_wake(main) -> void:
 	ok(fin.z > m.BED_FRONT + 0.05 and absf(fin.x - m.SIT_ROOT.x) < 0.25 and absf(wrapf(m.hero.rotation.y, -PI, PI)) < 0.2 and absf(m.hero.model.rotation.x) < 0.01, "ends standing in front of the bed, facing the room (%s, yaw %.2f)" % [fin, m.hero.rotation.y])
 	ok(m.resolve(fin).distance_to(fin) < 0.02, "final position is free floor (not inside the bed)")
 	ok(not caps.has("I am stretching.") and not m.TR.has("I am stretching.") and not Audio.has_clip("I am stretching."), "no stretching caption / voice")
-	ok(caps.has("I am waking up.") and caps.has("I am standing up."), "wake captions: %s" % str(caps))
+	ok(caps.has("I'm waking up.") and caps.has("I'm getting up.") and not caps.has("I am standing up."), "wake captions: %s" % str(caps))   # v32-polish
 	var fa := FileAccess.open(ProjectSettings.globalize_path("res://qa_wake.log"), FileAccess.WRITE)
 	for l in log: fa.store_line(l)
 	fa.close(); print("QA DONE"); get_tree().quit()
