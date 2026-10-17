@@ -258,7 +258,7 @@ func _town_next() -> Array:
 func _town_cue(sc: Node, from_place: String) -> void:
 	var nx := _town_next()
 	if nx[2] == "home" and stage() == "town": set_stage("home")
-	var pan := from_place != "" and nx[2] != "" and not _guided.has(String(nx[0]) + "|" + str(sc.get_instance_id()))
+	var pan: bool = from_place != "" and nx[2] != "" and not _guided.has(String(nx[0]) + "|" + str(sc.get_instance_id()))
 	await _guide(sc, null, nx[0], nx[0], nx[1], false)   # objective + sound + caption (one caption box); no Life pan
 	if pan and is_instance_valid(sc) and sc == get_tree().current_scene: await _pan(sc, [_lot_view(sc, nx[2])])
 

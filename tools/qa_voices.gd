@@ -66,7 +66,7 @@ func _ready() -> void:
 	var host := Node.new(); host.set_script(gs); add_child(host)
 	var gm = load("res://scripts/game_menu.gd").new(); add_child(gm); gm.setup(host, "Bedroom", func(): pass); gm.show_menu(true); gm.settings.visible = true
 	await get_tree().process_frame
-	var txt := gm.find_children("*", "Label", true, false).map(func(l): return l.text) + gm.find_children("*", "Button", true, false).map(func(b): return b.text)
+	var txt: Array = gm.find_children("*", "Label", true, false).map(func(l): return l.text) + gm.find_children("*", "Button", true, false).map(func(b): return b.text)
 	ok(not txt.any(func(t): return String(t).contains("Narrator") or String(t).contains("Anlatıcı")), "pause menu has no narrator selection")
 	gm.queue_free(); host.queue_free()
 	# v30.1: narrator from the character: man Male, woman Female, boy Boy, girl Girl
