@@ -73,6 +73,7 @@ func play_mode(on: bool) -> void:
 			var it: Interactable = sc.its.get("d5_" + _tag)
 			if it == null: it = sc.target("d5_" + _tag, Vector3.ZERO, Vector3.ZERO, "Talk")
 			it.position = sc.to_local(_near(n, 0.9)); it.focus = n.global_position + Vector3(0, 1.1, 0); it.enabled = true
+			it.radius = maxf(it.radius, 2.6)   # ui33: the assistant stands behind the counter - the Talk chip must reach across it
 			sc._mark_target = it
 	else:
 		sc._mark_target = null
@@ -92,11 +93,15 @@ func reach(tag: String) -> void:
 		await sc.walk_to(_near(n, 1.0))
 		if sc.lp(sc.player).distance_to(_near(n, 1.0)) > 1.2: sc.player.global_position = sc.gp(_near(n, 1.0))   # QA: blocked by a shelf
 	while is_instance_valid(sc) and is_instance_valid(n):
-		var a: Vector3 = sc.player.global_position; var b := n.global_position; a.y = 0; b.y = 0
-		if _used == "d5_" + tag or a.distance_to(b) < 1.5: break
+		# ui33: place-local, flat distance to the person OR to its Talk spot; 2.6 m reaches across the shop counter (it was
+		# 1.5 m to the assistant's body, unreachable from the customer side -> the player stood frozen at the counter)
+		var a: Vector3 = sc.lp(sc.player); var b: Vector3 = sc.lp(n); a.y = 0; b.y = 0
+		var c: Vector3 = _near(n, 1.0); c.y = 0
+		if _used == "d5_" + tag or a.distance_to(b) < 2.6 or a.distance_to(c) < 1.2: break
 		await _w(0.2)
 	sc.busy(true)
-	await sc.walk_to(_near(n, 1.0))
+	var a2: Vector3 = sc.lp(sc.player); a2.y = 0; var c2: Vector3 = _near(n, 1.0); c2.y = 0
+	if a2.distance_to(c2) > 0.4 and a2.distance_to(sc.lp(n) * Vector3(1, 0, 1)) > 2.2: await sc.walk_to(_near(n, 1.0))   # ui33: already close (e.g. across the counter) -> no blocked walk
 	_face(sc.player.hero, n.global_position); _face(n, sc.player.global_position)
 
 func _spawn(id: String, g: String, voice: String, pos: Vector3, yaw: float, top: Color, is_child: bool) -> DemoCharacter:

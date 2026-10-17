@@ -101,9 +101,8 @@ static func puzzle(lr: Node, sentence: String, tr := "", speak := true) -> void:
 ## the right answer is then spoken as the player's line. Returns true when the first tap was right.
 static func choose(lr: Node, q: Dictionary) -> bool:
 	var pv := _panel(lr, "D4Choose", -200, 60); var cl: CanvasLayer = pv[0]; var v: VBoxContainer = pv[1]
-	_lbl(v, "Choose the right words.", 18, Color(0.4, 0.45, 0.6))
-	var askt := _lbl(v, "Doğru kelimeleri seç.  (%s)" % String(q.get("tr", "")), 15, Color(0.35, 0.5, 0.8))
-	_lbl(v, String(q.get("q", "")), 32, Color(0.12, 0.15, 0.25))
+	var al := _lbl(v, "Choose the right words.", 18, Color(0.4, 0.45, 0.6)); var askt := StoryUI.tr_row(v, al, "Doğru kelimeleri seç.", 17)   # ui33: right-column TR
+	var ql := _lbl(v, String(q.get("q", "")), 32, Color(0.12, 0.15, 0.25)); StoryUI.tr_row(v, ql, String(q.get("tr", "")), 20)
 	var row := HBoxContainer.new(); row.alignment = BoxContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("separation", 16); v.add_child(row)
 	var st := [false, true]   # done, first try
 	var src: Array = q.get("opts", [])
@@ -112,7 +111,7 @@ static func choose(lr: Node, q: Dictionary) -> bool:
 	for o in order: opts.append(src[o])
 	var right: int = order.find(int(q.get("a", 0)))
 	for i in opts.size():
-		var bt := Button.new(); bt.text = String(opts[i]); bt.custom_minimum_size = Vector2(180, 60); bt.add_theme_font_size_override("font_size", 24); row.add_child(bt)
+		var bt := Button.new(); bt.text = String(opts[i]); bt.custom_minimum_size = Vector2(180, 60); bt.add_theme_font_size_override("font_size", 24); row.add_child(bt); StoryUI.tr_button(bt, StoryUI.opt_tr(String(opts[i])), 15, Color(0.82, 0.9, 1.0))
 		var ii: int = i
 		bt.pressed.connect(func():
 			if st[0] or bt.disabled: return

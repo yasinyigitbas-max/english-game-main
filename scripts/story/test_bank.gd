@@ -166,12 +166,16 @@ func _hide_caps() -> void:
 		if n is CanvasItem and (n as CanvasItem).visible: (n as CanvasItem).visible = false
 	if host and host.get("cap_panel") is CanvasItem and host.cap_panel.visible: host.cap_panel.visible = false
 var _off_live := false
-var said_note := false
+var _note_wait := false
 func _say(t: String) -> void: Audio.say(t)   # on-screen line: voice only, no caption box
 func _say_off(t: String) -> void:            # off-screen line: caption box only while it is spoken
 	_off_until = Time.get_ticks_msec() + 600; _off_live = true
 	if host and host.has_method("caption"): host.caption(t, false)
 	Audio.say(t)
+	var until := Time.get_ticks_msec() + 1200 + t.split(" ").size() * 420   # ui33: the TestScreen guard keeps this box up while the line is spoken
+	for n in get_tree().get_nodes_in_group("caption_box"):
+		if n is CanvasItem and (n as CanvasItem).visible: n.set_meta("ts_force_until", until)
+	_off_until = until
 
 ## build 3.2 (d4/095, 106, 107): EN | TR side by side (Turkish in the right column), lines spoken one after another
 func _pair(v: Control, en: String, tr: String, fs: int, bold: bool, col: Color, nm := "") -> Array:
@@ -192,18 +196,24 @@ func _question() -> void:
 	v.size_flags_vertical = Control.SIZE_EXPAND_FILL   # the whole phone screen, no scroll; answers sit at the bottom
 	var q: Dictionary = Q[qi]
 	if not _note:   # notebook-and-pencil reminder exactly once (Retake does not repeat it)
-		_note = true; _pair(v, NOTE_EN, NOTE_TR, 16, true, ph.MUTED); said_note = true
+		_note = true; var nl = ph._l(NOTE_EN, 16, true, ph.MUTED); nl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(nl)
+		_trl(StoryUI.tr_row(v, nl, NOTE_TR, 15)); _say(NOTE_EN); _note_wait = true   # ui33: right-column TR; ASK waits for it (queued, never together)
 	var t = ph._l("Test %d / %d" % [qi + 1, Q.size()], 18, true, ph.MUTED); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(t)
 	var ql = ph._l(String(q.q), 48, true); ql.name = "Question"; ql.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ql.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(ql)
-	_pair(v, ASK, "%s  (%s)" % [ASK_TR, String(q.get("tr", ""))], 17, false, ph.MUTED)
-	var fp := _pair(v, " ", "", 24, true, ph.GREEN, "Feedback"); var fb = fp[0]; var fbt = fp[1]
+	var qt := StoryUI.tr_row(v, ql, String(q.get("tr", "")), 24); qt.name = "QuestionTR"; _trl(qt)   # ui33: Turkish in the RIGHT column
+	var il = ph._l(ASK, 17, false, ph.MUTED); v.add_child(il); _trl(StoryUI.tr_row(v, il, ASK_TR, 17))
+	var fb = ph._l(" ", 24, true, ph.GREEN); fb.name = "Feedback"; v.add_child(fb)
+	var fbt := StoryUI.tr_row(v, fb, "", 18); fbt.name = "FeedbackTR"; _trl(fbt)
 	var gap := Control.new(); gap.name = "Gap"; gap.size_flags_vertical = Control.SIZE_EXPAND_FILL; gap.mouse_filter = Control.MOUSE_FILTER_IGNORE; v.add_child(gap)
 	var row := HBoxContainer.new(); row.name = "Options"; row.alignment = BoxContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("separation", 20); v.add_child(row)
 	for i in (q.opts as Array).size():
-		var b: Button = ph._btn(String(q.opts[i]), func(): pass, Vector2(260, 100), false, 34); b.name = "Opt%d" % i; row.add_child(b)
+		var b: Button = ph._btn(String(q.opts[i]), func(): pass, Vector2(260, 100), false, 34); b.name = "Opt%d" % i; row.add_child(b); StoryUI.tr_button(b, StoryUI.opt_tr(String(q.opts[i])), 18)
 		var ii: int = i; b.pressed.connect(func(): _answer(ii, b, row, fb, fbt))
-	if said_note: said_note = false; _say_seq([NOTE_EN, ASK])
-	else: _say(ASK)
+	if _note_wait:
+		_note_wait = false; for c in row.get_children(): (c as Button).disabled = true
+		await get_tree().create_timer(0.3, false).timeout; await Audio.wait_idle(12.0)
+		if not is_instance_valid(row): return
+	_say(ASK)
 	_enable_when_idle(row)
 	StoryUI.add_skip_button(v, _skip_test)
 
@@ -215,7 +225,10 @@ func _enable_when_idle(row: Control) -> void:   # answers wait for the narrator
 		for c in row.get_children(): (c as Button).disabled = false
 
 func _mark(b: Button, c: Color, fc: Color) -> void:
-	ph._style(b, c, fc); b.add_theme_stylebox_override("disabled", ph._sb(c, 18, 8)); b.add_theme_color_override("font_disabled_color", fc)
+	ph._style(b, c, fc)
+	var el := b.find_child("EN", true, false)
+	if el is Label: (el as Label).add_theme_color_override("font_color", fc)
+	b.add_theme_stylebox_override("disabled", ph._sb(c, 18, 8)); b.add_theme_color_override("font_disabled_color", fc)
 
 func _answer(i: int, b: Button, row: Control, fb: Label, fbt: Label) -> void:
 	if _busy or b.disabled or ph.page != "quiz": return
@@ -254,15 +267,14 @@ func _score_page() -> void:
 	var v: VBoxContainer = ph._clear(); v.alignment = BoxContainer.ALIGNMENT_BEGIN; v.add_theme_constant_override("separation", 12)
 	v.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var tot := Q.size()
-	for row in [["Your score", 22, ph.MUTED, true], ["%d / %d" % [score, tot], 96, ph.GREEN, true, "Score"], ["Puanın: %d / %d" % [score, tot], 18, ph.TR_C, false]]:
-		var l = ph._l(row[0], row[1], row[3], row[2])
-		if row.size() > 4: l.name = row[4]
-		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(l if row[2] != ph.TR_C else _trl(l))
+	var yl = ph._l("Your score", 22, true, ph.MUTED); v.add_child(yl); _trl(StoryUI.tr_row(v, yl, "Puanın", 18))
+	var sl = ph._l("%d / %d" % [score, tot], 96, true, ph.GREEN); sl.name = "Score"; v.add_child(sl); _trl(StoryUI.tr_row(v, sl, "%d / %d doğru" % [score, tot], 22))
 	if tot - score >= ceili(tot / 2.0):   # half or more wrong: gentle study tip (never forced, no pass mark)
-		_pair(v, "You should study the grammar again.", "Dilbilgisi konusunu tekrar çalışmalısın.", 20, true, ph.INK, "GrammarTip")
-		if not _suggested: _suggested = true; _say_off("You should study the grammar again.")   # build 3.2: spoken with the caption box
+		var sg = ph._l("You should study the grammar again.", 20, true, ph.INK); sg.name = "GrammarTip"; sg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(sg)
+		_trl(StoryUI.tr_row(v, sg, "Dilbilgisi konusunu tekrar çalışmalısın.", 17))
+		if not _suggested: _suggested = true; _say_off("You should study the grammar again.")   # ui33: spoken off-screen -> standard box momentarily
 	var gap := Control.new(); gap.name = "Gap"; gap.size_flags_vertical = Control.SIZE_EXPAND_FILL; gap.mouse_filter = Control.MOUSE_FILTER_IGNORE; v.add_child(gap)
-	var bt = ph._l("Testi tekrarla  ·  Devam", 14, false, ph.TR_C); bt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(bt))
+	var bt = ph._l("Retake the test  ·  Continue", 15, false, ph.MUTED); v.add_child(bt); _trl(StoryUI.tr_row(v, bt, "Testi tekrarla  ·  Devam", 15))
 	var bar := HBoxContainer.new(); bar.name = "ScoreBar"; bar.alignment = BoxContainer.ALIGNMENT_CENTER; bar.add_theme_constant_override("separation", 14); v.add_child(bar)
 	var rb: Button = ph._btn("Retake the test", _retake, Vector2(200, 64), false, 17); rb.name = "Retake"; bar.add_child(rb)
 	var cb: Button = ph._btn("Continue", func(): Audio.click(); finished.emit([score, tot]), Vector2(180, 64), true, 17); cb.name = "ScoreContinue"; bar.add_child(cb)

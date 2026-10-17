@@ -61,16 +61,15 @@ func _question() -> void:
 	var q: Dictionary = Q[qi]
 	if not _note:   # notebook-and-pencil reminder exactly once (Retake does not repeat it)
 		_note = true; var n = ph._l(NOTE_EN, 16, true, ph.MUTED); n.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(n)
-		var nt = ph._l(NOTE_TR, 14, false, ph.TR_C); nt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(nt)); _say(NOTE_EN)
+		_trl(StoryUI.tr_row(v, n, NOTE_TR, 15)); _say(NOTE_EN)   # ui33: right-column TR
 	var t = ph._l("Test %d / %d" % [qi + 1, Q.size()], 18, true, ph.MUTED); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(t)
-	var ql = ph._l(q.q, 48, true); ql.name = "Question"; ql.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; ql.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(ql)
-	var il = ph._l(ASK, 17, false, ph.MUTED); il.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(il)
-	var it = ph._l("Doğru kelimeleri seç.  (%s)" % String(q.get("tr", "")), 16, false, ph.TR_C); it.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(it))
+	var ql = ph._l(q.q, 48, true); ql.name = "Question"; ql.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; ql.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(ql); _trl(StoryUI.tr_row(v, ql, String(q.get("tr", "")), 24))   # ui33: Turkish in the RIGHT column
+	var il = ph._l(ASK, 17, false, ph.MUTED); v.add_child(il); _trl(StoryUI.tr_row(v, il, "Doğru kelimeleri seç.", 17))
 	var row := HBoxContainer.new(); row.name = "Options"; row.alignment = BoxContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("separation", 20); v.add_child(row)
-	var fb = ph._l(" ", 24, true, ph.GREEN); fb.name = "Feedback"; fb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(fb)
-	var fbt = ph._l("", 17, false, ph.TR_C); fbt.name = "FeedbackTR"; fbt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(fbt))
+	var fb = ph._l(" ", 24, true, ph.GREEN); fb.name = "Feedback"; v.add_child(fb)
+	var fbt := StoryUI.tr_row(v, fb, "", 18); fbt.name = "FeedbackTR"; _trl(fbt)
 	for i in q.opts.size():
-		var b: Button = ph._btn(q.opts[i], func(): pass, Vector2(260, 100), false, 34); b.name = "Opt%d" % i; row.add_child(b)
+		var b: Button = ph._btn(q.opts[i], func(): pass, Vector2(260, 100), false, 34); b.name = "Opt%d" % i; row.add_child(b); StoryUI.tr_button(b, StoryUI.opt_tr(String(q.opts[i])), 18)
 		var ii: int = i; b.pressed.connect(func(): _answer(ii, b, row, fb, fbt))
 	_say(ASK)
 	_enable_when_idle(row)
@@ -85,6 +84,8 @@ func _enable_when_idle(row: Control) -> void:   # phone.gd house.24.1: answers w
 
 func _mark(b: Button, c: Color, fc: Color) -> void:
 	ph._style(b, c, fc); b.add_theme_stylebox_override("disabled", ph._sb(c, 18, 8)); b.add_theme_color_override("font_disabled_color", fc)
+	var el := b.find_child("EN", true, false)
+	if el is Label: (el as Label).add_theme_color_override("font_color", fc)   # ui33: tr_button label follows the mark
 
 func _answer(i: int, b: Button, row: Control, fb: Label, fbt: Label) -> void:
 	if _busy or b.disabled or ph.page != "quiz": return
@@ -123,11 +124,11 @@ func _score_page() -> void:
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(l if row[2] != ph.TR_C else _trl(l))
 	if tot - score >= ceili(tot / 2.0):   # gentle, optional - never forced, no pass mark
 		var sg = ph._l("You should study the grammar again.", 20, true, ph.INK); sg.name = "GrammarTip"; sg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(sg)
-		var st = ph._l("Dilbilgisi konusunu tekrar çalışmalısın.", 15, false, ph.TR_C); st.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(st))
+		_trl(StoryUI.tr_row(v, sg, "Dilbilgisi konusunu tekrar çalışmalısın.", 17))
 		if not _suggested: _suggested = true; _say("You should study the grammar again.")
 	var bar := HBoxContainer.new(); bar.name = "ScoreBar"; bar.alignment = BoxContainer.ALIGNMENT_CENTER; bar.add_theme_constant_override("separation", 14); v.add_child(bar)
 	var rb: Button = ph._btn("Retake the test", func(): Audio.click(); retakes += 1; _pick_version(true); qi = 0; score = 0; _suggested = false; _question(), Vector2(200, 64), false, 17); rb.name = "Retake"; bar.add_child(rb)
 	var cb: Button = ph._btn("Continue", func(): Audio.click(); finished.emit([score, tot]), Vector2(180, 64), true, 17); cb.name = "ScoreContinue"; bar.add_child(cb)
 	ph.dock_bar(bar)   # v33: Retake bottom-left, Continue bottom-right (phone.gd test page dock)
-	var bt = ph._l("Testi tekrarla  ·  Devam", 14, false, ph.TR_C); bt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(bt))
+	var bt = ph._l("Retake the test  ·  Continue", 15, false, ph.MUTED); v.add_child(bt); _trl(StoryUI.tr_row(v, bt, "Testi tekrarla  ·  Devam", 15))
 	_last_tr = not _tr_on()

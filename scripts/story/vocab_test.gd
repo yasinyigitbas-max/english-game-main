@@ -65,7 +65,7 @@ func _question() -> void:
 	var q: Dictionary = Q[qi]; picked = {}
 	if not _note:   # rule: notebook-and-pencil reminder exactly once, at the start of the test
 		_note = true; var n = ph._l(NOTE_EN, 15, true, ph.MUTED); n.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(n)
-		var nt = ph._l(NOTE_TR, 13, false, ph.TR_C); nt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(nt)); _say(NOTE_EN)
+		_trl(StoryUI.tr_row(v, n, NOTE_TR, 15)); _say(NOTE_EN)   # ui33: right-column TR
 	var t = ph._l("Vocabulary test %d / %d" % [qi + 1, Q.size()], 16, true, ph.MUTED); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(t)
 	var mid := HBoxContainer.new(); mid.alignment = BoxContainer.ALIGNMENT_CENTER; mid.add_theme_constant_override("separation", 20); v.add_child(mid)
 	mid.add_child(_prop_view(String(q.scene)))
@@ -155,7 +155,7 @@ func _score_page() -> void:
 	bar.add_child(ph._btn("Retake the test", func(): Audio.click();_pick_version(true);qi = 0;score = 0;_suggested = false;_question(), Vector2(200, 64), false, 17))
 	var cb: Button = ph._btn("Continue", func(): Audio.click(); finished.emit([score, tot]), Vector2(180, 64), true, 17); cb.name = "ScoreContinue"; bar.add_child(cb)
 	ph.dock_bar(bar)   # v33: Retake bottom-left, Continue bottom-right (phone.gd test page dock)
-	var bt = ph._l("Testi tekrarla  ·  Devam", 14, false, ph.TR_C); bt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(bt))
+	var bt = ph._l("Retake the test  ·  Continue", 15, false, ph.MUTED); v.add_child(bt); _trl(StoryUI.tr_row(v, bt, "Testi tekrarla  ·  Devam", 15))
 
 ## the real in-game prop, camera fitted to its AABB (centred, ~12% padding), 3-point light, plain contrasting backdrop
 const VIEW := 400   # v33: bigger on the full-height test page (was 340)

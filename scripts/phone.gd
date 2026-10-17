@@ -269,6 +269,10 @@ func _style(b: Button, c: Color, fc: Color, r := 18) -> void:
 	b.add_theme_stylebox_override("disabled", _sb(Color(0.85, 0.87, 0.92), r, 8))
 	for k in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]: b.add_theme_color_override(k, fc)
 	b.add_theme_color_override("font_disabled_color", Color(0.6, 0.62, 0.68))
+	var el := b.find_child("EN", false, false) if b.get_child_count() > 0 else null
+	if el == null and b.get_child_count() > 0: el = b.get_child(0).find_child("EN", false, false)
+	if el is Label: (el as Label).add_theme_color_override("font_color", fc)   # ui33: StoryUI.tr_button English label follows the button colour
+	if el is Label and el.get_parent().find_child("TR", false, false) is Label: (el.get_parent().find_child("TR", false, false) as Label).add_theme_color_override("font_color", Color(fc, 0.8) if fc != INK else StoryUI.TR_COL_C)
 
 func _btn(t: String, cb: Callable, sz: Vector2, primary := false, fs := 22) -> Button:
 	var b := Button.new(); b.text = t; b.custom_minimum_size = sz; b.add_theme_font_size_override("font_size", fs)
@@ -785,17 +789,23 @@ var _suggested := false
 
 func _quiz() -> void:
 	_lesson_serial += 1; Audio.cancel_group("lesson")   # house.19: leaving a page stops its narration
-	var v := _clear(); v.alignment = BoxContainer.ALIGNMENT_CENTER; v.add_theme_constant_override("separation", 26)
+	var v := _clear(); v.alignment = BoxContainer.ALIGNMENT_BEGIN; v.add_theme_constant_override("separation", 12)
+	v.size_flags_vertical = Control.SIZE_EXPAND_FILL   # ui33: whole phone screen, no scroll, answers at the bottom (TestBank layout)
 	var Q: Array = _qz()
 	var q: Dictionary = Q[quiz_i]
 	var t := _l("Quick check %d / %d" % [quiz_i + 1, Q.size()], 20, true, MUTED); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(t)
 	var ql := _l(q.q, 48, true); ql.name = "Question"; ql.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(ql)
 	ql.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	var tr := _l("Doğru kelimeye dokun.", 16, false, TR_C); tr.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(tr)
-	var row := HBoxContainer.new(); row.name = "Options"; row.alignment = BoxContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("separation", 20); v.add_child(row)
+	var qtr := String(q.get("tr", "")); if qtr == "": qtr = StoryUI.tr_of(String(q.get("say", "")))
+	if qtr == "": qtr = StoryUI.quiz_tr(String(q.get("say", "")))   # ui33: data/quiz_tr.json (phone quick-check sentences) - never a blank column
+	StoryUI.tr_row(v, ql, qtr, 24).name = "QuestionTR"   # ui33: Turkish in the RIGHT column (always shown)
+	var il := _l("Tap the right word.", 17, false, MUTED); v.add_child(il); StoryUI.tr_row(v, il, "Doğru kelimeye dokun.", 17)
 	var fb := _l(" ", 24, true, GREEN); fb.name = "Feedback"; fb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(fb)
+	var gap := Control.new(); gap.name = "Gap"; gap.size_flags_vertical = Control.SIZE_EXPAND_FILL; gap.mouse_filter = Control.MOUSE_FILTER_IGNORE; v.add_child(gap)
+	var row := HBoxContainer.new(); row.name = "Options"; row.alignment = BoxContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("separation", 20); v.add_child(row)
 	for i in q.opts.size():
 		var b := _btn(q.opts[i], func(): pass, Vector2(220, 100), false, 36); b.name = "Opt%d" % i; row.add_child(b)   # v33: bigger answers on the full page
+		StoryUI.tr_button(b, StoryUI.opt_tr(String(q.opts[i])), 18)   # ui33
 		var ii: int = i; var bb := b
 		b.pressed.connect(func(): _answer(ii, bb, fb))
 	_enable_when_idle(row)
@@ -845,14 +855,12 @@ func _answer(i: int, b: Button, fb: Label) -> void:
 func _score_page() -> void:
 	_lesson_serial += 1; Audio.cancel_group("lesson"); page = "score"   # house.20: finished -> phone closable again
 	var v := _clear(); v.alignment = BoxContainer.ALIGNMENT_CENTER; v.add_theme_constant_override("separation", 18)
-	var t := _l("Your score", 22, true, MUTED); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(t)
-	var sl := _l("%d / %d" % [quiz_score, _qz().size()], 96, true, GREEN); sl.name = "Score"; sl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(sl)
-	var tr := _l("Puanın: %d / %d" % [quiz_score, _qz().size()], 18, false, TR_C); tr.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(tr)
+	var t := _l("Your score", 22, true, MUTED); v.add_child(t); StoryUI.tr_row(v, t, "Puanın", 18)   # ui33: right-column TR
+	var sl := _l("%d / %d" % [quiz_score, _qz().size()], 96, true, GREEN); sl.name = "Score"; v.add_child(sl); StoryUI.tr_row(v, sl, "%d / %d doğru" % [quiz_score, _qz().size()], 22)
 	# house.26: optional study suggestion when half or more were wrong; retake (next version) and continue
 	var total := _qz().size()
 	if total > 0 and total - quiz_score >= ceili(total / 2.0):
-		var sg := _l("You should study the grammar again.", 20, true, INK); sg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(sg)
-		var sgt := _l("Dilbilgisi konusunu tekrar çalışmalısın.", 15, false, TR_C); sgt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(sgt)
+		var sg := _l("You should study the grammar again.", 20, true, INK); v.add_child(sg); StoryUI.tr_row(v, sg, "Dilbilgisi konusunu tekrar çalışmalısın.", 17)
 		if not _suggested: _suggested = true; Audio.say("You should study the grammar again.")
 	var bar := HBoxContainer.new(); bar.alignment = BoxContainer.ALIGNMENT_CENTER; bar.add_theme_constant_override("separation", 14); v.add_child(bar)
 	if not _les().get("lesson", []).is_empty(): bar.add_child(_btn("Study grammar\nDilbilgisi çalış", _study, Vector2(200, 64), false, 17))
