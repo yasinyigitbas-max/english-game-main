@@ -30,7 +30,7 @@ API (preload, no class_name): `const WallFade := preload("res://scripts/props/wa
 - **Blue adapter integration:** replace the body of the adapter's step() with `preload("res://scripts/props/wall_fade.gd").step(g, hidden, dt, speed)`. Or register buildings with a manager node and get the distance-based gradual fade plus force_fade.
 Applied:
 - Bedroom: scripts/main.gd:1980-1986 (`_wall_fade_setup`, called at main.gd:335 after `_south_wall`). The south walls were removed from the old `_fade_walls` loop at main.gd:1106. The mirror cinematic is untouched: `_cine_mirror`/`_cine_close_room` use the separate shadow-only `N.closed` boxes.
-- Living room: scripts/livingroom.gd:2220-2226 (+ call after `_south_wall`, line 631), old loop at livingroom.gd:1587. Day-1 breakfast `force_fade(true)` at livingroom.gd:254 (before the guide_to pan) and `false` at livingroom.gd:335.
+- Living room: scripts/livingroom.gd:2220-2226 (+ call at livingroom.gd:631 after `_south_wall`), old loop at livingroom.gd:1587. Day-1 breakfast `force_fade(true)` at livingroom.gd:254 (before the guide_to pan) and `false` at livingroom.gd:335.
 - Bathroom: scripts/bathroom.gd:117-123 (walls_s + setup), the south low wall pieces at bathroom.gd:395-396, the south door frame at bathroom.gd:594.
 - Day-2 breakfast: scripts/story/day2_morning.gd:43 force on, :94 force off.
 
@@ -48,14 +48,14 @@ Applied:
 - scripts/bathroom.gd:1433 both bathroom doors start closed on entering.
 
 ## 6. Wake-up lines
-- scripts/main.gd:905-929 `get_up_sequence()`: only "I'm waking up." then "I'm getting up." Each stays up at least 2 s and until its voice ends (`_readable`). The "I am standing up." caption and its voice call are removed. TR already exists in data/extra_lines.json (Uyanıyorum. / Kalkıyorum.).
+- scripts/main.gd:908-929 `get_up_sequence()` + `_readable()`: only "I'm waking up." then "I'm getting up." Each stays up at least 2 s and until its voice ends (`_readable`). The "I am standing up." caption and its voice call are removed. TR already exists in data/extra_lines.json (Uyanıyorum. / Kalkıyorum.).
 - scripts/qa.gd:536 expectation updated.
 
 ## 7. Day-2 breakfast objective pan
 - scripts/story/day2_morning.gd:43-46 uses `Life.guide_to` (same table shot as day 1). guide_to also sets the mission and the Objectives entry.
 
 ## 8. Mirror "Spell your name" field
-- scripts/main.gd:1490-1508: the field is 56 px tall (no vertical panel padding), font 34, vertically centred, with a blinking caret `|` (0.5 s Timer, `_name_show()`).
+- scripts/main.gd:1490-1506: the field is 56 px tall (no vertical panel padding), font 34, vertically centred, with a blinking caret `|` (0.5 s Timer, `_name_show()`).
 
 ## 9. Books seated on shelves
 Shelf tops measured from props/furniture/bookcaseOpen.glb: y = 0.13 / 0.37 / 0.61 / 0.85 of 0.88.
