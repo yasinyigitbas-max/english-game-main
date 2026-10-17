@@ -19,3 +19,7 @@ __pycache__/
 *.pyc
 # QA run logs
 *.log
+# v32-voices: narrator TTS models (tools/fetch_tts_models.sh; shipped in speech.pck)
+/tts/*.onnx
+/tts/kokoro/model.onnx
+/tts/kokoro/voices.bin
