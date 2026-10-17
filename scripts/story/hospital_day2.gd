@@ -88,6 +88,8 @@ func _run() -> void:
 		await ui.line("Now I'm going to work.")
 		load("res://scripts/story/work_summary.gd").play(get_tree())
 		return
+	if maxi(WorldState.day, App.day) == 2:   # v32-polish: both visits done -> outside beside the car on the home lot (not inside the house)
+		App.came_from = "outside"; Game.go_to(Game.WORLD_SCENE, "home_car"); return
 	if next_scene != "": get_tree().change_scene_to_file(next_scene)
 
 ## ---- third-person camera + body-part close-ups on the PLAYER's skeleton

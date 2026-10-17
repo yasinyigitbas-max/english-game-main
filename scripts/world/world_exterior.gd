@@ -40,7 +40,7 @@ func _ready() -> void:
 	hud.phone.map_provider = map_info
 	player = WorldPlayer.new(); add_child(player); player.hud = hud; hud.player = player; player.floor_y = 0.07
 	player.surface_func = surface_at
-	if not App.came_from in ["cafe", "shop"]: hud.set_mission("Walk to the street."); Objectives.set_list(["Walk to the street."] + _keep_objs())   # v31: not after a café / shop visit
+	if not App.came_from in ["cafe", "shop"] and Game.spawn != "home_car": hud.set_mission("Walk to the street."); Objectives.set_list(["Walk to the street."] + _keep_objs())   # v31: not after a café / shop visit
 	var start := Vector3(-3, 0.07, 5)
 	grid.load_around_now(start)
 	var _sp: String = {"cafe_door": "lot:cafe", "shop_door": "lot:corner_shop"}.get(Game.spawn, Game.spawn)   # v31: café / shop door spawns
@@ -49,6 +49,11 @@ func _ready() -> void:
 	elif lot: start = lot.entrance_global() + lot.global_transform.basis.z * 0.6; start.y = 0.07
 	elif WorldState.player_pos != Vector3.ZERO: start = WorldState.player_pos
 	grid.load_around_now(start)
+	var _home_car := Game.spawn == "home_car" and lot != null   # v32-polish: day 2, both visits done -> spawn beside the car on the home lot
+	if _home_car:
+		for o in lot.find_children("*", "StreetObject", true, false) + find_children("*", "StreetObject", true, false):
+			if o.kind == "car": start = o.global_position + o.global_transform.basis.x * 1.7; start.y = 0.07; break
+		grid.load_around_now(start)
 	player.global_position = start; player.face(0.0)
 	grid.target = player
 	cam = (load("res://ui/shared/camera_rig.tscn") as PackedScene).instantiate(); cam.far = 220.0; add_child(cam)
@@ -59,8 +64,19 @@ func _ready() -> void:
 	caption("I'm outside now.", false)   # house.23: silent room caption, like the house rooms
 	if load("res://scripts/story/story_accident.gd").should_run():   # house.25: day-1 story
 		var st = load("res://scripts/story/story_accident.gd").new(); st.w = self; add_child(st); st.run()
+	elif _home_car: _day2_go_inside.call_deferred(lot)
 	elif load("res://scripts/story/day2_car.gd").should_run():   # v31: day-2 morning -> prompt to the car, hook day2_reached_car
 		var d2 = load("res://scripts/story/day2_car.gd").new(); d2.name = "Day2Car"; d2.w = self; add_child(d2); d2.run()
+
+## v32-polish: after BOTH day-2 visits the player stands beside the car; objective + pan to the home's main door, in the
+## one caption box (Life.guide_to -> HUD caption). Entering the door leads to the living room, where Day2After.run()
+## starts the existing "Talk to your family." / day-2 family evening flow.
+func _day2_go_inside(lot) -> void:
+	await get_tree().process_frame
+	var door: Vector3 = lot.entrance_global() + Vector3(0, 1.1, 0)
+	var away: Vector3 = player.global_position - door; away.y = 0
+	if away.length() < 0.05: away = Vector3(0, 0, 1)
+	await Life.guide_to({"pos": door + away.normalized() * 5.5 + Vector3(0, 2.6, 0), "at": door}, "Go inside and talk to my family.", {"tr": "İçeri gir ve ailemle konuş."})
 
 # ------------------------------------------------------------------ traffic
 func _spawn_traffic() -> void:

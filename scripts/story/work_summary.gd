@@ -54,6 +54,8 @@ func run() -> void :
 		var ui := StoryUI.new(); add_child(ui); ui.layer = 121   # the one standard caption box, above the black summary screen
 		await ui.line("Now I'm going to the hospital.")
 		HospitalScene.start_day2_visit(get_tree())
+	elif bool(sv.get("day2_hospital_done", false)) and maxi(WorldState.day, App.day) == 2:   # v32-polish: both done -> outside beside the car
+		App.came_from = "outside";Game.go_to(Game.WORLD_SCENE, "home_car")
 	else:
 		App.came_from = "outside";Game.go_to(Game.HOUSE_FRONT_DOOR_SCENE, "front_door")
 	await get_tree().create_timer(0.9).timeout

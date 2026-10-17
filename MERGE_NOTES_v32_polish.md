@@ -85,3 +85,11 @@ The day-2 car (scripts/world/street_object.gd car_destinations/_drive) offers wh
 - data/extra_lines.json: "Now I'm going to the hospital." = "Şimdi hastaneye gidiyorum.", "Now I'm going to work." = "Şimdi işe gidiyorum."
 - Voice clips needed (narrator/player voice): "Now I'm going to the hospital.", "Now I'm going to work."
 - Not run in Godot: the lock was held by another agent's run (black v32int) at 14:06, so the run was skipped.
+
+## 13. Day 2: after BOTH visits, spawn outside beside the car
+- scripts/story/work_summary.gd:57 and scripts/story/hospital_day2.gd:91: whichever visit comes second now ends with `Game.go_to(Game.WORLD_SCENE, "home_car")` on day 2, instead of livingroom.tscn / main.tscn.
+- scripts/world/world_exterior.gd:52: new spawn id `home_car`. It uses the home lot and puts the player 1.7 m to the side of the car (the StreetObject with kind "car" on the lot, else in the scene); without a car it falls back to the lot entrance. "Walk to the street." is not set for this spawn, and day2_car is not started.
+- scripts/world/world_exterior.gd:74: `_day2_go_inside(lot)` does `Life.guide_to` with a pan to the home's main door (lot.entrance_global()). Objective "Go inside and talk to my family." (TR "İçeri gir ve ailemle konuş."), spoken in the HUD caption box. Entering the door (lot.gd -> livingroom "front_door") reaches livingroom.gd:188 `Day2After.run(self, "living")`, with pending "both" -> the existing "Talk to your family." / day-2 family evening flow.
+- data/extra_lines.json: "Go inside and talk to my family." = "İçeri gir ve ailemle konuş."
+- Voice clip needed: "Go inside and talk to my family."
+- Not run in Godot: the lock was held by another agent's run (black v32int, PID 159220) at 14:08, so the run was skipped. Parse not verified for this commit or for #12.
