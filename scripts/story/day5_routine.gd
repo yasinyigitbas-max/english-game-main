@@ -77,7 +77,7 @@ func _process(dt: float) -> void:
 		else: return
 	var st := stage(day)
 	if st in ["", "done"]: queue_free(); return
-	var s := get_tree().current_scene
+	var s := RoutineScope.current(get_tree())
 	if s != _sc:
 		_sc = s; sc = s; _cur = {}; Objectives.set_list([])
 		if s and _kind(s) != "": reg_all(s, D.get("lines", {}))
@@ -125,7 +125,7 @@ func _enter(s: Node) -> void:
 	var k := _kind(s)
 	if k in ["", "other"]: _busy = false; return
 	await _wait_free(s)
-	if not is_instance_valid(s) or s != get_tree().current_scene: _busy = false; return
+	if not RoutineScope.alive(s): _busy = false; return
 	var st := stage(day)
 	match st:
 		"alarm":
@@ -260,7 +260,7 @@ func _on_bath_action(_id, bt: Node) -> void:
 	sc = bt
 	await say("me", String(D.bath.done.en), String(D.bath.done.tr))
 	await _w(0.4)
-	if is_instance_valid(bt) and bt == get_tree().current_scene:
+	if RoutineScope.alive(bt):
 		await _guide(bt, _obj_shot(bt, "door"), GO_LIVING[0], GO_LIVING[1])
 	_busy = false
 

@@ -6,7 +6,7 @@ class_name HospitalScene
 ## v31: public entry for the day-2 hospital visit (black: call from the car choice 'hospital' on day 2)
 ##   HospitalScene.start_day2_visit(get_tree())
 static func start_day2_visit(tree: SceneTree) -> void:
-	tree.change_scene_to_file("res://scenes/hospital_day2.tscn")
+	StoryNav.cut(tree, "res://scenes/hospital_day2.tscn")
 
 var S := {"voice": true, "tr": false, "lesson_done": true}   # v29: TR off by default; real setting read from save.json state.tr in _ready
 var font: Font = UI.font
@@ -167,7 +167,7 @@ func _run() -> void:
 	await _snap_bed("fine")
 	await _set_blur(0.0, 1.0, 1.2)
 	App.came_from = "hospital"
-	get_tree().change_scene_to_file("res://main.tscn")
+	StoryNav.cut(get_tree(), "res://main.tscn")
 
 ## house.27: first-person look-around after waking: right (monitor) -> left (IV stand, window) -> centre, eased, short holds
 func _look_around() -> void:
@@ -375,4 +375,4 @@ func _already_seen() -> void:
 	await ui.line("You already saw the doctor.")
 	await get_tree().create_timer(1.0).timeout
 	App.came_from = ""; App.continue_requested = true
-	get_tree().change_scene_to_file("res://main.tscn")
+	StoryNav.cut(get_tree(), "res://main.tscn")

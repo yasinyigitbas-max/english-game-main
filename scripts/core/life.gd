@@ -48,7 +48,7 @@ func _on_new_day() -> void:
 
 func _process(dt: float) -> void:
 	if App.day != WorldState.day: _on_new_day()
-	var sc := get_tree().current_scene
+	var sc := RoutineScope.current(get_tree())
 	if sc != _scene: _scene = sc; _hook(sc)
 	var m := WorldState.minutes + WorldState.day * 1440.0
 	if _last_min < 0.0: _last_min = m
@@ -179,7 +179,7 @@ func _dim_sun(sc: Node) -> void:
 ## target: Node3D | Vector3 | Dictionary {pos, at[, h]} | null (objective+sound only).
 ## text: EN objective. opts: id, tr, list (Array replaces Objectives), speak, sound.
 func guide_to(target, text: String, opts := {}) -> void:
-	var sc := get_tree().current_scene
+	var sc := RoutineScope.current(get_tree())
 	var id := String(opts.get("id", text))
 	var tr := String(opts.get("tr", ""))
 	if opts.has("list") and opts.list is Array:

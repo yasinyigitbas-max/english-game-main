@@ -44,7 +44,7 @@ func _pick_version(next := false) -> void:   # v30.5: next = Retake -> always th
 	version = vi; print("D2N pick next=", next, " vi=", vi, " n=", vers.size())
 
 var version := 0
-func _tr_on() -> bool: return App.tr_on()   # v30.5: single TR flag
+func _tr_on() -> bool: return true   # v33.1 (Yasin 17:41): Turkish on learning screens ALWAYS shows; the TR button only controls the caption box
 func _trl(l: Label) -> Label: _trs.append(l); l.visible = _tr_on() and l.text.strip_edges() != ""; return l
 var _last_tr := false
 func _process(_d: float) -> void:

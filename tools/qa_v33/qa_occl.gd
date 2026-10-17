@@ -28,6 +28,9 @@ func blockers() -> Array:
 		var ab: AABB = gi.global_transform * gi.get_aabb()
 		var p2 := pc + (cp - pc).normalized() * 0.45
 		if not ab.intersects_segment(cp, p2): continue
+		if gi.has_meta("wh_view_only"): continue
+		if ab.size.x > 20.0 or ab.size.z > 20.0: continue   # v33 int: block-wide merged ground / tree / lamp meshes: an AABB test cannot judge them   # v33 int: whole-house black void / ground twin (view-only layer, inside-out)
+		if ab.grow(0.05).has_point(cp) and ab.grow(0.05).has_point(pc): continue   # v33 int: an AABB enclosing camera AND player (block-wide merged ground / tree / lamp multimesh) is not an occluder
 		var a := float(gi.get_meta("wf_a", 1.0))
 		var mat = gi.material_override
 		if mat is BaseMaterial3D and (mat as BaseMaterial3D).albedo_color.a < 0.3: a = minf(a, (mat as BaseMaterial3D).albedo_color.a)
@@ -41,6 +44,7 @@ func blocked(tag: String, g: Node, set_blocked: Callable, set_clear: Callable, l
 	set_clear.call(); await w(0.8)
 	var a0 := A(g)
 	set_blocked.call(); await get_tree().process_frame; await shot(tag + "_1_blocked_before_fade")
+	var cdiag := get_viewport().get_camera_3d(); print("QOCC DIAG2 %s cam_now=%s cam_obj=%s current_cam=%s a=%.2f vis=%s" % [tag, cdiag.global_position, cdiag.get_path(), cdiag.current, A(g), g.is_visible_in_tree()])
 	var tr := await trace(tag + "_out", g, 0.9)
 	await shot(tag + "_2_blocked_faded")
 	var bl := blockers(); print("QOCC BLOCKERS %s %s" % [tag, str(bl)])
@@ -67,7 +71,7 @@ func avoid_test(tag: String, av, set_blocked: Callable, set_clear: Callable, fre
 	print("QOCC AVOID %s yaw %.2f k %.2f active %s fallback %s moved %s blockers %s" % [tag, av.t_yaw, av.t_k, av.active, av.fallback, str(moved), str(b1)])
 	ok(not b0.is_empty(), "%s: default camera view really blocked (%d)" % [tag, b0.size()])
 	ok(av.active and b1.is_empty() and moved[0] < moved[-1], "%s: camera moved smoothly to a clear spot, player visible" % tag)
-	set_clear.call(); await w(2.0)
+	set_clear.call(); await w(3.5)
 	await shot(tag + "_A3_back_to_default")
 	ok(not av.active and absf(av.yaw) < 0.01 and absf(av.k - 1.0) < 0.01, "%s: camera eased back to its default offset" % tag)
 
@@ -88,8 +92,8 @@ func _run() -> void:
 	await blocked("living_leftwall", m.walls_l[0], func(): m.cam.position = Vector3(-7.6, 5.6, 0.0); m.cam.look_at(h.position + Vector3(0, 1.0, 0)),
 		func(): m.cam.position = Vector3(0.0, 4.8, 6.5); m.cam.look_at(h.position + Vector3(0, 1.0, 0)))
 	# breakfast force_fade (unchanged path)
-	h.position = Vector3(0, 0, -1.5); m.cam.position = Vector3(0.0, 4.8, 6.5); m.cam.look_at(h.position)
-	await w(1.0); var s0: float = A(m.walls_s[0])
+	h.position = Vector3(0, 0, -1.5); m.cam.position = Vector3(0.0, 6.0, 1.5); m.cam.look_at(h.position)   # v33 int: camera INSIDE the room (north of the south wall), so the wall starts opaque (from the old spot south of it, it is faded in normal play -> 0.12)
+	await w(3.0); var s0: float = A(m.walls_s[0])   # v33 int: let the south wall settle after the previous test
 	m.wall_fade.force_fade(true); await w(0.15); var s1: float = A(m.walls_s[0]); await w(0.6); var s2: float = A(m.walls_s[0])
 	await shot("living_breakfast_forcefade_on")
 	m.wall_fade.force_fade(false); await w(0.15); var s3: float = A(m.walls_s[0]); await w(0.8); var s4: float = A(m.walls_s[0])
@@ -132,8 +136,18 @@ func _place_test(pid: String, sc) -> void:
 			func(): p.global_position = Vector3(0.0, p.global_position.y, 0.0); rg.yaw = y0; rg.pitch = p0, func(v): sc.set_process(not v))
 		rg.controlled = false
 	p.global_position = Vector3(-hx + 0.9, p.global_position.y, 0.0)
-	await blocked(pid + "_westwall", wm, func(): c.global_position = Vector3(-hx - 3.2, 2.0, 0.6); c.look_at(p.global_position + Vector3(0, 1.0, 0)),
-		func(): c.global_position = Vector3(1.0, 5.5, sc.room.y / 2.0 + 4.0); c.look_at(p.global_position + Vector3(0, 1.0, 0)), 0.02)
+	print("QOCC DIAG %s walls=%s wm=%s cam=%s proc=%s" % [pid, str(sc.walls.map(func(wd): return [String(wd[0].name), wd[0].global_position, wd[1]])), str(wm.global_position) if wm else "null", c.global_position, sc.is_processing()])
+	# v33 int: the place camera follows the player (player.attach_camera), so a hand-placed camera is overwritten every
+	# frame; drive the real rig instead (yaw to the west side, low pitch) with avoidance off, so the wall must fade
+	var rg2 = sc.cam as CameraRig
+	if rg2: rg2.current = true
+	if rg2:
+		rg2.controlled = true; rg2.avoid = false; var yy: float = rg2.yaw; var pp: float = rg2.pitch; var dd: float = rg2.dist
+		await blocked(pid + "_westwall", wm, func(): rg2.yaw = -PI / 2; rg2.pitch = 0.3; rg2.dist = 8.0,
+			func(): rg2.yaw = yy; rg2.pitch = pp; rg2.dist = dd, 0.25)
+		rg2.avoid = true
+	else:
+		ok(false, "%s_westwall: no CameraRig (%s)" % [pid, c])
 	if is_instance_valid(c) and c is CameraRig: (c as CameraRig).controlled = true
 
 func _street_test(ws) -> void:

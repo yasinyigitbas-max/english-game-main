@@ -93,7 +93,7 @@ func _run() -> void:
 	sv["day2_work_done"] = true; App.patch_save({"story": sv})
 	Life.event("work_end")
 	await say_line(ChildDrive.child_line(W.common["home"][0]))   # v33: a child says 'My mom is driving me home.'
-	App.came_from = "outside"; Game.go_to(Game.HOUSE_FRONT_DOOR_SCENE, "front_door")
+	App.came_from = "outside"; StoryNav.travel(get_tree(), Game.HOUSE_FRONT_DOOR_SCENE, "front_door")
 
 func _job_data() -> Dictionary:
 	var d = App.load_json("res://data/jobs.json")

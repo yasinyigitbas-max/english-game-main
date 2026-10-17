@@ -90,7 +90,7 @@ static func puzzle(lr: Node, sentence: String, tr := "", speak := true) -> void:
 				lr.caption_live("Me: " + built, ("Ben: " + t) if done[0] and t != "" else "")
 			else: Audio.bad())
 	while not done[0] and is_instance_valid(cl):
-		askt.visible = App.tr_on()
+		askt.visible = true   # v33.1 (Yasin 17:41): Turkish on learning screens ALWAYS shows; the TR button only controls the caption box
 		await lr.get_tree().process_frame
 	Audio.good()
 	await wait(lr, 0.5)
@@ -119,7 +119,7 @@ static func choose(lr: Node, q: Dictionary) -> bool:
 			if ii == right: Audio.good(); st[0] = true
 			else: Audio.bad(); bt.disabled = true; st[1] = false)
 	while not st[0] and is_instance_valid(cl):
-		askt.visible = App.tr_on()
+		askt.visible = true   # v33.1 (Yasin 17:41): Turkish on learning screens ALWAYS shows; the TR button only controls the caption box
 		await lr.get_tree().process_frame
 	await wait(lr, 0.4)
 	if is_instance_valid(cl): cl.queue_free()
