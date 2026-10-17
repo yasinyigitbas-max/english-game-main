@@ -427,7 +427,7 @@ func _process(dt: float) -> void:
 		var dl := (l as Node3D).global_position.distance_to(hp)
 		var near := dl < LIGHT_NEAR
 		if not l.has_meta("ow_vis"): l.set_meta("ow_vis", (l as Light3D).visible)
-		(l as Light3D).visible = near and bool(l.get_meta("ow_vis"))
+		(l as Light3D).visible = near and bool(l.get_meta("ow_vis")) and not l.is_in_group("ow_no_ceiling")   # 00:12: ceiling lights never on
 		if (l as Light3D).visible and (l as Node3D).is_visible_in_tree(): lit.append([dl, l])
 		else: (l as Light3D).shadow_enabled = false
 	lit.sort_custom(func(x, y): return x[0] < y[0])

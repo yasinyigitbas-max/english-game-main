@@ -49,7 +49,7 @@ const ROOM_AMB_K := 0.62     # room ambient x this
 const ROOM_EXP := 0.78       # tonemap exposure in rooms (v33 rooms: 0.95)
 const ROOM_SUN_K := 0.55     # room sun x this (it comes through the window)
 const ROOM_EXP_BY := {"bathroom": 0.6}   # fix33: white tiles + the ceiling lamp blew the bathroom out to white at 0.78
-const PLACE_AMB := 0.42
+const PLACE_AMB := 0.55   # 00:12: no ceiling light any more (was 0.42)
 const PLACE_EXP := 0.8
 const STREET_AMB := 0.5
 const STREET_EXP := 0.62
@@ -85,6 +85,11 @@ func _derive(src: Environment, amb_k: float, amb_add: float, expo: float, d: flo
 	if we.environment != _out: we.environment = _out
 
 func _process(_dt: float) -> void:
+	# Yasin 00:12: the bright centre / ceiling light of every room and place (bedroom, bathroom, living room x2, café,
+	# shop, hospital, work) is gone on every day: whatever a room / story script switches, it stays off
+	for l in get_tree().get_nodes_in_group("ow_no_ceiling"):
+		if (l as Light3D).visible: (l as Light3D).visible = false
+		if (l as Light3D).light_energy != 0.0: (l as Light3D).light_energy = 0.0
 	if we == null: return
 	var lv := _live()
 	var id: String = lv[0]; var n: Node = lv[1]
@@ -110,7 +115,7 @@ func _process(_dt: float) -> void:
 		# the clock: at dusk / night the ambient drops to 40 % and the exposure a little (the room's warm lamps carry the
 		# evening: rooms read as night, the 18:00 storm evening no longer looks like daytime), the window sun goes to 0
 		var nf := 1.0 - smoothstep(0.12, 0.65, d)   # 0 day .. 1 night (18:00 = 0.3 -> ~0.7)
-		_derive(renv if renv is Environment else _house_env, ROOM_AMB_K * (1.0 - 0.6 * nf), 0.0, float(ROOM_EXP_BY.get(id, ROOM_EXP)) * (1.0 - 0.18 * nf), d)
+		_derive(renv if renv is Environment else _house_env, ROOM_AMB_K * (1.0 - 0.6 * nf), 0.12, float(ROOM_EXP_BY.get(id, ROOM_EXP)) * (1.0 - 0.18 * nf), d)
 		_out.ambient_light_color = _out.ambient_light_color.lerp(Color(0.62, 0.66, 0.9), 0.55 * nf)   # moonlit fill; the lamps stay warm
 		_window_sky(n, key, d)
 		# Yasin 23:58: NO extra light on room entry. The room's own DirectionalLight "sun" used to be switched on here for

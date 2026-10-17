@@ -465,6 +465,7 @@ func _set_stage() -> void:
 	box(Vector3(5.0, 2.4, 0.05), Vector3(0, 1.6, -3.4), Color(0.6, 0.1, 0.12), false)
 	for x in [-1.5, 1.5]:
 		var l := SpotLight3D.new(); l.position = Vector3(x, 3.0, 0.5); l.look_at_from_position(l.position, Vector3(0, 0.4, -2.0)); l.light_energy = 3.0; l.spot_angle = 30.0; add_child(l)
+		l.add_to_group("ow_no_ceiling")   # Yasin 00:12: no bright centre / ceiling light in any room (World hides them every frame)
 	for x in [-2.0, -1.0, 1.0, 2.0]: prop("loungeChair", Vector3(x, 0, 2.6), 180, 0.8)
 	spots = [[Vector3(0, 0, 0.6), Vector3(0, 1, 1.6)], [Vector3(-2.8, 0, -0.4), Vector3(-3.5, 1.0, -0.4)], [Vector3(0, 0, -2.2), Vector3(0, 1.2, 1.5)]]
 
