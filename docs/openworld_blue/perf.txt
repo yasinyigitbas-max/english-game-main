@@ -1,9 +1,33 @@
-before bedroom fps=2.6 draw_calls=3114 primitives=520204
-before street fps=2.8 draw_calls=5130 primitives=915044
-before cafe_front fps=2.9 draw_calls=4309 primitives=877420
-before in_shop fps=2.1 draw_calls=3879 primitives=638560
-installed culling={ "props": 2614, "interior": 232, "lights": 11, "occluders": 229, &"mid": 989, &"far": 317 } fronts=true/true walls=151
-after  bedroom fps=3.2 draw_calls=2458 primitives=476154
-after  street fps=4.1 draw_calls=4583 primitives=885326
-after  cafe_front fps=5.6 draw_calls=2594 primitives=489504
-after  in_shop fps=3.4 draw_calls=2973 primitives=553462
+before bedroom fps=2.5 draw_calls=1105 primitives=310562
+before street fps=3.2 draw_calls=1421 primitives=345562
+before cafe_front fps=3.6 draw_calls=824 primitives=291353
+before in_shop fps=4.2 draw_calls=754 primitives=286506
+live-before bedroom fps=2.6 draw_calls=1364 primitives=278692 cam=/root/World/CameraRig
+live-before street fps=3.1 draw_calls=1360 primitives=277696 cam=/root/World/CameraRig
+live-before cafe_front fps=2.2 draw_calls=1330 primitives=265044 cam=/root/World/CameraRig
+live-before in_shop fps=2.5 draw_calls=1364 primitives=278692 cam=/root/World/CameraRig
+install took 1777 ms
+merge { "roots": 27, "meshes": 2820, "surfaces_in": 7618, "surfaces_out": 434 }
+installed fronts=true/true walls=115
+after  bedroom fps=3.2 draw_calls=630 primitives=253586
+after  bedroom top: root/Place_bedroom=143, Street/Block_0_0=30, Street/Block_0_-1=9, Street/Block_-1_0=9, Street/Block_-1_-1=3, Street/Block_1_-1=2, Street/Block_1_0=2, Street/Block_-1_1=2, Street/Block_0_1=2, Street/@MeshInstance3D@13=1
+after  street fps=4.0 draw_calls=840 primitives=270302
+after  street top: root/Place_bedroom=83, Street/Block_0_0=34, Street/Block_0_1=10, Street/Block_-1_0=6, Street/Block_1_0=3, Street/Block_-1_1=3, Street/Block_0_-1=2, Street/Block_1_1=2, Street/@MeshInstance3D@13=1
+after  cafe_front fps=4.1 draw_calls=452 primitives=218038
+after  cafe_front top: Street/Block_0_0=23, Street/Block_0_1=20, Street/Block_1_1=7, Street/Block_1_0=4, Street/Block_-1_0=2, Street/Block_-1_1=2, Street/Block_0_2=2, Street/@MeshInstance3D@13=1
+after  in_shop fps=3.7 draw_calls=425 primitives=218722
+after  in_shop top: Street/Block_0_1=23, Street/Block_0_0=11, Street/Block_-1_1=7, Street/Block_1_1=3, Street/Block_-1_0=2, Street/Block_1_0=2, Street/Block_-1_2=2, Street/Block_0_2=2, Street/@MeshInstance3D@13=1
+unmerged bedroom material:StandardMaterial3D:emis=32 e.g. @Node3D@1524/books/books(Clone)(MeshInstance3D)
+unmerged bedroom script_ref=21 e.g. @MeshInstance3D@1470(MeshInstance3D)
+unmerged bedroom skip_node=14 e.g. @MeshInstance3D@1465(MeshInstance3D)
+unmerged bedroom under_script_ref:Skeleton3D=11 e.g. @Node3D@4148/men_parts/CharacterArmature/Skeleton3D/Casual2_Body__aver(MeshInstance3D)
+unmerged bedroom under_script_ref:@Node3D@1507=6 e.g. @Node3D@1507/cabinetBedDrawer/cabinetBedDrawer(Clone)(MeshInstance3D)
+unmerged bedroom under_script_ref:@Node3D@1518=6 e.g. @Node3D@1518/cabinetBedDrawer/cabinetBedDrawer(Clone)(MeshInstance3D)
+unmerged bedroom under_script_ref:@Node3D@1498=5 e.g. @Node3D@1498/bedSingle/bedSingle(Clone)(MeshInstance3D)
+unmerged bedroom under_script_ref:@Node3D@1570=4 e.g. @Node3D@1570/books/books(Clone)(MeshInstance3D)
+unmerged bedroom under_script_ref:@Node3D@1564=3 e.g. @Node3D@1564/laptop/laptop(Clone)(MeshInstance3D)
+unmerged bedroom under_script_ref:@Node3D@1563=3 e.g. @Node3D@1563/chairDesk/chairDesk(Clone)(MeshInstance3D)
+live   bedroom fps=2.2 draw_calls=771 primitives=219974 cam=/root/World/CameraRig
+live   street fps=2.4 draw_calls=751 primitives=203362 cam=/root/World/CameraRig
+live   cafe_front fps=2.4 draw_calls=769 primitives=219002 cam=/root/World/CameraRig
+live   in_shop fps=2.2 draw_calls=753 primitives=204334 cam=/root/World/CameraRig

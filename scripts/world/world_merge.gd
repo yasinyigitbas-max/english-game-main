@@ -76,7 +76,7 @@ static func _opaque_ok(m: Material) -> bool:
 	if m == null or _plain(m): return true
 	if m is BaseMaterial3D:
 		var b := m as BaseMaterial3D
-		return b.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED and not b.emission_enabled and m.next_pass == null
+		return b.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED and m.next_pass == null   # emissive opaque: kept as its own merged surface
 	return false
 
 static func _append(buckets: Dictionary, mesh: Mesh, mats: Array, xf: Transform3D, tint: Color, st: Dictionary, cell := "") -> void:
