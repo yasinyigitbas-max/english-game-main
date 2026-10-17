@@ -58,6 +58,7 @@ func run() -> void:
 	while t < 6000:
 		await w(0.3); t += 1
 		_press_choice()
+		if t % 50 == 0: _diag(t)
 		_press_test()
 		var d := Day56Routine.active_day()
 		if d == 0 or (d > stop_day): break
@@ -113,6 +114,13 @@ func run() -> void:
 	print("D56QA TOTAL %d PASS %d FAIL  (%ds game-run)" % [log.filter(func(l): return l.begins_with("PASS")).size(), log.filter(func(l): return l.begins_with("FAIL")).size(), (Time.get_ticks_msec() - t_start) / 1000])
 	get_tree().quit()
 
+func _diag(t: int) -> void:
+	var s := cur(); var box := get_tree().root.find_child("D56Choice", true, false)
+	var shop := get_tree().root.find_child("Day5Shop", true, false)
+	print("D56QA DIAG t=%d scene=%s mode=%s speaking=%s choice=%s obj=%s player=%s shop=%s" % [t, kind(), str(s.get("mode")) if s else "-", Audio.is_speaking(),
+		box != null, JSON.stringify(Objectives.items.map(func(i): return i.en)), str(s.player.global_position) if s and s.get("player") else "-", str(shop.get("_dbg")) if shop else "-"])
+	await snap("diag_%d" % t)
+
 func _until(c: Callable, t: float) -> bool:
 	var t0 := Time.get_ticks_msec()
 	while not c.call():
@@ -130,8 +138,8 @@ func _press_choice() -> void:
 	if box == null: return
 	var btns := box.find_children("D56Opt*", "Button", true, false)
 	var id := box.get_instance_id()
-	for b in btns:
-		if (b as Button).disabled or not (b as Button).is_visible_in_tree(): return
+	btns = btns.filter(func(b): return not (b as Button).disabled and (b as Button).is_visible_in_tree())
+	if btns.is_empty() or Audio.is_speaking(): return
 	if not wrong_tried.has(id):
 		wrong_tried[id] = true
 		for b in btns:

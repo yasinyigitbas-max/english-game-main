@@ -85,7 +85,7 @@ func objective(tag: String, en: String, tr: String) -> void:
 func reach(tag: String) -> void:
 	var n: Node3D = target(tag)
 	if n == null: return
-	_used = ""
+	_used = ""; _dbg = "reach " + tag
 	if "--qa-d56" in OS.get_cmdline_user_args():
 		await sc.walk_to(_near(n, 1.0))
 		if sc.player.global_position.distance_to(_near(n, 1.0)) > 1.2: sc.player.global_position = _near(n, 1.0)   # QA: blocked by a shelf

@@ -164,12 +164,16 @@ func act(_tag: String) -> void: pass
 func play_mode(_on: bool) -> void: pass   # give control to the player while an objective waits for reach()
 
 ## objective: camera pan + notify sound + top-left Objectives + spoken (Life.guide_to), then wait until it is reached
+var _dbg := ""   # QA diagnostics: the step in progress
 func objective(tag: String, en: String, tr: String) -> void:
+	_dbg = "guide " + tag
 	reg_tr(sc, en, tr)
 	var cur := {"id": en, "en": en, "tr": tr}
 	await Life.guide_to(target(tag), en, {"id": en, "tr": tr, "list": [cur]})
+	_dbg = "play " + tag
 	play_mode(true)
 	await reach(tag)
+	_dbg = "reached " + tag
 	play_mode(false)
 	Objectives.complete(en)
 
