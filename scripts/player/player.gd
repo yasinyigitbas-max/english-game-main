@@ -64,14 +64,18 @@ func face(yaw: float) -> void: hero.rotation.y = yaw
 ## v34 open world (World API): scripted walk in a straight line (story code moves the ONE hero; never spawns one)
 func move_to(p: Vector3, yaw := INF) -> void:
 	busy = true
-	var to := Vector3(p.x, global_position.y, p.z)
+	# in a house room the hero is lent to the room (red's OwLink): move the hero itself, else this body
+	var body: Node3D = self if hero.get_parent() == self else hero
+	var to := Vector3(p.x, body.global_position.y, p.z)
 	hero.player.play("walk", 0.3)
-	while is_inside_tree() and Vector2(to.x - global_position.x, to.z - global_position.z).length() > 0.08:
-		var dt := get_physics_process_delta_time()
-		var d := to - global_position; d.y = 0
-		hero.rotation.y = lerp_angle(hero.rotation.y, atan2(d.x, d.z), 1.0 - exp(-12.0 * dt))
-		global_position += d.normalized() * minf(WALK * dt, d.length())
-		await get_tree().physics_frame
+	var t := 0.0
+	while is_instance_valid(body) and body.is_inside_tree() and Vector2(to.x - body.global_position.x, to.z - body.global_position.z).length() > 0.08 and t < 20.0:
+		var dt := 1.0 / 60.0
+		var d := to - body.global_position; d.y = 0
+		hero.global_rotation.y = lerp_angle(hero.global_rotation.y, atan2(d.x, d.z), 1.0 - exp(-12.0 * dt))
+		body.global_position += d.normalized() * minf(WALK * dt, d.length())
+		t += dt
+		await get_tree().process_frame
 	PlayerController.stop_if_walking(hero)
 	if yaw != INF: face(yaw)
 	busy = false

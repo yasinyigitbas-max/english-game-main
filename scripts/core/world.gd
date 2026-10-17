@@ -204,8 +204,7 @@ func _cut_place_door(n: Node3D) -> void:
 func _build_doors() -> void:
 	var defs := [["bed_bath", "bedroom", "door", 80.0, "bedroom", "bathroom"], ["bed_living", "bedroom", "door_s", -82.0, "bedroom", "livingroom"],
 		["bath_living", "bathroom", "door", -82.0, "bathroom", "livingroom"], ["front", "livingroom", "front", 82.0, "livingroom", "street"],
-		["cafe", "cafe", "ow", -100.0, "cafe", "street"], ["shop", "shop", "ow", -100.0, "shop", "street"],
-		["hospital", "hospital", "ow", -100.0, "hospital", "street"], ["school", "school", "ow", -100.0, "school", "street"], ["work", "work", "ow", -100.0, "work", "street"]]
+		["cafe", "cafe", "ow", -100.0, "cafe", "street"], ["shop", "shop", "ow", -100.0, "shop", "street"]]
 	var bN = places.bathroom.get("N")
 	if bN is Dictionary and bN.has("door_bed"): (bN.door_bed as Node3D).visible = false
 	for d in defs:
@@ -219,18 +218,23 @@ func _build_doors() -> void:
 		if leaf == null: push_warning("World: no leaf for door " + d[0]); continue
 		var dr := WorldDoor.new(); dr.id = d[0]; dr.leaf = leaf; dr.open_angle = deg_to_rad(d[3]); dr.a = d[4]; dr.b = d[5]
 		dr.closed_angle = leaf.rotation.y; dr.name = "Door_" + String(d[0]); add_child(dr)
+		if d[1] in ["bedroom", "bathroom", "livingroom"]: dr.auto = false   # the room story code opens / locks these (day-1 locked door)
 		doors[d[0]] = dr; dr.c0 = dr.center()
 
 ## cafe / shop (world mode) built in their deferred _world_init: region = floor rect, door = their FrontDoor hinge
 func _late_places() -> void:
-	for id in ["cafe", "shop"]:
+	var wp = WorldPlaces.get_place("work")
+	if wp and not places.has("work"): places["work"] = wp
+	for id in ["cafe", "shop", "work"]:
+		if not places.has(id): continue
 		var n: Node3D = places[id]
+		if n.get("door_hinge") == null and id == "work": continue
 		var rm: Vector2 = n.get("room"); var c0 := n.to_global(Vector3(-rm.x / 2, 0, -rm.y / 2)); var c1 := n.to_global(Vector3(rm.x / 2, 3, rm.y / 2))
 		regions[id] = AABB(Vector3(minf(c0.x, c1.x), 0, minf(c0.z, c1.z)), Vector3(absf(c1.x - c0.x), 3, absf(c1.z - c0.z)))
 		var leaf: Node3D = n.get("door_hinge")
 		if leaf == null: push_warning("World: no FrontDoor in " + id); continue
 		leaf.set_meta("ow_world_door", true); leaf.set_meta("no_fade", true); leaf.add_to_group("doors")
-		var dr := WorldDoor.new(); dr.id = id; dr.leaf = leaf; dr.open_angle = -1.75; dr.a = id; dr.b = "street"
+		var dr := WorldDoor.new(); dr.id = id; dr.leaf = leaf; dr.open_angle = -1.75; dr.auto = id != "work"; dr.a = id; dr.b = "street"
 		dr.closed_angle = leaf.rotation.y; dr.name = "Door_" + id; add_child(dr); doors[id] = dr; dr.c0 = dr.center()
 	for l in find_children("*", "OmniLight3D", true, false) + find_children("*", "SpotLight3D", true, false): if not l in _lights: _lights.append(l)
 
@@ -320,7 +324,7 @@ func _process(dt: float) -> void:
 	_t -= dt
 	if _t > 0.0 or player == null: return
 	_t = 0.2
-	var hp := player.global_position
+	var hp := hero_pos()
 	if WorldState.day != _day: _fences_for_day()
 	for id in places:
 		var ab: AABB = regions[id]
@@ -348,6 +352,11 @@ func _process(dt: float) -> void:
 		entered.emit(r, old)
 		player.floor_y = places[r].global_position.y if places.has(r) and PLACES.has(r) and HouseC.is_room(String(PLACES[r][0])) else 0.07
 		if hud.has_method("set_place"): hud.set_place(r.capitalize(), "")
+
+## the ONE hero's world position (in a house room red's OwLink lends the hero to the room: the WorldPlayer body stays behind)
+func hero_pos() -> Vector3:
+	var h = player.hero if player else null
+	return (h as Node3D).global_position if h is Node3D and (h as Node3D).is_inside_tree() else player.global_position
 
 func region_at(p: Vector3) -> String:
 	for id in regions:
@@ -387,8 +396,8 @@ static func goto(place: String, door_id := "") -> void:
 	if dr == null:
 		for d in inst.doors.values(): if (d as WorldDoor).a == place or (d as WorldDoor).b == place: dr = d; break
 	if dr == null: return
-	var h := inst.player; var c := dr.center()
-	var v := Vector3(h.global_position.x - c.x, 0, h.global_position.z - c.z)
+	var h := inst.player; var c := dr.center(); var hp := inst.hero_pos()
+	var v := Vector3(hp.x - c.x, 0, hp.z - c.z)
 	if v.length() > 1.0: await h.move_to(c + v.normalized() * 0.9)
 	await dr.walk_through(h)
 	inst.last_door = dr.id
@@ -439,6 +448,7 @@ static func shim_go_to(path: String, _spawn_id := "") -> bool:
 		var dest := place + "_car"
 		if place == "work" and CharacterHook.is_child(CharacterHook.state()): dest = "school_car"
 		await skip_travel(dest)
+		if place == "hospital" and OwLink.active(): await OwLink.enter("hospital", "street")   # red's hospital (reserved slot)
 	elif place == "street": await goto("street", "front")
 	else: await goto(place)
 	return true
