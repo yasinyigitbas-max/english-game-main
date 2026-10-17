@@ -115,6 +115,8 @@ static func add_skip_button(test_page: Control, on_skip: Callable) -> Button:
 	for st in ["normal", "hover", "pressed", "focus"]: b.add_theme_stylebox_override(st, sb)
 	b.add_theme_color_override("font_color", Color.WHITE);b.add_theme_color_override("font_hover_color", Color.WHITE)
 	b.pressed.connect( func(): b.disabled = true;Audio.click();Audio.cancel_group("lesson");on_skip.call())
+	if test_page.has_meta("dock_r") and is_instance_valid(test_page.get_meta("dock_r")):   # v33 test page: bottom-right corner of the dock
+		b.custom_minimum_size = Vector2(150, 64); (test_page.get_meta("dock_r") as Control).add_child(b); row.queue_free(); return b
 	row.add_child(b);test_page.add_child(row)
 	return b
 
