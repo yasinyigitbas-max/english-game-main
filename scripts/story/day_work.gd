@@ -64,16 +64,19 @@ static func gate(w: Node) -> bool:
 		await Life.guide_to(null, g[0], {"tr": g[1]})
 	if "mode" in w: w.mode = "busy"
 	if w.player: w.player.velocity = Vector3.ZERO
-	print("DAYWORK at_car"); Objectives.clear()
+	Objectives.clear()
 	var school: bool = g[0] == "Go to school."
 	if w.has_method("say_line"):
 		if CharacterHook.is_child(CharacterHook.state()): await w.say_line(ChildDrive.child_line("I am driving to school."))
 		else:
 			await w.say_line("I am getting in my car.")
 			await w.say_line("I am driving to school." if school else "I am driving to work.")
-	print("DAYWORK lines_done"); App.patch_save({"work_done_day": _day()})
+	App.patch_save({"work_done_day": _day()})
 	if w.has_method("save_game"): w.save_game()
 	var s = load("res://scripts/story/work_summary.gd").new(); tree.root.add_child(s); s.run()
-	print("DAYWORK summary"); await s.tree_exited; print("DAYWORK home")   # black summary -> StoryNav home to the front door
+	await s.tree_exited
+	var g0: String = goal()[0]
+	if Objectives.has(g0): Objectives.complete(g0)
+	Objectives.clear()   # home again: the day's own events set the next objective (no stale "Go to work.")   # black summary -> StoryNav home to the front door
 	if "mode" in w and is_instance_valid(w): w.mode = "play"
 	return true

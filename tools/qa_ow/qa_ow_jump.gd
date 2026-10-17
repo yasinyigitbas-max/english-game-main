@@ -62,6 +62,7 @@ func _ready() -> void:
 			for o in w4.find_children("*", "StreetObject", true, false):
 				if String(o.get("kind")) == "car" and (car4 == null or o.global_position.distance_to(w4.player.global_position) < car4.global_position.distance_to(w4.player.global_position)): car4 = o
 			print("RED_CAR ", car4.global_position if car4 else "none", " player=", w4.player.global_position)
+			load("res://scripts/story/day_work.gd").gate(w4)   # (QA: World is not the root scene here, so the day director never sees "outside")
 			await _t(5.0)
 			if car4: w4.player.global_position = car4.global_position + Vector3(2.5, 0, 0)
 			await _t(3.0); _shot(1); await _t(8.0); _shot(2); await _t(14.0); _shot(3); get_tree().quit(); return
