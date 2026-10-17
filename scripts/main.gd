@@ -1106,6 +1106,7 @@ func bedsit_to_lie() -> void:
 	# build 3.2 (Yasin 21:33): the torso leans back slowly (eased 1.8 s) while the long-sit pose relaxes into the lying pose
 	hero.player.speed_scale = 1.0; hero.player.play("idle", 1.8, 0.0); hero.player.seek(0.0, true)
 	create_tween().tween_method(_lie_blend, 0.0, 1.0, 1.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	create_tween().tween_property(hero, "position:y", hero.position.y - LIE_DROP, 1.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)   # Yasin 23:02: 15 cm more while leaning back (0.30 total; bedsit_up restores)
 	await wait(1.85); hero.player.speed_scale = 0.0; breathing = true
 
 ## build 3.2 (Yasin 21:23): the alarm rings EVERY morning (days 1-7). True while today's alarm has not been turned off yet
