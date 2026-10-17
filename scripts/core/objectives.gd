@@ -208,6 +208,7 @@ func _charge_item() -> Dictionary:
 		if String(it.get("id", "")) == "charge": return it
 	return {}
 func _keep_charge() -> bool:
+	if not Life.NEEDS_ENABLED: return false   # v32-polish: battery / needs switched off (Life.NEEDS_ENABLED)
 	return not Life.charging and Life.battery < 30.0
 
 func set_list(list: Array, keep_charge: = true) -> void :

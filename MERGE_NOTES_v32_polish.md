@@ -93,3 +93,12 @@ The day-2 car (scripts/world/street_object.gd car_destinations/_drive) offers wh
 - data/extra_lines.json: "Go inside and talk to my family." = "İçeri gir ve ailemle konuş."
 - Voice clip needed: "Go inside and talk to my family."
 - Not run in Godot: the lock was held by another agent's run (black v32int, PID 159220) at 14:08, so the run was skipped. Parse not verified for this commit or for #12.
+
+## 14. Phone battery / charging and all body needs DISABLED (global toggle)
+- scripts/core/life.gd:13 `const NEEDS_ENABLED := false` in the Life autoload (it owns needs + battery). Set it to true to re-enable; no code was removed.
+- scripts/core/life.gd:58 `_process` when off: battery is held at 100 and needs at 0 (no decay), no low-battery warning or voice line, any "charge" objective is removed, and the top-left strip shows only "<clock>   Day N" (no "Battery 100% (charging)", no "Food! Drink! Pee!" warnings). It then returns before the old battery/needs code.
+- scripts/core/objectives.gd:211 `_keep_charge()` returns false when off, so set_list/clear never keep or re-add "Charge my phone." (this covers the day-3 one).
+- scripts/phone.gd:114 the phone never shows the dead screen ("My phone is dead...", "Charge my phone.") when off. scripts/phone.gd:137 the phone status bar shows "Day N   4G" without the battery %.
+- Unchanged on purpose: the bedside "Charge my phone" / "Charge the phone" verbs and the toilet verbs ("I need to pee.") are optional player actions, not need-driven prompts. No story step waits on a need or a charge (checked: no story script reads Life.battery, Life.needs or S.phone).
+- No new player lines and no voice needs.
+- Not run in Godot: the lock was held by another agent's run (qa_v32, PIDs 166153-166167) at 14:10, so the run was skipped. #12, #13 and #14 are not parse-checked yet.

@@ -129,7 +129,7 @@ func _fit() -> void:
 func open(from: Rect2, first := "home") -> void:
 	var by_player := not visible   # story scenes make the phone visible before open(); the player's own taps don't
 	_fit(); visible = true; history.clear(); page = ""
-	if by_player and Life.battery <= 0.0 and not active_locked:   # v31.1: dead battery -> no apps
+	if by_player and Life.NEEDS_ENABLED and Life.battery <= 0.0 and not active_locked:   # v32-polish: never dead while battery is off   # v31.1: dead battery -> no apps
 		_dead_screen(); return
 	show_page(first, false)
 	if from.size.x > 1.0:
@@ -152,7 +152,7 @@ func _lock_tick() -> void:
 		if ck: ck.text = WorldState.clock_text()
 		var hck = find_child("HomeClock", true, false)
 		if hck: hck.text = WorldState.clock_text()
-		if bt: bt.text = "%s %d   4G   %d%%" % [App.tx("Day"), WorldState.day, int(Life.battery)]
+		if bt: bt.text = ("%s %d   4G   %d%%" % [App.tx("Day"), WorldState.day, int(Life.battery)]) if Life.NEEDS_ENABLED else ("%s %d   4G" % [App.tx("Day"), WorldState.day])   # v32-polish: no battery % while off
 	# house.24.2: safety - a locked lesson/quiz page that failed to build (empty body) is rebuilt, then released
 	if is_locked() and page in ["lesson", "quiz"] and body and find_child("LessonNext" if page == "lesson" else "Options", true, false) == null:
 		_empty_t += get_process_delta_time()
