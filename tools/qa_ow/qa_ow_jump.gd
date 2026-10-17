@@ -6,7 +6,7 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args(): if a.begins_with("--qa-ow="): ev = a.substr(8)
 	add_child(load("res://scenes/world.tscn").instantiate())
 	await _t(6.0)
-	var day: int = {"bk1": 1, "bk2": 2, "couch2": 2, "d4cut": 4, "d7party": 7, "hosp2": 2, "cafe": 3, "mirror2": 2, "hosp1": 1, "street": 1, "towel": 1, "d4bk": 4}.get(ev, 1)
+	var day: int = {"bk1": 1, "bk2": 2, "couch2": 2, "d4cut": 4, "d7party": 7, "hosp2": 2, "cafe": 3, "mirror2": 2, "hosp1": 1, "street": 1, "towel": 1, "d4bk": 4, "work4": 4}.get(ev, 1)
 	var st: Dictionary = App.load_save().get("story", {}).duplicate() if App.load_save().get("story", {}) is Dictionary else {}
 	if day >= 3: st["day2"] = "done"
 	match ev:
@@ -14,6 +14,7 @@ func _ready() -> void:
 		"couch2": st.merge({"day2": "done", "day2_work_done": true, "day2_hospital_done": true, "d2_couch_done": false}, true)
 		"d4cut": st["d4"] = "evening"
 		"d4bk": st["d4"] = "breakfast"
+		"work4": st["d4"] = "outing"
 		"d7party": st["d7"] = "evening"
 		"mirror2": st.merge({"day1_done": true, "day2": "living"}, true)
 	var sv: Dictionary = App.load_save(); var state: Dictionary = (sv.get("state", {}) if sv.get("state", {}) is Dictionary else {}).duplicate()
@@ -40,6 +41,18 @@ func _ready() -> void:
 			await OwLink.enter("bedroom", "livingroom"); await _t(6.0); _shot(0)
 			print("RED_MISSION ", bed.mission, " created=", bed.S.created)
 			await OwLink.enter("livingroom", "bedroom"); await _t(14.0); _shot(1); get_tree().quit(); return
+		"work4":
+			App.patch_save({"work_due_day": 4, "work_done_day": 0})
+			await OwLink.enter("livingroom", "bedroom"); await _t(4.0)
+			var lr4 = OwLink.inst.world.places.get("livingroom"); lr4.hero.position = Vector3(2.35, 0, 2.55)
+			OwLink.to_street("front"); await _t(7.0); _shot(0)
+			var w4 = OwLink.inst.world; var car4: Node3D = null
+			for o in w4.find_children("*", "StreetObject", true, false):
+				if String(o.get("kind")) == "car" and (car4 == null or o.global_position.distance_to(w4.player.global_position) < car4.global_position.distance_to(w4.player.global_position)): car4 = o
+			print("RED_CAR ", car4.global_position if car4 else "none", " player=", w4.player.global_position)
+			await _t(5.0)
+			if car4: w4.player.global_position = car4.global_position + Vector3(2.5, 0, 0)
+			await _t(3.0); _shot(1); await _t(8.0); _shot(2); await _t(14.0); _shot(3); get_tree().quit(); return
 		"cafe":
 			await OwLink.travel("cafe", "cafe"); await _t(16.0); _shot(0)
 			var c = get_tree().current_scene
