@@ -49,7 +49,15 @@ func run() -> void :
 	var sv = App.load_save().get("story", {});sv = sv.duplicate() if sv is Dictionary else {}
 	sv["day2_work_done"] = true;App.patch_save({"story": sv})
 	Life.event("work_end")
-	App.came_from = "outside";Game.go_to(Game.HOUSE_FRONT_DOOR_SCENE, "front_door")
+	# v32-polish: day 2, work first -> straight on to the hospital (no trip home); work second -> home as before
+	if not bool(sv.get("day2_hospital_done", false)) and maxi(WorldState.day, App.day) == 2:
+		var ui := StoryUI.new(); add_child(ui); ui.layer = 121   # the one standard caption box, above the black summary screen
+		await ui.line("Now I'm going to the hospital.")
+		HospitalScene.start_day2_visit(get_tree())
+	elif bool(sv.get("day2_hospital_done", false)) and maxi(WorldState.day, App.day) == 2:   # v32-polish: both done -> outside beside the car
+		App.came_from = "outside";Game.go_to(Game.WORLD_SCENE, "home_car")
+	else:
+		App.came_from = "outside";Game.go_to(Game.HOUSE_FRONT_DOOR_SCENE, "front_door")
 	await get_tree().create_timer(0.9).timeout
 	var o: = create_tween();o.tween_property(bg, "color:a", 0.0, 0.6); await o.finished
 	queue_free()
