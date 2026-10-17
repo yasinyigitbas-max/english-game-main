@@ -2,11 +2,11 @@
  "day": 6,
  "test_key": "Day6Bed",
  "bank_topics": [
-  "weather",
-  "past_simple_irregular",
+  "asking_for_help",
+  "future_will",
   "going_to",
-  "should",
-  "asking_for_help"
+  "suggestions",
+  "weather"
  ],
  "alarm_after": {
   "who": "me",
@@ -467,73 +467,80 @@
    ],
    "a": 0,
    "say": "It's rainy today. Take an umbrella.",
-   "tr": "Bugün hava yağmurlu. Şemsiye al."
+   "tr": "Bugün hava yağmurlu. Şemsiye al.",
+   "topic": "weather"
   },
   {
-   "q": "Look at the clouds! It ___ rain.",
+   "q": "What's the weather ___?",
+   "opts": [
+    "like",
+    "likes",
+    "liking"
+   ],
+   "a": 0,
+   "say": "What's the weather like?",
+   "tr": "Hava nasıl?",
+   "topic": "weather"
+  },
+  {
+   "q": "I think it ___ rain tonight.",
+   "opts": [
+    "will",
+    "is",
+    "does"
+   ],
+   "a": 0,
+   "say": "I think it'll rain tonight.",
+   "tr": "Sanırım bu gece yağmur yağacak.",
+   "topic": "future_will"
+  },
+  {
+   "q": "I ___ call my family.",
+   "opts": [
+    "will",
+    "am",
+    "do"
+   ],
+   "a": 0,
+   "say": "I'll call my family.",
+   "tr": "Ailemi arayacağım.",
+   "topic": "future_will"
+  },
+  {
+   "q": "Look at those clouds! It ___ rain.",
    "opts": [
     "is going to",
     "going to",
     "goes to"
    ],
    "a": 0,
-   "say": "Look at the clouds! It's going to rain.",
-   "tr": "Bulutlara bak! Yağmur yağacak."
+   "say": "Look at those clouds! It's going to rain.",
+   "tr": "Şu bulutlara bak! Yağmur yağacak.",
+   "topic": "going_to"
   },
   {
-   "q": "The bus ___ down yesterday.",
+   "q": "We ___ going to wait here.",
    "opts": [
-    "broke",
-    "breaked",
-    "breaks"
-   ],
-   "a": 0,
-   "say": "The bus broke down yesterday.",
-   "tr": "Otobüs dün bozuldu."
-  },
-  {
-   "q": "You ___ stay inside in a storm.",
-   "opts": [
-    "should",
-    "shoulds",
-    "to should"
-   ],
-   "a": 0,
-   "say": "You should stay inside in a storm.",
-   "tr": "Fırtınada içeride kalmalısın."
-  },
-  {
-   "q": "When ___ the next bus?",
-   "opts": [
-    "is",
     "are",
-    "do"
+    "is",
+    "am"
    ],
    "a": 0,
-   "say": "When is the next bus?",
-   "tr": "Bir sonraki otobüs ne zaman?"
+   "say": "We're going to wait here.",
+   "tr": "Burada bekleyeceğiz.",
+   "topic": "going_to"
   },
   {
-   "q": "I ___ at the bus stop for forty minutes.",
+   "q": "Excuse me, ___ the next bus?",
    "opts": [
-    "waited",
-    "waits",
-    "waiting"
+    "when's",
+    "who's",
+    "what's"
    ],
    "a": 0,
-   "say": "I waited at the bus stop for forty minutes.",
-   "tr": "Otobüs durağında kırk dakika bekledim."
-  },
-  {
-   "q": "It's very ___. My umbrella is flying away!",
-   "opts": [
-    "windy",
-    "sunny",
-    "snowy"
-   ],
-   "a": 0,
-   "say": "It's very windy. My umbrella is flying away!",
-   "tr": "Hava çok rüzgarlı. Şemsiyem uçuyor!"
+   "say": "Excuse me, when's the next bus?",
+   "tr": "Affedersiniz, bir sonraki otobüs ne zaman?",
+   "topic": "asking_for_help"
   },
   {
    "q": "___ you pick me up, please?",
@@ -544,32 +551,47 @@
    ],
    "a": 0,
    "say": "Can you pick me up, please?",
-   "tr": "Beni alabilir misin, lütfen?"
+   "tr": "Beni alabilir misin, lütfen?",
+   "topic": "asking_for_help"
   },
   {
-   "q": "Yesterday I ___ my family.",
+   "q": "___ wait under the shelter.",
    "opts": [
-    "called",
-    "call",
-    "calls"
+    "Let's",
+    "Let",
+    "Lets"
    ],
    "a": 0,
-   "say": "Yesterday I called my family.",
-   "tr": "Dün ailemi aradım."
+   "say": "Let's wait under the shelter.",
+   "tr": "Durağın altında bekleyelim.",
+   "topic": "suggestions"
   },
   {
-   "q": "We ___ wet, but we were safe.",
+   "q": "Why ___ we call a taxi?",
    "opts": [
-    "were",
-    "was",
-    "are"
+    "don't",
+    "doesn't",
+    "not"
    ],
    "a": 0,
-   "say": "We were wet, but we were safe.",
-   "tr": "Islaktık ama güvendeydik."
+   "say": "Why don't we call a taxi?",
+   "tr": "Neden bir taksi çağırmıyoruz?",
+   "topic": "suggestions"
   }
  ],
  "quiz_b": [
+  {
+   "q": "It's very ___. My umbrella's flying away!",
+   "opts": [
+    "windy",
+    "sunny",
+    "snowy"
+   ],
+   "a": 0,
+   "say": "It's very windy. My umbrella's flying away!",
+   "tr": "Hava çok rüzgarlı. Şemsiyem uçuyor!",
+   "topic": "weather"
+  },
   {
    "q": "It's cold and white outside. It's ___.",
    "opts": [
@@ -579,7 +601,32 @@
    ],
    "a": 0,
    "say": "It's cold and white outside. It's snowy.",
-   "tr": "Dışarısı soğuk ve bembeyaz. Hava karlı."
+   "tr": "Dışarısı soğuk ve beyaz. Hava karlı.",
+   "topic": "weather"
+  },
+  {
+   "q": "Don't worry. I ___ help you.",
+   "opts": [
+    "will",
+    "am",
+    "do"
+   ],
+   "a": 0,
+   "say": "Don't worry. I'll help you.",
+   "tr": "Merak etme. Sana yardım edeceğim.",
+   "topic": "future_will"
+  },
+  {
+   "q": "The bus ___ come for forty minutes.",
+   "opts": [
+    "won't",
+    "willn't",
+    "doesn't will"
+   ],
+   "a": 0,
+   "say": "The bus won't come for forty minutes.",
+   "tr": "Otobüs kırk dakika gelmeyecek.",
+   "topic": "future_will"
   },
   {
    "q": "I'm ___ take a taxi.",
@@ -590,98 +637,83 @@
    ],
    "a": 0,
    "say": "I'm going to take a taxi.",
-   "tr": "Taksiye bineceğim."
+   "tr": "Taksiye bineceğim.",
+   "topic": "going_to"
   },
   {
-   "q": "The driver ___ sorry.",
+   "q": "___ you going to walk home?",
    "opts": [
-    "was",
-    "were",
-    "is"
+    "Are",
+    "Do",
+    "Is"
    ],
    "a": 0,
-   "say": "The driver was sorry.",
-   "tr": "Şoför üzgündü."
+   "say": "Are you going to walk home?",
+   "tr": "Eve yürüyecek misin?",
+   "topic": "going_to"
   },
   {
-   "q": "It's raining. You ___ walk home.",
+   "q": "Excuse me, ___ the bus broken?",
    "opts": [
-    "shouldn't",
-    "should to",
-    "not should"
-   ],
-   "a": 0,
-   "say": "It's raining. You shouldn't walk home.",
-   "tr": "Yağmur yağıyor. Eve yürümemelisin."
-  },
-  {
-   "q": "Excuse me, ___ can I get a taxi?",
-   "opts": [
-    "where",
-    "who",
-    "what"
-   ],
-   "a": 0,
-   "say": "Excuse me, where can I get a taxi?",
-   "tr": "Affedersiniz, nereden taksi bulabilirim?"
-  },
-  {
-   "q": "My dad ___ me up in the car.",
-   "opts": [
-    "picked",
-    "pick",
-    "picks"
-   ],
-   "a": 0,
-   "say": "My dad picked me up in the car.",
-   "tr": "Babam beni arabayla aldı."
-  },
-  {
-   "q": "What's the weather ___ today?",
-   "opts": [
-    "like",
-    "likes",
-    "liking"
-   ],
-   "a": 0,
-   "say": "What's the weather like today?",
-   "tr": "Bugün hava nasıl?"
-  },
-  {
-   "q": "There ___ a big storm yesterday.",
-   "opts": [
-    "was",
-    "were",
-    "is"
-   ],
-   "a": 0,
-   "say": "There was a big storm yesterday.",
-   "tr": "Dün büyük bir fırtına vardı."
-  },
-  {
-   "q": "Don't worry. I ___ coming now.",
-   "opts": [
-    "am",
     "is",
+    "does",
     "are"
    ],
    "a": 0,
-   "say": "Don't worry. I am coming now.",
-   "tr": "Merak etme. Hemen geliyorum."
+   "say": "Excuse me, is the bus broken?",
+   "tr": "Affedersiniz, otobüs bozuk mu?",
+   "topic": "asking_for_help"
   },
   {
-   "q": "We ___ hot tea at home.",
+   "q": "Could you ___ my dad, please?",
    "opts": [
-    "drank",
-    "drinked",
-    "drinks"
+    "call",
+    "calls",
+    "calling"
    ],
    "a": 0,
-   "say": "We drank hot tea at home.",
-   "tr": "Evde sıcak çay içtik."
+   "say": "Could you call my dad, please?",
+   "tr": "Babamı arayabilir misiniz, lütfen?",
+   "topic": "asking_for_help"
+  },
+  {
+   "q": "How about ___ your family?",
+   "opts": [
+    "calling",
+    "call",
+    "to call"
+   ],
+   "a": 0,
+   "say": "How about calling your family?",
+   "tr": "Aileni aramaya ne dersin?",
+   "topic": "suggestions"
+  },
+  {
+   "q": "We ___ stay dry.",
+   "opts": [
+    "should",
+    "should to",
+    "shoulds"
+   ],
+   "a": 0,
+   "say": "We should stay dry.",
+   "tr": "Kuru kalmalıyız.",
+   "topic": "suggestions"
   }
  ],
  "quiz_c": [
+  {
+   "q": "I can hear thunder. It's ___!",
+   "opts": [
+    "stormy",
+    "sunny",
+    "warm"
+   ],
+   "a": 0,
+   "say": "I can hear thunder. It's stormy!",
+   "tr": "Gök gürültüsü duyuyorum. Hava fırtınalı!",
+   "topic": "weather"
+  },
   {
    "q": "It's ___ and hot. Let's go to the beach!",
    "opts": [
@@ -691,7 +723,32 @@
    ],
    "a": 0,
    "say": "It's sunny and hot. Let's go to the beach!",
-   "tr": "Hava güneşli ve sıcak. Hadi plaja gidelim!"
+   "tr": "Hava güneşli ve sıcak. Hadi plaja gidelim!",
+   "topic": "weather"
+  },
+  {
+   "q": "Mum ___ pick us up.",
+   "opts": [
+    "will",
+    "is",
+    "does"
+   ],
+   "a": 0,
+   "say": "Mum will pick us up.",
+   "tr": "Annem bizi alacak.",
+   "topic": "future_will"
+  },
+  {
+   "q": "___ the storm stop soon?",
+   "opts": [
+    "Will",
+    "Does",
+    "Is"
+   ],
+   "a": 0,
+   "say": "Will the storm stop soon?",
+   "tr": "Fırtına yakında dinecek mi?",
+   "topic": "future_will"
   },
   {
    "q": "They ___ going to walk in the rain.",
@@ -702,62 +759,20 @@
    ],
    "a": 0,
    "say": "They aren't going to walk in the rain.",
-   "tr": "Yağmurda yürümeyecekler."
+   "tr": "Yağmurda yürümeyecekler.",
+   "topic": "going_to"
   },
   {
-   "q": "The bus ___ working.",
+   "q": "What ___ you going to do?",
    "opts": [
-    "isn't",
-    "aren't",
-    "don't"
-   ],
-   "a": 0,
-   "say": "The bus isn't working.",
-   "tr": "Otobüs çalışmıyor."
-  },
-  {
-   "q": "You look cold. You ___ put on a coat.",
-   "opts": [
-    "should",
-    "shouldn't",
-    "can't"
-   ],
-   "a": 0,
-   "say": "You look cold. You should put on a coat.",
-   "tr": "Üşümüş görünüyorsun. Mont giymelisin."
-  },
-  {
-   "q": "How long ___ we have to wait?",
-   "opts": [
+    "are",
     "do",
-    "does",
-    "are"
+    "is"
    ],
    "a": 0,
-   "say": "How long do we have to wait?",
-   "tr": "Ne kadar beklememiz gerekiyor?"
-  },
-  {
-   "q": "The woman ___ her husband yesterday.",
-   "opts": [
-    "called",
-    "calls",
-    "call"
-   ],
-   "a": 0,
-   "say": "The woman called her husband yesterday.",
-   "tr": "Kadın dün kocasını aradı."
-  },
-  {
-   "q": "I can hear thunder. It's ___!",
-   "opts": [
-    "stormy",
-    "sunny",
-    "warm"
-   ],
-   "a": 0,
-   "say": "I can hear thunder. It's stormy!",
-   "tr": "Gök gürültüsü duyuyorum. Hava fırtınalı!"
+   "say": "What are you going to do?",
+   "tr": "Ne yapacaksın?",
+   "topic": "going_to"
   },
   {
    "q": "Can you help me? Yes, I ___.",
@@ -768,29 +783,44 @@
    ],
    "a": 0,
    "say": "Can you help me? Yes, I can.",
-   "tr": "Bana yardım edebilir misin? Evet, edebilirim."
+   "tr": "Bana yardım edebilir misin? Evet, edebilirim.",
+   "topic": "asking_for_help"
   },
   {
-   "q": "I ___ the bus home yesterday.",
+   "q": "How long ___ we have to wait?",
    "opts": [
-    "didn't take",
-    "don't took",
-    "not took"
-   ],
-   "a": 0,
-   "say": "I didn't take the bus home yesterday.",
-   "tr": "Dün eve otobüsle gitmedim."
-  },
-  {
-   "q": "The storm ___ very loud.",
-   "opts": [
-    "was",
-    "were",
+    "do",
+    "does",
     "are"
    ],
    "a": 0,
-   "say": "The storm was very loud.",
-   "tr": "Fırtına çok gürültülüydü."
+   "say": "How long do we have to wait?",
+   "tr": "Ne kadar beklememiz gerekiyor?",
+   "topic": "asking_for_help"
+  },
+  {
+   "q": "Let's ___ walk. It's too far.",
+   "opts": [
+    "not",
+    "don't",
+    "no"
+   ],
+   "a": 0,
+   "say": "Let's not walk. It's too far.",
+   "tr": "Yürümeyelim. Çok uzak.",
+   "topic": "suggestions"
+  },
+  {
+   "q": "You ___ walk in a storm.",
+   "opts": [
+    "shouldn't",
+    "should to",
+    "not should"
+   ],
+   "a": 0,
+   "say": "You shouldn't walk in a storm.",
+   "tr": "Fırtınada yürümemelisin.",
+   "topic": "suggestions"
   }
  ],
  "speakers": {
@@ -927,6 +957,34 @@
   "Look at those dark clouds! It's going to rain.": "Şu kara bulutlara bak! Yağmur yağacak.",
   "I waited for the bus in the storm.": "Fırtınada otobüs bekledim.",
   "Helped, found, talked: this is the past simple.": "Helped, found, talked: bu geçmiş zaman.",
-  "I helped a lost boy at the shop.": "Markette kaybolmuş bir çocuğa yardım ettim."
+  "I helped a lost boy at the shop.": "Markette kaybolmuş bir çocuğa yardım ettim.",
+  "It's rainy today. Take an umbrella.": "Bugün hava yağmurlu. Şemsiye al.",
+  "What's the weather like?": "Hava nasıl?",
+  "I think it'll rain tonight.": "Sanırım bu gece yağmur yağacak.",
+  "I'll call my family.": "Ailemi arayacağım.",
+  "Look at those clouds! It's going to rain.": "Şu bulutlara bak! Yağmur yağacak.",
+  "We're going to wait here.": "Burada bekleyeceğiz.",
+  "Can you pick me up, please?": "Beni alabilir misin, lütfen?",
+  "Let's wait under the shelter.": "Durağın altında bekleyelim.",
+  "Why don't we call a taxi?": "Neden bir taksi çağırmıyoruz?",
+  "It's very windy. My umbrella's flying away!": "Hava çok rüzgarlı. Şemsiyem uçuyor!",
+  "It's cold and white outside. It's snowy.": "Dışarısı soğuk ve beyaz. Hava karlı.",
+  "Don't worry. I'll help you.": "Merak etme. Sana yardım edeceğim.",
+  "The bus won't come for forty minutes.": "Otobüs kırk dakika gelmeyecek.",
+  "I'm going to take a taxi.": "Taksiye bineceğim.",
+  "Are you going to walk home?": "Eve yürüyecek misin?",
+  "Excuse me, is the bus broken?": "Affedersiniz, otobüs bozuk mu?",
+  "Could you call my dad, please?": "Babamı arayabilir misiniz, lütfen?",
+  "How about calling your family?": "Aileni aramaya ne dersin?",
+  "We should stay dry.": "Kuru kalmalıyız.",
+  "I can hear thunder. It's stormy!": "Gök gürültüsü duyuyorum. Hava fırtınalı!",
+  "It's sunny and hot. Let's go to the beach!": "Hava güneşli ve sıcak. Hadi plaja gidelim!",
+  "Mum will pick us up.": "Annem bizi alacak.",
+  "Will the storm stop soon?": "Fırtına yakında dinecek mi?",
+  "They aren't going to walk in the rain.": "Yağmurda yürümeyecekler.",
+  "Can you help me? Yes, I can.": "Bana yardım edebilir misin? Evet, edebilirim.",
+  "How long do we have to wait?": "Ne kadar beklememiz gerekiyor?",
+  "Let's not walk. It's too far.": "Yürümeyelim. Çok uzak.",
+  "You shouldn't walk in a storm.": "Fırtınada yürümemelisin."
  }
 }

@@ -2,10 +2,11 @@
  "day": 5,
  "test_key": "Day5Bed",
  "bank_topics": [
-  "describing_people",
-  "clothes_present_continuous",
   "asking_for_help",
-  "past_simple"
+  "clothes",
+  "describing_people",
+  "present_continuous",
+  "reassuring"
  ],
  "alarm_after": {
   "who": "me",
@@ -538,52 +539,9 @@
     "is got"
    ],
    "a": 0,
-   "say": "He has got short brown hair.",
-   "tr": "Kısa kahverengi saçları var."
-  },
-  {
-   "q": "Leo ___ a yellow T-shirt today.",
-   "opts": [
-    "is wearing",
-    "wears",
-    "wearing"
-   ],
-   "a": 0,
-   "say": "Leo is wearing a yellow T-shirt today.",
-   "tr": "Leo bugün sarı bir tişört giyiyor."
-  },
-  {
-   "q": "___ you help me, please?",
-   "opts": [
-    "Can",
-    "Do",
-    "Are"
-   ],
-   "a": 0,
-   "say": "Can you help me, please?",
-   "tr": "Bana yardım edebilir misiniz, lütfen?"
-  },
-  {
-   "q": "Yesterday I ___ a lost boy.",
-   "opts": [
-    "helped",
-    "help",
-    "helps"
-   ],
-   "a": 0,
-   "say": "Yesterday I helped a lost boy.",
-   "tr": "Dün kaybolmuş bir çocuğa yardım ettim."
-  },
-  {
-   "q": "We ___ his mum near the door.",
-   "opts": [
-    "found",
-    "finded",
-    "find"
-   ],
-   "a": 0,
-   "say": "We found his mum near the door.",
-   "tr": "Annesini kapının yanında bulduk."
+   "say": "He's got short brown hair.",
+   "tr": "Kısa kahverengi saçları var.",
+   "topic": "describing_people"
   },
   {
    "q": "What ___ she look like?",
@@ -594,51 +552,104 @@
    ],
    "a": 0,
    "say": "What does she look like?",
-   "tr": "Görünüşü nasıl?"
+   "tr": "Neye benziyor?",
+   "topic": "describing_people"
   },
   {
-   "q": "She's got long hair ___ blue eyes.",
+   "q": "He's ___ a yellow T-shirt.",
    "opts": [
-    "and",
-    "but",
-    "or"
+    "wearing",
+    "wear",
+    "wears"
    ],
    "a": 0,
-   "say": "She's got long hair and blue eyes.",
-   "tr": "Uzun saçları ve mavi gözleri var."
+   "say": "He's wearing a yellow T-shirt.",
+   "tr": "Sarı bir tişört giyiyor.",
+   "topic": "clothes"
   },
   {
-   "q": "Don't worry. Your mum ___ coming.",
+   "q": "Her shoes ___ red.",
+   "opts": [
+    "are",
+    "is",
+    "am"
+   ],
+   "a": 0,
+   "say": "Her shoes are red.",
+   "tr": "Ayakkabıları kırmızı.",
+   "topic": "clothes"
+  },
+  {
+   "q": "Excuse me, ___ you help me?",
+   "opts": [
+    "can",
+    "do",
+    "are"
+   ],
+   "a": 0,
+   "say": "Excuse me, can you help me?",
+   "tr": "Affedersiniz, bana yardım edebilir misiniz?",
+   "topic": "asking_for_help"
+  },
+  {
+   "q": "This boy ___ lost.",
    "opts": [
     "is",
     "are",
     "am"
    ],
    "a": 0,
-   "say": "Don't worry. Your mum is coming.",
-   "tr": "Merak etme. Annen geliyor."
+   "say": "This boy is lost.",
+   "tr": "Bu çocuk kaybolmuş.",
+   "topic": "asking_for_help"
   },
   {
-   "q": "Excuse me, ___ is the checkout?",
+   "q": "Don't worry. ___ safe now.",
    "opts": [
-    "where",
-    "who",
-    "what"
+    "You're",
+    "Your",
+    "You"
    ],
    "a": 0,
-   "say": "Excuse me, where is the checkout?",
-   "tr": "Affedersiniz, kasa nerede?"
+   "say": "Don't worry. You're safe now.",
+   "tr": "Merak etme. Artık güvendesin.",
+   "topic": "reassuring"
   },
   {
-   "q": "The boy ___ scared, but now he's happy.",
+   "q": "It's OK. I'm ___.",
    "opts": [
-    "was",
-    "were",
-    "is"
+    "here",
+    "hear",
+    "her"
    ],
    "a": 0,
-   "say": "The boy was scared, but now he's happy.",
-   "tr": "Çocuk korkmuştu ama şimdi mutlu."
+   "say": "It's OK. I'm here.",
+   "tr": "Sorun yok. Buradayım.",
+   "topic": "reassuring"
+  },
+  {
+   "q": "Leo ___ near the door.",
+   "opts": [
+    "is crying",
+    "cries",
+    "crying"
+   ],
+   "a": 0,
+   "say": "Leo's crying near the door.",
+   "tr": "Leo kapının yanında ağlıyor.",
+   "topic": "present_continuous"
+  },
+  {
+   "q": "We ___ for his mum.",
+   "opts": [
+    "are looking",
+    "is looking",
+    "looking"
+   ],
+   "a": 0,
+   "say": "We're looking for his mum.",
+   "tr": "Annesini arıyoruz.",
+   "topic": "present_continuous"
   }
  ],
  "quiz_b": [
@@ -650,8 +661,21 @@
     "is"
    ],
    "a": 0,
-   "say": "My sister has got curly black hair.",
-   "tr": "Kız kardeşimin kıvırcık siyah saçları var."
+   "say": "My sister's got curly black hair.",
+   "tr": "Kız kardeşimin kıvırcık siyah saçları var.",
+   "topic": "describing_people"
+  },
+  {
+   "q": "He ___ tall. He's short.",
+   "opts": [
+    "isn't",
+    "aren't",
+    "not"
+   ],
+   "a": 0,
+   "say": "He isn't tall. He's short.",
+   "tr": "Uzun boylu değil. Kısa boylu.",
+   "topic": "describing_people"
   },
   {
    "q": "Look! The man ___ a red coat.",
@@ -661,8 +685,21 @@
     "are wearing"
    ],
    "a": 0,
-   "say": "Look! The man is wearing a red coat.",
-   "tr": "Bak! Adam kırmızı bir mont giyiyor."
+   "say": "Look! The man's wearing a red coat.",
+   "tr": "Bak! Adam kırmızı bir mont giyiyor.",
+   "topic": "clothes"
+  },
+  {
+   "q": "She ___ wearing a hat.",
+   "opts": [
+    "isn't",
+    "aren't",
+    "don't"
+   ],
+   "a": 0,
+   "say": "She isn't wearing a hat.",
+   "tr": "Şapka takmıyor.",
+   "topic": "clothes"
   },
   {
    "q": "Could you ___ me, please?",
@@ -673,84 +710,68 @@
    ],
    "a": 0,
    "say": "Could you help me, please?",
-   "tr": "Bana yardım edebilir misiniz, lütfen?"
+   "tr": "Bana yardım edebilir misiniz, lütfen?",
+   "topic": "asking_for_help"
   },
   {
-   "q": "I ___ to the corner shop yesterday.",
+   "q": "I ___ find my mum.",
    "opts": [
-    "went",
-    "go",
-    "goed"
+    "can't",
+    "don't can",
+    "not can"
    ],
    "a": 0,
-   "say": "I went to the corner shop yesterday.",
-   "tr": "Dün köşedeki markete gittim."
+   "say": "I can't find my mum.",
+   "tr": "Annemi bulamıyorum.",
+   "topic": "asking_for_help"
   },
   {
-   "q": "Yesterday the little boy ___ for his mum.",
+   "q": "Don't cry. Your mum ___ coming.",
    "opts": [
-    "looked",
-    "look",
-    "looks"
+    "is",
+    "are",
+    "am"
    ],
    "a": 0,
-   "say": "Yesterday the little boy looked for his mum.",
-   "tr": "Dün küçük çocuk annesini aradı."
+   "say": "Don't cry. Your mum's coming.",
+   "tr": "Ağlama. Annen geliyor.",
+   "topic": "reassuring"
   },
   {
-   "q": "He's tall ___ he's got glasses.",
+   "q": "Don't ___ scared.",
    "opts": [
-    "and",
-    "or",
-    "but"
+    "be",
+    "are",
+    "is"
    ],
    "a": 0,
-   "say": "He's tall and he's got glasses.",
-   "tr": "Uzun boylu ve gözlüğü var."
+   "say": "Don't be scared.",
+   "tr": "Korkma.",
+   "topic": "reassuring"
   },
   {
-   "q": "___ is your name?",
-   "opts": [
-    "What",
-    "Where",
-    "How"
-   ],
-   "a": 0,
-   "say": "What is your name?",
-   "tr": "Adın ne?"
-  },
-  {
-   "q": "I ___ wearing my blue jeans now.",
+   "q": "I ___ wearing my blue jeans today.",
    "opts": [
     "am",
     "is",
     "are"
    ],
    "a": 0,
-   "say": "I am wearing my blue jeans now.",
-   "tr": "Şu an mavi kot pantolonumu giyiyorum."
+   "say": "I'm wearing my blue jeans today.",
+   "tr": "Bugün mavi kotumu giyiyorum.",
+   "topic": "present_continuous"
   },
   {
-   "q": "Thank you so much! You're ___.",
+   "q": "What ___ you doing?",
    "opts": [
-    "welcome",
-    "welcomed",
-    "welcomes"
+    "are",
+    "do",
+    "is"
    ],
    "a": 0,
-   "say": "Thank you so much! You're welcome.",
-   "tr": "Çok teşekkür ederim! Rica ederim."
-  },
-  {
-   "q": "The shop assistant ___ very kind.",
-   "opts": [
-    "was",
-    "were",
-    "are"
-   ],
-   "a": 0,
-   "say": "The shop assistant was very kind.",
-   "tr": "Mağaza görevlisi çok nazikti."
+   "say": "What are you doing?",
+   "tr": "Ne yapıyorsun?",
+   "topic": "present_continuous"
   }
  ],
  "quiz_c": [
@@ -762,8 +783,21 @@
     "is"
    ],
    "a": 0,
-   "say": "They have got brown eyes.",
-   "tr": "Kahverengi gözleri var."
+   "say": "They've got brown eyes.",
+   "tr": "Kahverengi gözleri var.",
+   "topic": "describing_people"
+  },
+  {
+   "q": "How old ___ he?",
+   "opts": [
+    "is",
+    "are",
+    "has"
+   ],
+   "a": 0,
+   "say": "How old is he?",
+   "tr": "Kaç yaşında?",
+   "topic": "describing_people"
   },
   {
    "q": "She ___ a green dress today.",
@@ -773,96 +807,93 @@
     "wear"
    ],
    "a": 0,
-   "say": "She is wearing a green dress today.",
-   "tr": "Bugün yeşil bir elbise giyiyor."
+   "say": "She's wearing a green dress today.",
+   "tr": "Bugün yeşil bir elbise giyiyor.",
+   "topic": "clothes"
   },
   {
-   "q": "Excuse me, can you ___ me?",
+   "q": "His trousers ___ blue.",
    "opts": [
-    "help",
-    "to help",
-    "helped"
+    "are",
+    "is",
+    "am"
    ],
    "a": 0,
-   "say": "Excuse me, can you help me?",
-   "tr": "Affedersiniz, bana yardım edebilir misiniz?"
+   "say": "His trousers are blue.",
+   "tr": "Pantolonu mavi.",
+   "topic": "clothes"
   },
   {
-   "q": "Leo ___ his mum in the shop.",
+   "q": "Excuse me, ___ the shop assistant?",
    "opts": [
-    "lost",
-    "losed",
-    "loses"
+    "where's",
+    "who's",
+    "what's"
    ],
    "a": 0,
-   "say": "Leo lost his mum in the shop.",
-   "tr": "Leo markette annesini kaybetti."
+   "say": "Excuse me, where's the shop assistant?",
+   "tr": "Affedersiniz, mağaza görevlisi nerede?",
+   "topic": "asking_for_help"
+  },
+  {
+   "q": "___ I help you?",
+   "opts": [
+    "Can",
+    "Do",
+    "Am"
+   ],
+   "a": 0,
+   "say": "Can I help you?",
+   "tr": "Yardım edebilir miyim?",
+   "topic": "asking_for_help"
+  },
+  {
+   "q": "It's OK. Don't ___.",
+   "opts": [
+    "worry",
+    "worried",
+    "worries"
+   ],
+   "a": 0,
+   "say": "It's OK. Don't worry.",
+   "tr": "Sorun yok. Merak etme.",
+   "topic": "reassuring"
+  },
+  {
+   "q": "You're very ___.",
+   "opts": [
+    "brave",
+    "bravely",
+    "braves"
+   ],
+   "a": 0,
+   "say": "You're very brave.",
+   "tr": "Çok cesursun.",
+   "topic": "reassuring"
   },
   {
    "q": "His mum ___ into the shop.",
    "opts": [
-    "ran",
-    "runned",
-    "run"
+    "is running",
+    "runs",
+    "running"
    ],
    "a": 0,
-   "say": "His mum ran into the shop.",
-   "tr": "Annesi koşarak markete girdi."
+   "say": "His mum's running into the shop.",
+   "tr": "Annesi koşarak markete giriyor.",
+   "topic": "present_continuous"
   },
   {
-   "q": "How old ___ he?",
+   "q": "They ___ crying now.",
    "opts": [
-    "is",
-    "are",
-    "am"
+    "aren't",
+    "isn't",
+    "don't"
    ],
    "a": 0,
-   "say": "How old is he?",
-   "tr": "Kaç yaşında?"
-  },
-  {
-   "q": "He ___ about five years old.",
-   "opts": [
-    "is",
-    "has",
-    "does"
-   ],
-   "a": 0,
-   "say": "He is about five years old.",
-   "tr": "Yaklaşık beş yaşında."
-  },
-  {
-   "q": "We ___ wearing coats because it's cold.",
-   "opts": [
-    "are",
-    "is",
-    "am"
-   ],
-   "a": 0,
-   "say": "We are wearing coats because it's cold.",
-   "tr": "Hava soğuk olduğu için mont giyiyoruz."
-  },
-  {
-   "q": "Don't cry. ___ OK.",
-   "opts": [
-    "It's",
-    "Its",
-    "It"
-   ],
-   "a": 0,
-   "say": "Don't cry. It's OK.",
-   "tr": "Ağlama. Sorun yok."
-  },
-  {
-   "q": "We ___ happy at the end.",
-   "opts": [
-    "were",
-    "was",
-    "are"
-   ],
-   "a": 0,
-   "say": "We were happy at the end.",
-   "tr": "Sonunda mutluyduk."
+   "say": "They aren't crying now.",
+   "tr": "Artık ağlamıyorlar.",
+   "topic": "present_continuous"
   }
  ],
  "speakers": {
@@ -1018,6 +1049,35 @@
   "Look! The cat is eating my toast!": "Bak! Kedi tostumu yiyor!",
   "We're out of milk. I have to go to the shop.": "Sütümüz bitti. Markete gitmem gerekiyor.",
   "I helped a lost boy at the shop.": "Markette kaybolmuş bir çocuğa yardım ettim.",
-  "I waited for the bus in the storm.": "Fırtınada otobüs bekledim."
+  "I waited for the bus in the storm.": "Fırtınada otobüs bekledim.",
+  "He's got short brown hair.": "Kısa kahverengi saçları var.",
+  "What does she look like?": "Neye benziyor?",
+  "Her shoes are red.": "Ayakkabıları kırmızı.",
+  "Excuse me, can you help me?": "Affedersiniz, bana yardım edebilir misiniz?",
+  "This boy is lost.": "Bu çocuk kaybolmuş.",
+  "Don't worry. You're safe now.": "Merak etme. Artık güvendesin.",
+  "It's OK. I'm here.": "Sorun yok. Buradayım.",
+  "Leo's crying near the door.": "Leo kapının yanında ağlıyor.",
+  "We're looking for his mum.": "Annesini arıyoruz.",
+  "My sister's got curly black hair.": "Kız kardeşimin kıvırcık siyah saçları var.",
+  "He isn't tall. He's short.": "Uzun boylu değil. Kısa boylu.",
+  "Look! The man's wearing a red coat.": "Bak! Adam kırmızı bir mont giyiyor.",
+  "She isn't wearing a hat.": "Şapka takmıyor.",
+  "Could you help me, please?": "Bana yardım edebilir misiniz, lütfen?",
+  "I can't find my mum.": "Annemi bulamıyorum.",
+  "Don't cry. Your mum's coming.": "Ağlama. Annen geliyor.",
+  "Don't be scared.": "Korkma.",
+  "I'm wearing my blue jeans today.": "Bugün mavi kotumu giyiyorum.",
+  "What are you doing?": "Ne yapıyorsun?",
+  "They've got brown eyes.": "Kahverengi gözleri var.",
+  "How old is he?": "Kaç yaşında?",
+  "She's wearing a green dress today.": "Bugün yeşil bir elbise giyiyor.",
+  "His trousers are blue.": "Pantolonu mavi.",
+  "Excuse me, where's the shop assistant?": "Affedersiniz, mağaza görevlisi nerede?",
+  "Can I help you?": "Yardım edebilir miyim?",
+  "It's OK. Don't worry.": "Sorun yok. Merak etme.",
+  "You're very brave.": "Çok cesursun.",
+  "His mum's running into the shop.": "Annesi koşarak markete giriyor.",
+  "They aren't crying now.": "Artık ağlamıyorlar."
  }
 }

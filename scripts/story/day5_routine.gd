@@ -2,7 +2,7 @@
 ## Each day, in order (every step: voice line + top-left Objectives + camera pan via Life.guide_to):
 ##   alarm (bedroom) -> bathroom -> breakfast review at the table (living room) -> the outing (day 5: corner shop + lost child,
 ##   day5_shop.gd; day 6: bus stop + storm + broken-down bus, day6_storm.gd) -> family couch talk -> the polaroids in bed
-##   -> the bedtime 10-question test (day5_test.gd, questions via _bedtime_questions() -> red's shared no-repeat bank when present)
+##   -> the bedtime 10-question test (red's shared TestBank: _bedtime_test())
 ##   -> sleep -> next day's alarm. Day 6 ends by handing over to red's day 7 (see _to_day7()).
 ## Saved stage: story.d5 / story.d6 (see day5_common.gd).
 ## ENTRY (red, end of day-4 bedtime, after Life.advance_day() -> day 5 and the fade-in; the player may still be lying in bed):
@@ -11,13 +11,20 @@
 class_name Day56Routine
 extends "res://scripts/story/day5_common.gd"
 
-const DAY7_SCRIPT := "res://scripts/story/day7_morning.gd"   # red's day 7 (optional; see _to_day7)
+const DAY7_SCRIPT := "res://scripts/story/day4_routine.gd"   # red's day-4/7 routine driver: static start(tree) (see _to_day7)
 
 static func begin(tree: SceneTree, d := 5, lying := true) -> void:
 	set_stage(d, "alarm"); flag("d56_lying", lying)
 	if load("res://scripts/story/day3_morning.gd").stage() != "done": flag("d3", "done")   # no stale day-3 objectives
 	var d2 = load("res://scripts/story/day2_morning.gd")
 	if d2.stage() in ["", "living", "car"]: d2.set_stage("day%d" % d)   # livingroom.gd would otherwise start the day-2 breakfast
+	attach(tree)
+
+## ENTRY used by red's day4_bedtime.gd _handoff(): it sets WorldState.day = 5 and story.d5 = "start", plays the wake lines
+## (the player is standing, mode "play") and calls the first static start(tree) / attach(tree) here. Idempotent.
+static func start(tree: SceneTree) -> void:
+	for d in [5, 6]:
+		if stage(d) == "start": begin(tree, d, false); return
 	attach(tree)
 
 static func active_day() -> int:
@@ -385,23 +392,19 @@ func _bedtime(b: Node) -> void:
 	await speak(b, "", "", "Now the bedtime test. Ten questions.", "Şimdi yatmadan önceki test. On soru.")
 	b.cap_panel.visible = false
 	var ph = b.phone
-	ph.visible = true; ph.open(Rect2(), "home"); await _w(0.5)
-	var t = load("res://scripts/story/day5_test.gd").new()
-	t.key = String(D.test_key); t.questions_for = _bedtime_questions
-	var res: Array = await t.run(b, ph)
+	var res: Array = await _bedtime_test(b, ph)
 	flag("d%d_night_score" % day, res)
 	await Audio.wait_idle(15.0)
 	await ph.close(true)
 	Objectives.complete("Take the bedtime test.")
 	await _sleep(b, cl)
 
-## ===== the ONE bank call (red's shared no-repeat question bank). version = 0..2 (rotation / Retake).
-## TODO(red bank, ~15:45): red's shared bank was not in english-game-red / english-game-main on 2026-10-17 13:50; Day56Bank.draw() calls it
-## when present (see day5_bank.gd for the guessed API) and otherwise falls back to this day's 3 local versions (data quiz / quiz_b / quiz_c).
-func _bedtime_questions(version: int) -> Array:
-	var local: Array = []
-	for k in ["quiz", "quiz_b", "quiz_c"]: if D.get(k, []) is Array and not D.get(k, []).is_empty(): local.append(D[k])
-	return load("res://scripts/story/day5_bank.gd").draw(String(D.test_key), day, D.get("bank_topics", []), 10, version, local)
+## ===== the ONE bank call: red's shared no-repeat TestBank (english-game-red v33-days-4-7-red, scripts/story/test_bank.gd).
+## Day 5 / 6 entries d5_01..30 / d6_01..30 live in data/test_bank.json (also data/test_bank_d5_d6.json); the bank runs the whole
+## universal test (notebook reminder once, narrator, shuffled answers, feedback + TR, grammar tip, Retake = fresh draw, Skip, phone locked).
+const TB := preload("res://scripts/story/test_bank.gd")
+func _bedtime_test(b: Node, ph) -> Array:
+	return await TB.run_test(b, ph, day, {"n": 10, "topics": [], "key": String(D.test_key)})
 
 func _dream(cl: CanvasLayer) -> void:
 	var ui := StoryUI.new(); add_child(ui)
@@ -462,16 +465,15 @@ func _sleep(b: Node, cl: CanvasLayer) -> void:
 		await _to_day7(b)
 	cl.queue_free()
 
-## ===== HOOK (red, day 7): day 6 ends lying in bed on day 7, 00:00 -> morning. If red's day-7 script exists, it takes over here:
-## it must offer  static func begin(tree: SceneTree)  (same contract as Day56Routine.begin). Otherwise: alarm-free get-up, free play.
+## ===== HANDOFF to red's day 7: WorldState.day = App.day = 7, story.d7 = "start", the get-up wake, then red's
+## day4_routine.gd start(tree) when it is in the build (red's MERGE_NOTES_days_4_7.md section 4).
 func _to_day7(b: Node) -> void:
+	if WorldState.day != 7: WorldState.day = 7; App.day = 7; App.patch_save({"day": 7})
 	flag("d7", "start")
-	if ResourceLoader.exists(DAY7_SCRIPT):
-		var s = load(DAY7_SCRIPT)
-		if s and s.has_method("begin"): s.begin(get_tree()); return
 	b.cam_shot = {}
-	await b.get_up_sequence()
+	await b.get_up_sequence()   # the day-7 wake: up from bed
 	b.mode = "play"; b._update_hand()
+	if ResourceLoader.exists(DAY7_SCRIPT): load(DAY7_SCRIPT).start(get_tree())   # red's routine (idempotent; main.gd _advance also starts it)
 
 func _day_title(cl: CanvasLayer, n: int) -> void:
 	var v := VBoxContainer.new(); v.name = "DayTitle"; v.set_anchors_preset(Control.PRESET_CENTER_TOP); v.offset_top = 150; v.offset_left = -400; v.offset_right = 400

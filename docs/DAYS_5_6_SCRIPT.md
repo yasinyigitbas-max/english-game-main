@@ -122,43 +122,43 @@ Turkish (TR toggle, text only) is shown in *italics*. **Objective** = top-left O
 
 ### 7. Bedtime test (10 questions, 3 rotating versions, answers shuffled, narrator reads)
 - **Objective:** Take the bedtime test.  *Yatmadan önce testi çöz.*
-- Questions come from red's shared no-repeat bank (topics describing_people, clothes_present_continuous, asking_for_help, past_simple) once it exists; until then from these local versions:
+- Run by red's shared no-repeat TestBank (`TB.run_test`); this day's 30 bank entries (`data/test_bank.json` ids d5_01..30, topics asking_for_help, clothes, describing_people, present_continuous, reassuring), 10 per version; Retake draws unused ones:
 
 **Version A**
-1. He ___ short brown hair. — (has got / have got / is got) ✔ **has got** — read: "He has got short brown hair."  *Kısa kahverengi saçları var.*
-2. Leo ___ a yellow T-shirt today. — (is wearing / wears / wearing) ✔ **is wearing** — read: "Leo is wearing a yellow T-shirt today."  *Leo bugün sarı bir tişört giyiyor.*
-3. ___ you help me, please? — (Can / Do / Are) ✔ **Can** — read: "Can you help me, please?"  *Bana yardım edebilir misiniz, lütfen?*
-4. Yesterday I ___ a lost boy. — (helped / help / helps) ✔ **helped** — read: "Yesterday I helped a lost boy."  *Dün kaybolmuş bir çocuğa yardım ettim.*
-5. We ___ his mum near the door. — (found / finded / find) ✔ **found** — read: "We found his mum near the door."  *Annesini kapının yanında bulduk.*
-6. What ___ she look like? — (does / is / do) ✔ **does** — read: "What does she look like?"  *Görünüşü nasıl?*
-7. She's got long hair ___ blue eyes. — (and / but / or) ✔ **and** — read: "She's got long hair and blue eyes."  *Uzun saçları ve mavi gözleri var.*
-8. Don't worry. Your mum ___ coming. — (is / are / am) ✔ **is** — read: "Don't worry. Your mum is coming."  *Merak etme. Annen geliyor.*
-9. Excuse me, ___ is the checkout? — (where / who / what) ✔ **where** — read: "Excuse me, where is the checkout?"  *Affedersiniz, kasa nerede?*
-10. The boy ___ scared, but now he's happy. — (was / were / is) ✔ **was** — read: "The boy was scared, but now he's happy."  *Çocuk korkmuştu ama şimdi mutlu.*
+1. He ___ short brown hair. — (has got / have got / is got) ✔ **has got** — read: "He's got short brown hair."  *Kısa kahverengi saçları var.*  `describing_people`
+2. What ___ she look like? — (does / is / do) ✔ **does** — read: "What does she look like?"  *Neye benziyor?*  `describing_people`
+3. He's ___ a yellow T-shirt. — (wearing / wear / wears) ✔ **wearing** — read: "He's wearing a yellow T-shirt."  *Sarı bir tişört giyiyor.*  `clothes`
+4. Her shoes ___ red. — (are / is / am) ✔ **are** — read: "Her shoes are red."  *Ayakkabıları kırmızı.*  `clothes`
+5. Excuse me, ___ you help me? — (can / do / are) ✔ **can** — read: "Excuse me, can you help me?"  *Affedersiniz, bana yardım edebilir misiniz?*  `asking_for_help`
+6. This boy ___ lost. — (is / are / am) ✔ **is** — read: "This boy is lost."  *Bu çocuk kaybolmuş.*  `asking_for_help`
+7. Don't worry. ___ safe now. — (You're / Your / You) ✔ **You're** — read: "Don't worry. You're safe now."  *Merak etme. Artık güvendesin.*  `reassuring`
+8. It's OK. I'm ___. — (here / hear / her) ✔ **here** — read: "It's OK. I'm here."  *Sorun yok. Buradayım.*  `reassuring`
+9. Leo ___ near the door. — (is crying / cries / crying) ✔ **is crying** — read: "Leo's crying near the door."  *Leo kapının yanında ağlıyor.*  `present_continuous`
+10. We ___ for his mum. — (are looking / is looking / looking) ✔ **are looking** — read: "We're looking for his mum."  *Annesini arıyoruz.*  `present_continuous`
 
 **Version B**
-1. My sister ___ curly black hair. — (has got / have got / is) ✔ **has got** — read: "My sister has got curly black hair."  *Kız kardeşimin kıvırcık siyah saçları var.*
-2. Look! The man ___ a red coat. — (is wearing / wear / are wearing) ✔ **is wearing** — read: "Look! The man is wearing a red coat."  *Bak! Adam kırmızı bir mont giyiyor.*
-3. Could you ___ me, please? — (help / helps / helping) ✔ **help** — read: "Could you help me, please?"  *Bana yardım edebilir misiniz, lütfen?*
-4. I ___ to the corner shop yesterday. — (went / go / goed) ✔ **went** — read: "I went to the corner shop yesterday."  *Dün köşedeki markete gittim.*
-5. Yesterday the little boy ___ for his mum. — (looked / look / looks) ✔ **looked** — read: "Yesterday the little boy looked for his mum."  *Dün küçük çocuk annesini aradı.*
-6. He's tall ___ he's got glasses. — (and / or / but) ✔ **and** — read: "He's tall and he's got glasses."  *Uzun boylu ve gözlüğü var.*
-7. ___ is your name? — (What / Where / How) ✔ **What** — read: "What is your name?"  *Adın ne?*
-8. I ___ wearing my blue jeans now. — (am / is / are) ✔ **am** — read: "I am wearing my blue jeans now."  *Şu an mavi kot pantolonumu giyiyorum.*
-9. Thank you so much! You're ___. — (welcome / welcomed / welcomes) ✔ **welcome** — read: "Thank you so much! You're welcome."  *Çok teşekkür ederim! Rica ederim.*
-10. The shop assistant ___ very kind. — (was / were / are) ✔ **was** — read: "The shop assistant was very kind."  *Mağaza görevlisi çok nazikti.*
+1. My sister ___ curly black hair. — (has got / have got / is) ✔ **has got** — read: "My sister's got curly black hair."  *Kız kardeşimin kıvırcık siyah saçları var.*  `describing_people`
+2. He ___ tall. He's short. — (isn't / aren't / not) ✔ **isn't** — read: "He isn't tall. He's short."  *Uzun boylu değil. Kısa boylu.*  `describing_people`
+3. Look! The man ___ a red coat. — (is wearing / wear / are wearing) ✔ **is wearing** — read: "Look! The man's wearing a red coat."  *Bak! Adam kırmızı bir mont giyiyor.*  `clothes`
+4. She ___ wearing a hat. — (isn't / aren't / don't) ✔ **isn't** — read: "She isn't wearing a hat."  *Şapka takmıyor.*  `clothes`
+5. Could you ___ me, please? — (help / helps / helping) ✔ **help** — read: "Could you help me, please?"  *Bana yardım edebilir misiniz, lütfen?*  `asking_for_help`
+6. I ___ find my mum. — (can't / don't can / not can) ✔ **can't** — read: "I can't find my mum."  *Annemi bulamıyorum.*  `asking_for_help`
+7. Don't cry. Your mum ___ coming. — (is / are / am) ✔ **is** — read: "Don't cry. Your mum's coming."  *Ağlama. Annen geliyor.*  `reassuring`
+8. Don't ___ scared. — (be / are / is) ✔ **be** — read: "Don't be scared."  *Korkma.*  `reassuring`
+9. I ___ wearing my blue jeans today. — (am / is / are) ✔ **am** — read: "I'm wearing my blue jeans today."  *Bugün mavi kotumu giyiyorum.*  `present_continuous`
+10. What ___ you doing? — (are / do / is) ✔ **are** — read: "What are you doing?"  *Ne yapıyorsun?*  `present_continuous`
 
 **Version C**
-1. They ___ got brown eyes. — (have / has / is) ✔ **have** — read: "They have got brown eyes."  *Kahverengi gözleri var.*
-2. She ___ a green dress today. — (is wearing / wearing / wear) ✔ **is wearing** — read: "She is wearing a green dress today."  *Bugün yeşil bir elbise giyiyor.*
-3. Excuse me, can you ___ me? — (help / to help / helped) ✔ **help** — read: "Excuse me, can you help me?"  *Affedersiniz, bana yardım edebilir misiniz?*
-4. Leo ___ his mum in the shop. — (lost / losed / loses) ✔ **lost** — read: "Leo lost his mum in the shop."  *Leo markette annesini kaybetti.*
-5. His mum ___ into the shop. — (ran / runned / run) ✔ **ran** — read: "His mum ran into the shop."  *Annesi koşarak markete girdi.*
-6. How old ___ he? — (is / are / am) ✔ **is** — read: "How old is he?"  *Kaç yaşında?*
-7. He ___ about five years old. — (is / has / does) ✔ **is** — read: "He is about five years old."  *Yaklaşık beş yaşında.*
-8. We ___ wearing coats because it's cold. — (are / is / am) ✔ **are** — read: "We are wearing coats because it's cold."  *Hava soğuk olduğu için mont giyiyoruz.*
-9. Don't cry. ___ OK. — (It's / Its / It) ✔ **It's** — read: "Don't cry. It's OK."  *Ağlama. Sorun yok.*
-10. We ___ happy at the end. — (were / was / are) ✔ **were** — read: "We were happy at the end."  *Sonunda mutluyduk.*
+1. They ___ got brown eyes. — (have / has / is) ✔ **have** — read: "They've got brown eyes."  *Kahverengi gözleri var.*  `describing_people`
+2. How old ___ he? — (is / are / has) ✔ **is** — read: "How old is he?"  *Kaç yaşında?*  `describing_people`
+3. She ___ a green dress today. — (is wearing / wearing / wear) ✔ **is wearing** — read: "She's wearing a green dress today."  *Bugün yeşil bir elbise giyiyor.*  `clothes`
+4. His trousers ___ blue. — (are / is / am) ✔ **are** — read: "His trousers are blue."  *Pantolonu mavi.*  `clothes`
+5. Excuse me, ___ the shop assistant? — (where's / who's / what's) ✔ **where's** — read: "Excuse me, where's the shop assistant?"  *Affedersiniz, mağaza görevlisi nerede?*  `asking_for_help`
+6. ___ I help you? — (Can / Do / Am) ✔ **Can** — read: "Can I help you?"  *Yardım edebilir miyim?*  `asking_for_help`
+7. It's OK. Don't ___. — (worry / worried / worries) ✔ **worry** — read: "It's OK. Don't worry."  *Sorun yok. Merak etme.*  `reassuring`
+8. You're very ___. — (brave / bravely / braves) ✔ **brave** — read: "You're very brave."  *Çok cesursun.*  `reassuring`
+9. His mum ___ into the shop. — (is running / runs / running) ✔ **is running** — read: "His mum's running into the shop."  *Annesi koşarak markete giriyor.*  `present_continuous`
+10. They ___ crying now. — (aren't / isn't / don't) ✔ **aren't** — read: "They aren't crying now."  *Artık ağlamıyorlar.*  `present_continuous`
 
 - Then sleep → Day 6 alarm.
 
@@ -273,43 +273,43 @@ Turkish (TR toggle, text only) is shown in *italics*. **Objective** = top-left O
 
 ### 7. Bedtime test (10 questions, 3 rotating versions, answers shuffled, narrator reads)
 - **Objective:** Take the bedtime test.  *Yatmadan önce testi çöz.*
-- Questions come from red's shared no-repeat bank (topics weather, past_simple_irregular, going_to, should, asking_for_help) once it exists; until then from these local versions:
+- Run by red's shared no-repeat TestBank (`TB.run_test`); this day's 30 bank entries (`data/test_bank.json` ids d6_01..30, topics asking_for_help, future_will, going_to, suggestions, weather), 10 per version; Retake draws unused ones:
 
 **Version A**
-1. It's ___ today. Take an umbrella. — (rainy / sunny / hot) ✔ **rainy** — read: "It's rainy today. Take an umbrella."  *Bugün hava yağmurlu. Şemsiye al.*
-2. Look at the clouds! It ___ rain. — (is going to / going to / goes to) ✔ **is going to** — read: "Look at the clouds! It's going to rain."  *Bulutlara bak! Yağmur yağacak.*
-3. The bus ___ down yesterday. — (broke / breaked / breaks) ✔ **broke** — read: "The bus broke down yesterday."  *Otobüs dün bozuldu.*
-4. You ___ stay inside in a storm. — (should / shoulds / to should) ✔ **should** — read: "You should stay inside in a storm."  *Fırtınada içeride kalmalısın.*
-5. When ___ the next bus? — (is / are / do) ✔ **is** — read: "When is the next bus?"  *Bir sonraki otobüs ne zaman?*
-6. I ___ at the bus stop for forty minutes. — (waited / waits / waiting) ✔ **waited** — read: "I waited at the bus stop for forty minutes."  *Otobüs durağında kırk dakika bekledim.*
-7. It's very ___. My umbrella is flying away! — (windy / sunny / snowy) ✔ **windy** — read: "It's very windy. My umbrella is flying away!"  *Hava çok rüzgarlı. Şemsiyem uçuyor!*
-8. ___ you pick me up, please? — (Can / Do / Are) ✔ **Can** — read: "Can you pick me up, please?"  *Beni alabilir misin, lütfen?*
-9. Yesterday I ___ my family. — (called / call / calls) ✔ **called** — read: "Yesterday I called my family."  *Dün ailemi aradım.*
-10. We ___ wet, but we were safe. — (were / was / are) ✔ **were** — read: "We were wet, but we were safe."  *Islaktık ama güvendeydik.*
+1. It's ___ today. Take an umbrella. — (rainy / sunny / hot) ✔ **rainy** — read: "It's rainy today. Take an umbrella."  *Bugün hava yağmurlu. Şemsiye al.*  `weather`
+2. What's the weather ___? — (like / likes / liking) ✔ **like** — read: "What's the weather like?"  *Hava nasıl?*  `weather`
+3. I think it ___ rain tonight. — (will / is / does) ✔ **will** — read: "I think it'll rain tonight."  *Sanırım bu gece yağmur yağacak.*  `future_will`
+4. I ___ call my family. — (will / am / do) ✔ **will** — read: "I'll call my family."  *Ailemi arayacağım.*  `future_will`
+5. Look at those clouds! It ___ rain. — (is going to / going to / goes to) ✔ **is going to** — read: "Look at those clouds! It's going to rain."  *Şu bulutlara bak! Yağmur yağacak.*  `going_to`
+6. We ___ going to wait here. — (are / is / am) ✔ **are** — read: "We're going to wait here."  *Burada bekleyeceğiz.*  `going_to`
+7. Excuse me, ___ the next bus? — (when's / who's / what's) ✔ **when's** — read: "Excuse me, when's the next bus?"  *Affedersiniz, bir sonraki otobüs ne zaman?*  `asking_for_help`
+8. ___ you pick me up, please? — (Can / Do / Are) ✔ **Can** — read: "Can you pick me up, please?"  *Beni alabilir misin, lütfen?*  `asking_for_help`
+9. ___ wait under the shelter. — (Let's / Let / Lets) ✔ **Let's** — read: "Let's wait under the shelter."  *Durağın altında bekleyelim.*  `suggestions`
+10. Why ___ we call a taxi? — (don't / doesn't / not) ✔ **don't** — read: "Why don't we call a taxi?"  *Neden bir taksi çağırmıyoruz?*  `suggestions`
 
 **Version B**
-1. It's cold and white outside. It's ___. — (snowy / sunny / hot) ✔ **snowy** — read: "It's cold and white outside. It's snowy."  *Dışarısı soğuk ve bembeyaz. Hava karlı.*
-2. I'm ___ take a taxi. — (going to / go to / going) ✔ **going to** — read: "I'm going to take a taxi."  *Taksiye bineceğim.*
-3. The driver ___ sorry. — (was / were / is) ✔ **was** — read: "The driver was sorry."  *Şoför üzgündü.*
-4. It's raining. You ___ walk home. — (shouldn't / should to / not should) ✔ **shouldn't** — read: "It's raining. You shouldn't walk home."  *Yağmur yağıyor. Eve yürümemelisin.*
-5. Excuse me, ___ can I get a taxi? — (where / who / what) ✔ **where** — read: "Excuse me, where can I get a taxi?"  *Affedersiniz, nereden taksi bulabilirim?*
-6. My dad ___ me up in the car. — (picked / pick / picks) ✔ **picked** — read: "My dad picked me up in the car."  *Babam beni arabayla aldı.*
-7. What's the weather ___ today? — (like / likes / liking) ✔ **like** — read: "What's the weather like today?"  *Bugün hava nasıl?*
-8. There ___ a big storm yesterday. — (was / were / is) ✔ **was** — read: "There was a big storm yesterday."  *Dün büyük bir fırtına vardı.*
-9. Don't worry. I ___ coming now. — (am / is / are) ✔ **am** — read: "Don't worry. I am coming now."  *Merak etme. Hemen geliyorum.*
-10. We ___ hot tea at home. — (drank / drinked / drinks) ✔ **drank** — read: "We drank hot tea at home."  *Evde sıcak çay içtik.*
+1. It's very ___. My umbrella's flying away! — (windy / sunny / snowy) ✔ **windy** — read: "It's very windy. My umbrella's flying away!"  *Hava çok rüzgarlı. Şemsiyem uçuyor!*  `weather`
+2. It's cold and white outside. It's ___. — (snowy / sunny / hot) ✔ **snowy** — read: "It's cold and white outside. It's snowy."  *Dışarısı soğuk ve beyaz. Hava karlı.*  `weather`
+3. Don't worry. I ___ help you. — (will / am / do) ✔ **will** — read: "Don't worry. I'll help you."  *Merak etme. Sana yardım edeceğim.*  `future_will`
+4. The bus ___ come for forty minutes. — (won't / willn't / doesn't will) ✔ **won't** — read: "The bus won't come for forty minutes."  *Otobüs kırk dakika gelmeyecek.*  `future_will`
+5. I'm ___ take a taxi. — (going to / go to / going) ✔ **going to** — read: "I'm going to take a taxi."  *Taksiye bineceğim.*  `going_to`
+6. ___ you going to walk home? — (Are / Do / Is) ✔ **Are** — read: "Are you going to walk home?"  *Eve yürüyecek misin?*  `going_to`
+7. Excuse me, ___ the bus broken? — (is / does / are) ✔ **is** — read: "Excuse me, is the bus broken?"  *Affedersiniz, otobüs bozuk mu?*  `asking_for_help`
+8. Could you ___ my dad, please? — (call / calls / calling) ✔ **call** — read: "Could you call my dad, please?"  *Babamı arayabilir misiniz, lütfen?*  `asking_for_help`
+9. How about ___ your family? — (calling / call / to call) ✔ **calling** — read: "How about calling your family?"  *Aileni aramaya ne dersin?*  `suggestions`
+10. We ___ stay dry. — (should / should to / shoulds) ✔ **should** — read: "We should stay dry."  *Kuru kalmalıyız.*  `suggestions`
 
 **Version C**
-1. It's ___ and hot. Let's go to the beach! — (sunny / rainy / stormy) ✔ **sunny** — read: "It's sunny and hot. Let's go to the beach!"  *Hava güneşli ve sıcak. Hadi plaja gidelim!*
-2. They ___ going to walk in the rain. — (aren't / isn't / not) ✔ **aren't** — read: "They aren't going to walk in the rain."  *Yağmurda yürümeyecekler.*
-3. The bus ___ working. — (isn't / aren't / don't) ✔ **isn't** — read: "The bus isn't working."  *Otobüs çalışmıyor.*
-4. You look cold. You ___ put on a coat. — (should / shouldn't / can't) ✔ **should** — read: "You look cold. You should put on a coat."  *Üşümüş görünüyorsun. Mont giymelisin.*
-5. How long ___ we have to wait? — (do / does / are) ✔ **do** — read: "How long do we have to wait?"  *Ne kadar beklememiz gerekiyor?*
-6. The woman ___ her husband yesterday. — (called / calls / call) ✔ **called** — read: "The woman called her husband yesterday."  *Kadın dün kocasını aradı.*
-7. I can hear thunder. It's ___! — (stormy / sunny / warm) ✔ **stormy** — read: "I can hear thunder. It's stormy!"  *Gök gürültüsü duyuyorum. Hava fırtınalı!*
-8. Can you help me? Yes, I ___. — (can / do / am) ✔ **can** — read: "Can you help me? Yes, I can."  *Bana yardım edebilir misin? Evet, edebilirim.*
-9. I ___ the bus home yesterday. — (didn't take / don't took / not took) ✔ **didn't take** — read: "I didn't take the bus home yesterday."  *Dün eve otobüsle gitmedim.*
-10. The storm ___ very loud. — (was / were / are) ✔ **was** — read: "The storm was very loud."  *Fırtına çok gürültülüydü.*
+1. I can hear thunder. It's ___! — (stormy / sunny / warm) ✔ **stormy** — read: "I can hear thunder. It's stormy!"  *Gök gürültüsü duyuyorum. Hava fırtınalı!*  `weather`
+2. It's ___ and hot. Let's go to the beach! — (sunny / rainy / stormy) ✔ **sunny** — read: "It's sunny and hot. Let's go to the beach!"  *Hava güneşli ve sıcak. Hadi plaja gidelim!*  `weather`
+3. Mum ___ pick us up. — (will / is / does) ✔ **will** — read: "Mum will pick us up."  *Annem bizi alacak.*  `future_will`
+4. ___ the storm stop soon? — (Will / Does / Is) ✔ **Will** — read: "Will the storm stop soon?"  *Fırtına yakında dinecek mi?*  `future_will`
+5. They ___ going to walk in the rain. — (aren't / isn't / not) ✔ **aren't** — read: "They aren't going to walk in the rain."  *Yağmurda yürümeyecekler.*  `going_to`
+6. What ___ you going to do? — (are / do / is) ✔ **are** — read: "What are you going to do?"  *Ne yapacaksın?*  `going_to`
+7. Can you help me? Yes, I ___. — (can / do / am) ✔ **can** — read: "Can you help me? Yes, I can."  *Bana yardım edebilir misin? Evet, edebilirim.*  `asking_for_help`
+8. How long ___ we have to wait? — (do / does / are) ✔ **do** — read: "How long do we have to wait?"  *Ne kadar beklememiz gerekiyor?*  `asking_for_help`
+9. Let's ___ walk. It's too far. — (not / don't / no) ✔ **not** — read: "Let's not walk. It's too far."  *Yürümeyelim. Çok uzak.*  `suggestions`
+10. You ___ walk in a storm. — (shouldn't / should to / not should) ✔ **shouldn't** — read: "You shouldn't walk in a storm."  *Fırtınada yürümemelisin.*  `suggestions`
 
 - Then sleep → Day 7 (red's `day7_morning.gd`).
 

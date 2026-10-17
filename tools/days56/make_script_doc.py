@@ -22,9 +22,9 @@ def steps(d, ss, ind=""):
                 out.append(line)
                 if o.get("then"): steps(d, o["then"], ind + "    ")
         elif "en" in s: out.append(f"{ind}- **{who(d, s.get('who','narr'))}:** {s['en']}  *{s.get('tr','')}*" + (f"  `[{s['do']}]`" if s.get("do") else ""))
-def quiz(qs):
+def quiz(qs, topic=False):
     for i, q in enumerate(qs, 1):
-        out.append(f"{i}. {q['q']} — ({' / '.join(q['opts'])}) ✔ **{q['opts'][q.get('a',0)]}** — read: \"{q['say']}\"  *{q['tr']}*")
+        out.append(f"{i}. {q['q']} — ({' / '.join(q['opts'])}) ✔ **{q['opts'][q.get('a',0)]}** — read: \"{q['say']}\"  *{q['tr']}*" + (f"  `{q.get('topic','')}`" if topic else ""))
 for n in (5, 6):
     d = json.load(open(f"data/day{n}.json"))
     out += [f"## Day {n}", "", "### 1. Alarm (bedroom)",
@@ -53,9 +53,9 @@ for n in (5, 6):
     out.append(f"- **Narrator:** {d['recap_end']['en']}  *{d['recap_end']['tr']}*")
     out += ["", "### 7. Bedtime test (10 questions, 3 rotating versions, answers shuffled, narrator reads)",
             "- **Objective:** Take the bedtime test.  *Yatmadan önce testi çöz.*",
-            f"- Questions come from red's shared no-repeat bank (topics {', '.join(d['bank_topics'])}) once it exists; until then from these local versions:"]
+            f"- Run by red's shared no-repeat TestBank (`TB.run_test`); this day's 30 bank entries (`data/test_bank.json` ids d{n}_01..30, topics {', '.join(d['bank_topics'])}), 10 per version; Retake draws unused ones:"]
     for name, k in (("A", "quiz"), ("B", "quiz_b"), ("C", "quiz_c")):
-        out += ["", f"**Version {name}**"]; quiz(d[k])
+        out += ["", f"**Version {name}**"]; quiz(d[k], True)
     out += ["", "- Then sleep → " + ("Day 6 alarm." if n == 5 else "Day 7 (red's `day7_morning.gd`)."), ""]
 open("docs/DAYS_5_6_SCRIPT.md", "w").write("\n".join(out) + "\n")
 print("lines", len(out))
