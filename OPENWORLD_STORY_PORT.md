@@ -76,3 +76,13 @@ Goal: ONE `scenes/world.tscn`. There is one hero and one camera, and the doors s
 5. The driving rule conflicts with "no fades". Resolved by skip_travel, which needs Yasin's sign-off.
 6. Save/resume: WorldState.scene/player_pos semantics change (save only region+pos). Old saves need migrating.
 7. The hospital day1→day2 and child-drive stop were separate scenes with their own lighting, so they need world regions in black's layout.
+
+## Prep done on v33 (behaviour-identical)
+- `scripts/core/routine_scope.gd` (RoutineScope): `current(tree)`, `begin/cancel/alive(host, epoch)`. 15 `sc == current_scene` guards in day3_morning/day4_routine/day5_routine, plus the host lookups in day2/3_evening, child_drive and life.gd, now go through it.
+- `scripts/core/story_nav.gd` (StoryNav): `goto` (13 Game.go_to callers), `room` (6 House.go), `travel` (car/ambulance/bus trips: child_drive, accident, hospital_day2, work, work_summary, child_drive_stop), `cut` (hospital day1↔day2 and → bedroom). Menu/boot change_scene is left as is. The `PLACE` map holds scene → place id.
+- `scripts/core/save_migration.gd`: the v1→v2 path is stubbed (TARGET=1 = passthrough) and called from WorldState.load_game.
+- Room-local coords: room scripts already use `.position` relative to the room root. The world-space leaks were the sun look_at, the camera look_at (cam_focus/shot_at/qa_cam), the bathroom splash, and the breakfast member positions. Those now go through `to_global`/`to_local`.
+## Left for after the skeleton
+- StoryNav bodies → World.goto / door.walk_through / World.skip_travel. `RoutineScope.current`/`alive` → world host + epoch, and call `cancel` on region leave.
+- cam_avoid.adjust (main.gd) gets room-local points but raycasts in world space, so it needs `to_global` once rooms are offset. Same check for Life.guide_to and day4_breakfast/day5_shop/day7_party NPC placement, and for wall_fade.
+- Remove spawn readers (world_exterior, bathroom:179, main:1433), merge per-room cameras, switch SaveMigration.TARGET to 2, and run per-day QA on world.tscn.

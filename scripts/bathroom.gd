@@ -336,7 +336,7 @@ func _build_env() -> void:
 	env.ambient_light_energy = 0.6; env.tonemap_mode = Environment.TONE_MAPPER_FILMIC; env.tonemap_exposure = 0.95
 	we.environment = env; add_child(we)
 	sun = DirectionalLight3D.new(); sun.shadow_enabled = true; sun.light_color = Color(1.0, 0.95, 0.85); sun.light_specular = 0.25
-	add_child(sun); sun.look_at_from_position(Vector3(1.5, 9, -9), Vector3(0, 0, 0)); sun.light_energy = 1.3 * WorldState.daylight()
+	add_child(sun); sun.look_at_from_position(to_global(Vector3(1.5, 9, -9)), to_global(Vector3(0, 0, 0))); sun.light_energy = 1.3 * WorldState.daylight()
 	sun.directional_shadow_max_distance = 40.0; sun.directional_shadow_fade_start = 1.0; sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
 	sun.shadow_blur = 2.5; sun.shadow_bias = 0.04; sun.shadow_normal_bias = 1.2
 
@@ -964,7 +964,7 @@ func brush_teeth() -> void:
 	await caption("I am rinsing my mouth.")
 	await gesture("sink", "sink", func(): N.cup.visible = false; hero.hold_item(PROPS + "Cup.tscn", "cylinder", 0.1, false))
 	await _hand_to_face(0.3); Audio.tap_sfx(-6.0, 1.4); await wait(1.0); await _hand_down()
-	await _lean_basin(); splash_fx.global_position = Vector3(SINK.x, TOP_Y + 0.15, BZ + 0.3); splash_fx.restart()
+	await _lean_basin(); splash_fx.global_position = to_global(Vector3(SINK.x, TOP_Y + 0.15, BZ + 0.3)); splash_fx.restart()
 	Audio.tap_sfx(-4.0, 0.9); await wait(0.6); await _straighten(); hero.play("idle", 0.3)
 	await gesture("sink", "sink", func(): hero.release_item(); N.cup.visible = true)
 	await _tap(false)
@@ -1343,12 +1343,12 @@ func _update_cam(dt: float) -> void:
 	var scripted := not qa_cam.is_empty() or not cam_shot.is_empty() or exit_t < 1.0
 	if scripted and cam.controlled: cam.take_over()
 	if not qa_cam.is_empty():   # QA close-ups only
-		cam.position = qa_cam.pos; cam.look_at(qa_cam.at, Vector3.UP); _fade_walls(dt); exit_xf = cam.transform; exit_t = 0.0; return
+		cam.position = qa_cam.pos; cam.look_at(to_global(qa_cam.at), Vector3.UP); _fade_walls(dt); exit_xf = cam.transform; exit_t = 0.0; return
 	if not cam_shot.is_empty():
 		var k := 1.0 - exp(-2.2 * dt)
-		if shot_at == Vector3.INF: shot_at = cam.global_position - cam.global_transform.basis.z * 6.0
+		if shot_at == Vector3.INF: shot_at = cam.position - cam.transform.basis.z * 6.0
 		cam.position = _over_walls(cam.position.lerp(cam_shot.pos, k)); shot_at = shot_at.lerp(cam_shot.at, k)
-		cam.look_at(shot_at, Vector3.UP); _fade_walls(dt); exit_xf = cam.transform; exit_t = 0.0; return
+		cam.look_at(to_global(shot_at), Vector3.UP); _fade_walls(dt); exit_xf = cam.transform; exit_t = 0.0; return
 	shot_at = Vector3.INF
 	if exit_t < 1.0:
 		cam.focus = cam.focus.lerp(cam.override_point, 1.0 - exp(-3.0 * dt))

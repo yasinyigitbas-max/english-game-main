@@ -6,6 +6,8 @@
 class_name StoryNav
 extends RefCounted
 
+const House := preload("res://scripts/core/house.gd")
+
 ## scene path -> open-world place id (for the switch to World.goto)
 const PLACE := {
 	"res://main.tscn": "bedroom", "res://livingroom.tscn": "livingroom", "res://bathroom.tscn": "bathroom",

@@ -312,7 +312,7 @@ func _build_env() -> void:
 	env.ambient_light_energy = 0.6; env.tonemap_mode = Environment.TONE_MAPPER_FILMIC; env.tonemap_exposure = 0.95
 	we.environment = env; add_child(we)
 	sun = DirectionalLight3D.new(); sun.shadow_enabled = true; sun.light_color = Color(1.0, 0.95, 0.85); sun.light_specular = 0.25; get_tree().create_timer(0.5).timeout.connect(_stable_lights)
-	add_child(sun); sun.look_at_from_position(Vector3(1.5, 9, -9), Vector3(0, 0, 0)); sun.light_energy = 1.3
+	add_child(sun); sun.look_at_from_position(to_global(Vector3(1.5, 9, -9)), to_global(Vector3(0, 0, 0))); sun.light_energy = 1.3
 	sun.directional_shadow_max_distance = 40.0; sun.directional_shadow_fade_start = 1.0; sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
 	sun.shadow_blur = 2.5; sun.shadow_bias = 0.04; sun.shadow_normal_bias = 1.2
 
@@ -1129,10 +1129,10 @@ func _update_cam(dt: float) -> void:
 	if cam_override: return
 	if not cam_shot.is_empty():
 		var k := 1.0 - exp(-2.2 * dt)
-		if shot_at == Vector3.INF: shot_at = cam.global_position - cam.global_transform.basis.z * 6.0
+		if shot_at == Vector3.INF: shot_at = cam.position - cam.transform.basis.z * 6.0
 		cam.position = cam.position.lerp(cam_shot.pos, k); shot_at = shot_at.lerp(cam_shot.at, k)
 		cam.h_offset = lerpf(cam.h_offset, cam_shot.get("h", 0.0), k)
-		cam.look_at(shot_at, Vector3.UP); _fade_walls(dt); exit_xf = cam.transform; exit_t = 0.0; return
+		cam.look_at(to_global(shot_at), Vector3.UP); _fade_walls(dt); exit_xf = cam.transform; exit_t = 0.0; return
 	shot_at = Vector3.INF; cam.h_offset = lerpf(cam.h_offset, 0.0, 1.0 - exp(-3.0 * dt))
 	cam_yaw_s = lerp_angle(cam_yaw_s, cam_yaw, 1.0 - exp(-8.0 * dt)); cam_pitch_s = lerpf(cam_pitch_s, cam_pitch, 1.0 - exp(-8.0 * dt))
 	var off := Vector3(sin(cam_yaw_s) * cos(cam_pitch_s), sin(cam_pitch_s), cos(cam_yaw_s) * cos(cam_pitch_s)) * cam_dist * cam_zoom
@@ -1142,7 +1142,7 @@ func _update_cam(dt: float) -> void:
 	if cp.y < WALL_H + 0.4 and absf(cp.x) < 3.7 and cp.z > -3.2 and cp.z < 3.2: cp.y = WALL_H + 0.4
 	cam.position = cp
 	_fade_walls(dt)
-	cam.look_at(cam_focus + Vector3(0, 0.3, 0), Vector3.UP)
+	cam.look_at(to_global(cam_focus + Vector3(0, 0.3, 0)), Vector3.UP)
 	if exit_t < 1.0:   # ease back from a camera shot to the follow camera
 		exit_t = minf(1.0, exit_t + dt / 0.9)
 		cam.transform = exit_xf.interpolate_with(cam.transform, ease(exit_t, -2.0))
