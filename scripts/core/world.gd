@@ -20,6 +20,9 @@ const PLACES := {
 	"cafe": [CAFE, Vector3(8.5, 0.07, 32.5), PI], "shop": [SHOP, Vector3(-3.0, 0.07, 33.5), PI],
 }
 const HOME_LOTS := {"home": "livingroom", "cafe": "cafe", "corner_shop": "shop"}
+## reserved slots far north (red's OwLink extra places: hospital day 2, child-drive stop; blue's WorldPlaces work)
+const RESERVED := {"hospital": Vector3(0, 0, -120), "school": Vector3(120, 0, -120), "work": Vector3(-120, 0, -120)}
+const SPOTS := {}
 const OWPlaces := preload("res://scripts/world/ow_places.gd")   # hospital / school / work (north strip, behind the fence)
 const ACTIVE_R := 45.0           # places farther than this from the hero are hidden (and, once live, not processed)
 const FENCE_DAY := 8
@@ -71,6 +74,7 @@ func _ready() -> void:
 	hud.set_mission("Walk anywhere: open world preview.")
 	for l in find_children("*", "OmniLight3D", true, false) + find_children("*", "SpotLight3D", true, false): _lights.append(l)
 	_cull_setup()
+	preload("res://scripts/world/world_blue.gd").install(self)   # blue: wall fade, cafe/shop fronts, culling, door no_fade
 	OwLink.attach(self)   # red: story port (live room / place = current_scene, one hero, travel fades only)
 	print("WORLD ready places=%s doors=%s regions=%s lights=%d" % [places.keys(), doors.keys(), regions.keys(), _lights.size()])
 

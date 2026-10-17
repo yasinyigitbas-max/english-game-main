@@ -40,6 +40,22 @@ func _hud_hide(on: bool) -> void:
 		_hud_vis.clear()
 var _t := 0.0
 var exit_spawn := ""
+## v34 open world (blue): the place can live INSIDE the one world scene (scenes/world.tscn) at a fixed transform instead of
+## being its own scene. World mode = the place's parent is not the tree root (or world_mode = true in the .tscn):
+##   * no own environment / sun / HUD / player / camera / phone / menu: the world's (host = current_scene) are used
+##   * everything the place builds is in PLACE-LOCAL coordinates (the node's transform puts it on the street);
+##     walk_to / cine / cine_go / target / guide shots take place-local points, Interactable.focus stays a world point
+##   * a real door in the south wall (swings open when the player comes close), no scene change, no fade:
+##     walking in = place_entered + the scripted flow run(); walking out = place_exited ("Go outside." completes)
+##   * leave() (the exit verb) walks the player out through the door instead of Game.go_to(WORLD_SCENE)
+## Standalone (scenes/places/cafe.tscn / shop.tscn as the current scene) behaves exactly as before.
+@export var world_mode := false
+var host: Node = null               # world mode: the world scene (hud, player, cam, room_phone, menu, caption queue)
+var inside := false                 # world mode: the player is inside this place
+var door_hinge: Node3D              # world mode: the swinging front door (hinge at x = -DOOR_W / 2, south wall)
+var _running := false
+const DOOR_W := 1.2
+const DOOR_GAP := 1.4
 signal used(id: String)
 ## hooks for other code (e.g. day-3 town cues). Both carry place_id ("cafe" / "shop"). The place scene is in group "places".
 ## place_entered: the interior is built and the player stands at the door (end of _ready, before the scripted flow).
@@ -53,6 +69,7 @@ func _ready() -> void:
 	D = App.load_json(DATA)
 	TRD = D.get("tr", {})
 	if has_meta("ow_shell"): build(); _room(); return   # v34 open world (phase 1): geometry, furniture and NPCs only
+	if world_mode: _world_init.call_deferred(); return   # v34 (blue): full world place (deferred: the world's HUD / player / camera exist by then)
 	WorldState.ensure_loaded(); WorldState.scene = scene_file_path
 	_env()
 	hud = (load("res://ui/shared/hud.tscn") as PackedScene).instantiate(); add_child(hud)
@@ -85,7 +102,62 @@ func _after_setup() -> void:
 	place_entered.emit.call_deferred(place_id)   # deferred: listeners connected from node_added / the group still get it
 	if not "--qa-place" in OS.get_cmdline_user_args(): _start.call_deferred()
 
-func _start() -> void: await run()
+func _start() -> void:
+	if _running: return
+	_running = true; await run(); _running = false
+
+# ------------------------------------------------------------------ v34 open world (blue)
+func _world_init() -> void:
+	if host == null: host = get_tree().current_scene
+	hud = host.get("hud"); player = host.get("player"); cam = host.get("cam")
+	room_phone = host.get("room_phone"); menu = host.get("menu")
+	build(); _room(); _marker()
+	if hud and hud.get("tr_func") is Callable:
+		var base_tr: Callable = hud.tr_func
+		hud.tr_func = func(en: String) -> String: return String(TRD[en]) if TRD.has(en) else String(base_tr.call(en))
+	add_to_group("places"); add_to_group("world_places")
+
+## place-local <-> world helpers (identity when the place is its own scene)
+func lp(n: Node3D) -> Vector3: return to_local(n.global_position)   # a node's place-local position
+func gp(local: Vector3) -> Vector3: return to_global(local)
+func ly() -> float: return global_rotation.y                         # place yaw in the world (0 = door faces +z)
+func is_inside_place(world_pos: Vector3, margin := 0.0) -> bool:
+	var l := to_local(world_pos)
+	return absf(l.x) < room.x / 2.0 - margin and absf(l.z) < room.y / 2.0 - margin and l.y > -0.5 and l.y < 3.5
+
+## world mode: entering / leaving through the door (walking only: no fade, no scene change)
+func _world_tick(dt: float) -> void:
+	if player == null or not is_instance_valid(player): return
+	var now_in := is_inside_place(player.global_position, 0.1)
+	if now_in != inside:
+		inside = now_in
+		if inside:
+			if hud and hud.has_method("set_place"): hud.set_place(place_en(), place_tr())
+			place_entered.emit(place_id)
+			_start.call_deferred()
+		else:
+			App.came_from = place_id
+			if Objectives.has("Go outside."): Objectives.complete("Go outside.")
+			if its.has("exit") and its.exit.enabled: used.emit("exit")
+			place_exited.emit(place_id)
+	if door_hinge:   # the door swings open (outwards) while the player is near it, closes behind them
+		var dl := to_local(player.global_position) - Vector3(0, 0, room.y / 2.0)
+		var want := -1.75 if Vector2(dl.x, dl.z).length() < 2.2 else 0.0
+		door_hinge.rotation.y = lerpf(door_hinge.rotation.y, want, 1.0 - exp(-dt * 5.0))
+
+## world mode: one caption queue (the world's), so place lines never overlap world / story lines
+func _q_busy() -> bool:
+	if world_mode and host and host.get("_ticket") != null: return host._serving != host._ticket
+	return _serving != _ticket
+func caption(t: String, speak = true) -> void:
+	if world_mode and host and host.has_method("caption"): await host.caption(t, speak); return
+	await super.caption(t, speak)
+func say_line(t: String) -> void:
+	if world_mode and host and host.has_method("say_line"): await host.say_line(t); return
+	await super.say_line(t)
+func caption_if_free(t: String) -> void:
+	if world_mode and host and host.has_method("caption_if_free"): await host.caption_if_free(t); return
+	await super.caption_if_free(t)
 
 func place_en() -> String: return "Cafe"
 func place_tr() -> String: return "Kafe"
@@ -121,6 +193,8 @@ func save_score(key: String, v) -> void:
 
 # ------------------------------------------------------------------ guide / objectives / lines
 func guide(target, en: String) -> void:
+	if target is Dictionary and target.has("pos") and target.has("at"):   # shots are authored place-local
+		target = {"pos": gp(target.pos), "at": gp(target.at), "h": float(target.get("h", 0.0))}
 	await Life.guide_to(target, en, {"tr": tr_line(en)})
 
 func beat(name: String) -> void:   # plays data beats[place][name]: [speaker, line, tr]
@@ -134,7 +208,7 @@ func speak(who: String, en: String) -> void:
 func npc_line(npc: DemoCharacter, en: String) -> void:
 	# v32 rule: ONE bottom-centre caption box (the shared HUD caption, TR button inside). Wait for queued narrator lines so
 	# an NPC line never replaces one that is still pending
-	while _serving != _ticket and is_inside_tree(): await get_tree().process_frame
+	while _q_busy() and is_inside_tree(): await get_tree().process_frame
 	await voice_idle(0.1)
 	# v32 universal rule (Yasin): talking never changes the pose. The library "talk" clip is SEATED (standing NPCs sat down
 	# for the line and stood up again). Red's shared routine scripts/core/npc_talk.gd (turn + head nod, no clip change) is
@@ -172,6 +246,8 @@ func face(who: Node3D, at: Vector3) -> void:
 
 # ------------------------------------------------------------------ cinematic camera (temporary Camera3D, like Life.guide_to)
 func cine(pos: Vector3, at: Vector3, t := 1.4) -> void:
+	pos = gp(pos); at = gp(at)   # v34: place-local shot
+	if world_mode: t = maxf(t, 0.9)   # no "cut under the fade-in" in the open world: there is no fade
 	pos = _safe_pos(pos, at)
 	var rig := get_viewport().get_camera_3d()
 	if _cine_cam == null:
@@ -187,6 +263,7 @@ func cine(pos: Vector3, at: Vector3, t := 1.4) -> void:
 
 ## non-blocking camera move (returns the tween; await tw.finished when needed)
 func cine_go(pos: Vector3, at: Vector3, t := 1.4) -> Tween:
+	pos = gp(pos); at = gp(at)   # v34: place-local shot
 	pos = _safe_pos(pos, at)
 	if _cine_cam == null:
 		var rig := get_viewport().get_camera_3d()
@@ -222,6 +299,9 @@ func _rig_xf() -> Transform3D: return cam.global_transform
 
 # ------------------------------------------------------------------ player helpers
 func walk_to(p: Vector3, yaw := INF) -> void:
+	p = gp(p)   # v34: place-local point
+	if yaw != INF: yaw += ly()
+	var floor_y := global_position.y
 	var t := 0.0; player.busy = true
 	if Vector2(p.x - player.global_position.x, p.z - player.global_position.z).length() > 0.15:
 		player.hero.play("walk", 0.2)
@@ -230,7 +310,7 @@ func walk_to(p: Vector3, yaw := INF) -> void:
 			if d.length() < 0.1: break
 			player.velocity = d.normalized() * minf(1.6, d.length() * 4.0 + 0.3)
 			player.hero.rotation.y = lerp_angle(player.hero.rotation.y, atan2(d.x, d.z), 0.25)
-			player.move_and_slide(); player.global_position.y = 0.0
+			player.move_and_slide(); player.global_position.y = floor_y
 			await get_tree().physics_frame; t += 1.0 / 60.0
 		player.velocity = Vector3.ZERO; player.hero.play("idle", 0.25)
 	if yaw != INF:
@@ -245,7 +325,7 @@ func busy(on: bool) -> void:
 const TARGET_NAMES := {"basket": "basket", "apples": "apples", "milk": "milk", "bread": "bread", "pay": "checkout", "exit": "door", "counter": "counter", "seat": "seat"}
 ## an objective target: Interactable that emits used(id) once enabled
 func target(id: String, pos: Vector3, focus: Vector3, verb_en: String, r := 1.5) -> Interactable:
-	var it := Interactable.new(); it.obj_name = String(TARGET_NAMES.get(id, id)); it.radius = r; it.position = pos; it.focus = focus; add_child(it)
+	var it := Interactable.new(); it.obj_name = String(TARGET_NAMES.get(id, id)); it.radius = r; it.position = pos; add_child(it); it.focus = gp(focus)   # focus = world point
 	it.verbs = func() -> Array: return [[verb_en, func(): used.emit(id)]] if it.enabled else []
 	its[id] = it; return it
 
@@ -266,14 +346,13 @@ func objective(id: String, en: String, cam_shot = null) -> void:
 func qa_use(id: String) -> void:
 	if not its.has(id): return
 	var it: Interactable = its[id]
-	await walk_to(Vector3(it.global_position.x, 0, it.global_position.z))
+	var l := lp(it); await walk_to(Vector3(l.x, 0, l.z))
 	used.emit(id)
 
 ## optional chat with an NPC: first time = data npc[place][id] dialogue, later = one short line
 func chat_target(id: String, npc: DemoCharacter, r := 1.6) -> void:
-	var to := (player.global_position if player else Vector3(0, 0, room.y / 2)) - npc.global_position; to.y = 0
 	var it := Interactable.new(); it.obj_name = String({"assistant": "shop assistant", "barista": "barista"}.get(id, "person")); it.radius = r; add_child(it)
-	it.position = npc.global_position + Vector3(0, 0, 0.9).rotated(Vector3.UP, npc.rotation.y); it.focus = npc.global_position + Vector3(0, 1.2, 0)
+	it.position = npc.position + Vector3(0, 0, 0.9).rotated(Vector3.UP, npc.rotation.y); it.focus = npc.global_position + Vector3(0, 1.2, 0)
 	its["npc_" + id] = it
 	it.verbs = func() -> Array:
 		if mode != "play": return []
@@ -353,6 +432,13 @@ func exit_door(pos: Vector3, focus: Vector3) -> void:
 	target("exit", pos, focus, "Go outside")
 
 func leave() -> void:
+	if world_mode:   # v34: walk out through the real door (no fade, no scene change); _world_tick reports the exit
+		Audio.sfx("place_bell", -8.0); Audio.sfx("doorOpen_1", -4.0)
+		save_game(); App.came_from = place_id
+		var hz := room.y / 2.0
+		await walk_to(Vector3(0, 0, hz - 0.5)); await walk_to(Vector3(0, 0, hz + 1.3), 0.0)
+		Audio.music("")
+		return
 	Audio.sfx("place_bell", -8.0); Audio.sfx("doorOpen_1", -4.0)
 	save_game(); App.came_from = place_id
 	await get_tree().create_timer(0.6).timeout
@@ -437,17 +523,30 @@ func _room() -> void:
 	var fc: Array = floor_colors(); var floor_c: Color = fc[0]; var wc: Color = fc[1]; var ac: Color = fc[2]
 	box(Vector3(room.x, 0.1, room.y), Vector3(0, -0.05, 0), floor_c, true)
 	for i in range(1, int(room.x / 0.5)): box(Vector3(0.012, 0.004, room.y), Vector3(-hx + i * 0.5, 0.002, 0), floor_c.darkened(0.14), false)
-	box(Vector3(60, 0.1, 60), Vector3(0, -0.16, 0), Color(0.55, 0.58, 0.6), false)
+	if not world_mode: box(Vector3(60, 0.1, 60), Vector3(0, -0.16, 0), Color(0.55, 0.58, 0.6), false)   # v34: the street is the ground in the open world
 	var h := 3.0
-	for d in [[Vector3(room.x, h, 0.14), Vector3(0, h / 2, -hz), Vector3(0, 0, -1)], [Vector3(room.x, h, 0.14), Vector3(0, h / 2, hz), Vector3(0, 0, 1)],
-			[Vector3(0.14, h, room.y), Vector3(-hx, h / 2, 0), Vector3(-1, 0, 0)], [Vector3(0.14, h, room.y), Vector3(hx, h / 2, 0), Vector3(1, 0, 0)]]:
+	var sides := [[Vector3(room.x, h, 0.14), Vector3(0, h / 2, -hz), Vector3(0, 0, -1)],
+			[Vector3(0.14, h, room.y), Vector3(-hx, h / 2, 0), Vector3(-1, 0, 0)], [Vector3(0.14, h, room.y), Vector3(hx, h / 2, 0), Vector3(1, 0, 0)]]
+	if world_mode:   # v34: south wall in two parts + lintel, a real opening for the door
+		var sw := (room.x - DOOR_GAP) / 2.0
+		sides.append([Vector3(sw, h, 0.14), Vector3(-DOOR_GAP / 2.0 - sw / 2.0, h / 2, hz), Vector3(0, 0, 1)])
+		sides.append([Vector3(sw, h, 0.14), Vector3(DOOR_GAP / 2.0 + sw / 2.0, h / 2, hz), Vector3(0, 0, 1)])
+		var lin := box(Vector3(DOOR_GAP, h - 2.3, 0.14), Vector3(0, 2.3 + (h - 2.3) / 2.0, hz), fc[1]); walls.append([lin, Vector3(0, 0, 1)])
+	else: sides.insert(1, [Vector3(room.x, h, 0.14), Vector3(0, h / 2, hz), Vector3(0, 0, 1)])
+	for d in sides:
 		var m := box(d[0], d[1], wc); walls.append([m, d[2]])
 		var n: Vector3 = d[2]; var sz: Vector3 = d[0]
 		var a := box(Vector3(0.01, h * 0.38, sz.z - 0.04) if n.x != 0 else Vector3(sz.x - 0.04, h * 0.38, 0.01), Vector3(d[1].x, h * 0.19, d[1].z) - n * 0.075, ac, false); walls.append([a, n])
 		var trim := box(Vector3(0.02, 0.05, sz.z - 0.04) if n.x != 0 else Vector3(sz.x - 0.04, 0.05, 0.02), Vector3(d[1].x, h * 0.38, d[1].z) - n * 0.08, Color(1, 1, 1), false); walls.append([trim, n])
 	# front door (glass, the player came in here) + door mat
-	var dm := box(Vector3(1.2, 2.2, 0.06), Vector3(0, 1.1, hz - 0.09), Color(0.35, 0.25, 0.18), false); walls.append([dm, Vector3(0, 0, 1)])
-	var gl := box(Vector3(0.9, 1.5, 0.02), Vector3(0, 1.3, hz - 0.125), Color(0.7, 0.85, 0.95), false, 0.0, 0.25); walls.append([gl, Vector3(0, 0, 1)])
+	if world_mode:   # v34: a real door on a hinge (left jamb), swings outwards when the player comes close
+		door_hinge = Node3D.new(); door_hinge.name = "FrontDoor"; door_hinge.position = Vector3(-DOOR_W / 2.0, 0, hz + 0.02); add_child(door_hinge)
+		door_hinge.add_to_group("doors")
+		for b in [[Vector3(DOOR_W, 2.2, 0.06), Vector3(DOOR_W / 2.0, 1.1, 0), Color(0.35, 0.25, 0.18), 0.0], [Vector3(0.9, 1.5, 0.02), Vector3(DOOR_W / 2.0, 1.3, 0.035), Color(0.7, 0.85, 0.95), 0.25]]:
+			var mi := MeshInstance3D.new(); var bm := BoxMesh.new(); bm.size = b[0]; mi.mesh = bm; mi.material_override = mat(b[2], b[3]); mi.position = b[1]; door_hinge.add_child(mi)
+	else:
+		var dm := box(Vector3(1.2, 2.2, 0.06), Vector3(0, 1.1, hz - 0.09), Color(0.35, 0.25, 0.18), false); walls.append([dm, Vector3(0, 0, 1)])
+		var gl := box(Vector3(0.9, 1.5, 0.02), Vector3(0, 1.3, hz - 0.125), Color(0.7, 0.85, 0.95), false, 0.0, 0.25); walls.append([gl, Vector3(0, 0, 1)])
 	furn("rugDoormat", Vector3(0, 0.0, hz - 0.6), 0, 0.0, 1.2, false)
 
 func _marker() -> void:
@@ -458,18 +557,26 @@ func _marker() -> void:
 
 func _process(dt: float) -> void:
 	_t += dt
+	if marker == null: return   # world mode before _world_init
+	if world_mode:
+		_world_tick(dt)
+		if not inside:   # from the street the place is a building: a wall fades only while it hides the player (occluder rule)
+			var vc := get_viewport().get_camera_3d()
+			for w in walls: WallFade.step_occl(w[0], WallFade.OCC_MIN_A if vc and WallFade.occluded(w[0], vc.global_position, player.global_position) else 1.0, dt)
+			marker.visible = false
+			return
 	marker.visible = _mark_target != null and is_instance_valid(_mark_target) and mode == "play"
 	if marker.visible: marker.global_position = _mark_target.focus + Vector3(0, 0.55 + sin(_t * 3.0) * 0.07, 0)
 	var c := get_viewport().get_camera_3d()
 	if c:
 		var hz := room.y / 2.0
-		var near_s: bool = player != null and player.global_position.z > hz - 1.8   # player close to the south wall
+		var near_s: bool = player != null and lp(player).z > hz - 1.8   # player close to the south wall
 		var occ := {}   # v33 rule: a side / back wall that hides the player fades (its trim + accent with it), then fades back
 		if player != null:
 			for w in walls: if (w[1] as Vector3).z <= 0.5 and not occ.get(w[1], false): occ[w[1]] = WallFade.occluded(w[0], c.global_position, player.global_position)
 		for w in walls:
 			var m: MeshInstance3D = w[0]; var n: Vector3 = w[1]
-			var d: float = (c.global_position - m.global_position).dot(n)
+			var d: float = (c.global_position - m.global_position).dot(global_basis * n)
 			if n.z > 0.5:   # v32 rule: south wall (+ door, trim, accent) fades gradually when the camera or the player is near
 				WallFade.step(m, d > -0.8 or near_s, dt)
 			else: WallFade.step_occl(m, 0.0 if d >= 0.3 else (WallFade.OCC_MIN_A if occ.get(n, false) else 1.0), dt)   # v33: was an instant hide

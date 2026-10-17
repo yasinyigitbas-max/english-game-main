@@ -48,6 +48,16 @@ var enabled := true
 var forced := false
 var _walls: Array = []      # [{"node": Node3D, "meshes": [GeometryInstance3D], "opt": {}}]
 
+## v34: doors never fade (group "doors", meta no_fade, World.WorldDoor leaves, nodes named *Door* / *leaf*)
+static func is_door(n: Node, stop: Node = null) -> bool:
+	var p := n
+	while p and p != stop:
+		if p.has_meta("no_fade") or p.is_in_group("doors"): return true
+		var nm := String(p.name).to_lower()
+		if "door" in nm or "leaf" in nm: return true
+		p = p.get_parent()
+	return false
+
 static func attach(host: Node, camera = null, target = null) -> Node:
 	var wf: Node = (load("res://scripts/props/wall_fade.gd") as GDScript).new()
 	wf.name = "WallFade"; wf.cam = camera; wf.player = target; host.add_child(wf); return wf
@@ -55,6 +65,8 @@ static func attach(host: Node, camera = null, target = null) -> Node:
 func register(wall: Node, opt := {}) -> void:
 	if wall == null or not is_instance_valid(wall): return
 	for e in _walls: if e.node == wall: return
+	if opt.get("occl", false) and is_door(wall, get_parent()): return   # v34: doors never fade
+	wall.set_meta("wf_reg", get_instance_id())   # v34: owned by a manager (scripts/world/world_wall_fade.gd skips it)
 	var ms: Array = []
 	if wall is GeometryInstance3D: ms.append(wall)
 	for m in wall.find_children("*", "GeometryInstance3D", true, false): ms.append(m)
@@ -190,6 +202,7 @@ func _attached(e: Dictionary) -> Array:
 	for g in host.find_children("*", "GeometryInstance3D", true, false):
 		if mine.has(g) or not (g is VisualInstance3D) or g.has_meta("wf_att"): continue
 		if pn and (pn == g or pn.is_ancestor_of(g)): continue
+		if is_door(g, host): continue   # v34: a door stays solid when its wall fades (Yasin: the shop door)
 		if "hero" in host and host.hero is Node and (host.hero as Node).is_ancestor_of(g): continue
 		var gb: AABB = (g as VisualInstance3D).global_transform * (g as VisualInstance3D).get_aabb()
 		if gb.size == Vector3.ZERO or not ab.encloses(gb) or not (g as Node3D).is_visible_in_tree(): continue

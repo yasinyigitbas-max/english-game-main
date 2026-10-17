@@ -52,9 +52,9 @@ func spk(who: String) -> Array:
 
 func _hz() -> float: return float(sc.room.y) / 2.0
 func _near(n: Node3D, d := 1.3) -> Vector3:   # a spot in front of n, towards the room centre
-	var to := -n.global_position; to.y = 0
+	var to := -n.position; to.y = 0   # v34: place-local (the shop may sit anywhere in the open world)
 	if to.length() < 0.05: to = Vector3(0, 0, -1)
-	return n.global_position + to.normalized() * d
+	return n.position + to.normalized() * d
 
 func target(tag: String):
 	match tag:
@@ -70,7 +70,7 @@ func play_mode(on: bool) -> void:
 		if n:
 			var it: Interactable = sc.its.get("d5_" + _tag)
 			if it == null: it = sc.target("d5_" + _tag, Vector3.ZERO, Vector3.ZERO, "Talk")
-			it.global_position = _near(n, 0.9); it.focus = n.global_position + Vector3(0, 1.1, 0); it.enabled = true
+			it.position = _near(n, 0.9); it.focus = n.global_position + Vector3(0, 1.1, 0); it.enabled = true
 			sc._mark_target = it
 	else:
 		sc._mark_target = null
@@ -88,7 +88,7 @@ func reach(tag: String) -> void:
 	_used = ""; _dbg = "reach " + tag
 	if "--qa-d56" in OS.get_cmdline_user_args():
 		await sc.walk_to(_near(n, 1.0))
-		if sc.player.global_position.distance_to(_near(n, 1.0)) > 1.2: sc.player.global_position = _near(n, 1.0)   # QA: blocked by a shelf
+		if sc.lp(sc.player).distance_to(_near(n, 1.0)) > 1.2: sc.player.global_position = sc.gp(_near(n, 1.0))   # QA: blocked by a shelf
 	while is_instance_valid(sc) and is_instance_valid(n):
 		var a: Vector3 = sc.player.global_position; var b := n.global_position; a.y = 0; b.y = 0
 		if _used == "d5_" + tag or a.distance_to(b) < 1.5: break
@@ -103,11 +103,11 @@ func _spawn(id: String, g: String, voice: String, pos: Vector3, yaw: float, top:
 	return ch
 
 func _walk(ch: DemoCharacter, to: Vector3, speed := 1.4) -> void:
-	var d := to - ch.global_position; d.y = 0
+	var d := to - ch.position; d.y = 0   # v34: place-local
 	if d.length() < 0.05: return
 	ch.play("walk", 0.2)
 	create_tween().tween_property(ch, "rotation:y", ch.rotation.y + wrapf(atan2(d.x, d.z) - ch.rotation.y, -PI, PI), 0.25)
-	var tw := create_tween(); tw.tween_property(ch, "global_position", Vector3(to.x, ch.global_position.y, to.z), d.length() / speed)
+	var tw := create_tween(); tw.tween_property(ch, "position", Vector3(to.x, ch.position.y, to.z), d.length() / speed)
 	await tw.finished
 	ch.play("idle", 0.25)
 
@@ -118,18 +118,18 @@ func act(tag: String) -> void:
 			child = _spawn("d5_child", "men", "child_m", Vector3(1.5, 0, hz - 1.7), PI * 0.85, Color(0.98, 0.85, 0.2), true)
 			child.hair_color = Color(0.36, 0.22, 0.12); child.outfit["Head"] = 0; child._refresh()   # short brown hair, yellow T-shirt (the description)
 			child.bone_offsets["Head"] = [Vector3.RIGHT, 0.35]   # head down, sad
-			await sc.cine(child.global_position + Vector3(-1.6, 1.5, -1.8), child.global_position + Vector3(0, 0.7, 0), 1.2)
+			await sc.cine(child.position + Vector3(-1.6, 1.5, -1.8), child.position + Vector3(0, 0.7, 0), 1.2)
 			await _w(1.6)
 			await sc.cine_end()
 		"walk_to_assistant":
 			if asst:
 				var spot := _near(asst, 1.1)
-				var side := (spot - asst.global_position).cross(Vector3.UP).normalized() * 0.7
+				var side := (spot - asst.position).cross(Vector3.UP).normalized() * 0.7
 				_walk(child, spot + side)
 				await _w(0.6)
 				_face(child, asst.global_position)
 		"look_at_child":
-			await sc.cine(child.global_position + Vector3(0.9, 1.2, 1.4), child.global_position + Vector3(0, 0.75, 0), 1.0)
+			await sc.cine(child.position + Vector3(0.9, 1.2, 1.4), child.position + Vector3(0, 0.75, 0), 1.0)
 		"announce":
 			Audio.sfx("place_bell", -4.0)
 			await sc.cine_end()

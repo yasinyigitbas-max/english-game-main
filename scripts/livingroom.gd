@@ -1551,8 +1551,9 @@ func _face(d: Vector3, dt: float) -> void:
 func _process(dt: float) -> void:
 	if cam_stick.length() > 0.1:
 		var dy := cam_stick.x * 1.8 * dt
-		if signf(dy) == signf(cam_yaw): dy *= clampf(1.0 - pow(absf(cam_yaw) / 1.3, 3.0), 0.0, 1.0)
-		cam_yaw = clampf(cam_yaw + dy, -1.3, 1.3)
+		var _free: bool = (load("res://scripts/core/shoulder_cam.gd") as GDScript).free_yaw(get_tree())   # v34: one free-yaw camera
+		if signf(dy) == signf(cam_yaw) and not _free: dy *= clampf(1.0 - pow(absf(cam_yaw) / 1.3, 3.0), 0.0, 1.0)
+		cam_yaw = wrapf(cam_yaw + dy, -PI, PI) if _free else clampf(cam_yaw + dy, -1.3, 1.3)
 		var dp := cam_stick.y * 1.0 * dt
 		if signf(dp) == signf(cam_pitch - 0.95): dp *= clampf(1.0 - pow(absf(cam_pitch - 0.95) / 0.35, 3.0), 0.0, 1.0)
 		cam_pitch = clampf(cam_pitch + dp, 0.6, 1.3)
@@ -1648,7 +1649,7 @@ func _update_hand() -> void:
 
 func _unhandled_input(e: InputEvent) -> void:
 	if e is InputEventMouseMotion and (e.button_mask & MOUSE_BUTTON_MASK_RIGHT):
-		cam_yaw = clampf(cam_yaw - e.relative.x * 0.006, -1.3, 1.3); cam_pitch = clampf(cam_pitch + e.relative.y * 0.004, 0.6, 1.3)
+		cam_yaw = wrapf(cam_yaw - e.relative.x * 0.006, -PI, PI) if (load("res://scripts/core/shoulder_cam.gd") as GDScript).free_yaw(get_tree()) else clampf(cam_yaw - e.relative.x * 0.006, -1.3, 1.3); cam_pitch = clampf(cam_pitch + e.relative.y * 0.004, 0.6, 1.3)
 	elif e is InputEventMouseButton and e.pressed and e.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
 		cam_dist = clampf(cam_dist * (0.92 if e.button_index == MOUSE_BUTTON_WHEEL_UP else 1.08), 6.0, 12.0)
 	elif e is InputEventMagnifyGesture:
