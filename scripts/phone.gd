@@ -653,6 +653,7 @@ func _lesson() -> void:
 			# else data/extra_lines.json), shown only while TR is on (practice buttons he/she/it, am/is/are, examples)
 			var is_tr_col := k == 1 and not two and (lesson_i in [0, 3] or not fam)
 			var gl := _cell_tr(st, row_i, k, txt) if not is_tr_col else ""
+			if k == 0 and not two and (lesson_i in [0, 3] or not fam) and String(row[1]) != "": gl = ""   # ui33: the row already has its Turkish in the RIGHT column - no second TR under the EN
 			if gl != "":
 				lb.offset_bottom = -20
 				var gt := _l(gl, 14, false, TR_C); gt.set_anchors_preset(Control.PRESET_BOTTOM_WIDE); gt.offset_left = 20; gt.offset_top = -24; gt.offset_bottom = -4

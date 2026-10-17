@@ -21,7 +21,7 @@ func _ready() -> void:
 	await w(6.0)
 	if OwLink.inst and is_instance_valid(OwLink.inst.live): get_tree().current_scene = OwLink.inst.live
 	P("LIVE " + (OwLink.inst.live_id if OwLink.inst else "-"))
-	if not ev in ["places", "fix", "fixb", "trburst", "d1"]: Engine.time_scale = 2.5; AudioServer.playback_speed_scale = 2.5
+	if not ev in ["places", "fix", "fixb", "trburst", "d1", "ui", "hosp"]: Engine.time_scale = 2.5; AudioServer.playback_speed_scale = 2.5
 	Objectives.changed.connect(func():
 		for it in Objectives.items:
 			var s := String(it.en)
@@ -40,7 +40,7 @@ func _snap(n: String) -> void:
 	var caps := get_tree().root.find_children("*Caption*", "", true, false).filter(func(c): return c is CanvasItem and c.is_visible_in_tree())
 	P("SHOT %s scene=%s objs=%s caps=%d cam=%s" % [f, cs.name if cs else "-", JSON.stringify(Objectives.items.map(func(i): return i.en)), caps.size(), get_viewport().get_camera_3d().get_path() if get_viewport().get_camera_3d() else "none"])
 func _setup(pre := false) -> void:
-	var day := 6 if ev in ["d6", "d6b", "d6c", "places", "fix", "fixb", "trburst"] else 7
+	var day := 6 if ev in ["d6", "d6b", "d6c", "places", "fix", "fixb", "trburst", "ui", "hosp"] else 7
 	if ev == "d1": day = 1
 	var st: Dictionary = {}
 	for k in ["d3", "d4", "d5"]: st[k] = "done"
@@ -49,7 +49,7 @@ func _setup(pre := false) -> void:
 	if ev == "d6c": st["d6"] = "home"; st["d6_storm_done"] = true
 	if ev == "d7": st["d6"] = "done"; st["d7"] = "start"
 	if ev == "d7b": st["d6"] = "done"; st["d7"] = "home"; st["d7_shop"] = true
-	if ev in ["places", "fix", "fixb", "trburst"]: st["d6"] = "done"; st["d7"] = "done"
+	if ev in ["places", "fix", "fixb", "trburst", "ui", "hosp"]: st["d6"] = "done"; st["d7"] = "done"
 	if ev == "d1": st = {}; WorldState.flags.erase("story_accident")
 	var sv: Dictionary = App.load_save(); var state: Dictionary = (sv.get("state", {}) if sv.get("state", {}) is Dictionary else {}).duplicate()
 	state["family"] = [{"role": "mother", "name": "Ayse", "skin": 1, "hair": 0, "hcol": 1, "cloth": 0},
@@ -111,6 +111,8 @@ func run() -> void:
 	if ev == "fixb": await fixb(); get_tree().quit(); return
 	if ev == "trburst": await trburst(); get_tree().quit(); return
 	if ev == "d1": await d1(); get_tree().quit(); return
+	if ev == "ui": await ui33(); get_tree().quit(); return
+	if ev == "hosp": await hosp33(); get_tree().quit(); return
 	var stuck := 0
 	var limit := 3000
 	while _t() < limit:
@@ -389,3 +391,82 @@ func trburst() -> void:
 	await w(0.6)
 	var m2: Dictionary = await _monitor(ph, 3.0); P("QUIZ %s monitor=%s" % [tag, str(m2)])
 	await _burst(tag + "_quiz")
+
+## ---------------------------------------------------------------- ui33: learning-screen right column + caption checks
+func _caps_vis() -> Array:
+	return get_tree().get_nodes_in_group("caption_box").filter(func(c): return c is CanvasItem and (c as CanvasItem).is_visible_in_tree()).map(func(c): return str(c.name))
+func _trcol() -> String:
+	var l := get_tree().get_nodes_in_group("tr_column").filter(func(c): return c is Label and (c as Label).is_visible_in_tree())
+	return "%d %s" % [l.size(), str(l.map(func(c): return (c as Label).text.left(24)).slice(0, 6))]
+func ui33() -> void:
+	await OwLink.enter("livingroom", "bedroom"); await w(4.0)
+	var lr = OwLink.inst.live; var ph = lr.room_phone.phone
+	lr.mode = "busy"
+	# 1/3: TestBank phone test (D6 + D4 share it)
+	var TB = load("res://scripts/story/test_bank.gd")
+	var t = TB.new(); var tdone := [false]
+	(func(): await t.run(lr, ph, 6, {"n": 3, "key": "QA_ui33"}); tdone[0] = true).call()
+	await w(1.5); await _snap("T1_test_note"); P("TEST caps=%s tr=%s" % [_caps_vis(), _trcol()])
+	await w(9.0); await _snap("T2_test_q"); P("TEST caps=%s tr=%s" % [_caps_vis(), _trcol()])
+	for k in 3:
+		var row = ph.find_child("Options", true, false)
+		if row: (row.get_child(1 if k == 0 else 0) as Button).disabled = false; (row.get_child(1 if k == 0 else 0) as Button).pressed.emit()
+		await w(0.8); if k == 0: await _snap("T3_test_feedback")
+		await w(8.0)
+	await w(1.0); await _snap("T4_score"); P("SCORE caps=%s tr=%s" % [_caps_vis(), _trcol()])
+	await w(1.5); await _snap("T5_score_tip"); P("SCORE2 caps=%s" % [_caps_vis()])
+	var sc = ph.find_child("ScoreContinue", true, false)
+	if sc: sc.pressed.emit()
+	await w(2.0); ph.close(true); await w(1.5)
+	# 2: Day56 choice panel (breakfast review shape: opts without TR)
+	var dc = load("res://scripts/story/day5_common.gd").new(); get_tree().root.add_child(dc)
+	var q: Dictionary = TB.questions(6)[0]
+	var opts: Array = []
+	for i in q.opts.size(): opts.append({"en": String(q.opts[i]), "tr": "", "ok": i == int(q.a), "fb": String(q.say), "fb_tr": String(q.tr)})
+	(func(): await dc.choice({"prompt": String(q.q), "prompt_tr": "Doğru kelimeleri seç.  (%s)" % String(q.tr), "opts": opts, "speak": "Choose the right words.", "first_try": true})).call()
+	await w(5.0); await _snap("C1_d56choice"); P("D56 tr=%s" % _trcol())
+	for b in get_tree().root.find_children("D56Opt*", "Button", true, false):
+		if bool(b.get_meta("ok")): b.disabled = false; b.pressed.emit()
+	await w(6.0)
+	# D4Choose + scramble
+	var D4 = load("res://scripts/story/day4_talk.gd")
+	(func(): await D4.choose(lr, TB.questions(4)[0])).call()
+	await w(2.5); await _snap("C2_d4choose"); P("D4C tr=%s" % _trcol())
+	for n in get_tree().root.find_children("D4Choose", "", true, false): n.get_parent().queue_free()
+	await w(1.0)
+	(func(): await D4.puzzle(lr, "I am very happy today.", "", false)).call()
+	await w(2.5); await _snap("C3_scramble"); P("SCR tr=%s caps=%s" % [_trcol(), _caps_vis()])
+	for n in get_tree().root.find_children("D4Puzzle", "", true, false): n.get_parent().queue_free()
+	await w(1.0)
+	# 7: glass probe around the home lot / front yard
+	var W = OwLink.inst.world
+	var all: Array = []; _walk_all(W, all)
+	for c in all:
+		if not (c is GeometryInstance3D) or not (c as Node3D).is_visible_in_tree(): continue
+		var m = c.material_override
+		if m == null and c is MeshInstance3D and c.mesh and c.mesh.get_surface_count() > 0: m = c.get_active_material(0)
+		if m is StandardMaterial3D and (m as StandardMaterial3D).transparency != BaseMaterial3D.TRANSPARENCY_DISABLED:
+			var ab: AABB = (c as VisualInstance3D).get_aabb(); var gp: Vector3 = (c as Node3D).global_position
+			if gp.distance_to(Vector3(0, 0, 5)) < 25.0: P("GLASS %s pos=%s size=%s col=%s" % [str(c.get_path()).right(110), str(gp), str(ab.size), str(m.albedo_color)])
+	# 8: cafe NPC poses
+	await OwLink.to_street("front"); await w(4.0)
+	var wp = W.player; wp.place_at("cafe"); await w(4.0); await _snap("N1_cafe_street")
+	var cafe = W.places.get("cafe") if W.get("places") is Dictionary else null
+	if cafe and cafe.get("npcs") is Dictionary:
+		for k in cafe.npcs: var ch = cafe.npcs[k]; P("CAFE NPC %s anim=%s playing=%s pos=%.2f" % [k, ch.player.current_animation, str(ch.player.is_playing()), ch.player.current_animation_position])
+	OwLink.enter("cafe", "street"); await w(8.0); await _snap("N2_cafe_in")
+	cafe = OwLink.inst.live
+	if cafe and cafe.get("npcs") is Dictionary:
+		for k in cafe.npcs: var ch = cafe.npcs[k]; P("CAFE2 NPC %s anim=%s playing=%s" % [k, ch.player.current_animation, str(ch.player.is_playing())])
+func _walk_all(n: Node, out: Array) -> void:
+	out.append(n)
+	for c in n.get_children(): _walk_all(c, out)
+func hosp33() -> void:
+	OwLink.enter("hospital", ""); await w(6.0)
+	for i in 14:
+		await w(3.0); P("HOSP t=%d caps=%s tr=%s" % [i * 3, _caps_vis(), _trcol()])
+		if i in [3, 5, 7, 10]: await _snap("H1_hosp_%02d" % i)
+	OwLink.enter("hospital_day2", ""); await w(6.0)
+	for i in 12:
+		await w(3.0); P("HOSP2 t=%d caps=%s" % [i * 3, _caps_vis()])
+		if i in [4, 7, 10]: await _snap("H2_hosp2_%02d" % i)

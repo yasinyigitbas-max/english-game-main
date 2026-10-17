@@ -372,6 +372,8 @@ func person(id: String, g: String, voice: String, pos: Vector3, yaw: float, pose
 	ch.skin = skin if skin >= 0 else randi() % 4; ch.top_color = top; ch._refresh()
 	ch.position = pos; ch.rotation.y = yaw
 	ch.set_meta("voice", voice); ch.set_meta("pose", pose); ch.play(pose, 0.0)
+	if ch.player and ch.player.is_playing(): ch.player.advance(0.0)   # ui33: apply the pose now - a preloaded / slept place never processes, so its NPCs stood in the T (rest) pose when seen from the street
+	elif ch.player and ch.player.has_animation("idle"): ch.player.play("idle", 0.0); ch.player.advance(0.0)
 	npcs[id] = ch
 	if pose != "sit_idle":
 		var col := StaticBody3D.new(); var cs := CollisionShape3D.new(); var sh := CylinderShape3D.new(); sh.radius = 0.28; sh.height = 1.6

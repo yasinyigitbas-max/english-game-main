@@ -212,9 +212,10 @@ func choice(c: Dictionary) -> Dictionary:
 	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 10); box.add_child(v)
 	var trs: Array = []
 	var pl := Label.new(); pl.text = String(c.prompt); pl.add_theme_font_size_override("font_size", 28); pl.add_theme_color_override("font_color", Color(0.12, 0.15, 0.25))
-	pl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; pl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(pl)
-	var pt := Label.new(); pt.text = String(c.get("prompt_tr", "")); pt.add_theme_font_size_override("font_size", 17); pt.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8))
-	pt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; pt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(pt); trs.append(pt)
+	v.add_child(pl)
+	var ptx := String(c.get("prompt_tr", ""))
+	if ptx == "": ptx = StoryUI.tr_of(String(c.prompt))
+	var pt := StoryUI.tr_row(v, pl, ptx, 19); trs.append(pt)   # ui33: Turkish in the RIGHT column (always shown)
 	var opts: Array = (c.opts as Array).duplicate(); opts.shuffle()
 	var btns: Array = []
 	for i in opts.size():
@@ -222,13 +223,13 @@ func choice(c: Dictionary) -> Dictionary:
 		b.focus_mode = Control.FOCUS_NONE; b.disabled = true; b.set_meta("ok", bool(opts[i].get("ok", false))); b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		_style(b, Color(0.33, 0.47, 0.78))   # answers in blue; a wrong pick turns red and stays greyed, the right one green
 		var ii := i; b.pressed.connect(func(): _picked.emit(ii)); v.add_child(b); btns.append(b)
-		if String(opts[i].get("tr", "")) != "":
-			var bt := Label.new(); bt.text = String(opts[i].tr); bt.add_theme_font_size_override("font_size", 15); bt.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8))
-			bt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(bt); trs.append(bt)
+		var otr := String(opts[i].get("tr", ""))
+		if otr == "": otr = StoryUI.tr_of(String(opts[i].en))
+		if otr == "": otr = StoryUI.opt_tr(String(opts[i].en))
+		StoryUI.tr_button(b, otr, 18, Color(0.86, 0.93, 1.0))   # ui33: option Turkish to the right of its English, inside the button
 	var fb := Label.new(); fb.name = "D56Feedback"; fb.text = " "; fb.add_theme_font_size_override("font_size", 21); fb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	fb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(fb)
-	var fbt := Label.new(); fbt.text = ""; fbt.add_theme_font_size_override("font_size", 16); fbt.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8))
-	fbt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; fbt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(fbt); trs.append(fbt)
+	v.add_child(fb)
+	var fbt := StoryUI.tr_row(v, fb, "", 18); trs.append(fbt)
 	var tr_vis := func(): for l in trs: if is_instance_valid(l): (l as Label).visible = (l as Label).text.strip_edges() != ""   # v33.1 (Yasin 17:41): Turkish on learning screens ALWAYS shows; the TR button only controls the caption box
 	tr_vis.call()
 	box.modulate.a = 0.0; create_tween().tween_property(box, "modulate:a", 1.0, 0.3)

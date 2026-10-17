@@ -46,6 +46,8 @@ var _t := 0.0
 var bed_lock := false
 var _bed_xf: Transform3D
 var m: Node   # bedroom while bedtime runs
+var _alarm_pin := false   # ui33: keep "Turn off the alarm." as the only objective until it is done
+const _ALARM_OBJ := {"id": "Turn off the alarm.", "en": "Turn off the alarm.", "tr": "Alarmı kapat."}
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -71,6 +73,7 @@ func _process(dt: float) -> void:
 	if _t < 0.4: return
 	_t = 0.0
 	ensure_voice()   # the narrator setting may have reloaded the packs
+	if _alarm_pin and (Objectives.items.size() != 1 or String(Objectives.items[0].get("id", "")) != "Turn off the alarm."): Objectives.set_list([_ALARM_OBJ])   # ui33
 	if _busy:
 		# a step awaiting in a scene that got freed (player left mid-step) must not lock the director forever
 		if not is_instance_valid(_sc) and get_tree().current_scene != null: _busy = false; _sc = null
@@ -82,6 +85,7 @@ func _process(dt: float) -> void:
 		_sc = s; sc = s; _cur = {}; Objectives.set_list([])
 		if s and _kind(s) != "": reg_all(s, D.get("lines", {}))
 		if s and s.has_signal("action_done") and _kind(s) == "bathroom": s.action_done.connect(_on_bath_action.bind(s))
+		if s and s.has_signal("task_completed") and _kind(s) == "bathroom": s.task_completed.connect(_on_bath_task.bind(s))   # ui33
 		_busy = true; _enter.call_deferred(s); return
 	# the director owns the list while a day-5/6 step is open (no stale room missions such as "Turn on the TV.")
 	if not _cur.is_empty() and (Objectives.items.size() != 1 or String(Objectives.items[0].get("id", "")) != String(_cur.id)): Objectives.set_list([_cur])
@@ -124,6 +128,8 @@ func _enter(s: Node) -> void:
 	if not is_instance_valid(s): _busy = false; return
 	var k := _kind(s)
 	if k in ["", "other"]: _busy = false; return
+	if stage(day) == "alarm" and k == "bedroom":   # ui33: the alarm is the first objective of the day (no stale "Go to the living room.")
+		_cur = _ALARM_OBJ.duplicate(); _alarm_pin = true; Objectives.set_list([_cur])
 	await _wait_free(s)
 	if not RoutineScope.alive(s): _busy = false; return
 	var st := stage(day)
@@ -222,7 +228,7 @@ func _stop_check(w: Node) -> void:
 
 # ------------------------------------------------------------------ 1. alarm
 func _alarm(b: Node) -> void:
-	m = b
+	m = b; _alarm_pin = true
 	var lying := bool(story().get("d56_lying", false)) or String(b.mode) == "lying"
 	b.mode = "busy"; b._hide_chips()
 	if b.get("hand3d"): b.hand3d.visible = false
@@ -240,6 +246,7 @@ func _alarm(b: Node) -> void:
 		await Audio.wait_idle(8.0)
 	if not is_instance_valid(b): return
 	flag("d56_lying", false)
+	_alarm_pin = false
 	Objectives.complete("Turn off the alarm.")
 	b.mode = "busy"
 	var a: Dictionary = D.alarm_after
@@ -249,6 +256,12 @@ func _alarm(b: Node) -> void:
 	await _guide(b, _obj_shot(b, "door"), GO_BATH[0], GO_BATH[1])
 
 # ------------------------------------------------------------------ 2. bathroom
+## ui33: the objective leaves the list as soon as both steps are done (action_done only fires after the queued narration, ~100 s later)
+func _on_bath_task(_task, bt: Node) -> void:
+	if stage(day) != "bath" or not is_instance_valid(bt) or String(D.bath.key) != "routine": return
+	if not (bt.S.face_done and bt.S.teeth_done): return
+	if String(_cur.get("id", "")) == String(D.bath.en): _cur = {}
+	Objectives.complete(String(D.bath.en))
 func _on_bath_action(_id, bt: Node) -> void:
 	if stage(day) != "bath" or not is_instance_valid(bt): return
 	var ld = bt.get("last_dur")
