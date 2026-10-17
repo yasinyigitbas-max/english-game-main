@@ -228,10 +228,10 @@ func _late_places() -> void:
 	for id in ["cafe", "shop", "work"]:
 		if not places.has(id): continue
 		var n: Node3D = places[id]
-		if n.get("door_hinge") == null and id == "work": continue
 		var rm: Vector2 = n.get("room"); var c0 := n.to_global(Vector3(-rm.x / 2, 0, -rm.y / 2)); var c1 := n.to_global(Vector3(rm.x / 2, 3, rm.y / 2))
 		regions[id] = AABB(Vector3(minf(c0.x, c1.x), 0, minf(c0.z, c1.z)), Vector3(absf(c1.x - c0.x), 3, absf(c1.z - c0.z)))
 		var leaf: Node3D = n.get("door_hinge")
+		if leaf == null and id == "work": continue
 		if leaf == null: push_warning("World: no FrontDoor in " + id); continue
 		leaf.set_meta("ow_world_door", true); leaf.set_meta("no_fade", true); leaf.add_to_group("doors")
 		var dr := WorldDoor.new(); dr.id = id; dr.leaf = leaf; dr.open_angle = -1.75; dr.auto = id != "work"; dr.a = id; dr.b = "street"
@@ -327,6 +327,7 @@ func _process(dt: float) -> void:
 	var hp := hero_pos()
 	if WorldState.day != _day: _fences_for_day()
 	for id in places:
+		if not regions.has(id): continue
 		var ab: AABB = regions[id]
 		var c := ab.get_center(); var near := Vector2(c.x - hp.x, c.z - hp.z).length() - ab.size.length() * 0.5 < ACTIVE_R
 		if active.get(id, null) != near:
