@@ -73,14 +73,14 @@ static func puzzle(lr: Node, sentence: String, tr := "", speak := true) -> void:
 	var pool := target.duplicate()
 	var guard := 0
 	while pool == target and pool.size() > 1 and guard < 20: pool.shuffle(); guard += 1
-	var pv := _panel(lr, "D4Puzzle"); var cl: CanvasLayer = pv[0]; var v: VBoxContainer = pv[1]
-	_lbl(v, "Put the words in the right order.", 18, Color(0.4, 0.45, 0.6))
-	var askt := _lbl(v, "Kelimeleri doğru sıraya koy.", 15, Color(0.35, 0.5, 0.8))
-	var row := HFlowContainer.new(); row.alignment = FlowContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("h_separation", 10); row.add_theme_constant_override("v_separation", 10); v.add_child(row)
+	var cl := CanvasLayer.new(); cl.layer = 30; lr.add_child(cl)
+	var P := StoryUI.scramble_panel(cl, "D4Puzzle", pool)   # v33: standard compact scramble panel (low, above the caption box)
+	Objectives.ovl_register(P.box, 5)
+	var askt: Label = P.askt
 	var got: Array = []
 	var done := [false]
-	for wd in pool:
-		var bt := Button.new(); bt.text = wd; bt.custom_minimum_size = Vector2(100, 56); bt.add_theme_font_size_override("font_size", 24); row.add_child(bt)
+	for bt in P.buttons:
+		var wd: String = bt.text
 		bt.pressed.connect(func():
 			if bt.disabled or done[0]: return
 			if wd == target[got.size()]:

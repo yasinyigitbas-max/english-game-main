@@ -160,20 +160,20 @@ func _say(t: String) -> void: Audio.say(t); _cap(t)
 func _question() -> void:
 	if _skipped: return
 	Audio.cancel_group("lesson"); _trs = []; _busy = false
-	var v: VBoxContainer = ph._clear(); v.alignment = BoxContainer.ALIGNMENT_CENTER; v.add_theme_constant_override("separation", 12)
+	var v: VBoxContainer = ph._clear(); v.alignment = BoxContainer.ALIGNMENT_CENTER; v.add_theme_constant_override("separation", 20)   # v33: full test page
 	var q: Dictionary = Q[qi]
 	if not _note:   # notebook-and-pencil reminder exactly once (Retake does not repeat it)
 		_note = true; var nl = ph._l(NOTE_EN, 16, true, ph.MUTED); nl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(nl)
 		var nt = ph._l(NOTE_TR, 14, false, ph.TR_C); nt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(nt)); _say(NOTE_EN)
 	var t = ph._l("Test %d / %d" % [qi + 1, Q.size()], 18, true, ph.MUTED); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(t)
-	var ql = ph._l(String(q.q), 40, true); ql.name = "Question"; ql.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ql.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(ql)
+	var ql = ph._l(String(q.q), 48, true); ql.name = "Question"; ql.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ql.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(ql)
 	var il = ph._l(ASK, 17, false, ph.MUTED); il.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(il)
 	var it = ph._l("%s  (%s)" % [ASK_TR, String(q.get("tr", ""))], 16, false, ph.TR_C); it.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; it.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(_trl(it))
 	var row := HBoxContainer.new(); row.name = "Options"; row.alignment = BoxContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("separation", 20); v.add_child(row)
 	var fb = ph._l(" ", 24, true, ph.GREEN); fb.name = "Feedback"; fb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; fb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(fb)
 	var fbt = ph._l("", 17, false, ph.TR_C); fbt.name = "FeedbackTR"; fbt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(fbt))
 	for i in (q.opts as Array).size():
-		var b: Button = ph._btn(String(q.opts[i]), func(): pass, Vector2(230, 76), false, 28); b.name = "Opt%d" % i; row.add_child(b)
+		var b: Button = ph._btn(String(q.opts[i]), func(): pass, Vector2(260, 100), false, 34); b.name = "Opt%d" % i; row.add_child(b)
 		var ii: int = i; b.pressed.connect(func(): _answer(ii, b, row, fb, fbt))
 	_say(ASK)
 	_enable_when_idle(row)
@@ -225,7 +225,7 @@ func _score_page() -> void:
 	_trs = []
 	var v: VBoxContainer = ph._clear(); v.alignment = BoxContainer.ALIGNMENT_CENTER; v.add_theme_constant_override("separation", 14)
 	var tot := Q.size()
-	for row in [["Your score", 22, ph.MUTED, true], ["%d / %d" % [score, tot], 60, ph.GREEN, true, "Score"], ["Puanın: %d / %d" % [score, tot], 18, ph.TR_C, false]]:
+	for row in [["Your score", 22, ph.MUTED, true], ["%d / %d" % [score, tot], 96, ph.GREEN, true, "Score"], ["Puanın: %d / %d" % [score, tot], 18, ph.TR_C, false]]:
 		var l = ph._l(row[0], row[1], row[3], row[2])
 		if row.size() > 4: l.name = row[4]
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(l if row[2] != ph.TR_C else _trl(l))
@@ -236,5 +236,6 @@ func _score_page() -> void:
 	var bar := HBoxContainer.new(); bar.name = "ScoreBar"; bar.alignment = BoxContainer.ALIGNMENT_CENTER; bar.add_theme_constant_override("separation", 14); v.add_child(bar)
 	var rb: Button = ph._btn("Retake the test", _retake, Vector2(200, 64), false, 17); rb.name = "Retake"; bar.add_child(rb)
 	var cb: Button = ph._btn("Continue", func(): Audio.click(); finished.emit([score, tot]), Vector2(180, 64), true, 17); cb.name = "ScoreContinue"; bar.add_child(cb)
+	ph.dock_bar(bar)   # v33: Retake bottom-left, Continue bottom-right (phone.gd test page dock)
 	var bt = ph._l("Testi tekrarla  ·  Devam", 14, false, ph.TR_C); bt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(bt))
 	_last_tr = not _tr_on()
