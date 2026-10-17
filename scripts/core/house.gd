@@ -25,6 +25,7 @@ static func shell_ready(room: Node, build: Callable) -> bool:
 ## room script, end of the live _ready: make sure the two other rooms exist as shells around this one
 static func live_ready(room: Node) -> void:
 	if not is_room(room.scene_file_path): return
+	_dark_outside(room)
 	if not room.has_meta("wh_hooked"):
 		room.set_meta("wh_hooked", true); room.tree_exiting.connect(func(): _on_live_exit(room))
 	(func(): _ensure(room)).call_deferred()
@@ -132,3 +133,30 @@ static func _glass() -> StandardMaterial3D:
 	if _glass_m == null:
 		_glass_m = StandardMaterial3D.new(); _glass_m.albedo_color = Color(0.74, 0.8, 0.86); _glass_m.metallic = 0.6; _glass_m.roughness = 0.15
 	return _glass_m
+
+## the whole house: everything outside the walls is dark for the room camera. The live room's 30x30 outdoor ground box gets a
+## black twin and a black unshaded inside-out box closes the view around the house, both on render layer 11, which the
+## mirror cameras (cull mask 1) do not see; the original ground moves to layer 12, seen only by the mirror cameras. So the
+## rooms, their lighting and the mirror reflections stay exactly as in v32.
+const L_VIEW := 1 << 10
+const L_MIRROR := 1 << 11
+static var _black_m: StandardMaterial3D
+static func _dark_outside(room: Node) -> void:
+	if room.has_node("WHVoid"): return
+	if _black_m == null:
+		_black_m = StandardMaterial3D.new(); _black_m.albedo_color = Color.BLACK
+		_black_m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED; _black_m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var all: Array = []; _walk(room, all)
+	for c in all:
+		if c is Camera3D:
+			if c.get_viewport() is SubViewport: c.cull_mask |= L_MIRROR
+			else: c.cull_mask &= ~L_MIRROR
+		elif c is MeshInstance3D and (c as MeshInstance3D).mesh and (c as MeshInstance3D).get_aabb().size.x >= 20.0 and not c.has_meta("wh_twin"):
+			var g := c as MeshInstance3D
+			var tw := MeshInstance3D.new(); tw.mesh = g.mesh; tw.material_override = _black_m; tw.layers = L_VIEW; tw.set_meta("wh_twin", true)
+			tw.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			g.add_child(tw); g.layers = L_MIRROR
+	var v := MeshInstance3D.new(); v.name = "WHVoid"
+	var bm := BoxMesh.new(); bm.size = Vector3(60, 40, 60); v.mesh = bm; v.layers = L_VIEW
+	v.material_override = _black_m; v.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	room.add_child(v)
