@@ -72,7 +72,7 @@ var alt_stats := {"alt": 0, "fallback": 0}
 func set_narrator(v: String) -> void:
 	narrator = v if NARRATORS.has(v) else "f"
 	alt_index = {}; alt_files.clear()
-	if narrator == "f": return
+	if narrator == "f": prewarm_tts(); return
 	var f := FileAccess.open("res://data/voice_index_%s.json" % narrator, FileAccess.READ)
 	if f:
 		var d = JSON.parse_string(f.get_as_text())
@@ -82,6 +82,7 @@ func set_narrator(v: String) -> void:
 		alt_files.append(FileAccess.open("res://voice_%s/voice_%s_%03d.bin" % [narrator, narrator, ci], FileAccess.READ))
 		ci += 1
 	print("Audio: narrator=%s lines=%d chunks=%d" % [narrator, alt_index.size(), alt_files.size()])
+	prewarm_tts()
 
 func _alt_clip(key: String) -> AudioStream:
 	if narrator == "f" or key.begins_with("v_") or not alt_index.has(key): return null
@@ -151,8 +152,7 @@ func spell(word: String) -> void:
 ## a free word (a name) through device TTS, queued like a clip
 func say_tts(text: String) -> void:   # v32: narrator-consistent (no system voice); kept for old call sites
 	if text == "" or _dup(text): return
-	var gen: AudioStream = _device_tts(text) if narrator == "f" else null
-	if gen: queue.append({"stream": gen, "what": text}); _kick()
+	if _queue_narrator_tts(text, text): _kick()
 
 func wait_idle(max_s := 15.0) -> void:
 	var t0 := _now()
@@ -190,14 +190,18 @@ func say(text: String, interrupt := true) -> void:
 		return
 	if _dup(text): return
 	# house.17: global voice queue - a new line NEVER cuts the current one (interrupt is ignored)
-	var st := _clip(norm(text))
+	var key := norm(text)
+	var st: AudioStream = null
+	var queued := false
+	if narrator == "f" or alt_index.has(key): st = _clip(key)   # the chosen narrator's own pack clip
+	else: queued = _queue_narrator_tts(text, text)              # v32-voices: m/c/g line not in its pack -> its own model
+	if not st and not queued:
+		st = _clip(key)   # m/c/g with no usable model: the old default-clip fallback
+		if not st: queued = _queue_narrator_tts(text, text)
 	if st:
 		queue.append({"stream": st, "what": text})
 		stats.clip += 1
-	else:
-		var gen: AudioStream = _device_tts(text) if narrator == "f" else null   # v32: same ljspeech model as the f pack
-		if gen: queue.append({"stream": gen, "what": text}); stats.tts += 1
-		else: stats.silent += 1   # v32: never the system TTS voice (narrator must not change)
+	elif not queued: stats.silent += 1   # v32: never the system TTS voice (narrator must not change)
 	if not st and not missing.has(text): missing.append(text)
 	spoke.emit(text)
 	_kick()
@@ -209,40 +213,120 @@ func say_as(text: String, voice: String) -> void:
 	if st: queue.append({"stream": st, "what": text, "v": voice}); stats.clip += 1; spoke.emit(text); _kick()
 	else: say(text)
 
+## v32-voices: on-device TTS in the CHOSEN narrator's own model (SherpaTts plugin): f = Piper ljspeech, m = Piper joe,
+## c = Kokoro v1.0 af_sky, g = Kokoro v1.0 af_heart - the exact models / speakers / pitch chains that rendered the
+## voice_<v> pack clips (post-processing in android/build/src/main/java/com/eh/tts/VoiceFx.java). Models come in
+## speech.pck (res://tts) and are copied (streamed) to user://tts on first use, only the chosen narrator's files.
+## Generation runs on a worker thread; the queued line waits in order ("pending") so nothing else jumps ahead.
 var _sherpa = null
-var _sherpa_ok := -1   # -1 unknown, 0 failed, 1 ready
-func _device_tts(text: String) -> AudioStream:
-	if _sherpa_ok == 0: return null
-	if _sherpa_ok == -1:
-		_sherpa_ok = 0
-		if not Engine.has_singleton("SherpaTts"): return null
-		_sherpa = Engine.get_singleton("SherpaTts")
-		var dst := "user://tts"
-		var tag := "1"   # house.28: re-extract when the downloaded speech pack changes
-		for p in Packs.local_manifest().get("packs", []):
-			if String(p.file) == "speech.pck": tag = String(p.sha256)
-		if FileAccess.get_file_as_string(dst + "/.copied") != tag:
-			_copy_dir("res://tts", dst)
-			var mk := FileAccess.open(dst + "/.copied", FileAccess.WRITE); if mk: mk.store_string(tag)
-		if not _sherpa.init(ProjectSettings.globalize_path(dst)): return null
-		_sherpa_ok = 1
-	var pcm: PackedByteArray = _sherpa.generate(text)
-	if pcm.size() < 100: return null
-	var w := AudioStreamWAV.new(); w.format = AudioStreamWAV.FORMAT_16_BITS; w.mix_rate = int(_sherpa.getSampleRate()); w.stereo = false; w.data = pcm
+var _sherpa_ok := {}            # narrator -> 1 ready / 0 failed
+var _sherpa_mx := Mutex.new()   # the plugin is not thread-safe: one call at a time
+const TTS_DIR := "user://tts"
+
+func _sherpa_get():
+	if _sherpa == null and Engine.has_singleton("SherpaTts"): _sherpa = Engine.get_singleton("SherpaTts")
+	return _sherpa
+
+## copy the narrator's model files (+ shared espeak-ng-data) from the mounted speech pack to user://tts; true when present
+func _tts_files_ready(v: String) -> bool:
+	var sh = _sherpa_get()
+	if sh == null: return false
+	var files := String(sh.narratorFiles(v)).split(",", false)   # (JNISingleton.has_method() can't see Java methods; the plugin ships in the same APK)
+	if files.is_empty(): return false
+	var tag := "1"   # house.28: re-extract when the downloaded speech pack changes
+	for p in Packs.local_manifest().get("packs", []):
+		if String(p.file) == "speech.pck": tag = String(p.sha256)
+	var mark := TTS_DIR + "/.copied_" + files[0].get_file().get_basename()
+	if FileAccess.get_file_as_string(mark) == tag: return true
+	if FileAccess.get_file_as_string(TTS_DIR + "/.copied_espeak") != tag:
+		if not _copy_dir("res://tts/espeak-ng-data", TTS_DIR + "/espeak-ng-data"): return false
+		_write(TTS_DIR + "/.copied_espeak", tag)
+	for f in files:
+		if not _copy_file("res://tts/" + f, TTS_DIR + "/" + f): return false
+	_write(mark, tag)
+	return true
+
+func _write(path: String, txt: String) -> void:
+	var mk := FileAccess.open(path, FileAccess.WRITE); if mk: mk.store_string(txt)
+
+## blocking: files + model + one line. Safe on a worker thread (serialized by _sherpa_mx). null = not available.
+func _narrator_pcm(v: String, text: String) -> Dictionary:
+	_sherpa_mx.lock()
+	var out := {}
+	var sh = _sherpa_get()
+	if sh != null and int(_sherpa_ok.get(v, -1)) != 0:
+		if not _tts_files_ready(v): pass   # speech pack not mounted yet: caption only now, retry next line
+		else:
+			var dir := ProjectSettings.globalize_path(TTS_DIR)
+			if sh.initNarrator(dir, v):
+				_sherpa_ok[v] = 1
+				var pcm: PackedByteArray = sh.generateNarrator(v, text)
+				if pcm.size() >= 100: out = {"pcm": pcm, "rate": int(sh.getSampleRate())}
+			else: _sherpa_ok[v] = 0
+	_sherpa_mx.unlock()
+	return out
+
+static func _wav(d: Dictionary) -> AudioStream:
+	if d.is_empty(): return null
+	var w := AudioStreamWAV.new(); w.format = AudioStreamWAV.FORMAT_16_BITS; w.mix_rate = d.rate; w.stereo = false; w.data = d.pcm
 	return w
 
-func _copy_dir(src: String, dst: String) -> void:
+## can the chosen narrator speak a runtime line at all (plugin present, model not failed)?
+func narrator_tts_available() -> bool:
+	return _sherpa_get() != null and int(_sherpa_ok.get(narrator, -1)) != 0
+
+## synchronous (old call sites): the chosen narrator's model, whole line
+func _device_tts(text: String) -> AudioStream:
+	return _wav(_narrator_pcm(narrator, text))
+
+## queue a runtime line in the chosen narrator's voice; rendered on a worker thread, played in queue order.
+## Returns false (nothing queued) when the narrator has no on-device model available.
+func _queue_narrator_tts(text: String, what: String, group := "") -> bool:
+	if not narrator_tts_available(): return false
+	var item := {"pending": true, "what": what}
+	if group != "": item["group"] = group
+	queue.append(item); stats.tts += 1
+	var v := narrator
+	WorkerThreadPool.add_task(func(): _tts_done.call_deferred(item, _narrator_pcm(v, text)))
+	return true
+
+func _tts_done(item: Dictionary, d: Dictionary) -> void:
+	item.erase("pending")
+	var st := _wav(d)
+	if st: item["stream"] = st
+	else: queue.erase(item); stats.silent += 1   # model failed: caption only, never another voice
+	_kick()
+
+## pre-load the chosen narrator's model in the background (copy + init), so the first typed name has no delay
+func prewarm_tts() -> void:
+	if _sherpa_get() == null or int(_sherpa_ok.get(narrator, -1)) == 1: return
+	var v := narrator
+	WorkerThreadPool.add_task(func(): _narrator_pcm(v, "Hi."))
+
+func _copy_file(src: String, dst: String) -> bool:
+	var i := FileAccess.open(src, FileAccess.READ)
+	if i == null: return false
+	DirAccess.make_dir_recursive_absolute(dst.get_base_dir())
+	var o := FileAccess.open(dst + ".part", FileAccess.WRITE)
+	if o == null: return false
+	while i.get_position() < i.get_length():   # streamed: the Kokoro model is 311 MB, never one buffer
+		o.store_buffer(i.get_buffer(4 << 20))
+	o.close()
+	return DirAccess.rename_absolute(dst + ".part", dst) == OK
+
+func _copy_dir(src: String, dst: String) -> bool:
 	DirAccess.make_dir_recursive_absolute(dst)
 	for f in DirAccess.get_files_at(src):
-		var b := FileAccess.get_file_as_bytes(src + "/" + f)
-		var o := FileAccess.open(dst + "/" + f, FileAccess.WRITE); if o: o.store_buffer(b)
-	for d in DirAccess.get_directories_at(src): _copy_dir(src + "/" + d, dst + "/" + d)
+		if not _copy_file(src + "/" + f, dst + "/" + f): return false
+	for d in DirAccess.get_directories_at(src):
+		if not _copy_dir(src + "/" + d, dst + "/" + d): return false
+	return true
 
 ## v32 (black): ONE narrator voice for the whole game, names included.
 ## "My name is <Name>." / "This is <Name>.": 1) the chosen narrator pack's own full-line clip (141 bundled names, every pack);
-## 2) on-device sherpa ONLY when the chosen narrator is "f" (the plugin model IS the f pack's ljspeech voice, speed 1.0, sid 0),
-## rendered as ONE full line; 3) otherwise the narrator says the fixed part and the name stays caption-only.
-## Never DisplayServer TTS (system voice) and never ljspeech under the m / c / g narrators.
+## 2) v32-voices: on-device sherpa in the chosen narrator's OWN model (f ljspeech / m joe / c, g Kokoro + the pack's pitch
+## chain), rendered as ONE full line; 3) only if that model is unavailable: the fixed part, the name caption-only.
+## Never DisplayServer TTS (system voice) and never another narrator's voice.
 func say_name(name: String) -> void:
 	_say_named("My name is", name)
 
@@ -256,9 +340,7 @@ func _say_named(lead: String, name: String) -> void:
 	if _dup(line): return
 	var st := _clip(norm(line))
 	if st: queue.append({"stream": st, "what": line}); spoke.emit(line); _kick(); return
-	if narrator == "f":
-		var gen := _device_tts(line + ".")
-		if gen: queue.append({"stream": gen, "what": line}); spoke.emit(line); _kick(); return
+	if _queue_narrator_tts(line + ".", line): spoke.emit(line); _kick(); return
 	say(lead)   # name not voiced in a different voice; the caption shows it
 
 func letter(l: String) -> void:
@@ -274,6 +356,7 @@ func _next() -> void:
 	_end_cur()
 	if queue.is_empty() or voice_player.playing or tts_busy:
 		return
+	if queue[0].has("pending"): return   # v32-voices: runtime line still rendering; _tts_done kicks again
 	var item: Dictionary = queue.pop_front()
 	cur_group = String(item.get("group", "")); cur_what = String(item.get("what", "")); cur_v = String(item.get("v", ""))
 	voice_log.append({"what": item.get("what", ""), "start": _now(), "end": -1.0}); _cur_log = voice_log.size() - 1
