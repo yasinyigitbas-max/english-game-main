@@ -22,7 +22,12 @@ const DAY := {"bg": Color(0.86, 0.89, 0.93), "amb": Color(1.0, 0.97, 0.93), "amb
 const NIGHT := {"bg": Color(0.13, 0.16, 0.25), "amb": Color(0.50, 0.58, 0.85), "amb_e": 0.45, "sun": Color(0.6, 0.7, 1.0), "sun_e": 0.12}
 const EXPOSURE := 0.5   # style guide 0.95 is for the roofed bedroom; outdoors every floor is sun-lit (see README)
 
+const Town := preload("res://scripts/core/town.gd")   # v33 whole town
 func _ready() -> void:
+	if Town.shell_ready(self): return   # v33 town: street shell = its streamed blocks only (hidden while you are inside)
+	_live_ready()
+
+func _live_ready() -> void:   # v33 town: the v32 _ready (also run when the street shell turns live)
 	var we := WorldEnvironment.new(); env = Environment.new()
 	env.background_mode = Environment.BG_COLOR; env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC; env.tonemap_exposure = EXPOSURE
@@ -37,7 +42,7 @@ func _ready() -> void:
 	for i in 6:
 		var l := OmniLight3D.new(); l.light_color = Color(1.0, 0.82, 0.55); l.omni_range = 10.0; l.light_energy = 2.4; l.light_specular = 0.0; l.distance_fade_enabled = false; l.visible = false; add_child(l); lamp_lights.append(l)
 	WorldState.ensure_loaded(); WorldState.scene = scene_file_path
-	grid = WorldGrid.new(); add_child(grid)
+	if grid == null or not is_instance_valid(grid): grid = WorldGrid.new(); add_child(grid)   # v33 town: a shell turning live keeps its blocks
 	hud = (load("res://ui/shared/hud.tscn") as PackedScene).instantiate(); add_child(hud)
 	hud.phone.map_provider = map_info
 	player = WorldPlayer.new(); add_child(player); player.hud = hud; hud.player = player; player.floor_y = 0.07
@@ -69,6 +74,7 @@ func _ready() -> void:
 	elif _home_car: _day2_go_inside.call_deferred(lot)
 	elif load("res://scripts/story/day2_car.gd").should_run():   # v31: day-2 morning -> prompt to the car, hook day2_reached_car
 		var d2 = load("res://scripts/story/day2_car.gd").new(); d2.name = "Day2Car"; d2.w = self; add_child(d2); d2.run()
+	Town.live_ready(self)   # v33 town: the house rooms, cafe and shop as hidden shells
 
 ## v32-polish: after BOTH day-2 visits the player stands beside the car; objective + pan to the home's main door, in the
 ## one caption box (Life.guide_to -> HUD caption). Entering the door leads to the living room, where Day2After.run()
@@ -264,7 +270,8 @@ func _apply_light(force: bool) -> void:
 
 
 ## "grass" or "pave" under a world position (footstep sounds)
-func _exit_tree() -> void: Footsteps.clear()
+func _exit_tree() -> void:
+	if not has_meta("house_shell"): Footsteps.clear()   # v33 town: a street shell going away leaves the live place's steps alone
 
 func surface_at(p: Vector3) -> String:
 	var c := grid.cell_of(p); var lp := p - grid.cell_center(c)

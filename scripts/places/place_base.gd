@@ -49,7 +49,12 @@ signal place_entered(place_id: String)
 signal place_exited(place_id: String)
 
 # ------------------------------------------------------------------ setup
+const Town := preload("res://scripts/core/town.gd")   # v33 whole town
 func _ready() -> void:
+	if Town.shell_ready(self): return   # v33 town: an empty, hidden shell until the door is used
+	_live_ready()
+
+func _live_ready() -> void:   # v33 town: the v32 _ready (also run when the shell turns live)
 	D = App.load_json(DATA)
 	TRD = D.get("tr", {})
 	WorldState.ensure_loaded(); WorldState.scene = scene_file_path
@@ -71,6 +76,7 @@ func _ready() -> void:
 	add_to_group("places")
 	place_entered.emit.call_deferred(place_id)   # deferred: listeners connected from node_added / the group still get it
 	if not "--qa-place" in OS.get_cmdline_user_args(): _start.call_deferred()
+	Town.live_ready(self)   # v33 town: the street (keeps its blocks) and the house as hidden shells
 
 func _start() -> void: await run()
 

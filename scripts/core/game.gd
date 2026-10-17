@@ -21,7 +21,11 @@ func go_to(path: String, spawn_id := "") -> void:
 	if busy or not ResourceLoader.exists(path): return
 	busy = true; spawn = spawn_id
 	var tw := create_tween(); tw.tween_property(_fade, "color:a", 1.0, 0.35); await tw.finished
-	get_tree().change_scene_to_file(path); WorldState.scene = path
+	# v33 whole town: a building door between the street, the house, the cafe and the shop swaps the live place in the
+	# same scene (scripts/core/town.gd); anything else (hospital, work, menu ...) changes scene as before
+	var cs := get_tree().current_scene
+	if not (cs and load("res://scripts/core/town.gd").go(cs, path)): get_tree().change_scene_to_file(path)
+	WorldState.scene = path
 	await get_tree().process_frame; await get_tree().process_frame
 	tw = create_tween(); tw.tween_property(_fade, "color:a", 0.0, 0.45); await tw.finished
 	busy = false

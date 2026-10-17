@@ -28,7 +28,7 @@ static func live_ready(room: Node) -> void:
 	_dark_outside(room)
 	if not room.has_meta("wh_hooked"):
 		room.set_meta("wh_hooked", true); room.tree_exiting.connect(func(): _on_live_exit(room))
-	(func(): _ensure(room)).call_deferred()
+	(func(): _ensure(room); _town(room)).call_deferred()
 
 ## a door between two house rooms: walk through it in the same scene instead of change_scene_to_file(path)
 static func go(from: Node, path: String) -> void:
@@ -45,9 +45,11 @@ static func _swap(from: Node, target: Node) -> void:
 	swapping = true
 	from.get_parent().remove_child(from); from.queue_free()   # like change_scene: the room left (and its awaits) goes away
 	swapping = false
-	for s in _shells(tree): s.position -= base
+	for s in _shells(tree):
+		if not s.has_meta("town_loading"): s.position -= base   # v33 town: a street shell still streaming stays at the street origin
 	target.position = Vector3.ZERO
 	_ensure(target, [target])                  # rebuild the room left as a shell (same frame, no gap at the door)
+	(func(): _town(target)).call_deferred()    # v33 town: the street / cafe / shop shells follow (hidden)
 	target.remove_meta(SHELL); _cheap(target, false)
 	tree.current_scene = target
 	target.call("_live_ready")
@@ -79,6 +81,11 @@ static func _ensure(live: Node, skip: Array = []) -> void:
 		# a room on the camera side (south) of the live room would hide it: keep only its floor-level parts visible there
 		var z0: float = OFS[p].z + ZSPAN[p].x
 		_hide_tall(s, z0 >= OFS[lp].z + ZSPAN[lp].y - 0.05)
+
+## v33 whole town (scripts/core/town.gd): the street, cafe and shop exist as hidden shells around the house
+static func _town(live: Node) -> void:
+	var T = load("res://scripts/core/town.gd")
+	if T: T.ensure(live)
 
 static func _walk(n: Node, out: Array) -> void:
 	for c in n.get_children():
