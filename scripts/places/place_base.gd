@@ -246,7 +246,18 @@ func face(who: Node3D, at: Vector3) -> void:
 	create_tween().tween_property(who, "rotation:y", who.rotation.y + wrapf(y - who.rotation.y, -PI, PI), 0.4)
 
 # ------------------------------------------------------------------ cinematic camera (temporary Camera3D, like Life.guide_to)
+## fix33 (open world): no second camera: the one shoulder camera frames the hero AND the shot's target (guide camera)
+func _guide_cine(at: Vector3) -> void:
+	if _cine_cam == null:
+		_cine_cam = Camera3D.new(); add_child(_cine_cam); _cine_cam.set_meta("guide_cam", true)
+		var rig := get_viewport().get_camera_3d()
+		if rig: _cine_cam.global_transform = rig.global_transform
+		_cine_cam.current = true; _hud_hide(true)
+	_cine_cam.set_meta("guide_at", at)
+
 func cine(pos: Vector3, at: Vector3, t := 1.4) -> void:
+	if world_mode:
+		_guide_cine(gp(at)); await get_tree().create_timer(maxf(t, 0.9), false).timeout; return
 	pos = gp(pos); at = gp(at)   # v34: place-local shot
 	if world_mode: t = maxf(t, 0.9)   # no "cut under the fade-in" in the open world: there is no fade
 	pos = _safe_pos(pos, at)
@@ -264,6 +275,8 @@ func cine(pos: Vector3, at: Vector3, t := 1.4) -> void:
 
 ## non-blocking camera move (returns the tween; await tw.finished when needed)
 func cine_go(pos: Vector3, at: Vector3, t := 1.4) -> Tween:
+	if world_mode:
+		_guide_cine(gp(at)); var tw0 := create_tween(); tw0.tween_interval(t); return tw0
 	pos = gp(pos); at = gp(at)   # v34: place-local shot
 	pos = _safe_pos(pos, at)
 	if _cine_cam == null:
@@ -290,6 +303,8 @@ func _safe_pos(pos: Vector3, at: Vector3) -> Vector3:
 func cine_end() -> void:
 	if _cine_cam == null: return
 	var c := _cine_cam; _cine_cam = null
+	if world_mode or c.has_meta("guide_cam"):
+		c.queue_free(); await get_tree().create_timer(0.6, false).timeout; _hud_hide(false); return
 	if _cine_tw and _cine_tw.is_valid(): _cine_tw.kill()
 	var tw := c.create_tween(); tw.tween_property(c, "global_transform", _rig_xf(), 0.9).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)   # v32 polish: eased in AND out (was ease-in only: a hard stop on the rig)
 	await tw.finished
@@ -401,20 +416,27 @@ func teach_card(title: String, title_tr: String, rows: Array) -> void:   # rows:
 	var sb := StyleBoxFlat.new(); sb.bg_color = Color(1.0, 0.98, 0.92, 0.95); sb.set_corner_radius_all(18); sb.set_content_margin_all(14)
 	sb.border_color = Color(0.93, 0.52, 0.44); sb.set_border_width_all(3); pc.add_theme_stylebox_override("panel", sb)
 	pc.anchor_left = 1.0; pc.anchor_right = 1.0; pc.anchor_top = 0.0; pc.anchor_bottom = 0.0   # top-right, under the phone button, above the right stick
-	pc.offset_left = -580; pc.offset_right = -120; pc.offset_top = 96; pc.offset_bottom = 120; pc.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var tr_on := App.tr_on()
+	pc.offset_left = -760 if tr_on else -580; pc.offset_right = -120; pc.offset_top = 96; pc.offset_bottom = 120; pc.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card_layer.add_child(pc)
 	Objectives.ovl_register(pc, 5)
-	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 3); pc.add_child(v)
-	var tr_on := App.tr_on()
-	var tl := Label.new(); tl.text = title; tl.add_theme_font_size_override("font_size", 26); tl.add_theme_color_override("font_color", Color(0.75, 0.32, 0.25)); v.add_child(tl)
-	if tr_on and title_tr != "": var tt := Label.new(); tt.text = title_tr; tt.add_theme_font_size_override("font_size", 15); tt.add_theme_color_override("font_color", Color(0.3, 0.45, 0.75)); v.add_child(tt)
+	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 4); pc.add_child(v)
+	# fix33 (bug 18): English left, Turkish in its own RIGHT column (the old card put the TR under each line)
+	var hd := HBoxContainer.new(); hd.add_theme_constant_override("separation", 18); v.add_child(hd)
+	var tl := Label.new(); tl.text = title; tl.add_theme_font_size_override("font_size", 26); tl.add_theme_color_override("font_color", Color(0.75, 0.32, 0.25))
+	tl.custom_minimum_size.x = 380 if tr_on else 420; hd.add_child(tl)
+	if tr_on and title_tr != "":
+		var tt := Label.new(); tt.text = title_tr; tt.add_theme_font_size_override("font_size", 18); tt.add_theme_color_override("font_color", Color(0.3, 0.45, 0.75))
+		tt.size_flags_vertical = Control.SIZE_SHRINK_END; hd.add_child(tt)
 	card_rows = []
 	for r in rows:
+		var hb := HBoxContainer.new(); hb.add_theme_constant_override("separation", 18); v.add_child(hb)
 		var el := Label.new(); el.text = "•  " + String(r[1]); el.add_theme_font_size_override("font_size", 19); el.add_theme_color_override("font_color", Color(0.12, 0.12, 0.16))
-		el.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; el.custom_minimum_size.x = 420; v.add_child(el)
+		el.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; el.custom_minimum_size.x = 380 if tr_on else 420; hb.add_child(el)
 		var tl2: Label = null
 		if tr_on and String(r[2]) != "":
-			tl2 = Label.new(); tl2.text = "    " + String(r[2]); tl2.add_theme_font_size_override("font_size", 14); tl2.add_theme_color_override("font_color", Color(0.3, 0.45, 0.75)); v.add_child(tl2)
+			tl2 = Label.new(); tl2.text = String(r[2]); tl2.add_theme_font_size_override("font_size", 16); tl2.add_theme_color_override("font_color", Color(0.3, 0.45, 0.75))
+			tl2.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; tl2.custom_minimum_size.x = 210; hb.add_child(tl2)
 		card_rows.append([el, tl2, String(r[0])])
 	pc.modulate.a = 0.0; create_tween().tween_property(pc, "modulate:a", 1.0, 0.4)
 	Audio.sfx("cloth1", -10.0)
@@ -522,8 +544,11 @@ func floor_colors() -> Array: return [Color(0.62, 0.45, 0.32), Color(0.95, 0.9, 
 func _room() -> void:
 	var hx := room.x / 2.0; var hz := room.y / 2.0
 	var fc: Array = floor_colors(); var floor_c: Color = fc[0]; var wc: Color = fc[1]; var ac: Color = fc[2]
-	box(Vector3(room.x, 0.1, room.y), Vector3(0, -0.05, 0), floor_c, true)
-	for i in range(1, int(room.x / 0.5)): box(Vector3(0.012, 0.004, room.y), Vector3(-hx + i * 0.5, 0.002, 0), floor_c.darkened(0.14), false)
+	var fl := box(Vector3(room.x, 0.1, room.y), Vector3(0, -0.05, 0), floor_c, true)
+	var fy := 0.0
+	if world_mode:   # fix33: the street lot's lawn sat at the floor's height (z-fight = green lawn + outdoor shadow stripes inside)
+		fy = 0.028; fl.position.y += fy
+	for i in range(1, int(room.x / 0.5)): box(Vector3(0.012, 0.004, room.y), Vector3(-hx + i * 0.5, 0.002 + fy, 0), floor_c.darkened(0.14), false)
 	if not world_mode: box(Vector3(60, 0.1, 60), Vector3(0, -0.16, 0), Color(0.55, 0.58, 0.6), false)   # v34: the street is the ground in the open world
 	var h := 3.0
 	var sides := [[Vector3(room.x, h, 0.14), Vector3(0, h / 2, -hz), Vector3(0, 0, -1)],
@@ -534,8 +559,12 @@ func _room() -> void:
 		sides.append([Vector3(sw, h, 0.14), Vector3(DOOR_GAP / 2.0 + sw / 2.0, h / 2, hz), Vector3(0, 0, 1)])
 		var lin := box(Vector3(DOOR_GAP, h - 2.3, 0.14), Vector3(0, 2.3 + (h - 2.3) / 2.0, hz), fc[1]); walls.append([lin, Vector3(0, 0, 1)])
 	else: sides.insert(1, [Vector3(room.x, h, 0.14), Vector3(0, h / 2, hz), Vector3(0, 0, 1)])
+	if world_mode:   # fix33: a ceiling (the shop / café showed white sky + the neighbours' roofs over the shelves)
+		var ce := box(Vector3(room.x + 0.28, 0.08, room.y + 0.28), Vector3(0, h + 0.04, 0), Color(0.96, 0.95, 0.92), false)
+		ce.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF; ce.name = "Ceiling"
 	for d in sides:
 		var m := box(d[0], d[1], wc); walls.append([m, d[2]])
+		if world_mode: m.add_to_group("cam_occluder")   # fix33: the one shoulder camera pulls in / swaps on these walls
 		var n: Vector3 = d[2]; var sz: Vector3 = d[0]
 		var a := box(Vector3(0.01, h * 0.38, sz.z - 0.04) if n.x != 0 else Vector3(sz.x - 0.04, h * 0.38, 0.01), Vector3(d[1].x, h * 0.19, d[1].z) - n * 0.075, ac, false); walls.append([a, n])
 		var trim := box(Vector3(0.02, 0.05, sz.z - 0.04) if n.x != 0 else Vector3(sz.x - 0.04, 0.05, 0.02), Vector3(d[1].x, h * 0.38, d[1].z) - n * 0.08, Color(1, 1, 1), false); walls.append([trim, n])

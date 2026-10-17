@@ -25,6 +25,27 @@ func run() -> void:
 		for i in 24: await _t(0.4); _diag("boot%d" % i); _shot("boot%02d" % i)
 		if ev == "start": get_tree().quit(); return
 	else: await _t(7.0)
+	if ev == "trip":   # fix33: the real teleports = trips (fade, placed at the destination door): the camera snaps to the hero
+		await OwLink.travel("street", "front")
+		for i in 8: await _t(0.4); _diag("st%d" % i); await _shot("st%02d" % i)
+		await WorldTrip.go("shop_door")
+		for i in 8: await _t(0.4); _diag("shop%d" % i); await _shot("shop%02d" % i)
+		await OwLink.travel("livingroom", "")
+		for i in 8: await _t(0.4); _diag("home%d" % i); await _shot("home%02d" % i)
+		get_tree().quit(); return
+	if ev == "facade":   # fix33: the house front from the street (day / 18:00 / 23:30) + the rooms at dusk and night
+		await OwLink.travel("street", "front")
+		await _t(1.0)
+		var dc: Vector3 = World.inst.doors["front"].center()
+		var c := Camera3D.new(); World.inst.add_child(c); c.global_position = dc + Vector3(-3.0, 2.2, 9.0); c.look_at(dc + Vector3(1.0, 1.4, 0)); c.current = true
+		for m in [420.0, 1080.0, 1410.0]:
+			WorldState.minutes = m; await _t(1.2); _light("street"); await _shot("facade_%d" % int(m))
+		c.queue_free()
+		for m in [1080.0, 1410.0]:
+			WorldState.minutes = m
+			await OwLink.travel("livingroom", "")
+			await _t(1.5); _light("livingroom"); await _shot("living_%d" % int(m))
+		get_tree().quit(); return
 	if ev == "light":
 		for r in ["bedroom", "bathroom", "livingroom"]:
 			if r != "bedroom": await OwLink.enter(r, "bedroom" if r == "bathroom" else "bathroom")

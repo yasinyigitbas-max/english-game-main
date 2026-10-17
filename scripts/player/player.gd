@@ -70,7 +70,7 @@ func move_to(p: Vector3, yaw := INF) -> void:
 	hero.player.play("walk", 0.3)
 	var t := 0.0
 	while is_instance_valid(body) and body.is_inside_tree() and Vector2(to.x - body.global_position.x, to.z - body.global_position.z).length() > 0.08 and t < 20.0:
-		var dt := 1.0 / 60.0
+		var dt := clampf(get_process_delta_time(), 1.0 / 240.0, 0.1) if is_inside_tree() else 1.0 / 60.0   # fix33 (blue): real frame time (a fixed 1/60 crawled at low fps: 20 s+ door walks, the shop trip "stalled")
 		var d := to - body.global_position; d.y = 0
 		hero.global_rotation.y = lerp_angle(hero.global_rotation.y, atan2(d.x, d.z), 1.0 - exp(-12.0 * dt))
 		body.global_position += d.normalized() * minf(WALK * dt, d.length())

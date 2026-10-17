@@ -100,8 +100,19 @@ func _burst(why: String) -> void:
 	_pan_n += 1
 	var tag := "pan%02d_%s_%s" % [_pan_n, why, _last_obj.left(24)]
 	for i in 9:
+		_cam_diag("%s_f%d" % [tag, i])
 		await snap("%s_f%d" % [tag, i])
 		await w(0.35)
+
+## fix33: per-frame camera facts for the pan bursts (which camera, where, hero, the shoulder camera's branch / target)
+func _cam_diag(tag: String) -> void:
+	var c := get_viewport().get_camera_3d(); var sc := cur()
+	var hero = sc.get("hero") if sc and sc.get("hero") is Node3D else (sc.get("player") if sc else null)
+	var sh = get_tree().root.get_node_or_null("ShoulderCam")
+	var cs = sc.get("cam_shot") if sc else null
+	print("D47QA CAM %s t=%.1f scene=%s cam=%s pos=%s fov=%.0f hero=%s sh=%s guide=%s shot=%s" % [tag, gt, kind(), str(c.get_path()) if c else "-",
+		str(c.global_position.snapped(Vector3.ONE * 0.01)) if c else "-", c.fov if c else 0.0, str((hero as Node3D).global_position.snapped(Vector3.ONE * 0.01)) if hero is Node3D else "-",
+		str(sh.get("dbg")) if sh else "-", str(sh.get("_guide_on")) if sh else "-", str(cs) if cs is Dictionary and not cs.is_empty() else "-"])
 
 func _obj_shot(o: String) -> void:
 	await w(1.4)
@@ -212,8 +223,12 @@ func wgo(path: String, from: String) -> void:
 	if House.is_room(path) and House.is_room(String(s.scene_file_path)): StoryNav.room(s, path)
 	elif House.is_room(path):   # street -> house: to the front door, walk in (World.entered -> OwLink)
 		await WorldTrip.go("front_door"); await w(0.6); await World.goto("livingroom", "front")
-	elif path == Game.WORLD_SCENE: StoryNav.goto(Game.WORLD_SCENE, "lot:home")
-	elif path.ends_with("shop.tscn"): await WorldTrip.go("shop_door"); await w(0.6); await World.goto("shop", "shop")
+	elif path == Game.WORLD_SCENE:   # fix33: out through the real front door (the old shim left the hero standing in the hall)
+			if House.is_room(String(s.scene_file_path)): await OwLink.to_street("front")
+			else: StoryNav.goto(Game.WORLD_SCENE, "lot:home")
+	elif path.ends_with("shop.tscn"):
+		await WorldTrip.go("shop_door"); print("D47QA WGO trip done t=%.1f busy=%s" % [gt, str(WorldTrip.busy)]); await w(0.6)
+		await World.goto("shop", "shop"); print("D47QA WGO walked in t=%.1f scene=%s" % [gt, kind()])
 	await w(1.5)
 
 const House := preload("res://scripts/core/house.gd")
@@ -271,8 +286,17 @@ func run() -> void:
 				var sv = App.load_save().get("story", {})
 				if bool(sv.get("d%d_shop" % day, false)): await snap("shop_exit"); s.qa_use("exit"); await w(3.0)
 				else: did = false
+			["livingroom.tscn", "Go to work."], ["livingroom.tscn", "Go to school."]:   # fix33: red's DayWork trip (days 3-7)
+				if world: await wgo(Game.WORLD_SCENE, "livingroom")
+				else: did = false
+			["world_exterior.tscn", "Go to work."], ["world_exterior.tscn", "Go to school."], ["world.tscn", "Go to work."], ["world.tscn", "Go to school."]:
+				var pl = s.get("player"); var car: Node3D = null
+				for so in s.find_children("*", "StreetObject", true, false):
+					if String(so.get("kind")) == "car" and pl and (car == null or so.global_position.distance_to(pl.global_position) < car.global_position.distance_to(pl.global_position)): car = so
+				if car and pl: await _walk_to(pl, car.global_position + (pl.global_position - car.global_position).normalized() * 2.4)
+				else: did = false
 			["world_exterior.tscn", "Go back home."]: await go(Game.HOUSE_FRONT_DOOR_SCENE, "outside")
-			["livingroom.tscn", "Talk to my family."]: s.hero.position = Vector3(s.SOFA_X - 1.2, 0, 0.3)   # room-local (the room is off the origin in the world)
+			["livingroom.tscn", "Talk to my family."]: s.hero.global_position = s.to_global(Vector3(s.SOFA_X - 1.2, 0, 0.3))   # room-local (the room is off the origin in the world)
 			["livingroom.tscn", "Go to bed."]: await go("res://main.tscn", "livingroom")
 			_: did = false
 		if did: acted[key] = gt; print("D47QA ACT t=%.1f %s" % [gt, key])
@@ -357,3 +381,13 @@ func _report() -> void:
 	print("D47QA CAPBAD_LIST ", JSON.stringify(cap_bad.slice(0, 30)))
 	print("D47QA TOTAL %d PASS %d FAIL" % [log.filter(func(l): return l.begins_with("PASS")).size(), log.filter(func(l): return l.begins_with("FAIL")).size()])
 	get_tree().quit()
+
+## fix33: walk the hero (velocity, not a teleport) up to p
+func _walk_to(pl: Node3D, p: Vector3) -> void:
+	p.y = pl.global_position.y
+	var t0 := Time.get_ticks_msec()
+	while is_instance_valid(pl) and Time.get_ticks_msec() - t0 < 25000:
+		var dv := p - pl.global_position; dv.y = 0
+		if dv.length() < 0.5: break
+		if pl.has_method("move_to"): await pl.move_to(p); break
+		pl.global_position += dv.normalized() * minf(dv.length(), 0.08); await get_tree().process_frame

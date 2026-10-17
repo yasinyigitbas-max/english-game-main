@@ -101,18 +101,42 @@ func _process(dt: float) -> void:
 	var tgt := Vector3.INF
 	var vc := get_viewport().get_camera_3d()
 	var scripted := false
+	if vc and vc != rc and _foreign(vc, sc):
+		# fix33 (black 8): House._sleep of the room we left un-currents the shared room camera, so the viewport fell back to
+		# the World's street CameraRig (top-down from outside: bath -> living, bedtime polaroids, D7 wake); that camera
+		# then counted as a "scripted" shot and froze the view. A camera of ANOTHER room / the street rig is never ours:
+		# take the room camera back into this room and make it current.
+		if room and OwLink.active() and (rc as Node).get_parent() != sc and sc.is_inside_tree(): (rc as Node).reparent(sc, true)
+		rc.current = true; vc = rc
 	if vc and vc != rc and not (vc.get_viewport() is SubViewport):
-		if vc.has_meta("guide_cam"): tgt = vc.get_meta("guide_at", _aim_point(vc)); rc.current = true
+		if vc.has_meta("guide_cam"): _gcam = vc; rc.current = true
 		else: scripted = true
+	# fix33: a guide camera hands the view straight back to this camera, so it was framed for ONE frame only: keep
+	# framing hero + its target for as long as that guide camera exists (Life.guide_to / World.pan / place cine free it)
+	if is_instance_valid(_gcam) and _gcam.is_inside_tree() and not _gcam.is_queued_for_deletion() and not scripted:
+		tgt = _gcam.get_meta("guide_at", _aim_point(_gcam))
+		if _gcam.current: rc.current = true
+	else: _gcam = null
 	var shot = sc.get("cam_shot")
 	if shot is Dictionary and not (shot as Dictionary).is_empty() and shot.has("at"):
 		if bool(shot.get("guide", false)): tgt = (sc as Node3D).to_global(shot.at) if sc is Node3D else shot.at   # v34 (blue): cam_shot values are room-local (rooms sit off the origin in the open world)
 		else: scripted = true
-	if sc.get("cam_override") == true or (rc is CameraRig and not (rc as CameraRig).controlled): scripted = true
+	# a room's own CameraRig goes "uncontrolled" while the room plays a cam_shot; an objective (guide) shot is still ours
+	# (fix33: the bathroom pans flew the rig to the fixed shot and never framed the hero)
+	# fix33: after a cam_shot the bathroom eases its rig back to ITS OWN old framing (exit_t blend, rig still taken over):
+	# that is not a story shot, it flew the view out through the door to the lawn on bath -> living. End it, the
+	# follow below eases from the shot instead.
+	if rc is CameraRig and not (rc as CameraRig).controlled and tgt == Vector3.INF and _room_idle(sc) and sc.get("exit_t") != null and float(sc.get("exit_t")) < 1.0:
+		sc.set("exit_t", 1.0); (rc as CameraRig).release(false)
+	if sc.get("cam_override") == true or (rc is CameraRig and not (rc as CameraRig).controlled and tgt == Vector3.INF): scripted = true
 	_guide_on = tgt != Vector3.INF and not scripted
 	if scripted:
 		var oc: Camera3D = vc if vc else rc
 		if room or _indoors(hero.global_position): _unclip_scripted(oc, sc, hero)
+		if oc is CameraRig:   # fix33: the street rig on its own (not a story camera) never looks (nearly) straight down
+			var fw := -oc.global_transform.basis.z
+			var cf := _pitch_cap(fw)
+			if not cf.is_equal_approx(fw): oc.global_transform = Transform3D(Basis.looking_at(cf, Vector3.UP), oc.global_position)
 		if oc.has_meta("sc_fov0") and dt > 0.0: oc.fov = lerpf(oc.fov, float(oc.get_meta("sc_fov0")), 1.0 - exp(-dt / 0.3))   # story shots keep their own fov
 		pos = oc.global_position; look = oc.global_position - oc.global_transform.basis.z * 3.0; _aside = true
 		dbg = "scripted:%s ov=%s shot=%s" % [oc.name, str(sc.get("cam_override")), str(shot is Dictionary and not (shot as Dictionary).is_empty())]
@@ -130,6 +154,8 @@ func _process(dt: float) -> void:
 		# a house door keeps the view (House._swap shifted it); any other scene change starts fresh behind the hero
 		if not (room and _room_house): pos = Vector3.INF; look = Vector3.INF; _set_yaw = INF
 		_room = sc; _room_house = room; _next = 0.0
+	# fix33: a teleport (story / trip moved the hero > 2.5 m in one frame): start fresh behind the hero, no swoop / stale room
+	if _last_hero != Vector3.INF and h.distance_to(_last_hero) > 2.5: pos = Vector3.INF; look = Vector3.INF
 	if pos == Vector3.INF:   # fix33: a fresh start (boot / Continue / trip) never starts inside or behind a wall
 		_boxes = _blockers(sc, chest); _next = 0.0
 		yaw = _clear_yaw(h, chest, (face as Node3D).global_rotation.y + PI, _boxes)
@@ -162,9 +188,12 @@ func _process(dt: float) -> void:
 		for sd in [side, -side]:
 			for p in PULLS:
 				if DIST * p < MIN_D: continue
-				if not _blocked(_spot(h, yaw, sd, p), chest, boxes): best = [sd, p]; found = true; break
+				var cp := _spot(h, yaw, sd, p)
+				if not _blocked(cp, chest, boxes) and (room or not _other_region(cp, h)): best = [sd, p]; found = true; break
 			if found: break
-		_tp = Vector3.INF if found or tgt != Vector3.INF else _trail_spot(h, chest, boxes)
+		# the trail (back through the door just used) only between house rooms; out on the street / into a place the camera
+		# swings round to a clear side instead (fix33: it stayed INSIDE the shop for seconds after the hero left)
+		_tp = Vector3.INF if found or tgt != Vector3.INF or not room else _trail_spot(h, chest, boxes)
 		if found:
 			# hysteresis: closing in / swapping happens at once, easing back out only after 0.35 s of clear view
 			if best[0] != side or best[1] < k - 0.01: side = best[0]; k = best[1]; _out_since = -1.0
@@ -176,7 +205,8 @@ func _process(dt: float) -> void:
 			k = PULLS[-1]   # nothing clear: close in on the hero, the room wall fade covers the rest
 			# fix33: but never INSIDE a wall (hero backed up against it = the solid grey / pale-green screen): swing to
 			# the nearest clear heading instead (unless the player is steering the camera)
-			if _tp == Vector3.INF and _in_wall(_spot(h, yaw, side, k), boxes) and _manual <= 0.0 and tgt == Vector3.INF: _swing = _clear_yaw(h, chest, yaw, boxes)
+			var sp0 := _spot(h, yaw, side, k)
+			if _tp == Vector3.INF and (_in_wall(sp0, boxes) or (not room and _other_region(sp0, h))) and _manual <= 0.0 and tgt == Vector3.INF: _swing = _clear_yaw(h, chest, yaw, boxes)
 	if _swing != INF:
 		yaw = lerp_angle(yaw, _swing, 1.0 - exp(-dt * 4.0)) if dt > 0.0 else yaw
 		if absf(wrapf(_swing - yaw, -PI, PI)) < 0.05 or _manual > 0.0: _swing = INF
@@ -203,9 +233,10 @@ func _process(dt: float) -> void:
 	if not cam.has_meta("sc_fov0"): cam.set_meta("sc_fov0", cam.fov)
 	var want_fov := _guide_fov if tgt != Vector3.INF else FOV
 	cam.fov = lerpf(cam.fov, want_fov, 1.0 - exp(-dt / 0.3)) if dt > 0.0 else cam.fov
-	if pos.distance_to(look) > 0.05: cam.global_transform = Transform3D(Basis.looking_at(look - pos, Vector3.UP), pos)
+	if pos.distance_to(look) > 0.05: cam.global_transform = Transform3D(Basis.looking_at(_pitch_cap(look - pos), Vector3.UP), pos)
 
 var _swing := INF
+var _gcam: Camera3D = null   # fix33: the live guide camera (objective pan) we frame for
 var _trail: Array = []      # fix33: the hero's recent path (world, newest last, 0.15 m steps)
 var _tp := Vector3.INF      # fix33: camera spot on that path when every off-shoulder spot is blocked
 ## a camera spot on the hero's own recent path, MIN_D..DIST behind him along it, with a clear line to the chest
@@ -226,7 +257,8 @@ func _clear_yaw(h: Vector3, chest: Vector3, y: float, boxes: Array) -> float:
 		for sd in [side, -side]:
 			for p in PULLS:
 				if DIST * p < MIN_D: continue
-				if not _blocked(_spot(h, y + dy, sd, p), chest, boxes):
+				var cp := _spot(h, y + dy, sd, p)
+				if not _blocked(cp, chest, boxes) and not _other_region(cp, h):
 					side = sd; side_s = sd; k = p
 					return wrapf(y + dy, -PI, PI)
 	return y
@@ -261,6 +293,28 @@ func _unclip_scripted(oc: Camera3D, sc: Node, hero) -> void:
 			if not _in_wall(q, boxes): p = q; break
 	if not p.is_equal_approx(oc.global_position): oc.global_position = p
 
+## fix33 (Yasin: the "lying" street posts / NPCs were the near top-down view): the view never pitches below MAX_PITCH
+const MAX_PITCH := deg_to_rad(42.0)
+static func _pitch_cap(d: Vector3) -> Vector3:
+	var hl := Vector2(d.x, d.z).length()
+	if d.length() < 0.001: return Vector3(0, 0, -1)
+	if hl < 0.001: return Vector3(0, -tan(MAX_PITCH), -1).normalized()
+	var pitch := atan2(-d.y, hl)
+	if pitch <= MAX_PITCH: return d
+	return Vector3(d.x / hl, -tan(MAX_PITCH), d.z / hl).normalized()
+
+## fix33: vc is the World's street rig (while a room / place is live) or a camera inside a house room that is not live
+static func _foreign(vc: Camera3D, sc: Node) -> bool:
+	if vc.get_viewport() is SubViewport or vc.has_meta("guide_cam") or sc.is_ancestor_of(vc): return false
+	var w = World.inst if World.inst and is_instance_valid(World.inst) else null
+	if w == null: return false
+	if sc != w and vc == w.get("cam"): return true
+	var n: Node = vc.get_parent()
+	while n:
+		if n != sc and House.is_room(String(n.scene_file_path)): return true
+		n = n.get_parent()
+	return false
+
 func _spot(h: Vector3, y: float, sd: float, p: float) -> Vector3:
 	var back := Vector3(sin(y), 0, cos(y)); var right := Vector3(cos(y), 0, -sin(y))
 	return h + Vector3(0, HEIGHT, 0) + back * DIST * p + right * sd * SHOULDER * clampf(p + 0.2, 0.5, 1.0)
@@ -290,6 +344,14 @@ func _blockers(sc: Node, chest: Vector3) -> Array:
 		if n is VisualInstance3D and ((n as VisualInstance3D).is_visible_in_tree() or n.has_meta("wf_a")):
 			var ab2: AABB = (n as VisualInstance3D).global_transform * (n as VisualInstance3D).get_aabb()
 			if _is_wall(ab2) and ab2.get_center().distance_to(chest) < 8.0: out.append(ab2)
+	for n in get_tree().get_nodes_in_group("cam_solid"):   # fix33: big movable solids (the day-6 storm bus): one box of all their meshes
+		if not (n is Node3D) or not (n as Node3D).is_visible_in_tree(): continue
+		var ab4 := AABB(); var any := false
+		for g in (n as Node).find_children("*", "MeshInstance3D", true, false):
+			if not (g as MeshInstance3D).is_visible_in_tree() or (g as MeshInstance3D).mesh == null: continue
+			var gb: AABB = (g as MeshInstance3D).global_transform * (g as MeshInstance3D).get_aabb()
+			ab4 = gb if not any else ab4.merge(gb); any = true
+		if any and ab4.get_center().distance_to(chest) < 25.0: out.append(ab4)
 	for n in get_tree().get_nodes_in_group("fade"):   # street buildings (one merged mesh each): their outer walls block
 		if n is VisualInstance3D and (n as Node3D).is_inside_tree():
 			var ab3: AABB = (n as VisualInstance3D).global_transform * (n as VisualInstance3D).get_aabb()
@@ -333,22 +395,46 @@ var _boxes: Array = []
 func _frame_both(h: Vector3, chest: Vector3, tgt: Vector3, y: float, sd: float, fov: float) -> Vector3:
 	var half := deg_to_rad(maxf(fov, FOV)) * 0.5 * 0.8
 	var mid := chest.lerp(tgt, 0.5)
-	var top := h.y + (2.45 if _indoors(h) else 6.0)
+	var top := h.y + (2.15 if _indoors(h) else 5.0)   # fix33: a pan stays at eye-ish height (2.45 looked straight down on the hero)
 	var best := Vector3.INF; var best_need := INF
-	for dy in [0.0, 0.6, -0.6, 1.2, -1.2]:
+	for dy in [0.0, 0.6, -0.6, 1.2, -1.2, 1.8, -1.8, 2.4, -2.4]:
 		var yy: float = y + dy
-		var p := _spot(h, yy, sd, 1.0)
-		if _blocked(p, chest, _boxes): p = _spot(h, yy, sd, 0.55)
+		# fix33: the first clear pull on this heading, never behind a wall nor inside another room / the place the hero
+		# just left (the old fallback took 0.55 even when blocked: the camera sat inside the shop / against the living-room wall)
+		var p := Vector3.INF
+		for sd2 in [sd, -sd]:
+			for pl in PULLS:
+				if DIST * pl < MIN_D: continue
+				var c := _spot(h, yy, sd2, pl)
+				if not _blocked(c, chest, _boxes) and not _other_region(c, h): p = c; break
+			if p != Vector3.INF: break
+		if p == Vector3.INF: continue
 		for i in 13:
 			var need := _need_half(p, mid, chest, tgt)
 			if need <= half: _guide_fov = maxf(fov, FOV); return p
 			if need < best_need: best_need = need; best = p
 			var q := p + Vector3(sin(yy), 0, cos(yy)) * 0.5 + Vector3(0, 0.25, 0)
 			q.y = minf(q.y, top)
-			if _blocked(q, chest, _boxes) or _blocked(q, tgt, _boxes): break   # next step would be behind a wall
+			if _blocked(q, chest, _boxes) or _blocked(q, tgt, _boxes) or _other_region(q, h): break   # next step would be behind a wall
 			p = q
-	_guide_fov = clampf(rad_to_deg(best_need / 0.8) * 2.0 + 2.0, FOV, 84.0)
-	return best if best != Vector3.INF else _spot(h, y, sd, 1.0)
+	_guide_fov = clampf(rad_to_deg(best_need / 0.8) * 2.0 + 2.0, FOV, 84.0) if best != Vector3.INF else FOV
+	return best if best != Vector3.INF else _spot(h, y, sd, PULLS[-1])
+
+## fix33: p lies inside a house room / place region the hero is NOT in (camera inside the shop / house behind a hero who stepped out)
+func _other_region(p: Vector3, h: Vector3) -> bool:
+	var w = World.inst if World.inst and is_instance_valid(World.inst) else null
+	if w == null or not (w.get("regions") is Dictionary): return false
+	# the house room boxes overlap each other (walls decide between rooms): they only count while the hero is outdoors
+	var out := true
+	for id in w.regions:
+		var ab0: AABB = w.regions[id]
+		if ab0.has_point(Vector3(h.x, ab0.position.y + 0.5, h.z)): out = false; break
+	for id in w.regions:
+		if not out and OwLink.ROOM_PATH.has(id): continue
+		var ab: AABB = w.regions[id]
+		var q := Vector3(p.x, ab.position.y + 0.5, p.z); var hq := Vector3(h.x, ab.position.y + 0.5, h.z)
+		if ab.has_point(q) and not ab.has_point(hq): return true
+	return false
 
 func _need_half(p: Vector3, mid: Vector3, a: Vector3, b: Vector3) -> float:
 	var f := (mid - p).normalized()
@@ -372,3 +458,10 @@ func _apply_now() -> void:
 	var c := get_viewport().get_camera_3d()
 	if c and pos != Vector3.INF and look != Vector3.INF and pos.distance_to(look) > 0.05:
 		c.global_transform = Transform3D(Basis.looking_at(look - pos, Vector3.UP), pos); c.fov = lerpf(c.fov, FOV, 1.0)
+
+## fix33: the room plays no story shot / QA close-up right now
+func _room_idle(sc: Node) -> bool:
+	for k in ["cam_shot", "qa_cam"]:
+		var v = sc.get(k)
+		if v is Dictionary and not (v as Dictionary).is_empty(): return false
+	return true
