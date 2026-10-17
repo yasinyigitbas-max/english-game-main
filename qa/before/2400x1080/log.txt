@@ -1,0 +1,30 @@
+SHOT 01_shop_lesson1_with_caption scroll_max=179 CAPTION_VISIBLE
+SHOT 01b_shop_lesson1 scroll_max=179 CAPTION_VISIBLE
+SHOT 02_shop_lesson3 scroll_max=179 CAPTION_VISIBLE
+SHOT 02b_shop_lesson3_tr_off scroll_max=107 CAPTION_VISIBLE
+SHOT 02c_shop_lesson3_caption_not_on_screen scroll_max=160 CAPTION_VISIBLE
+SHOT 02d_shop_lesson3_caption_on_screen scroll_max=160 CAPTION_VISIBLE
+SHOT 03_cafe_lesson3 scroll_max=197 CAPTION_VISIBLE
+SHOT 04_body_lesson1_9rows scroll_max=469 CAPTION_VISIBLE
+SHOT 05_family_lesson2_glosses scroll_max=-23 CAPTION_VISIBLE
+SHOT 06_family_lesson3_am_is_are scroll_max=59 CAPTION_VISIBLE
+SHOT 07_breakfast_lesson3 scroll_max=79 CAPTION_VISIBLE
+SHOT 08_shop_quiz CAPTION_VISIBLE
+SHOT 09_shop_score_page CAPTION_VISIBLE
+SHOT 10_bedtime_d3_test_q1 CAPTION_VISIBLE
+SHOT 10_bedtime_d3_test_q1_caption_on_screen CAPTION_VISIBLE
+SHOT 10_bedtime_d3_test_score CAPTION_VISIBLE
+SHOT 12_day2_test_q1 CAPTION_VISIBLE
+SHOT 12_day2_test_q1_caption_on_screen CAPTION_VISIBLE
+SHOT 12_day2_test_score CAPTION_VISIBLE
+SHOT 14_vocab_test_q1 CAPTION_VISIBLE
+SHOT 15_vocab_test_score CAPTION_VISIBLE
+SHOT 16_d2_puzzle_start CAPTION_VISIBLE
+SHOT 16b_d2_puzzle_building CAPTION_VISIBLE
+SHOT 16c_d2_puzzle_done CAPTION_VISIBLE
+SHOT 17_d3_puzzle_start CAPTION_VISIBLE
+SHOT 17b_d3_puzzle_building CAPTION_VISIBLE
+SHOT 17c_d3_puzzle_done CAPTION_VISIBLE
+SHOT 18_call_puzzle_start CAPTION_VISIBLE
+SHOT 18b_call_puzzle_building CAPTION_VISIBLE
+SHOT 18c_call_puzzle_done CAPTION_VISIBLE

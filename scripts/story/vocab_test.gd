@@ -69,16 +69,16 @@ func _question() -> void:
 	var t = ph._l("Vocabulary test %d / %d" % [qi + 1, Q.size()], 16, true, ph.MUTED); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(t)
 	var mid := HBoxContainer.new(); mid.alignment = BoxContainer.ALIGNMENT_CENTER; mid.add_theme_constant_override("separation", 20); v.add_child(mid)
 	mid.add_child(_prop_view(String(q.scene)))
-	var right := VBoxContainer.new(); right.add_theme_constant_override("separation", 8); right.custom_minimum_size.x = 430; mid.add_child(right)
+	var right := VBoxContainer.new(); right.add_theme_constant_override("separation", 8); right.custom_minimum_size.x = 480; mid.add_child(right)
 	var en := "What can you do with %s?" % q.obj
-	var ql = ph._wrap(en, 26, 430, true); ql.name = "Question"; right.add_child(ql)
-	right.add_child(ph._wrap("Choose two answers.", 15, 430, false, ph.MUTED))
-	right.add_child(_trl(ph._wrap("%s ile ne yapabilirsin? İki doğru cevabı seç." % String(q.tr).capitalize(), 15, 430, false, ph.TR_C)))
+	var ql = ph._wrap(en, 32, 480, true); ql.name = "Question"; right.add_child(ql)
+	right.add_child(ph._wrap("Choose two answers.", 15, 480, false, ph.MUTED))
+	right.add_child(_trl(ph._wrap("%s ile ne yapabilirsin? İki doğru cevabı seç." % String(q.tr).capitalize(), 15, 480, false, ph.TR_C)))
 	var grid := GridContainer.new(); grid.name = "Options"; grid.columns = 2; grid.add_theme_constant_override("h_separation", 10); grid.add_theme_constant_override("v_separation", 10); right.add_child(grid)
-	var fb = ph._wrap(" ", 18, 430, true, ph.GREEN); fb.name = "Feedback"; right.add_child(fb)
-	var fbt = _trl(ph._wrap("", 15, 430, false, ph.TR_C)); fbt.name = "FeedbackTR"; right.add_child(fbt)
+	var fb = ph._wrap(" ", 20, 480, true, ph.GREEN); fb.name = "Feedback"; right.add_child(fb)
+	var fbt = _trl(ph._wrap("", 15, 480, false, ph.TR_C)); fbt.name = "FeedbackTR"; right.add_child(fbt)
 	for i in 4:
-		var b: Button = ph._btn(q.opts[i], func(): pass, Vector2(210, 60), false, 18); b.name = "Opt%d" % i
+		var b: Button = ph._btn(q.opts[i], func(): pass, Vector2(230, 76), false, 20); b.name = "Opt%d" % i
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; b.toggle_mode = true; grid.add_child(b)
 		var ii := i; b.toggled.connect(func(on): _toggle(ii, on, b, grid, fb, fbt))
 	_say(en)
@@ -143,7 +143,7 @@ func _score_page() -> void:
 	_trs = []
 	var v: VBoxContainer = ph._clear(); v.alignment = BoxContainer.ALIGNMENT_CENTER; v.add_theme_constant_override("separation", 14)
 	var tot := Q.size()
-	for row in [["Your score", 22, ph.MUTED, true], ["%d / %d" % [score, tot], 60, ph.GREEN, true, "Score"], ["Puanın: %d / %d" % [score, tot], 18, ph.TR_C, false]]:
+	for row in [["Your score", 22, ph.MUTED, true], ["%d / %d" % [score, tot], 96, ph.GREEN, true, "Score"], ["Puanın: %d / %d" % [score, tot], 18, ph.TR_C, false]]:
 		var l = ph._l(row[0], row[1], row[3], row[2])
 		if row.size() > 4: l.name = row[4]
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(l if row[2] != ph.TR_C else _trl(l))
@@ -154,10 +154,11 @@ func _score_page() -> void:
 	var bar := HBoxContainer.new(); bar.name = "Options"; bar.alignment = BoxContainer.ALIGNMENT_CENTER; bar.add_theme_constant_override("separation", 14); v.add_child(bar)
 	bar.add_child(ph._btn("Retake the test", func(): Audio.click();_pick_version(true);qi = 0;score = 0;_suggested = false;_question(), Vector2(200, 64), false, 17))
 	var cb: Button = ph._btn("Continue", func(): Audio.click(); finished.emit([score, tot]), Vector2(180, 64), true, 17); cb.name = "ScoreContinue"; bar.add_child(cb)
+	ph.dock_bar(bar)   # v33: Retake bottom-left, Continue bottom-right (phone.gd test page dock)
 	var bt = ph._l("Testi tekrarla  ·  Devam", 14, false, ph.TR_C); bt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(_trl(bt))
 
 ## the real in-game prop, camera fitted to its AABB (centred, ~12% padding), 3-point light, plain contrasting backdrop
-const VIEW := 340   # ~47% of the 720 px viewport height
+const VIEW := 400   # v33: bigger on the full-height test page (was 340)
 static func prop_aabb(n: Node, xf := Transform3D.IDENTITY) -> AABB:
 	var out := AABB(); var has := false
 	var t: Transform3D = xf * (n as Node3D).transform if n is Node3D else xf

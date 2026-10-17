@@ -177,19 +177,14 @@ func _puzzle(sentence: String, tr_line := "") -> void:
 	var words := sentence.left(sentence.length() - end.length()).split(" "); var target := Array(words)
 	var pool := target.duplicate(); while pool == target and pool.size() > 1: pool.shuffle()
 	var cl := CanvasLayer.new(); cl.layer = 30; add_child(cl)
-	var box := PanelContainer.new(); box.name = "D3Puzzle"; var sb := StyleBoxFlat.new(); sb.bg_color = Color(1, 1, 1, 0.95); sb.set_corner_radius_all(20); sb.set_content_margin_all(18); box.add_theme_stylebox_override("panel", sb)
-	box.anchor_left = 0.5; box.anchor_right = 0.5; box.anchor_top = 0.5; box.anchor_bottom = 0.5; box.offset_left = -400; box.offset_right = 400; box.offset_top = -190; box.offset_bottom = 70; cl.add_child(box)
+	var P := StoryUI.scramble_panel(cl, "D3Puzzle", pool)   # v33: standard compact scramble panel (low, above the caption box)
+	var box: PanelContainer = P.box; var askt: Label = P.askt
 	Objectives.ovl_register(box, 5)
-	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 12); box.add_child(v)
-	var ask := Label.new(); ask.text = "Put the words in the right order."; ask.add_theme_font_size_override("font_size", 18); ask.add_theme_color_override("font_color", Color(0.4, 0.45, 0.6)); ask.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(ask)
-	var askt := Label.new(); askt.text = "Kelimeleri doğru sıraya koy."; askt.add_theme_font_size_override("font_size", 15); askt.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8)); askt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(askt)
-	var ans := Label.new(); ans.text = "..."; ans.add_theme_font_size_override("font_size", 30); ans.add_theme_color_override("font_color", Color(0.12, 0.15, 0.25)); ans.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ans.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; ans.visible = false; v.add_child(ans)   # v32-polish: built sentence -> standard caption box
-	var ant := Label.new(); ant.text = tr_line; ant.add_theme_font_size_override("font_size", 16); ant.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8)); ant.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ant.visible = false; v.add_child(ant)
-	var row := HFlowContainer.new(); row.alignment = FlowContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("h_separation", 10); row.add_theme_constant_override("v_separation", 10); v.add_child(row)
+	var ans := Label.new(); ans.text = "..."; ans.visible = false   # v32-polish: built sentence -> standard caption box (lr.caption_live)
 	var got: Array = []
 	var done := [false]
-	for wd in pool:
-		var bt := Button.new(); bt.text = wd; bt.custom_minimum_size = Vector2(100, 56); bt.add_theme_font_size_override("font_size", 24); row.add_child(bt)
+	for bt in P.buttons:
+		var wd: String = bt.text
 		bt.pressed.connect(func():
 			if bt.disabled or done[0]: return
 			if wd == target[got.size()]:
@@ -202,4 +197,5 @@ func _puzzle(sentence: String, tr_line := "") -> void:
 		await get_tree().process_frame
 	Audio.good()
 	await _w(0.5)
+	ans.free()
 	cl.queue_free()

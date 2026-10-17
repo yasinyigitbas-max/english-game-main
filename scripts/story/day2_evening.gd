@@ -143,18 +143,14 @@ func _puzzle(sentence: String, tr_line := "") -> void:
 	var cl := CanvasLayer.new(); cl.layer = 30; add_child(cl)
 	var words := sentence.trim_suffix(".").split(" "); var target := Array(words)
 	var pool := target.duplicate(); while pool == target and pool.size() > 1: pool.shuffle()
-	var box := PanelContainer.new(); box.name = "D2Puzzle"; var sb := StyleBoxFlat.new(); sb.bg_color = Color(1, 1, 1, 0.95); sb.set_corner_radius_all(20); sb.set_content_margin_all(18); box.add_theme_stylebox_override("panel", sb)
-	box.anchor_left = 0.5; box.anchor_right = 0.5; box.anchor_top = 0.5; box.anchor_bottom = 0.5; box.offset_left = -380; box.offset_right = 380; box.offset_top = -170; box.offset_bottom = 70; cl.add_child(box)
+	var P := StoryUI.scramble_panel(cl, "D2Puzzle", pool)   # v33: standard compact scramble panel (low, above the caption box)
+	var box: PanelContainer = P.box; var askt: Label = P.askt
 	Objectives.ovl_register(box, 5)
-	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 14); box.add_child(v)
-	var ask := Label.new(); ask.text = "Put the words in the right order."; ask.add_theme_font_size_override("font_size", 18); ask.add_theme_color_override("font_color", Color(0.4, 0.45, 0.6)); ask.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(ask)
-	var askt := Label.new(); askt.text = "Kelimeleri doğru sıraya koy."; askt.add_theme_font_size_override("font_size", 15); askt.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8)); askt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; askt.visible = App.tr_on(); v.add_child(askt)
-	var ans := Label.new(); ans.text = "..."; ans.add_theme_font_size_override("font_size", 30); ans.add_theme_color_override("font_color", Color(0.12, 0.15, 0.25)); ans.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ans.visible = false; v.add_child(ans)   # v32-polish: the built sentence shows in the standard caption box (lr.caption_live), not here
-	var row := HFlowContainer.new(); row.alignment = FlowContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("h_separation", 10); v.add_child(row)
+	var ans := Label.new(); ans.text = "..."; ans.visible = false   # v32-polish: the built sentence shows in the standard caption box (lr.caption_live), not here
 	var got: Array = []
 	var done := [false]
-	for wd in pool:
-		var b := Button.new(); b.text = wd; b.custom_minimum_size = Vector2(110, 56); b.add_theme_font_size_override("font_size", 24); row.add_child(b)
+	for b in P.buttons:
+		var wd: String = b.text
 		b.pressed.connect(func():
 			if b.disabled: return
 			if wd == target[got.size()]:
@@ -167,4 +163,5 @@ func _puzzle(sentence: String, tr_line := "") -> void:
 		await get_tree().process_frame
 	Audio.good()
 	await _w(0.5)
+	ans.free()
 	cl.queue_free()

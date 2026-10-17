@@ -1,0 +1,30 @@
+SHOT 01_shop_lesson1_with_caption CAPTION_VISIBLE
+SHOT 01b_shop_lesson1
+SHOT 02_shop_lesson3
+SHOT 02b_shop_lesson3_tr_off
+SHOT 02c_shop_lesson3_caption_not_on_screen CAPTION_VISIBLE
+SHOT 02d_shop_lesson3_caption_on_screen
+SHOT 03_cafe_lesson3 CAPTION_VISIBLE
+SHOT 04_body_lesson1_9rows CAPTION_VISIBLE
+SHOT 05_family_lesson2_glosses CAPTION_VISIBLE
+SHOT 06_family_lesson3_am_is_are CAPTION_VISIBLE
+SHOT 07_breakfast_lesson3 CAPTION_VISIBLE
+SHOT 08_shop_quiz
+SHOT 09_shop_score_page
+SHOT 10_bedtime_d3_test_q1
+SHOT 10_bedtime_d3_test_q1_caption_on_screen
+SHOT 10_bedtime_d3_test_score
+SHOT 12_day2_test_q1
+SHOT 12_day2_test_q1_caption_on_screen
+SHOT 12_day2_test_score
+SHOT 14_vocab_test_q1
+SHOT 15_vocab_test_score
+SHOT 16_d2_puzzle_start
+SHOT 16b_d2_puzzle_building CAPTION_VISIBLE
+SHOT 16c_d2_puzzle_done CAPTION_VISIBLE
+SHOT 17_d3_puzzle_start CAPTION_VISIBLE
+SHOT 17b_d3_puzzle_building CAPTION_VISIBLE
+SHOT 17c_d3_puzzle_done CAPTION_VISIBLE
+SHOT 18_call_puzzle_start CAPTION_VISIBLE
+SHOT 18b_call_puzzle_building CAPTION_VISIBLE
+SHOT 18c_call_puzzle_done CAPTION_VISIBLE

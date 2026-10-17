@@ -92,8 +92,8 @@ func _ready() -> void:
 	body = MarginContainer.new(); body.name = "Body"; body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	for k in ["left", "right"]: body.add_theme_constant_override("margin_" + k, 30)
 	body.add_theme_constant_override("margin_top", 4); body.add_theme_constant_override("margin_bottom", 2); col.add_child(body)
-	var nav := HBoxContainer.new(); nav.alignment = BoxContainer.ALIGNMENT_CENTER; nav.add_theme_constant_override("separation", 26)
-	nav.custom_minimum_size.y = 58; col.add_child(nav)
+	var nav := HBoxContainer.new(); nav.name = "NavRow"; nav.alignment = BoxContainer.ALIGNMENT_CENTER; nav.add_theme_constant_override("separation", 26)
+	nav.custom_minimum_size.y = 58; col.add_child(nav); navrow = nav
 	nav.add_child(_navbtn("Back", "NavBack", back))
 	nav.add_child(_navbtn("Home", "NavHome", func(): Audio.click(); show_page("home")))
 	nav.add_child(_navbtn("Close", "NavClose", close))
@@ -104,6 +104,47 @@ func _ready() -> void:
 ## The gap under the nav row tracks the real top of any visible caption box (HUD "Caption" / StoryUI "StoryCaption").
 const CAPGAP_MIN := 112.0
 var capgap: Control
+var navrow: Control
+
+## v33 (Yasin 16:14) UNIVERSAL TEST-SCREEN RULE: every lesson / quiz / score page (phone lessons, Quick check, the story
+## tests drawn into this phone: day-2 / bedtime / vocab tests) uses the whole screen - no nav row, no caption gap, content
+## sized to fit with no scrolling, the action buttons in a bottom dock at the far left / far right corners (the centre of
+## the dock stays empty, so the bottom-centre caption box, when a line not on screen is spoken, never covers a button).
+## The caption box itself is hidden during the test by scripts/core/test_screen.gd (shows only for lines not on screen).
+const TestScreen := preload("res://scripts/core/test_screen.gd")
+const DOCK_BTN := Vector2(150, 64)   # <= 158 px: fits beside the 880 px StoryUI / HUD caption box at 1280 px width
+func test_mode() -> bool:
+	return page in ["lesson", "quiz", "score"]
+var _tm_last := false
+func _apply_test_mode() -> void:
+	var tm := test_mode() and visible
+	if navrow: navrow.visible = not tm
+	if tm and capgap and capgap.custom_minimum_size.y != 0.0: capgap.custom_minimum_size.y = 0.0
+	if tm != _tm_last:
+		_tm_last = tm; TestScreen.mark(self, tm)
+		if not tm and capgap: capgap.custom_minimum_size.y = CAPGAP_MIN; _update_capgap()
+## the bottom dock of the current test page (built by _clear() in test mode); side "l" / "r"; null outside test pages
+func dock(v: Control, side: String) -> Container:
+	if v and v.has_meta("dock_" + side): return v.get_meta("dock_" + side) as Container
+	return null
+## moves a test page's button bar into the dock: every button but the last -> left corner (stacked when 2+), last -> right.
+## The (now empty) bar node stays in place so name lookups (Options / ScoreBar) keep working.
+func dock_bar(bar: Control) -> void:
+	var v := bar.get_parent() as Control
+	var dl := dock(v, "l"); var dr := dock(v, "r")
+	if dl == null or dr == null: return
+	var btns: Array = bar.get_children().filter(func(c): return c is Button)
+	if btns.is_empty(): return
+	var left: Container = dl
+	if btns.size() > 2:
+		left = VBoxContainer.new(); left.add_theme_constant_override("separation", 8); dl.add_child(left)
+	for i in btns.size():
+		var b: Button = btns[i]; bar.remove_child(b)
+		b.custom_minimum_size = Vector2(DOCK_BTN.x, b.custom_minimum_size.y)
+		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if b.text.length() > 12 and not b.text.contains("\n") else b.autowrap_mode
+		if i == btns.size() - 1: dr.add_child(b)
+		else: left.add_child(b)
+	bar.custom_minimum_size = Vector2.ZERO; bar.visible = false
 var _capgap_t := 0.0
 func _caption_top(nd: Node, best: float) -> float:
 	if nd == self or (nd is CanvasItem and not (nd as CanvasItem).is_visible_in_tree()): return best
@@ -113,6 +154,7 @@ func _caption_top(nd: Node, best: float) -> float:
 	return best
 func _update_capgap() -> void:
 	if capgap == null or not is_visible_in_tree(): return
+	if test_mode(): return   # v33: no caption gap on test pages
 	var h := get_viewport_rect().size.y
 	var top := _caption_top(get_tree().root, h)
 	var want := clampf(h - top + 14.0, CAPGAP_MIN, h * 0.42)
@@ -274,7 +316,20 @@ func _header(v: Control, en: String, sub: String, tr := "") -> HBoxContainer:
 func _clear() -> VBoxContainer:
 	_free_preview()
 	for c in body.get_children(): body.remove_child(c); c.queue_free()
-	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 10); body.add_child(v); return v
+	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 10)
+	if not test_mode(): body.add_child(v); return v
+	# v33 test page: [content (fills)] over [dock: left corner .. empty centre .. right corner], dock flush at the bottom
+	_apply_test_mode()
+	var tp := VBoxContainer.new(); tp.name = "TestPage"; tp.add_theme_constant_override("separation", 6); body.add_child(tp)
+	v.size_flags_vertical = Control.SIZE_EXPAND_FILL; tp.add_child(v)
+	var dk := HBoxContainer.new(); dk.name = "TestDock"; dk.mouse_filter = Control.MOUSE_FILTER_IGNORE; tp.add_child(dk)
+	var dl := HBoxContainer.new(); dl.name = "DockLeft"; dl.add_theme_constant_override("separation", 10); dl.alignment = BoxContainer.ALIGNMENT_BEGIN
+	dl.size_flags_vertical = Control.SIZE_SHRINK_END; dk.add_child(dl)
+	var mid := Control.new(); mid.name = "DockGap"; mid.size_flags_horizontal = Control.SIZE_EXPAND_FILL; mid.mouse_filter = Control.MOUSE_FILTER_IGNORE; dk.add_child(mid)
+	var dr := HBoxContainer.new(); dr.name = "DockRight"; dr.add_theme_constant_override("separation", 10); dr.alignment = BoxContainer.ALIGNMENT_END
+	dr.size_flags_vertical = Control.SIZE_SHRINK_END; dk.add_child(dr)
+	v.set_meta("dock_l", dl); v.set_meta("dock_r", dr)
+	return v
 
 func _badge(parent: Control, pos: Vector2) -> void:
 	var bd := Label.new(); bd.text = "1"; bd.name = "Badge"; bd.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; bd.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -573,9 +628,11 @@ func _lesson() -> void:
 	for i in L.size() + 1:
 		var d := Panel.new(); d.custom_minimum_size = Vector2(14, 14)
 		d.add_theme_stylebox_override("panel", _sb(BLUE if i <= lesson_i else Color(0.78, 0.8, 0.88), 7, 0)); dots.add_child(d)
-	var sc := _scroll(); sc.name = "LessonScroll"; v.add_child(sc)
+	# v33: no scroll area - the rows fill the page height and _fit_rows() sizes rows / fonts so every row is visible
 	var grid := GridContainer.new(); grid.name = "LessonRows"; grid.columns = 2; grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.add_theme_constant_override("h_separation", 12); grid.add_theme_constant_override("v_separation", 10); sc.add_child(grid)
+	grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	grid.add_theme_constant_override("h_separation", 12); grid.add_theme_constant_override("v_separation", 8); v.add_child(grid)
+	grid.resized.connect(_fit_rows.bind(grid))
 	var fam := les.is_empty()
 	var two := lesson_i == 2 and fam
 	var row_i := -1
@@ -583,19 +640,20 @@ func _lesson() -> void:
 		row_i += 1
 		for k in 2:
 			var txt: String = row[k]
-			var b := _card_btn("Row", 54)
+			var b := _card_btn("Row", 34); b.size_flags_vertical = Control.SIZE_EXPAND_FILL
 			if txt == "":
-				var e := Control.new(); e.size_flags_horizontal = Control.SIZE_EXPAND_FILL; grid.add_child(e); continue
+				var e := Control.new(); e.size_flags_horizontal = Control.SIZE_EXPAND_FILL; e.size_flags_vertical = Control.SIZE_EXPAND_FILL; grid.add_child(e); continue
 			var lb := _l(txt, 25 if (k == 0 or two) else 20, k == 0 or two, INK if (k == 0 or two) else (TR_C if (lesson_i in [0, 3] or not fam) else Color(0.25, 0.28, 0.36)))
 			lb.set_anchors_preset(Control.PRESET_FULL_RECT); lb.offset_left = 20; lb.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-			lb.clip_text = true; lb.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; b.add_child(lb)
+			lb.clip_text = true; lb.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; lb.offset_right = -12; lb.name = "RowText"; lb.set_meta("fs0", 25 if (k == 0 or two) else 20); b.add_child(lb)
 			# v32-polish: every EN cell without its own TR column gets a TR gloss under the EN (rows_tr in the lesson data,
 			# else data/extra_lines.json), shown only while TR is on (practice buttons he/she/it, am/is/are, examples)
 			var is_tr_col := k == 1 and not two and (lesson_i in [0, 3] or not fam)
 			var gl := _cell_tr(st, row_i, k, txt) if not is_tr_col else ""
 			if gl != "":
-				b.custom_minimum_size.y = 72; lb.offset_bottom = -20
+				lb.offset_bottom = -20
 				var gt := _l(gl, 14, false, TR_C); gt.set_anchors_preset(Control.PRESET_BOTTOM_WIDE); gt.offset_left = 20; gt.offset_top = -24; gt.offset_bottom = -4
+				gt.name = "RowGloss"; gt.offset_right = -12
 				gt.clip_text = true; gt.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; b.add_child(gt)
 			if k == 1 and not two and (lesson_i in [0, 3] or not fam): _trl(lb)   # v31: TR column only with the TR toggle
 			var say := txt if (k == 0 or two) else (txt.split(": ")[1] if txt.contains(": ") else "")
@@ -605,10 +663,46 @@ func _lesson() -> void:
 			else: b.mouse_filter = Control.MOUSE_FILTER_PASS
 			grid.add_child(b)
 	var bar := HBoxContainer.new(); bar.add_theme_constant_override("separation", 12); bar.alignment = BoxContainer.ALIGNMENT_END; v.add_child(bar)
-	bar.add_child(_btn("Listen", func(): _say_all(st.say), Vector2(150, 56)))
-	var nb := _btn("Next" if lesson_i < L.size() - 1 else "Check", _lesson_next, Vector2(180, 56), true)
+	bar.add_child(_btn("Listen", func(): _say_all(st.say), DOCK_BTN))
+	var nb := _btn("Next" if lesson_i < L.size() - 1 else "Check", _lesson_next, DOCK_BTN, true)
 	nb.name = "LessonNext"; bar.add_child(nb)
+	dock_bar(bar)   # v33: Listen bottom-left, Next / Check bottom-right
 	_say_all(st.say)
+	_fit_rows.call_deferred(grid)
+
+## v33: lesson rows share the page height evenly (no scrollbar on 16:9 .. 20:9); one font size per column that fits both the
+## row height and the longest text of that column; TR gloss lines scale with it
+func _fit_rows(grid: GridContainer) -> void:
+	if not is_instance_valid(grid) or grid.size.y < 10.0: return
+	var cells := grid.get_children()
+	var n := ceili(cells.size() / 2.0)
+	if n == 0: return
+	var vsep := grid.get_theme_constant("v_separation")
+	var row_h := (grid.size.y - vsep * (n - 1)) / n
+	var any_gloss := false
+	for c in cells: if c.find_child("RowGloss", false, false) and (c.find_child("RowGloss", false, false) as Label).visible: any_gloss = true
+	var cap := row_h * (0.36 if any_gloss else 0.46)
+	var fnt: Font = main.font_b if main and main.get("font_b") else get_theme_default_font()
+	var fs_col := [32.0, 32.0]
+	for i in cells.size():
+		var lb := (cells[i] as Node).find_child("RowText", false, false) as Label
+		if lb == null: continue
+		var cw: float = (cells[i] as Control).size.x - 36.0
+		var f := clampf(minf(cap, float(lb.get_meta("fs0", 25)) * 1.3), 14.0, 32.0)
+		while f > 14.0 and fnt.get_string_size(lb.text, HORIZONTAL_ALIGNMENT_LEFT, -1, int(f)).x > cw: f -= 1.0
+		fs_col[i % 2] = minf(fs_col[i % 2], f)
+	for i in cells.size():
+		var lb := (cells[i] as Node).find_child("RowText", false, false) as Label
+		if lb == null: continue
+		var f := int(fs_col[i % 2]) if int(lb.get_meta("fs0", 25)) >= 25 else int(minf(fs_col[i % 2], fs_col[0]))
+		if lb.get_theme_font_size("font_size") != f: lb.add_theme_font_size_override("font_size", f)
+		var gt := (cells[i] as Node).find_child("RowGloss", false, false) as Label
+		if gt:
+			var gf := int(clampf(f * 0.62, 12.0, 20.0))
+			if gt.get_theme_font_size("font_size") != gf: gt.add_theme_font_size_override("font_size", gf)
+			var on := gt.visible
+			gt.offset_top = -(gf + 10); gt.offset_bottom = -4
+			lb.offset_bottom = -(gf + 6) if on else 0.0
 
 ## v32-polish: TR gloss for a lesson cell: rows_tr[row][k] in the lesson step, else the extra_lines.json value of the EN text
 func _cell_tr(st: Dictionary, r: int, k: int, en: String) -> String:
@@ -687,16 +781,17 @@ var _suggested := false
 
 func _quiz() -> void:
 	_lesson_serial += 1; Audio.cancel_group("lesson")   # house.19: leaving a page stops its narration
-	var v := _clear(); v.alignment = BoxContainer.ALIGNMENT_CENTER; v.add_theme_constant_override("separation", 18)
+	var v := _clear(); v.alignment = BoxContainer.ALIGNMENT_CENTER; v.add_theme_constant_override("separation", 26)
 	var Q: Array = _qz()
 	var q: Dictionary = Q[quiz_i]
-	var t := _l("Quick check %d / %d" % [quiz_i + 1, Q.size()], 18, true, MUTED); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(t)
-	var ql := _l(q.q, 40, true); ql.name = "Question"; ql.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(ql)
+	var t := _l("Quick check %d / %d" % [quiz_i + 1, Q.size()], 20, true, MUTED); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(t)
+	var ql := _l(q.q, 48, true); ql.name = "Question"; ql.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(ql)
+	ql.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var tr := _l("Doğru kelimeye dokun.", 16, false, TR_C); tr.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(tr)
 	var row := HBoxContainer.new(); row.name = "Options"; row.alignment = BoxContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("separation", 20); v.add_child(row)
 	var fb := _l(" ", 24, true, GREEN); fb.name = "Feedback"; fb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(fb)
 	for i in q.opts.size():
-		var b := _btn(q.opts[i], func(): pass, Vector2(170, 76), false, 30); b.name = "Opt%d" % i; row.add_child(b)
+		var b := _btn(q.opts[i], func(): pass, Vector2(220, 100), false, 36); b.name = "Opt%d" % i; row.add_child(b)   # v33: bigger answers on the full page
 		var ii: int = i; var bb := b
 		b.pressed.connect(func(): _answer(ii, bb, fb))
 	_enable_when_idle(row)
@@ -747,7 +842,7 @@ func _score_page() -> void:
 	_lesson_serial += 1; Audio.cancel_group("lesson"); page = "score"   # house.20: finished -> phone closable again
 	var v := _clear(); v.alignment = BoxContainer.ALIGNMENT_CENTER; v.add_theme_constant_override("separation", 18)
 	var t := _l("Your score", 22, true, MUTED); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(t)
-	var sl := _l("%d / %d" % [quiz_score, _qz().size()], 64, true, GREEN); sl.name = "Score"; sl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(sl)
+	var sl := _l("%d / %d" % [quiz_score, _qz().size()], 96, true, GREEN); sl.name = "Score"; sl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(sl)
 	var tr := _l("Puanın: %d / %d" % [quiz_score, _qz().size()], 18, false, TR_C); tr.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(tr)
 	# house.26: optional study suggestion when half or more were wrong; retake (next version) and continue
 	var total := _qz().size()
@@ -759,6 +854,7 @@ func _score_page() -> void:
 	if not _les().get("lesson", []).is_empty(): bar.add_child(_btn("Study grammar\nDilbilgisi çalış", _study, Vector2(200, 64), false, 17))
 	bar.add_child(_btn("Retake the test\nTesti tekrarla", _retake, Vector2(200, 64), false, 17))
 	var cb := _btn("Continue\nDevam", func(): Audio.click(); _score_continue(), Vector2(180, 64), true, 17); cb.name = "ScoreContinue"; bar.add_child(cb)
+	dock_bar(bar)   # v33: Study / Retake bottom-left, Continue bottom-right
 
 ## sentence for a member: "This is Ayşe. She is my sister. She is funny and kind."
 func pron(m: Dictionary) -> String:
@@ -1133,6 +1229,7 @@ func _trl(l: Label) -> Label:
 	_tr_lbls = _tr_lbls.filter(func(x): return is_instance_valid(x)); _tr_lbls.append(l); l.visible = _tr_now(); _tr_last = _tr_now(); return l
 func _process(dt: float) -> void:
 	_capgap_t -= dt
+	_apply_test_mode()   # v33
 	if _capgap_t <= 0.0: _capgap_t = 0.15; _update_capgap()
 	_lock_tick()
 	# v32-polish ROOT CAUSE FIX (lesson / tile / chip TR): re-assert every TR label each frame, also while the phone is
@@ -1140,7 +1237,10 @@ func _process(dt: float) -> void:
 	# gloss hidden while TR is on. Was: only on a flag change and only while `visible`.
 	if not _tr_lbls.is_empty():
 		var on := _tr_now()
-		if on != _tr_last: _tr_lbls = _tr_lbls.filter(func(x): return is_instance_valid(x))
+		if on != _tr_last:
+			_tr_lbls = _tr_lbls.filter(func(x): return is_instance_valid(x))
+			var lr = find_child("LessonRows", true, false)
+			if lr: _fit_rows.call_deferred(lr)   # v33: TR glosses on / off -> re-fit the lesson rows
 		_tr_last = on
 		for l in _tr_lbls:
 			if is_instance_valid(l) and l.visible != on and (l as Label).text != "": l.visible = on
