@@ -49,7 +49,7 @@ func build(k: MeshKit, block: Node) -> void:
 	if kit.count > 0:
 		var mi := kit.commit(block); mi.add_to_group("fade" if kind in ["house", "home", "shop"] else "solid")
 		if kind in ["house", "home", "shop"]: mi.set_meta("cut", _cutaway(block))
-	if kind == "home": (func(): DoorLabel.at(self, entrance_global() + Vector3(0, 2.3, 0), "Home", "Ev")).call_deferred()   # v30.2: door sign
+	if kind == "home": (func(): if not DoorLabel.ow_active(): DoorLabel.at(self, entrance_global() + Vector3(0, 2.3, 0), "Home", "Ev")).call_deferred()   # v30.2: door sign
 	kit = k
 	for t in tree_spots: blk.trees.append(transform * t)
 	if kind in ["house", "home"]: _garden()

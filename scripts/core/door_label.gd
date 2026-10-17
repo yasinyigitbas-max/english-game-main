@@ -5,8 +5,24 @@ extends Label3D
 var en := ""
 var tr := ""
 var host: Node
+var wdoor: Node = null   # openworld: World.WorldDoor (a / b regions); text = the side the hero is NOT in
+const OW_NAMES := {"bedroom": ["Bedroom", "Yatak odası"], "bathroom": ["Bathroom", "Banyo"], "livingroom": ["Living room", "Oturma odası"],
+	"street": ["Street", "Sokak"], "cafe": ["Café", "Kafe"], "shop": ["Shop", "Market"], "work": ["Work", "İş yeri"]}
+
+## openworld (fix33 quick fix): the rooms' own signs sit in room-local coordinates under a shell that hides Label3Ds and
+## never processes, and their host has no hero -> no door sign anywhere. World puts one sign per WorldDoor instead.
+static func ow_active() -> bool:
+	return World.get_world() != null
+
+static func for_world_door(world: Node, dr: Node) -> DoorLabel:
+	var l := DoorLabel.new(); l.host = world; l.wdoor = dr; l.name = "DoorSign_" + String(dr.get("id"))
+	l.process_mode = Node.PROCESS_MODE_ALWAYS
+	world.add_child(l)
+	var c: Vector3 = dr.call("center"); l.global_position = Vector3(c.x, c.y + 1.2, c.z)
+	return l
 
 static func attach(scene: Node, objs: Dictionary, doors: Dictionary) -> void:
+	if ow_active(): return   # openworld: World's per-door signs (for_world_door)
 	for id in doors:
 		if not objs.has(id): continue
 		var l := DoorLabel.new(); l.host = scene; l.en = doors[id][0]; l.tr = doors[id][1]
@@ -25,6 +41,8 @@ func _ready() -> void:
 	render_priority = 10
 
 func _process(_d: float) -> void:
+	if wdoor != null:
+		_ow_process(); return
 	var sc = host if host and is_instance_valid(host) else get_tree().current_scene
 	var who = sc.get("hero") if sc else null
 	if who == null and sc: who = sc.get("player")
@@ -34,4 +52,21 @@ func _process(_d: float) -> void:
 		var d := Vector2(who.global_position.x - global_position.x, who.global_position.z - global_position.z).length()
 		a = clampf((4.5 - d) / 1.5, 0.0, 1.0)
 	modulate.a = lerpf(modulate.a, a, 0.15); outline_modulate.a = modulate.a * 0.85
+	visible = modulate.a > 0.02
+
+func _ow_process() -> void:
+	if not is_instance_valid(wdoor): queue_free(); return
+	var w := World.get_world()
+	var who: Node3D = World.hero_node() if w else null
+	var reg := World.current_region()
+	var a := String(wdoor.get("a")); var b := String(wdoor.get("b"))
+	var to := a if reg == b else b
+	var nm: Array = OW_NAMES.get(to, [to.capitalize(), ""])
+	if to == "livingroom" and reg == "street": nm = ["Home", "Ev"]
+	text = nm[1] if (App.tr_on() and nm[1] != "") else nm[0]
+	var al := 0.0
+	if who != null and who.visible:
+		var d := Vector2(who.global_position.x - global_position.x, who.global_position.z - global_position.z).length()
+		al = clampf((4.5 - d) / 1.5, 0.0, 1.0)
+	modulate.a = lerpf(modulate.a, al, 0.15); outline_modulate.a = modulate.a * 0.85
 	visible = modulate.a > 0.02

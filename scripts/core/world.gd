@@ -304,6 +304,14 @@ func _late_places() -> void:
 		var dr := WorldDoor.new(); dr.id = id; dr.leaf = leaf; dr.open_angle = -1.75; dr.auto = id != "work"; dr.a = id; dr.b = "street"
 		dr.closed_angle = leaf.rotation.y; dr.name = "Door_" + id; add_child(dr); doors[id] = dr; dr.c0 = dr.center()
 	for l in find_children("*", "OmniLight3D", true, false) + find_children("*", "SpotLight3D", true, false): if not l in _lights: _lights.append(l)
+	_door_signs()
+
+## fix33 quick fix: the v33.1 door signs ("Bathroom", "Street", "Café", ...), one per WorldDoor, named by the far side
+func _door_signs() -> void:
+	for id in doors:
+		var dr: WorldDoor = doors[id]
+		if id == "work" or not is_instance_valid(dr.leaf) or has_node("DoorSign_" + String(id)): continue
+		DoorLabel.for_world_door(self, dr)
 
 class WorldDoor extends Node:
 	var id := ""
