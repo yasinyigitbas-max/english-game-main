@@ -40,6 +40,12 @@ func _hud_hide(on: bool) -> void:
 var _t := 0.0
 var exit_spawn := ""
 signal used(id: String)
+## hooks for other code (e.g. day-3 town cues). Both carry place_id ("cafe" / "shop"). The place scene is in group "places".
+## place_entered: the interior is built and the player stands at the door (end of _ready, before the scripted flow).
+## place_exited: the player is leaving through the door (in leave(), right before Game.go_to(WORLD_SCENE, "lot:<world_lot>")).
+## After the switch the world sees App.came_from == place_id and Game.spawn == "lot:<world_lot>".
+signal place_entered(place_id: String)
+signal place_exited(place_id: String)
 
 # ------------------------------------------------------------------ setup
 func _ready() -> void:
@@ -50,8 +56,8 @@ func _ready() -> void:
 	hud = (load("res://ui/shared/hud.tscn") as PackedScene).instantiate(); add_child(hud)
 	player = WorldPlayer.new(); add_child(player); player.hud = hud; hud.player = player; player.floor_y = 0.0
 	player.surface_func = func(_p: Vector3) -> String: return "pave"
-	_room()
-	build()
+	build()   # sets room (shop: 14 x 10) before the shell is built
+	_room()   # blue fix: _room() ran BEFORE build(), so the walls / floor always used the default 10 x 8 room and the shop's crates / bakery poked through the walls
 	player.global_position = Vector3(0, 0, room.y / 2.0 - 0.9); player.face(PI)
 	cam = (load("res://ui/shared/camera_rig.tscn") as PackedScene).instantiate(); add_child(cam)
 	hud.camera = cam; player.attach_camera(cam, 8.0, 0.9); cam.max_dist = 11.0
@@ -61,6 +67,8 @@ func _ready() -> void:
 	hud.tr_func = func(en: String) -> String: return String(TRD[en]) if TRD.has(en) else String(base_tr.call(en))
 	hud.set_tr(App.tr_saved())
 	_marker()
+	add_to_group("places")
+	place_entered.emit.call_deferred(place_id)   # deferred: listeners connected from node_added / the group still get it
 	if not "--qa-place" in OS.get_cmdline_user_args(): _start.call_deferred()
 
 func _start() -> void: await run()
@@ -197,9 +205,11 @@ func busy(on: bool) -> void:
 	mode = "busy" if on else "play"; player.busy = on
 	if on: _hide_chips()
 
+## HUD header = object name (noun), chip = verb, like every other interactable (was the verb twice: "Take Apples" + "Take apples")
+const TARGET_NAMES := {"basket": "basket", "apples": "apples", "milk": "milk", "bread": "bread", "pay": "checkout", "exit": "door", "counter": "counter", "seat": "seat"}
 ## an objective target: Interactable that emits used(id) once enabled
 func target(id: String, pos: Vector3, focus: Vector3, verb_en: String, r := 1.5) -> Interactable:
-	var it := Interactable.new(); it.obj_name = verb_en; it.radius = r; it.position = pos; it.focus = focus; add_child(it)
+	var it := Interactable.new(); it.obj_name = String(TARGET_NAMES.get(id, id)); it.radius = r; it.position = pos; it.focus = focus; add_child(it)
 	it.verbs = func() -> Array: return [[verb_en, func(): used.emit(id)]] if it.enabled else []
 	its[id] = it; return it
 
@@ -226,7 +236,7 @@ func qa_use(id: String) -> void:
 ## optional chat with an NPC: first time = data npc[place][id] dialogue, later = one short line
 func chat_target(id: String, npc: DemoCharacter, r := 1.6) -> void:
 	var to := (player.global_position if player else Vector3(0, 0, room.y / 2)) - npc.global_position; to.y = 0
-	var it := Interactable.new(); it.obj_name = "Talk"; it.radius = r; add_child(it)
+	var it := Interactable.new(); it.obj_name = String({"assistant": "shop assistant", "barista": "barista"}.get(id, "person")); it.radius = r; add_child(it)
 	it.position = npc.global_position + Vector3(0, 0, 0.9).rotated(Vector3.UP, npc.rotation.y); it.focus = npc.global_position + Vector3(0, 1.2, 0)
 	its["npc_" + id] = it
 	it.verbs = func() -> Array:
@@ -311,6 +321,7 @@ func leave() -> void:
 	save_game(); App.came_from = place_id
 	await get_tree().create_timer(0.6).timeout
 	Audio.music("")
+	place_exited.emit(place_id)
 	if "--qa-place" in OS.get_cmdline_user_args(): return
 	# back to the street in front of this building: world_exterior.gd puts the player at Lot.entrance_global() of "lot:<id>"
 	# (falls back to WorldState.player_pos, which Lot._on_enter stored on the way in)

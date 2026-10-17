@@ -5,9 +5,14 @@
 extends PlaceBase
 
 const CK := Vector3(3.6, 0, 2.3)     # checkout counter centre
+const AISLE_Z := -1.3                # centre (z) of the three shelf units and their cross beam
+const APPLE_SPOT := Vector3(-6.2, 0, 1.15)   # on the 1.4 m path between the aisle ends (z 0.2) and the crates (z 1.6)
+const MILK_SPOT := Vector3(-4.8, 0, -3.6)    # on the 1.35 m path between the fridges (front ~z -4.1) and the aisle backs (z -2.8)
+const BREAD_SPOT := Vector3(4.6, 0, -3.35)   # open floor in front of the bakery counter (front z -3.95)
 var walker_t := 0.0
 const WALKER_V := 1.1   # m/s (the walk clip matches 1.7 m/s at speed 1.0)
-var walker_path := [Vector3(-3.4, 0, 1.2), Vector3(-3.4, 0, -3.3), Vector3(-0.75, 0, -3.3), Vector3(-0.75, 0, 1.2), Vector3(1.75, 0, 1.2), Vector3(1.75, 0, -3.3), Vector3(-0.75, 0, -3.3), Vector3(-0.75, 0, 1.2)]
+# blue layout (room 14 x 10): walking lanes x = -4.45 (west, milk side), -2.15, 0.15 (between aisles); paths z = 0.9 (front of aisles) / -3.45 (back)
+var walker_path := [Vector3(-4.45, 0, 0.9), Vector3(-4.45, 0, -3.45), Vector3(-2.15, 0, -3.45), Vector3(-2.15, 0, 0.9), Vector3(0.15, 0, 0.9), Vector3(0.15, 0, -3.45), Vector3(-2.15, 0, -3.45), Vector3(-2.15, 0, 0.9)]
 var walker_i := 0
 var basket_items: Array = []
 
@@ -16,52 +21,52 @@ func place_tr() -> String: return "Market"
 func floor_colors() -> Array: return [Color(0.68, 0.7, 0.68), Color(0.84, 0.88, 0.84), Color(0.4, 0.62, 0.46)]
 
 func build() -> void:
-	place_id = "shop"; world_lot = "corner_shop"; room = Vector2(12.0, 9.0)
+	place_id = "shop"; world_lot = "corner_shop"; room = Vector2(14.0, 10.0)   # blue: was 12 x 9 in code but built at 10 x 8 (see place_base._ready)
 	for n in get_children(): if n is DirectionalLight3D: (n as DirectionalLight3D).light_energy = 0.45   # bright shop: tame the sun so shelf tops don't blow out
 	var hx := room.x / 2.0; var hz := room.y / 2.0
 	# floor tiles checker (cheap)
-	for i in range(-5, 6):
-		for j in range(-4, 5):
+	for i in range(-7, 7):
+		for j in range(-5, 5):
 			if (i + j) % 2 == 0: box(Vector3(1.0, 0.004, 1.0), Vector3(i * 1.0 + 0.5, 0.003, j * 1.0 + 0.5), Color(0.55, 0.58, 0.56), false)
-	# ---- aisles: double-sided shelving units along Z
-	var signs := ["1  Fruit & Veg", "2  Rice & Pasta", "3  Drinks & Snacks", "4  Milk & Cheese"]
+	# ---- aisles: double-sided shelving units along Z (blue layout: x -3.3 / -1.0 / 1.3, z -2.8..0.2; lanes between them 1.4 m,
+	# 1.35 m behind them to the fridges, 1.4 m in front of them to the fruit crates, open floor east of them to the bakery / checkout)
 	for a in 3:
-		var x := -2.05 + a * 2.5
-		_shelf_unit(Vector3(x, 0, -1.0), 4.2, a)
-		box(Vector3(0.05, 0.4, 1.2), Vector3(x, 2.55, -1.0), Color(0.2, 0.45, 0.35), false)
+		var x := -3.3 + a * 2.3
+		_shelf_unit(Vector3(x, 0, AISLE_Z), 3.0, a)
+		box(Vector3(0.05, 0.4, 1.2), Vector3(x, 2.55, AISLE_Z), Color(0.2, 0.45, 0.35), false)
 		var sg: String = ["2  Rice & Pasta", "3  Drinks & Snacks", "5  Tins & Jars"][a]
-		label(sg, Vector3(x + 0.03, 2.55, -1.0), 40, Color.WHITE, PI / 2); label(sg, Vector3(x - 0.03, 2.55, -1.0), 40, Color.WHITE, -PI / 2)
-		cyl(0.008, 0.36, Vector3(x, 2.88, -1.0), Color(0.3, 0.3, 0.3))   # v32 polish: cord ends on the ceiling beam (was 0.6 m into the open sky)
+		label(sg, Vector3(x + 0.03, 2.55, AISLE_Z), 40, Color.WHITE, PI / 2); label(sg, Vector3(x - 0.03, 2.55, AISLE_Z), 40, Color.WHITE, -PI / 2)
+		cyl(0.008, 0.36, Vector3(x, 2.88, AISLE_Z), Color(0.3, 0.3, 0.3))   # v32 polish: cord ends on the ceiling beam (was 0.6 m into the open sky)
 	# ---- fruit & veg crates near the door (left)
 	var crates := [["apple", Color(0.85, 0.2, 0.2)], ["banana", Color(0.95, 0.85, 0.3)], ["orange", Color(1.0, 0.6, 0.15)], ["tomato", Color(0.9, 0.25, 0.2)], ["carrot", Color(1.0, 0.55, 0.2)], ["broccoli", Color(0.3, 0.6, 0.3)]]
 	for k in crates.size():
-		var c := Vector3(-5.2 + (k % 3) * 0.95, 0, 1.6 + int(k / 3) * 1.05)
+		var c := Vector3(-6.2 + (k % 3) * 0.95, 0, 2.0 + int(k / 3) * 1.05)   # blue: x -6.625..-3.875 (west wall inner face -6.93), z 1.6..3.45
 		box(Vector3(0.85, 0.6, 0.8), c + Vector3(0, 0.3, 0), Color(0.62, 0.45, 0.3), true, 0.0)
 		box(Vector3(0.8, 0.02, 0.75), c + Vector3(0, 0.61, 0), Color(0.42, 0.31, 0.2), false)
 		if crates[k][0] in ["apple", "tomato"]: _fruit_heap(c + Vector3(0, 0.62, 0), crates[k][1])   # procedural heap (one draw call)
 		else:
 			for n in 7: food(String(crates[k][0]), c + Vector3(-0.25 + (n % 4) * 0.17, 0.62 + int(n / 4) * 0.06, -0.15 + int(n / 4) * 0.25 + (n % 2) * 0.06), 0.16 if crates[k][0] != "banana" else 0.18, n * 47.0)
 		label(["Apples 0.40", "Bananas 0.25", "Oranges 0.40", "Tomatoes 0.20", "Carrots 0.15", "Broccoli 0.90"][k], c + Vector3(0, 0.75, -0.41 if k < 3 else 0.41), 26, Color(0.1, 0.1, 0.1), PI if k < 3 else 0.0, Color(1, 1, 1, 0.9))
-	label("1  Fruit & Veg", Vector3(-4.25, 2.55, 2.1), 44, Color.WHITE)
-	for x in [-4.85, -3.65]: cyl(0.008, 0.36, Vector3(x, 2.88, 2.07), Color(0.3, 0.3, 0.3))   # v32 polish: the sign hung from nothing
-	box(Vector3(1.6, 0.4, 0.05), Vector3(-4.25, 2.55, 2.07), Color(0.2, 0.45, 0.35), false)
+	label("1  Fruit & Veg", Vector3(-5.25, 2.55, 2.5), 44, Color.WHITE)
+	for x in [-5.85, -4.65]: cyl(0.008, 0.36, Vector3(x, 2.88, 2.47), Color(0.3, 0.3, 0.3))   # v32 polish: the sign hung from nothing
+	box(Vector3(1.6, 0.4, 0.05), Vector3(-5.25, 2.55, 2.47), Color(0.2, 0.45, 0.35), false)
 	# ---- fridges with milk along the back wall
 	for i in 4:
-		var f := Vector3(-4.6 + i * 1.05, 0, -4.05)
+		var f := Vector3(-5.9 + i * 1.05, 0, -4.55)
 		furn("kitchenFridgeLarge", f, 0, 2.0, 0.0, true)
-	box(Vector3(4.3, 1.5, 0.02), Vector3(-3.0, 1.15, -3.62), Color(0.75, 0.9, 1.0), false, 0.0, 0.35)   # cool glow
-	for i in 16: food(["carton", "carton-small", "cheese", "carton"][i % 4], Vector3(-4.8 + i * 0.26, 0.95 + (i % 2) * 0.5, -3.66), 0.16 if i % 4 != 2 else 0.14)
-	label("4  Milk & Cheese", Vector3(-3.0, 2.35, -3.6), 44, Color.WHITE)
-	label("Milk 1.50", Vector3(-3.5, 1.75, -3.55), 28, Color(0.1, 0.1, 0.1), 0.0, Color(1, 1, 1, 0.9))
-	# ---- bakery corner (back right)
-	box(Vector3(2.2, 0.9, 0.7), Vector3(4.6, 0.45, -3.8), Color(0.75, 0.55, 0.35), true)
-	box(Vector3(2.2, 0.04, 0.72), Vector3(4.6, 0.92, -3.8), Color(0.45, 0.3, 0.2), false)
-	for k in 9: food(["loaf", "loaf-baguette", "loaf-round", "croissant", "bread", "loaf", "donut", "loaf-round", "muffin"][k], Vector3(3.7 + k * 0.22, 0.94, -3.8 + (k % 2) * 0.15), 0.2 if k < 3 else 0.14, 20.0 * k)
+	box(Vector3(4.3, 1.5, 0.02), Vector3(-4.3, 1.15, -4.12), Color(0.75, 0.9, 1.0), false, 0.0, 0.35)   # cool glow
+	for i in 16: food(["carton", "carton-small", "cheese", "carton"][i % 4], Vector3(-6.1 + i * 0.26, 0.95 + (i % 2) * 0.5, -4.16), 0.16 if i % 4 != 2 else 0.14)
+	label("4  Milk & Cheese", Vector3(-4.3, 2.35, -4.1), 44, Color.WHITE)
+	label("Milk 1.50", Vector3(-4.8, 1.75, -4.05), 28, Color(0.1, 0.1, 0.1), 0.0, Color(1, 1, 1, 0.9))
+	# ---- bakery (back wall, east half; blue: open floor in front of it, 3+ m to the aisles, was squeezed into the corner)
+	box(Vector3(2.2, 0.9, 0.7), Vector3(4.6, 0.45, -4.3), Color(0.75, 0.55, 0.35), true)
+	box(Vector3(2.2, 0.04, 0.72), Vector3(4.6, 0.92, -4.3), Color(0.45, 0.3, 0.2), false)
+	for k in 9: food(["loaf", "loaf-baguette", "loaf-round", "croissant", "bread", "loaf", "donut", "loaf-round", "muffin"][k], Vector3(3.7 + k * 0.22, 0.94, -4.3 + (k % 2) * 0.15), 0.2 if k < 3 else 0.14, 20.0 * k)
 	for y in [1.5, 1.9]:
-		box(Vector3(2.2, 0.04, 0.3), Vector3(4.6, y, -4.3), Color(0.55, 0.38, 0.25), false)
-		for k in 6: food(["loaf", "bread", "loaf-round"][k % 3], Vector3(3.75 + k * 0.33, y + 0.02, -4.28), 0.2, 15.0 * k)
-	label("Bakery", Vector3(4.6, 2.45, -4.35), 70, Color(1.0, 0.85, 0.5))
-	label("Bread 2.50", Vector3(4.6, 0.7, -3.43), 28, Color(0.1, 0.1, 0.1), 0.0, Color(1, 1, 1, 0.9))
+		box(Vector3(2.2, 0.04, 0.3), Vector3(4.6, y, -4.8), Color(0.55, 0.38, 0.25), false)
+		for k in 6: food(["loaf", "bread", "loaf-round"][k % 3], Vector3(3.75 + k * 0.33, y + 0.02, -4.78), 0.2, 15.0 * k)
+	label("Bakery", Vector3(4.6, 2.45, -4.85), 70, Color(1.0, 0.85, 0.5))
+	label("Bread 2.50", Vector3(4.6, 0.7, -3.93), 28, Color(0.1, 0.1, 0.1), 0.0, Color(1, 1, 1, 0.9))
 	# ---- checkout
 	box(Vector3(0.8, 0.95, 2.0), CK + Vector3(0, 0.475, 0), Color(0.3, 0.35, 0.45), true)
 	box(Vector3(0.6, 0.02, 1.6), CK + Vector3(0, 0.96, 0.15), Color(0.12, 0.12, 0.12), false)   # conveyor belt
@@ -74,33 +79,53 @@ func build() -> void:
 	label("1", CK + Vector3(0.38, 2.3, 0.9), 70, Color(0.15, 0.15, 0.15), PI / 2, Color(1, 1, 1, 0))
 	for k in 5: food(["candy-bar", "chocolate", "soda-can", "candy-bar", "chocolate"][k], CK + Vector3(-0.42, 0.5 + (k % 2) * 0.25, -0.6 + k * 0.25), 0.12)
 	# basket stack by the door
-	for k in 4: model("res://props/places/basket.tscn", Vector3(-1.6, k * 0.12, 3.7), 0, 0.0, 0.42, k == 0)
-	label("Baskets", Vector3(-1.6, 1.0, 3.95), 36, Color(0.15, 0.15, 0.15), PI, Color(1, 1, 1, 0.9))
+	for k in 4: model("res://props/places/basket.tscn", Vector3(-1.6, k * 0.12, 4.2), 0, 0.0, 0.42, k == 0)
+	label("Baskets", Vector3(-1.6, 1.0, 4.45), 36, Color(0.15, 0.15, 0.15), PI, Color(1, 1, 1, 0.9))
 	# lights: long emissive ceiling panels + one omni (no shadows)
 	# v32 polish: the light panels floated in the air (no ceiling, 6.5 m in a 9 m room). Now they hang under steel rails that
 	# run wall to wall, and two cross beams carry the hanging aisle signs, so nothing floats in the top-down view.
-	for x in [-3.5, -0.8, 1.7, 4.2]:
+	for x in [-5.2, -2.15, 0.15, 2.6, 5.2]:   # blue: over the lanes / open floor of the 14 m room
 		box(Vector3(0.08, 0.08, room.y - 0.14), Vector3(x, 2.96, 0), Color(0.32, 0.33, 0.35), false)
 		box(Vector3(0.26, 0.03, room.y - 0.6), Vector3(x, 2.905, 0), Color(1.0, 0.98, 0.92), false, 0.0, 0.8)
-	for z in [-1.0, 2.07]: box(Vector3(room.x - 0.14, 0.06, 0.06), Vector3(0, 3.03, z), Color(0.32, 0.33, 0.35), false)
-	var omni := OmniLight3D.new(); omni.position = Vector3(0, 2.9, 0); omni.omni_range = 9.0; omni.light_energy = 0.35; omni.light_specular = 0.0; add_child(omni)
+	for z in [AISLE_Z, 2.47]: box(Vector3(room.x - 0.14, 0.06, 0.06), Vector3(0, 3.03, z), Color(0.32, 0.33, 0.35), false)
+	var omni := OmniLight3D.new(); omni.position = Vector3(0, 2.9, 0); omni.omni_range = 10.0; omni.light_energy = 0.35; omni.light_specular = 0.0; add_child(omni)
 	label("FRESH MARKET", Vector3(0, 2.6, hz - 0.1), 90, Color(0.3, 0.6, 0.35), PI)
 	for p in [Vector3(-hx + 0.4, 0, hz - 0.4), Vector3(hx - 0.4, 0, hz - 0.4)]: furn("pottedPlant", p, 0, 1.1, 0.0, true)
 	box(Vector3(2.4, 0.9, 0.04), Vector3(-hx + 0.08, 1.7, -1.0), Color(1.0, 0.85, 0.3), false, PI / 2)
 	label("SALE!\nRice 2 for 3.00", Vector3(-hx + 0.11, 1.7, -1.0), 60, Color(0.8, 0.15, 0.15), PI / 2, Color(1, 1, 1, 0))
 	# ---- people
 	person("assistant", "men", "joe", CK + Vector3(0.75, 0, -0.35), -PI / 2, "idle", Color(0.25, 0.55, 0.4))
-	var c1 := person("c1", "women", "kristin", Vector3(-2.9, 0, -2.0), PI / 2, "idle", Color(0.85, 0.45, 0.6))
-	var c2 := person("c2", "women", "hfc_female", Vector3(3.75, 0, -0.6), -PI / 2, "idle", Color(0.35, 0.5, 0.8))
-	c1.hold_item("res://props/places/basket.tscn", "long", 0.4, true)
+	# c1 walks: person() leaves a static collider at the spawn point, so spawn her inside aisle 1's shelf body (collider hidden
+	# there, never blocks a lane) and put her on her path right away
+	var c1 := person("c1", "women", "kristin", Vector3(-3.3, 0, AISLE_Z), PI / 2, "idle", Color(0.85, 0.45, 0.6))
+	c1.position = walker_path[0]
+	var c2 := person("c2", "women", "hfc_female", Vector3(5.3, 0, -1.0), PI, "idle", Color(0.35, 0.5, 0.8))   # blue: browses toward the bakery, out of the lanes; her talk spot (5.3, -1.9) is 1.6 m from the bread spot
+	c1.hold_item("res://props/places/basket.tscn", "long", 0.4, true); _basket_upright(c1)
 	chat_target("c2", c2); chat_target("assistant", npcs.assistant)
 	# ---- objective targets
-	target("basket", Vector3(-1.6, 0, 3.0), Vector3(-1.6, 0.5, 3.7), "Take a basket")
-	target("apples", Vector3(-5.2, 0, 0.75), Vector3(-5.2, 0.7, 1.6), "Take apples")
-	target("milk", Vector3(-3.5, 0, -3.15), Vector3(-3.5, 1.2, -3.9), "Take milk")
-	target("bread", Vector3(4.6, 0, -2.85), Vector3(4.6, 1.0, -3.8), "Take bread")
+	target("basket", Vector3(-1.6, 0, 3.5), Vector3(-1.6, 0.5, 4.2), "Take a basket")
+	target("apples", APPLE_SPOT, Vector3(-6.2, 0.7, 2.0), "Take apples")
+	target("milk", MILK_SPOT, Vector3(-4.8, 1.2, -4.4), "Take milk")
+	target("bread", BREAD_SPOT, Vector3(4.6, 1.0, -4.3), "Take bread")
 	target("pay", CK + Vector3(-0.85, 0, -0.2), CK + Vector3(0.75, 1.4, -0.35), "Pay")
 	exit_door(Vector3(0, 0, hz - 0.75), Vector3(0, 1.2, hz))
+
+## blue fix: hold_item("long") points the basket's +Y along the fingers, so with the arm hanging it was upside down.
+## Re-orient the held pivot (hand-bone frame: +Y = fingers): basket up = -fingers (opening up), long side across the palm,
+## and hang it below the hand so the handle (its top) sits in the grip. Only touches this shop's basket, not character.gd.
+func _basket_upright(ch: DemoCharacter) -> void:
+	var pv: Node3D = ch.held
+	if pv == null or pv.get_child_count() == 0: return
+	var inst := pv.get_child(0) as Node3D
+	var b := pv.transform.basis
+	var down := Vector3(0, -1, 0)   # opposite the fingers = up when the arm hangs
+	var nb: Basis
+	if absf(b.y.dot(Vector3.UP)) > 0.9:   # branch with the basket's X across the thumb: flip 180 deg about X
+		nb = Basis(b.x, down, b.x.cross(down))
+	else:                                 # branch with the basket's Z across the thumb
+		nb = Basis(down.cross(b.z), down, b.z)
+	var h: float = ch._aabb(inst).size.y * inst.scale.y
+	pv.transform = Transform3D(nb.orthonormalized(), pv.position + Vector3(0, h * 0.45, 0))
 
 ## a heap of round fruit in a crate: one MultiMesh of spheres with slight colour variation
 func _fruit_heap(top: Vector3, col: Color) -> void:
@@ -162,15 +187,15 @@ func run() -> void:
 	if not done("shopping"):
 		if card_layer == null: show_list()
 		await objective("basket", "Take a basket.")
-		await walk_to(Vector3(-1.6, 0, 3.0), 0.0); player.hero.play("pick_up", 0.25); Audio.sfx("place_bag", -3.0)
+		await walk_to(Vector3(-1.6, 0, 3.5), 0.0); player.hero.play("pick_up", 0.25); Audio.sfx("place_bag", -3.0)
 		await say_line("I'm taking a basket.")
-		player.hero.hold_item("res://props/places/basket.tscn", "long", 0.4, true); player.hero.play("idle", 0.3)
-		await objective("apples", "Get six apples.", {"pos": Vector3(-4.2, 1.7, 0.2), "at": Vector3(-5.2, 0.7, 1.6)})
-		await _pick(Vector3(-5.2, 0, 0.75), 0.0, {"pos": Vector3(-3.95, 1.55, 0.95), "at": Vector3(-5.2, 0.62, 1.7)}, "fruit", "apple")
-		await objective("milk", "Get a bottle of milk.", {"pos": Vector3(-2.6, 1.7, -1.8), "at": Vector3(-3.5, 1.2, -3.9)})
-		await _pick(Vector3(-3.5, 0, -3.15), PI, {"pos": Vector3(-1.9, 1.7, -3.3), "at": Vector3(-3.4, 1.15, -3.75)}, "milk", "carton")   # v32 polish: side shot (the old one sat 0.8 m behind the head: the camera clipped into the player)
-		await objective("bread", "Get a loaf of bread.", {"pos": Vector3(3.4, 1.8, -1.8), "at": Vector3(4.6, 1.0, -3.8)})
-		await _pick(Vector3(4.6, 0, -2.85), PI, {"pos": Vector3(4.0, 1.5, -2.4), "at": Vector3(4.6, 1.0, -3.8)}, "bread", "loaf")
+		player.hero.hold_item("res://props/places/basket.tscn", "long", 0.4, true); _basket_upright(player.hero); player.hero.play("idle", 0.3)
+		await objective("apples", "Get six apples.", {"pos": Vector3(-5.2, 1.7, 0.6), "at": Vector3(-6.2, 0.7, 2.0)})
+		await _pick(APPLE_SPOT, 0.0, {"pos": Vector3(-4.95, 1.55, 1.35), "at": Vector3(-6.2, 0.62, 2.1)}, "fruit", "apple")
+		await objective("milk", "Get a bottle of milk.", {"pos": Vector3(-3.9, 1.7, -2.3), "at": Vector3(-4.8, 1.2, -4.4)})
+		await _pick(MILK_SPOT, PI, {"pos": Vector3(-3.2, 1.7, -3.75), "at": Vector3(-4.7, 1.15, -4.25)}, "milk", "carton")   # v32 polish: side shot (the old one sat 0.8 m behind the head: the camera clipped into the player)
+		await objective("bread", "Get a loaf of bread.", {"pos": Vector3(3.4, 1.8, -2.3), "at": Vector3(4.6, 1.0, -4.3)})
+		await _pick(BREAD_SPOT, PI, {"pos": Vector3(4.0, 1.5, -2.9), "at": Vector3(4.6, 1.0, -4.3)}, "bread", "loaf")
 		await objective("pay", "Pay at the checkout.", {"pos": Vector3(1.5, 2.0, 3.6), "at": CK + Vector3(0, 1.1, 0)})
 		await checkout(); close_card(); mark("shopping")
 	if not done("lesson"):
