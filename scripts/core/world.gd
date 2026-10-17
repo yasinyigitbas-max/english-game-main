@@ -274,6 +274,12 @@ func _build_doors() -> void:
 		["cafe", "cafe", "ow", -100.0, "cafe", "street"], ["shop", "shop", "ow", -100.0, "shop", "street"]]
 	var bN = places.bathroom.get("N")
 	if bN is Dictionary and bN.has("door_bed"): (bN.door_bed as Node3D).visible = false
+	# fix33 (Yasin 00:16): the living room builds its OWN bedroom / bathroom door leaves in its north wall, in the same
+	# openings (within 5 cm) as the bedroom's door_s and the bathroom's door that World swings -> a second, never-moving
+	# closed leaf in each doorway (the door "didn't open"). Hide them: one door per doorway, the swinging one.
+	var lN = places.livingroom.get("N")
+	if lN is Dictionary:
+		for k in ["door_bed", "door_bath"]: if lN.has(k) and lN[k] is Node3D: (lN[k] as Node3D).visible = false
 	for d in defs:
 		var n: Node3D = places[d[1]]
 		var leaf: Node3D = null
