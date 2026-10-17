@@ -78,6 +78,7 @@ func _day2_go_inside(lot) -> void:
 	var door: Vector3 = lot.entrance_global() + Vector3(0, 1.1, 0)
 	var away: Vector3 = player.global_position - door; away.y = 0
 	if away.length() < 0.05: away = Vector3(0, 0, 1)
+	Objectives.set_list(_keep_objs())   # v32 int: drop the stale morning steps ("Walk to the street." / "Go to the car.") before the new objective
 	await Life.guide_to({"pos": door + away.normalized() * 5.5 + Vector3(0, 2.6, 0), "at": door}, "Go inside and talk to my family.", {"tr": "İçeri gir ve ailemle konuş."})
 
 # ------------------------------------------------------------------ traffic
