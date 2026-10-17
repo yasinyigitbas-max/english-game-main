@@ -6,7 +6,7 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args(): if a.begins_with("--qa-ow="): ev = a.substr(8)
 	add_child(load("res://scenes/world.tscn").instantiate())
 	await _t(6.0)
-	var day: int = {"bk1": 1, "bk2": 2, "couch2": 2, "d4cut": 4, "d7party": 7, "hosp2": 2, "cafe": 3, "mirror2": 2, "hosp1": 1, "street": 1, "towel": 1, "d4bk": 4, "work4": 4, "liedown": 4}.get(ev, 1)
+	var day: int = {"bk1": 1, "bk2": 2, "couch2": 2, "d4cut": 4, "d7party": 7, "hosp2": 2, "cafe": 3, "mirror2": 2, "hosp1": 1, "street": 1, "towel": 1, "d4bk": 4, "work4": 4, "liedown": 4, "shop4": 4}.get(ev, 1)
 	var st: Dictionary = App.load_save().get("story", {}).duplicate() if App.load_save().get("story", {}) is Dictionary else {}
 	if day >= 3: st["day2"] = "done"
 	match ev:
@@ -66,6 +66,8 @@ func _ready() -> void:
 			await _t(5.0)
 			if car4: w4.player.global_position = car4.global_position + Vector3(2.5, 0, 0)
 			await _t(3.0); _shot(1); await _t(8.0); _shot(2); await _t(14.0); _shot(3); get_tree().quit(); return
+		"shop4":
+			await OwLink.travel("shop", "shop"); await _t(12.0); print("RED_SHOP live=", OwLink.inst.live_id); _shot(0); await _t(6.0); _shot(1)
 		"cafe":
 			await OwLink.travel("cafe", "cafe"); await _t(16.0); print("RED_CAFE live=", OwLink.inst.live_id, " hero=", OwLink.inst.world.player.global_position, " cam=", get_viewport().get_camera_3d().get_path() if get_viewport().get_camera_3d() else "none"); _shot(0)
 			var c = get_tree().current_scene
