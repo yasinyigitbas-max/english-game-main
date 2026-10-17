@@ -18,11 +18,11 @@ extends Node
 const ShoulderCam := preload("res://scripts/core/shoulder_cam.gd")
 const House := preload("res://scripts/core/house.gd")
 @export var prop_size := 1.2
-@export var prop_range := 24.0
-@export var interior_range := 38.0
+@export var prop_range := 48.0
+@export var interior_range := 76.0
 @export var mid_size := 6.0        # diagonal: street furniture, cars parked, fences, small sheds
-@export var mid_range := 48.0
-@export var far_range := 95.0      # everything up to BIG_SIZE (building parts, road pieces); 0 = unlimited
+@export var mid_range := 96.0
+@export var far_range := 190.0      # everything up to BIG_SIZE (building parts, road pieces); 0 = unlimited
 @export var big_size := 30.0
 @export var tighten := true        # also shorten World._cull_setup's 70 m / 30 m ranges (blue owns the tuning)
 @export var light_range := 24.0

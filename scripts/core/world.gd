@@ -29,9 +29,9 @@ const OWPlaces := preload("res://scripts/world/ow_places.gd")   # hospital / sch
 const ACTIVE_R := 45.0           # places farther than this from the hero are hidden (and, once live, not processed)
 const FENCE_DAY := 8
 const LIGHT_NEAR := 15.0         # omni / spot lights farther than this from the hero are off (Yasin 19:03)
-const VIS_END := 28.0            # props, NPCs, street parts, place exteriors: not drawn beyond ~28 m (+ fade margin)
-const FAR := 35.0                # camera far plane (Yasin 19:03 draw distance), hidden by depth fog
-const FOG_BEGIN := 20.0
+const VIS_END := 56.0            # props, NPCs, street parts, place exteriors: not drawn beyond ~28 m (+ fade margin)
+const FAR := 70.0                # camera far plane (Yasin 19:03 draw distance), hidden by depth fog
+const FOG_BEGIN := 40.0
 const SHADOW_LIGHTS := 2         # only the nearest lights cast shadows
 const HOUSE_ROOMS := ["bedroom", "bathroom", "livingroom"]
 
@@ -85,7 +85,7 @@ func _ready() -> void:
 	var _bo: Dictionary = preload("res://scripts/world/world_blue.gd").install(self, {"culling": false, "work": true, "merge": not "--ow-no-merge" in OS.get_cmdline_user_args()})   # blue: wall fade, cafe/shop fronts, merge, door no_fade
 	# blue's WorldCulling with the 19:03 draw-distance limits (~28 m; buildings / merged blocks bigger than 30 m stay on, cut by far + fog)
 	var wc: Node = load("res://scripts/world/world_culling.gd").new(); wc.set("host", self)
-	for kv in [["prop_range", 18.0], ["interior_range", 26.0], ["mid_range", VIS_END], ["far_range", VIS_END + 4.0], ["big_size", 30.0], ["light_range", LIGHT_NEAR], ["shadow_range", 8.0], ["sun_shadow", 24.0]]: wc.set(kv[0], kv[1])
+	for kv in [["prop_range", 36.0], ["interior_range", 52.0], ["mid_range", VIS_END], ["far_range", VIS_END + 4.0], ["big_size", 30.0], ["light_range", LIGHT_NEAR], ["shadow_range", 8.0], ["sun_shadow", 24.0]]: wc.set(kv[0], kv[1])
 	add_child(wc)
 	OwLink.attach(self)   # red: story port (live room / place = current_scene, one hero, travel fades only)
 	print("WORLD ready places=%s doors=%s regions=%s lights=%d" % [places.keys(), doors.keys(), regions.keys(), _lights.size()])
@@ -392,7 +392,7 @@ func _cull_setup() -> void:
 	for id in places:
 		for g in (places[id] as Node).find_children("*", "GeometryInstance3D", true, false):
 			var gi2 := g as GeometryInstance3D
-			if gi2.get_aabb().size.length() < 1.2: gi2.visibility_range_end = 20.0; gi2.visibility_range_end_margin = 3.0
+			if gi2.get_aabb().size.length() < 1.2: gi2.visibility_range_end = 40.0; gi2.visibility_range_end_margin = 3.0
 	for l in _lights: (l as Light3D).shadow_enabled = false
 
 func _process(dt: float) -> void:

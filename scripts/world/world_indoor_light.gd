@@ -108,17 +108,11 @@ func _process(_dt: float) -> void:
 		_derive(renv if renv is Environment else _house_env, ROOM_AMB_K * (1.0 - 0.6 * nf), 0.0, float(ROOM_EXP_BY.get(id, ROOM_EXP)) * (1.0 - 0.18 * nf), d)
 		_out.ambient_light_color = _out.ambient_light_color.lerp(Color(0.62, 0.66, 0.9), 0.55 * nf)   # moonlit fill; the lamps stay warm
 		_window_sky(n, key, d)
-		if rsun is DirectionalLight3D and is_instance_valid(rsun):
-			_room_sun = rsun; _room_sun.visible = true
-			# the room writes its sun energy on state changes (curtains / clock): scale what it asked for, once
-			var le := _room_sun.light_energy
-			if not is_equal_approx(le, float(_room_sun.get_meta("ow_set", -1.0))): _room_sun.set_meta("ow_raw", le)   # the room wrote a new energy (curtains / clock)
-			_rs_raw = float(_room_sun.get_meta("ow_raw", le))
-			_rs_e = minf(_rs_raw * ROOM_SUN_K, 1.3 * ROOM_SUN_K * d * (1.0 - nf))   # fix33: 18:00 dusk / 23:30 night (rooms built at 07:00 kept a day sun)
-			_room_sun.light_energy = _rs_e; _room_sun.set_meta("ow_set", _rs_e)
-			_room_sun.visible = _rs_e > 0.01
-			if wsun: wsun.visible = false
-		elif wsun: wsun.visible = true; wsun.light_energy = _sun_e * 0.5 * d
+		# Yasin 23:58: NO extra light on room entry. The room's own DirectionalLight "sun" used to be switched on here for
+		# every room the player entered (it blew the scene out): it stays off; the room keeps only its own lamps, the world
+		# sun keeps its outdoor value (nothing changes at the door).
+		if rsun is DirectionalLight3D and is_instance_valid(rsun): (rsun as DirectionalLight3D).visible = false
+		if wsun: wsun.visible = d > 0.02; wsun.light_energy = _sun_e * d
 	elif n != null and (n.is_in_group("world_places") or id in ["cafe", "shop", "work", "school"]):
 		_derive(null, PLACE_AMB, 0.12, PLACE_EXP, d)   # shops / café: their own lights + a floor of ambient (lit at night)
 		if wsun: wsun.visible = true; wsun.light_energy = 0.6 * d
