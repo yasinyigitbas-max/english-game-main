@@ -122,8 +122,12 @@ func _enter(id: String, from: String) -> void:
 		var pl: Node = world.places.get(id)
 		if pl == null: return
 		live = pl; live_id = id
-		get_tree().current_scene = pl
+		# fix33 (black) K: a café / shop is a child of World (built in place, never a root child), so it can never be
+		# current_scene (the engine refused it with an error on every entry and kept World). World stays current_scene.
+		if get_tree().current_scene != world: get_tree().current_scene = world
 		pl.process_mode = Node.PROCESS_MODE_INHERIT
+		for c in pl.find_children("*", "CanvasLayer", true, false):
+			if c.has_meta("ow_hidden"): c.remove_meta("ow_hidden"); (c as CanvasLayer).visible = true
 		if pl.has_meta("ow_shell"): pl.remove_meta("ow_shell"); pl.call("_ow_live", world)
 		else: pl.call_deferred("_start")
 		return
@@ -152,6 +156,12 @@ func _enter(id: String, from: String) -> void:
 			if r.has_method("_wh_resume"): r.call("_wh_resume")
 		r.set_meta(House.ONCE, true)
 		h.visible = true
+		# fix33 (black): the ONE room camera may still hang under another (slept) room, or the extra (hospital) just turned
+		# every camera off -> the street CameraRig stayed current inside the bedroom. The entered room owns it, current.
+		if is_instance_valid(room_cam):
+			if room_cam.get_parent() != r: room_cam.reparent(r, true)
+			if room_cam.has_meta("wh_cur"): room_cam.remove_meta("wh_cur")
+			room_cam.current = true
 		if from != "":
 			var sp: Array = r.call("_wh_spawn", from) if r.has_method("_wh_spawn") else []
 			if sp.size() == 2: House._walk_in(r, r.to_local(hp), hy, sp[0], sp[1])
@@ -171,6 +181,9 @@ func _sleep_live() -> void:
 		House._sleep(live)
 	elif live_id in PLACES:
 		live.process_mode = Node.PROCESS_MODE_DISABLED
+		# fix33 (black): a slept café / shop hides its 2D overlays (teach card, lists); they come back when it is live again
+		for c in live.find_children("*", "CanvasLayer", true, false):
+			if (c as CanvasLayer).visible: (c as CanvasLayer).visible = false; c.set_meta("ow_hidden", true)
 	else:
 		live.process_mode = Node.PROCESS_MODE_DISABLED
 		for c in live.find_children("*", "CanvasLayer", true, false): (c as CanvasLayer).visible = false
@@ -233,7 +246,11 @@ static func travel(dest: String, door := "", covered := false) -> void:
 		if h.get_parent() != p: h.reparent(p, false)
 		_reset_hero(h); h.transform = Transform3D.IDENTITY; h.visible = true
 		p.process_mode = Node.PROCESS_MODE_INHERIT; inst.world.cam.current = true
-		p.place_at(_door_id(door))
+		p.place_at(_door_id(door))   # fix33 (black): street side of the door, facing the street (World._street_side)
+		var cam = inst.world.cam
+		if cam and "focus" in cam: cam.focus = p.global_position
+		var shc = inst.get_tree().root.get_node_or_null("ShoulderCam")
+		if shc and shc.has_method("snap"): shc.snap()
 		inst._street_hooks.call_deferred(door)
 	else:
 		if ROOM_PATH.has(dest):
