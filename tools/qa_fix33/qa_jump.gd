@@ -25,6 +25,14 @@ func run() -> void:
 		for i in 24: await _t(0.4); _diag("boot%d" % i); _shot("boot%02d" % i)
 		if ev == "start": get_tree().quit(); return
 	else: await _t(7.0)
+	if ev == "trip":   # fix33: the real teleports = trips (fade, placed at the destination door): the camera snaps to the hero
+		await OwLink.travel("street", "front")
+		for i in 8: await _t(0.4); _diag("st%d" % i); await _shot("st%02d" % i)
+		await WorldTrip.go("shop_door")
+		for i in 8: await _t(0.4); _diag("shop%d" % i); await _shot("shop%02d" % i)
+		await OwLink.travel("livingroom", "")
+		for i in 8: await _t(0.4); _diag("home%d" % i); await _shot("home%02d" % i)
+		get_tree().quit(); return
 	if ev == "light":
 		for r in ["bedroom", "bathroom", "livingroom"]:
 			if r != "bedroom": await OwLink.enter(r, "bedroom" if r == "bathroom" else "bathroom")

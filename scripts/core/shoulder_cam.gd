@@ -121,7 +121,9 @@ func _process(dt: float) -> void:
 	if shot is Dictionary and not (shot as Dictionary).is_empty() and shot.has("at"):
 		if bool(shot.get("guide", false)): tgt = (sc as Node3D).to_global(shot.at) if sc is Node3D else shot.at   # v34 (blue): cam_shot values are room-local (rooms sit off the origin in the open world)
 		else: scripted = true
-	if sc.get("cam_override") == true or (rc is CameraRig and not (rc as CameraRig).controlled): scripted = true
+	# a room's own CameraRig goes "uncontrolled" while the room plays a cam_shot; an objective (guide) shot is still ours
+	# (fix33: the bathroom pans flew the rig to the fixed shot and never framed the hero)
+	if sc.get("cam_override") == true or (rc is CameraRig and not (rc as CameraRig).controlled and tgt == Vector3.INF): scripted = true
 	_guide_on = tgt != Vector3.INF and not scripted
 	if scripted:
 		var oc: Camera3D = vc if vc else rc
@@ -147,6 +149,8 @@ func _process(dt: float) -> void:
 		# a house door keeps the view (House._swap shifted it); any other scene change starts fresh behind the hero
 		if not (room and _room_house): pos = Vector3.INF; look = Vector3.INF; _set_yaw = INF
 		_room = sc; _room_house = room; _next = 0.0
+	# fix33: a teleport (story / trip moved the hero > 2.5 m in one frame): start fresh behind the hero, no swoop / stale room
+	if _last_hero != Vector3.INF and h.distance_to(_last_hero) > 2.5: pos = Vector3.INF; look = Vector3.INF
 	if pos == Vector3.INF:   # fix33: a fresh start (boot / Continue / trip) never starts inside or behind a wall
 		_boxes = _blockers(sc, chest); _next = 0.0
 		yaw = _clear_yaw(h, chest, (face as Node3D).global_rotation.y + PI, _boxes)

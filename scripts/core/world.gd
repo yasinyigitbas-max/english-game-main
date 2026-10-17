@@ -63,6 +63,7 @@ func _ready() -> void:
 		for x in range(grid.bounds_min.x, grid.bounds_max.x + 1):
 			var c := Vector2i(x, z); if not grid.loaded.has(c): grid._spawn(c, load(grid.scene_for(c)))
 	for id in PLACES: _build_place(id)
+	_house_shell()
 	for lot_id in HOME_LOTS: _open_lot(lot_id, HOME_LOTS[lot_id])
 	OWPlaces.build(self)
 	_home_spots()
@@ -506,6 +507,55 @@ func region_at(p: Vector3) -> String:
 			var a := ab.size.x * ab.size.z
 			if a < best_a: best_a = a; best = id
 	return best
+
+## fix33 (blue, int d1): from the street the house was the living room's bare grey south wall (the lot's own house mesh is
+## hidden by _open_lot so the real rooms show): a painted facade (one-sided, outward: invisible from inside the rooms), window
+## frames + glass beside the front door, a skirting and a pitched roof over the three rooms (above their ceilings, no shadow)
+func _house_shell() -> void:
+	var lr = places.get("livingroom")
+	if not (lr is Node3D): return
+	var root := Node3D.new(); root.name = "HouseShell"; add_child(root); root.global_transform = (lr as Node3D).global_transform
+	var paint := StandardMaterial3D.new(); paint.albedo_color = Color(0.93, 0.86, 0.74); paint.roughness = 0.9
+	var trim := StandardMaterial3D.new(); trim.albedo_color = Color(0.97, 0.97, 0.95)
+	var glass := StandardMaterial3D.new(); glass.albedo_color = Color(0.32, 0.45, 0.58); glass.roughness = 0.1; glass.metallic = 0.4
+	var roofm := StandardMaterial3D.new(); roofm.albedo_color = Color(0.62, 0.3, 0.24); roofm.roughness = 0.85
+	var z := 3.03; var x0 := -3.65; var x1 := 8.35; var d0 := 1.85; var d1 := 2.85; var h := 2.6
+	var q := func(sz: Vector2, pos: Vector3, m: Material) -> void:
+		var mi := MeshInstance3D.new(); var qm := QuadMesh.new(); qm.size = sz; mi.mesh = qm; mi.material_override = m
+		mi.position = pos; mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF; mi.set_meta("no_fade", true); root.add_child(mi)
+	q.call(Vector2(d0 - x0, h), Vector3((x0 + d0) / 2, h / 2, z), paint)
+	q.call(Vector2(x1 - d1, h), Vector3((d1 + x1) / 2, h / 2, z), paint)
+	q.call(Vector2(d1 - d0 + 0.02, h - 2.2), Vector3((d0 + d1) / 2, 2.2 + (h - 2.2) / 2, z), paint)
+	for wx in [-1.6, 0.4, 4.6, 6.6]:   # window frames + glass (y 1.0 .. 2.0)
+		q.call(Vector2(1.3, 1.15), Vector3(wx, 1.5, z + 0.006), trim)
+		q.call(Vector2(1.12, 0.97), Vector3(wx, 1.5, z + 0.012), glass)
+		q.call(Vector2(0.05, 0.97), Vector3(wx, 1.5, z + 0.016), trim)
+	q.call(Vector2(x1 - x0, 0.22), Vector3((x0 + x1) / 2, 0.11, z + 0.004), trim)
+	# pitched roof: ridge along x over the bedroom / living-room wall line (z -3), eaves 0.35 m out
+	var zs := -9.35; var ze := 3.35; var zr := -3.0; var rh := 1.7
+	for side in [[zs, zr], [zr, ze]]:
+		var za: float = side[0]; var zb: float = side[1]
+		var run := absf(zb - za); var ln := sqrt(run * run + rh * rh)
+		var mi := MeshInstance3D.new(); var bm := BoxMesh.new(); bm.size = Vector3(x1 - x0 + 0.7, 0.1, ln); mi.mesh = bm; mi.material_override = roofm
+		var ang := atan2(rh, run) * (1.0 if zb > za and zb == ze else -1.0)
+		mi.position = Vector3((x0 + x1) / 2, h + 0.1 + rh / 2, (za + zb) / 2); mi.rotation.x = ang
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF; mi.set_meta("no_fade", true); root.add_child(mi)
+
+## fix33 (blue): the house rooms' inner floor rects (room-local x0, x1, z0, z1); unlike the mesh bounds they do not overlap
+const ROOM_RECT := {"bedroom": [-3.5, 3.5, -3.0, 3.0], "bathroom": [-2.25, 2.25, -1.75, 1.75], "livingroom": [-3.5, 8.2, -3.0, 3.0]}
+static func room_rect_at(p: Vector3, margin := 0.0) -> String:
+	if inst == null: return ""
+	for id in ROOM_RECT:
+		var n = inst.places.get(id)
+		if not (n is Node3D): continue
+		var q: Vector3 = (n as Node3D).to_local(p); var rr: Array = ROOM_RECT[id]
+		if q.x >= rr[0] - margin and q.x <= rr[1] + margin and q.z >= rr[2] - margin and q.z <= rr[3] + margin: return id
+	return ""
+static func room_rect_at_id(p: Vector3, id: String, margin: float) -> bool:
+	var n = inst.places.get(id) if inst else null
+	if not (n is Node3D) or not ROOM_RECT.has(id): return false
+	var q: Vector3 = (n as Node3D).to_local(p); var rr: Array = ROOM_RECT[id]
+	return q.x >= rr[0] - margin and q.x <= rr[1] + margin and q.z >= rr[2] - margin and q.z <= rr[3] + margin
 
 # ------------------------------------------------------------ home spots
 func _home_spots() -> void:
