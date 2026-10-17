@@ -79,7 +79,11 @@ func move_to(p: Vector3, yaw := INF) -> void:
 func place_at(id: String) -> void:
 	var w = load("res://scripts/core/world.gd")
 	var p: Vector3 = w.spot(id)
+	var wd = w.get_world()
+	if wd: floor_y = 0.07 if wd.region_at(p) == "street" else p.y
 	global_position = Vector3(p.x, floor_y, p.z)
+	var y: float = w.spot_yaw(id)
+	if y != INF: face(y)
 
 func _physics_process(dt: float) -> void:
 	var v := Vector2(Input.get_axis("ui_left", "ui_right"), Input.get_axis("ui_up", "ui_down"))

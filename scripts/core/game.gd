@@ -19,6 +19,10 @@ func _ready() -> void:
 
 func go_to(path: String, spawn_id := "") -> void:
 	if busy or not ResourceLoader.exists(path): return
+	# v34 open world: inside the one world scene, old scene paths map to World (walk through doors / skip_travel)
+	var _w = get_tree().current_scene
+	if _w and String(_w.scene_file_path) == "res://scenes/world.tscn":
+		busy = true; await load("res://scripts/core/world.gd").shim_go_to(path, spawn_id); busy = false; return
 	busy = true; spawn = spawn_id
 	var tw := create_tween(); tw.tween_property(_fade, "color:a", 1.0, 0.35); await tw.finished
 	get_tree().change_scene_to_file(path); WorldState.scene = path

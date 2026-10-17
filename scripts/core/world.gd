@@ -20,9 +20,8 @@ const PLACES := {
 	"cafe": [CAFE, Vector3(8.5, 0.07, 32.5), PI], "shop": [SHOP, Vector3(-3.0, 0.07, 33.5), PI],
 }
 const HOME_LOTS := {"home": "livingroom", "cafe": "cafe", "corner_shop": "shop"}
-## reserved region slots (phase 2, red/blue): fenced off the public streets, reached by World.skip_travel
-const RESERVED := {"hospital": Vector3(0, 0, -120), "school": Vector3(120, 0, -120), "work": Vector3(-120, 0, -120)}
-const SPOTS := {"hospital_ward": Vector3(0, 0, -118), "school_desk": Vector3(120, 0, -118), "work_desk": Vector3(-120, 0, -118)}
+const OWPlaces := preload("res://scripts/world/ow_places.gd")   # hospital / school / work (north strip, behind the fence)
+const ACTIVE_R := 45.0           # places farther than this from the hero are hidden (and, once live, not processed)
 const FENCE_DAY := 8
 const LIGHT_NEAR := 14.0         # omni lights farther than this from the hero are off
 const VIS_END := 70.0            # small props are not drawn beyond this
@@ -38,6 +37,10 @@ var regions := {}         # id -> AABB (world)
 var doors := {}           # id -> WorldDoor
 var region := ""
 var last_door := ""
+var spots := {}           # fixed spot id -> [world position, yaw]  (place_at / skip_travel targets)
+var active := {}          # place id -> bool (near the hero)
+signal active_changed(place: String, on: bool)
+var _day := -1
 var fences: Node3D
 var _lights: Array = []
 var _t := 0.0
@@ -52,6 +55,8 @@ func _ready() -> void:
 			var c := Vector2i(x, z); if not grid.loaded.has(c): grid._spawn(c, load(grid.scene_for(c)))
 	for id in PLACES: _build_place(id)
 	for lot_id in HOME_LOTS: _open_lot(lot_id, HOME_LOTS[lot_id])
+	OWPlaces.build(self)
+	_home_spots()
 	_build_doors()
 	_build_fences()
 	hud = (load("res://ui/shared/hud.tscn") as PackedScene).instantiate(); add_child(hud)
@@ -194,7 +199,8 @@ func _cut_place_door(n: Node3D) -> void:
 func _build_doors() -> void:
 	var defs := [["bed_bath", "bedroom", "door", 80.0, "bedroom", "bathroom"], ["bed_living", "bedroom", "door_s", -82.0, "bedroom", "livingroom"],
 		["bath_living", "bathroom", "door", -82.0, "bathroom", "livingroom"], ["front", "livingroom", "front", 82.0, "livingroom", "street"],
-		["cafe", "cafe", "ow", -100.0, "cafe", "street"], ["shop", "shop", "ow", -100.0, "shop", "street"]]
+		["cafe", "cafe", "ow", -100.0, "cafe", "street"], ["shop", "shop", "ow", -100.0, "shop", "street"],
+		["hospital", "hospital", "ow", -100.0, "hospital", "street"], ["school", "school", "ow", -100.0, "school", "street"], ["work", "work", "ow", -100.0, "work", "street"]]
 	var bN = places.bathroom.get("N")
 	if bN is Dictionary and bN.has("door_bed"): (bN.door_bed as Node3D).visible = false
 	for d in defs:
@@ -207,7 +213,7 @@ func _build_doors() -> void:
 		if leaf == null: push_warning("World: no leaf for door " + d[0]); continue
 		var dr := WorldDoor.new(); dr.id = d[0]; dr.leaf = leaf; dr.open_angle = deg_to_rad(d[3]); dr.a = d[4]; dr.b = d[5]
 		dr.closed_angle = leaf.rotation.y; dr.name = "Door_" + String(d[0]); add_child(dr)
-		doors[d[0]] = dr
+		doors[d[0]] = dr; dr.c0 = dr.center()
 
 class WorldDoor extends Node:
 	var id := ""
@@ -218,7 +224,9 @@ class WorldDoor extends Node:
 	var is_open := false
 	var auto := true
 	var _tw: Tween
+	var c0 := Vector3.INF     # doorway centre (taken while closed: the leaf moves when open)
 	func center() -> Vector3:
+		if c0 != Vector3.INF: return c0
 		var ab := AABB(); var first := true
 		for m in leaf.find_children("*", "MeshInstance3D", true, false):
 			var x: AABB = (m as MeshInstance3D).global_transform * (m as MeshInstance3D).get_aabb()
@@ -270,10 +278,10 @@ func _build_fences() -> void:
 		var cs := CollisionShape3D.new(); var bs := BoxShape3D.new(); bs.size = Vector3(L, 2.0, 0.4); cs.shape = bs; body.add_child(cs)
 		cs.position = (p0 + p1) / 2 + Vector3(0, 1, 0); cs.rotation.y = yaw
 	_fences_for_day()
-	WorldState.ensure_loaded()
 
 func _fences_for_day() -> void:
-	var up := maxi(WorldState.day, App.day) < FENCE_DAY
+	_day = WorldState.day
+	var up := WorldState.day < FENCE_DAY
 	fences.visible = up
 	for cs in fences.find_children("*", "CollisionShape3D", true, false): (cs as CollisionShape3D).disabled = not up
 
@@ -294,6 +302,15 @@ func _process(dt: float) -> void:
 	if _t > 0.0 or player == null: return
 	_t = 0.2
 	var hp := player.global_position
+	if WorldState.day != _day: _fences_for_day()
+	for id in places:
+		var ab: AABB = regions[id]
+		var c := ab.get_center(); var near := Vector2(c.x - hp.x, c.z - hp.z).length() - ab.size.length() * 0.5 < ACTIVE_R
+		if active.get(id, null) != near:
+			active[id] = near
+			(places[id] as Node3D).visible = near
+			if (places[id] as Node).has_meta("ow_live"): (places[id] as Node).process_mode = Node.PROCESS_MODE_INHERIT if near else Node.PROCESS_MODE_DISABLED
+			active_changed.emit(id, near)
 	for l in _lights:
 		if not is_instance_valid(l): continue
 		var near := (l as Node3D).global_position.distance_to(hp) < LIGHT_NEAR
@@ -310,7 +327,7 @@ func _process(dt: float) -> void:
 		var old := region; region = r
 		if old != "": left.emit(old)
 		entered.emit(r, old)
-		player.floor_y = places[r].global_position.y if places.has(r) and HouseC.is_room(String(PLACES[r][0])) else 0.07
+		player.floor_y = places[r].global_position.y if places.has(r) and PLACES.has(r) and HouseC.is_room(String(PLACES[r][0])) else 0.07
 		if hud.has_method("set_place"): hud.set_place(r.capitalize(), "")
 
 func region_at(p: Vector3) -> String:
@@ -319,26 +336,58 @@ func region_at(p: Vector3) -> String:
 		if p.x >= ab.position.x and p.x <= ab.end.x and p.z >= ab.position.z and p.z <= ab.end.z: return id
 	return "street"
 
-# ------------------------------------------------------------ API (phase 1 minimal; see OPENWORLD_PLAN.md)
+# ------------------------------------------------------------ home spots
+func _home_spots() -> void:
+	var lot := grid.find_lot("home")
+	var liv: Node3D = places.livingroom
+	spots["home_car"] = [lot.global_transform * Vector3(3.2, 0, 6.5) if lot else liv.to_global(Vector3(3, 0, 6)), 0.0]
+	spots["home_bed"] = [places.bedroom.to_global(Vector3(-0.6, 0, 0.9)), PI]
+	spots["home_front"] = [liv.to_global(Vector3(0, 0, 4.2)), 0.0]
+
+# ------------------------------------------------------------ API (see OPENWORLD_PLAN.md; red builds on this)
 static func get_world() -> World: return inst if is_instance_valid(inst) else null
 static func room(id: String) -> Node3D: return inst.places.get(id) if inst else null
 static func door(id: String) -> WorldDoor: return inst.doors.get(id) if inst else null
 static func hero_node() -> WorldPlayer: return inst.player if inst else null
-## walk the hero to a place through its door (phase 1: straight walk to the door, through it)
+static func current_region() -> String: return inst.region if inst else ""
+static func is_active(place: String) -> bool: return bool(inst.active.get(place, false)) if inst else false
+## mark a place as running story logic: it then processes only while the hero is near (ACTIVE_R)
+static func set_live(place: String, on := true) -> void:
+	if inst == null or not inst.places.has(place): return
+	var n: Node = inst.places[place]
+	if on: n.set_meta("ow_live", true)
+	else: n.remove_meta("ow_live")
+	n.process_mode = Node.PROCESS_MODE_INHERIT if on and inst.is_active(place) else Node.PROCESS_MODE_DISABLED
+
+## walk the ONE hero into a place: to the near side of its door (straight line), open it, through it. No load, no fade.
+## door_id empty = the first door of that place. Straight-line walk: chain doors for multi-room paths (bedroom -> street:
+## goto("livingroom", "bed_living") then goto("street", "front")). Awaitable.
 static func goto(place: String, door_id := "") -> void:
 	if inst == null: return
 	var dr: WorldDoor = inst.doors.get(door_id) if door_id != "" else null
 	if dr == null:
 		for d in inst.doors.values(): if (d as WorldDoor).a == place or (d as WorldDoor).b == place: dr = d; break
-	if dr: await dr.walk_through(inst.player); inst.last_door = dr.id
-## car / bus / ambulance trips: the ONLY gameplay fade (Yasin 18:12): black, hero at the destination, back in
+	if dr == null: return
+	var h := inst.player; var c := dr.center()
+	var v := Vector3(h.global_position.x - c.x, 0, h.global_position.z - c.z)
+	if v.length() > 1.0: await h.move_to(c + v.normalized() * 0.9)
+	await dr.walk_through(h)
+	inst.last_door = dr.id
+
+## car / bus / ambulance trips: the ONLY gameplay fade (Yasin 18:12): black, hero.place_at(dest), back in. No card text.
+## dest = a spot id (home_car, hospital_car, school_car, work_car, hospital_ward, school_desk, work_desk, home_bed ...) or a door id
 static func skip_travel(dest: String) -> void:
 	if inst == null: return
+	inst.player.busy = true
 	await Game.fade(1.0, 0.45)
 	inst.player.place_at(dest)
-	await inst.get_tree().create_timer(0.3).timeout
+	var sc = inst.get_tree().root.get_node_or_null("ShoulderCam")
+	if sc and sc.get("pos") != null: sc.set("pos", Vector3.INF); sc.set("yaw", inst.player.hero.rotation.y + PI)
+	await inst.get_tree().create_timer(0.35).timeout
 	await Game.fade(0.0, 0.45)
-## objective pan: a temp camera marked guide_cam; the shoulder camera frames hero + target with the one camera
+	inst.player.busy = false
+
+## objective pan, awaitable: the one shoulder camera frames hero + target (blue's ShoulderCam honours guide_cam), then back
 static func pan(at: Vector3, secs := 2.6) -> void:
 	if inst == null: return
 	var tmp := Camera3D.new(); tmp.set_meta("guide_cam", true); tmp.set_meta("guide_at", at); inst.add_child(tmp)
@@ -346,10 +395,27 @@ static func pan(at: Vector3, secs := 2.6) -> void:
 	await inst.get_tree().create_timer(secs).timeout
 	if is_instance_valid(inst.cam): inst.cam.current = true
 	tmp.queue_free()
-## position of a door id / spot id (place_at target)
+
+## world position (+ yaw) of a spot / door / place id
 static func spot(id: String) -> Vector3:
 	if inst == null: return Vector3.ZERO
+	if inst.spots.has(id): return inst.spots[id][0]
 	if inst.doors.has(id): return (inst.doors[id] as WorldDoor).center()
-	if SPOTS.has(id): return SPOTS[id]
 	if inst.places.has(id): return (inst.regions[id] as AABB).get_center()
 	return Vector3.ZERO
+static func spot_yaw(id: String) -> float: return float(inst.spots[id][1]) if inst and inst.spots.has(id) else INF
+
+## Game.go_to shim (temporary, until red's port drops the scene paths): old scene path -> World walk / skip_travel
+const SHIM := {"res://main.tscn": "bedroom", "res://bathroom.tscn": "bathroom", "res://livingroom.tscn": "livingroom",
+	"res://scenes/world_exterior.tscn": "street", "res://scenes/places/cafe.tscn": "cafe", "res://scenes/places/shop.tscn": "shop",
+	"res://scenes/hospital.tscn": "hospital", "res://scenes/hospital_day2.tscn": "hospital", "res://scenes/work.tscn": "work"}
+static func shim_go_to(path: String, _spawn_id := "") -> bool:
+	if inst == null or not SHIM.has(path): return false
+	var place: String = SHIM[path]
+	if place in ["hospital", "school", "work"]:
+		var dest := place + "_car"
+		if place == "work" and CharacterHook.is_child(CharacterHook.state()): dest = "school_car"
+		await skip_travel(dest)
+	elif place == "street": await goto("street", "front")
+	else: await goto(place)
+	return true
