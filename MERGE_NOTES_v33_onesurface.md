@@ -31,3 +31,7 @@ Replaces the rejected shell+promote approach (kept on branch `v33-town-shellprom
   from the save (e.g. the family at breakfast appears when the living room turns live the first time).
 * Wall-fade state of a dormant room is frozen as it was when the player left.
 * versionCode 44 is lower than v33's 45 (installs over v33 fail without uninstall); 46 would avoid that.
+
+## Open-world rule (Yasin 17:22) - TO IMPLEMENT LATER, not in this build
+* Until the game reaches day 8, every street at the edge of the play area is blocked by construction fences / roadwork
+  so the player cannot wander off. At day 8 they come down (removed / opened).
