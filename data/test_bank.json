@@ -10,7 +10,16 @@
   "there_is_are": "There is / there are",
   "prepositions": "Prepositions (in, on, under, next to)",
   "power_cut": "Power cut words",
-  "party": "Party words"
+  "party": "Party words",
+  "describing_people": "Describing people",
+  "clothes": "Clothes (wearing)",
+  "asking_for_help": "Asking for help",
+  "reassuring": "Reassuring someone",
+  "present_continuous": "Present continuous",
+  "weather": "Weather",
+  "future_will": "Future: will / won't",
+  "going_to": "Future: going to",
+  "suggestions": "Suggestions (Let's, Why don't we, How about, should)"
  },
  "questions": [
   {
@@ -1452,6 +1461,906 @@
    "a": 0,
    "say": "There was a big cake on the table.",
    "tr": "Masada büyük bir pasta vardı."
+  },
+  {
+   "id": "d5_01",
+   "day": 5,
+   "v": 0,
+   "topic": "describing_people",
+   "q": "He ___ short brown hair.",
+   "opts": [
+    "has got",
+    "have got",
+    "is got"
+   ],
+   "a": 0,
+   "say": "He's got short brown hair.",
+   "tr": "Kısa kahverengi saçları var."
+  },
+  {
+   "id": "d5_02",
+   "day": 5,
+   "v": 0,
+   "topic": "describing_people",
+   "q": "What ___ she look like?",
+   "opts": [
+    "does",
+    "is",
+    "do"
+   ],
+   "a": 0,
+   "say": "What does she look like?",
+   "tr": "Neye benziyor?"
+  },
+  {
+   "id": "d5_03",
+   "day": 5,
+   "v": 0,
+   "topic": "clothes",
+   "q": "He's ___ a yellow T-shirt.",
+   "opts": [
+    "wearing",
+    "wear",
+    "wears"
+   ],
+   "a": 0,
+   "say": "He's wearing a yellow T-shirt.",
+   "tr": "Sarı bir tişört giyiyor."
+  },
+  {
+   "id": "d5_04",
+   "day": 5,
+   "v": 0,
+   "topic": "clothes",
+   "q": "Her shoes ___ red.",
+   "opts": [
+    "are",
+    "is",
+    "am"
+   ],
+   "a": 0,
+   "say": "Her shoes are red.",
+   "tr": "Ayakkabıları kırmızı."
+  },
+  {
+   "id": "d5_05",
+   "day": 5,
+   "v": 0,
+   "topic": "asking_for_help",
+   "q": "Excuse me, ___ you help me?",
+   "opts": [
+    "can",
+    "do",
+    "are"
+   ],
+   "a": 0,
+   "say": "Excuse me, can you help me?",
+   "tr": "Affedersiniz, bana yardım edebilir misiniz?"
+  },
+  {
+   "id": "d5_06",
+   "day": 5,
+   "v": 0,
+   "topic": "asking_for_help",
+   "q": "This boy ___ lost.",
+   "opts": [
+    "is",
+    "are",
+    "am"
+   ],
+   "a": 0,
+   "say": "This boy is lost.",
+   "tr": "Bu çocuk kaybolmuş."
+  },
+  {
+   "id": "d5_07",
+   "day": 5,
+   "v": 0,
+   "topic": "reassuring",
+   "q": "Don't worry. ___ safe now.",
+   "opts": [
+    "You're",
+    "Your",
+    "You"
+   ],
+   "a": 0,
+   "say": "Don't worry. You're safe now.",
+   "tr": "Merak etme. Artık güvendesin."
+  },
+  {
+   "id": "d5_08",
+   "day": 5,
+   "v": 0,
+   "topic": "reassuring",
+   "q": "It's OK. I'm ___.",
+   "opts": [
+    "here",
+    "hear",
+    "her"
+   ],
+   "a": 0,
+   "say": "It's OK. I'm here.",
+   "tr": "Sorun yok. Buradayım."
+  },
+  {
+   "id": "d5_09",
+   "day": 5,
+   "v": 0,
+   "topic": "present_continuous",
+   "q": "Leo ___ near the door.",
+   "opts": [
+    "is crying",
+    "cries",
+    "crying"
+   ],
+   "a": 0,
+   "say": "Leo's crying near the door.",
+   "tr": "Leo kapının yanında ağlıyor."
+  },
+  {
+   "id": "d5_10",
+   "day": 5,
+   "v": 0,
+   "topic": "present_continuous",
+   "q": "We ___ for his mum.",
+   "opts": [
+    "are looking",
+    "is looking",
+    "looking"
+   ],
+   "a": 0,
+   "say": "We're looking for his mum.",
+   "tr": "Annesini arıyoruz."
+  },
+  {
+   "id": "d5_11",
+   "day": 5,
+   "v": 1,
+   "topic": "describing_people",
+   "q": "My sister ___ curly black hair.",
+   "opts": [
+    "has got",
+    "have got",
+    "is"
+   ],
+   "a": 0,
+   "say": "My sister's got curly black hair.",
+   "tr": "Kız kardeşimin kıvırcık siyah saçları var."
+  },
+  {
+   "id": "d5_12",
+   "day": 5,
+   "v": 1,
+   "topic": "describing_people",
+   "q": "He ___ tall. He's short.",
+   "opts": [
+    "isn't",
+    "aren't",
+    "not"
+   ],
+   "a": 0,
+   "say": "He isn't tall. He's short.",
+   "tr": "Uzun boylu değil. Kısa boylu."
+  },
+  {
+   "id": "d5_13",
+   "day": 5,
+   "v": 1,
+   "topic": "clothes",
+   "q": "Look! The man ___ a red coat.",
+   "opts": [
+    "is wearing",
+    "wear",
+    "are wearing"
+   ],
+   "a": 0,
+   "say": "Look! The man's wearing a red coat.",
+   "tr": "Bak! Adam kırmızı bir mont giyiyor."
+  },
+  {
+   "id": "d5_14",
+   "day": 5,
+   "v": 1,
+   "topic": "clothes",
+   "q": "She ___ wearing a hat.",
+   "opts": [
+    "isn't",
+    "aren't",
+    "don't"
+   ],
+   "a": 0,
+   "say": "She isn't wearing a hat.",
+   "tr": "Şapka takmıyor."
+  },
+  {
+   "id": "d5_15",
+   "day": 5,
+   "v": 1,
+   "topic": "asking_for_help",
+   "q": "Could you ___ me, please?",
+   "opts": [
+    "help",
+    "helps",
+    "helping"
+   ],
+   "a": 0,
+   "say": "Could you help me, please?",
+   "tr": "Bana yardım edebilir misiniz, lütfen?"
+  },
+  {
+   "id": "d5_16",
+   "day": 5,
+   "v": 1,
+   "topic": "asking_for_help",
+   "q": "I ___ find my mum.",
+   "opts": [
+    "can't",
+    "don't can",
+    "not can"
+   ],
+   "a": 0,
+   "say": "I can't find my mum.",
+   "tr": "Annemi bulamıyorum."
+  },
+  {
+   "id": "d5_17",
+   "day": 5,
+   "v": 1,
+   "topic": "reassuring",
+   "q": "Don't cry. Your mum ___ coming.",
+   "opts": [
+    "is",
+    "are",
+    "am"
+   ],
+   "a": 0,
+   "say": "Don't cry. Your mum's coming.",
+   "tr": "Ağlama. Annen geliyor."
+  },
+  {
+   "id": "d5_18",
+   "day": 5,
+   "v": 1,
+   "topic": "reassuring",
+   "q": "Don't ___ scared.",
+   "opts": [
+    "be",
+    "are",
+    "is"
+   ],
+   "a": 0,
+   "say": "Don't be scared.",
+   "tr": "Korkma."
+  },
+  {
+   "id": "d5_19",
+   "day": 5,
+   "v": 1,
+   "topic": "present_continuous",
+   "q": "I ___ wearing my blue jeans today.",
+   "opts": [
+    "am",
+    "is",
+    "are"
+   ],
+   "a": 0,
+   "say": "I'm wearing my blue jeans today.",
+   "tr": "Bugün mavi kotumu giyiyorum."
+  },
+  {
+   "id": "d5_20",
+   "day": 5,
+   "v": 1,
+   "topic": "present_continuous",
+   "q": "What ___ you doing?",
+   "opts": [
+    "are",
+    "do",
+    "is"
+   ],
+   "a": 0,
+   "say": "What are you doing?",
+   "tr": "Ne yapıyorsun?"
+  },
+  {
+   "id": "d5_21",
+   "day": 5,
+   "v": 2,
+   "topic": "describing_people",
+   "q": "They ___ got brown eyes.",
+   "opts": [
+    "have",
+    "has",
+    "is"
+   ],
+   "a": 0,
+   "say": "They've got brown eyes.",
+   "tr": "Kahverengi gözleri var."
+  },
+  {
+   "id": "d5_22",
+   "day": 5,
+   "v": 2,
+   "topic": "describing_people",
+   "q": "How old ___ he?",
+   "opts": [
+    "is",
+    "are",
+    "has"
+   ],
+   "a": 0,
+   "say": "How old is he?",
+   "tr": "Kaç yaşında?"
+  },
+  {
+   "id": "d5_23",
+   "day": 5,
+   "v": 2,
+   "topic": "clothes",
+   "q": "She ___ a green dress today.",
+   "opts": [
+    "is wearing",
+    "wearing",
+    "wear"
+   ],
+   "a": 0,
+   "say": "She's wearing a green dress today.",
+   "tr": "Bugün yeşil bir elbise giyiyor."
+  },
+  {
+   "id": "d5_24",
+   "day": 5,
+   "v": 2,
+   "topic": "clothes",
+   "q": "His trousers ___ blue.",
+   "opts": [
+    "are",
+    "is",
+    "am"
+   ],
+   "a": 0,
+   "say": "His trousers are blue.",
+   "tr": "Pantolonu mavi."
+  },
+  {
+   "id": "d5_25",
+   "day": 5,
+   "v": 2,
+   "topic": "asking_for_help",
+   "q": "Excuse me, ___ the shop assistant?",
+   "opts": [
+    "where's",
+    "who's",
+    "what's"
+   ],
+   "a": 0,
+   "say": "Excuse me, where's the shop assistant?",
+   "tr": "Affedersiniz, mağaza görevlisi nerede?"
+  },
+  {
+   "id": "d5_26",
+   "day": 5,
+   "v": 2,
+   "topic": "asking_for_help",
+   "q": "___ I help you?",
+   "opts": [
+    "Can",
+    "Do",
+    "Am"
+   ],
+   "a": 0,
+   "say": "Can I help you?",
+   "tr": "Yardım edebilir miyim?"
+  },
+  {
+   "id": "d5_27",
+   "day": 5,
+   "v": 2,
+   "topic": "reassuring",
+   "q": "It's OK. Don't ___.",
+   "opts": [
+    "worry",
+    "worried",
+    "worries"
+   ],
+   "a": 0,
+   "say": "It's OK. Don't worry.",
+   "tr": "Sorun yok. Merak etme."
+  },
+  {
+   "id": "d5_28",
+   "day": 5,
+   "v": 2,
+   "topic": "reassuring",
+   "q": "You're very ___.",
+   "opts": [
+    "brave",
+    "bravely",
+    "braves"
+   ],
+   "a": 0,
+   "say": "You're very brave.",
+   "tr": "Çok cesursun."
+  },
+  {
+   "id": "d5_29",
+   "day": 5,
+   "v": 2,
+   "topic": "present_continuous",
+   "q": "His mum ___ into the shop.",
+   "opts": [
+    "is running",
+    "runs",
+    "running"
+   ],
+   "a": 0,
+   "say": "His mum's running into the shop.",
+   "tr": "Annesi koşarak markete giriyor."
+  },
+  {
+   "id": "d5_30",
+   "day": 5,
+   "v": 2,
+   "topic": "present_continuous",
+   "q": "They ___ crying now.",
+   "opts": [
+    "aren't",
+    "isn't",
+    "don't"
+   ],
+   "a": 0,
+   "say": "They aren't crying now.",
+   "tr": "Artık ağlamıyorlar."
+  },
+  {
+   "id": "d6_01",
+   "day": 6,
+   "v": 0,
+   "topic": "weather",
+   "q": "It's ___ today. Take an umbrella.",
+   "opts": [
+    "rainy",
+    "sunny",
+    "hot"
+   ],
+   "a": 0,
+   "say": "It's rainy today. Take an umbrella.",
+   "tr": "Bugün hava yağmurlu. Şemsiye al."
+  },
+  {
+   "id": "d6_02",
+   "day": 6,
+   "v": 0,
+   "topic": "weather",
+   "q": "What's the weather ___?",
+   "opts": [
+    "like",
+    "likes",
+    "liking"
+   ],
+   "a": 0,
+   "say": "What's the weather like?",
+   "tr": "Hava nasıl?"
+  },
+  {
+   "id": "d6_03",
+   "day": 6,
+   "v": 0,
+   "topic": "future_will",
+   "q": "I think it ___ rain tonight.",
+   "opts": [
+    "will",
+    "is",
+    "does"
+   ],
+   "a": 0,
+   "say": "I think it'll rain tonight.",
+   "tr": "Sanırım bu gece yağmur yağacak."
+  },
+  {
+   "id": "d6_04",
+   "day": 6,
+   "v": 0,
+   "topic": "future_will",
+   "q": "I ___ call my family.",
+   "opts": [
+    "will",
+    "am",
+    "do"
+   ],
+   "a": 0,
+   "say": "I'll call my family.",
+   "tr": "Ailemi arayacağım."
+  },
+  {
+   "id": "d6_05",
+   "day": 6,
+   "v": 0,
+   "topic": "going_to",
+   "q": "Look at those clouds! It ___ rain.",
+   "opts": [
+    "is going to",
+    "going to",
+    "goes to"
+   ],
+   "a": 0,
+   "say": "Look at those clouds! It's going to rain.",
+   "tr": "Şu bulutlara bak! Yağmur yağacak."
+  },
+  {
+   "id": "d6_06",
+   "day": 6,
+   "v": 0,
+   "topic": "going_to",
+   "q": "We ___ going to wait here.",
+   "opts": [
+    "are",
+    "is",
+    "am"
+   ],
+   "a": 0,
+   "say": "We're going to wait here.",
+   "tr": "Burada bekleyeceğiz."
+  },
+  {
+   "id": "d6_07",
+   "day": 6,
+   "v": 0,
+   "topic": "asking_for_help",
+   "q": "Excuse me, ___ the next bus?",
+   "opts": [
+    "when's",
+    "who's",
+    "what's"
+   ],
+   "a": 0,
+   "say": "Excuse me, when's the next bus?",
+   "tr": "Affedersiniz, bir sonraki otobüs ne zaman?"
+  },
+  {
+   "id": "d6_08",
+   "day": 6,
+   "v": 0,
+   "topic": "asking_for_help",
+   "q": "___ you pick me up, please?",
+   "opts": [
+    "Can",
+    "Do",
+    "Are"
+   ],
+   "a": 0,
+   "say": "Can you pick me up, please?",
+   "tr": "Beni alabilir misin, lütfen?"
+  },
+  {
+   "id": "d6_09",
+   "day": 6,
+   "v": 0,
+   "topic": "suggestions",
+   "q": "___ wait under the shelter.",
+   "opts": [
+    "Let's",
+    "Let",
+    "Lets"
+   ],
+   "a": 0,
+   "say": "Let's wait under the shelter.",
+   "tr": "Durağın altında bekleyelim."
+  },
+  {
+   "id": "d6_10",
+   "day": 6,
+   "v": 0,
+   "topic": "suggestions",
+   "q": "Why ___ we call a taxi?",
+   "opts": [
+    "don't",
+    "doesn't",
+    "not"
+   ],
+   "a": 0,
+   "say": "Why don't we call a taxi?",
+   "tr": "Neden bir taksi çağırmıyoruz?"
+  },
+  {
+   "id": "d6_11",
+   "day": 6,
+   "v": 1,
+   "topic": "weather",
+   "q": "It's very ___. My umbrella's flying away!",
+   "opts": [
+    "windy",
+    "sunny",
+    "snowy"
+   ],
+   "a": 0,
+   "say": "It's very windy. My umbrella's flying away!",
+   "tr": "Hava çok rüzgarlı. Şemsiyem uçuyor!"
+  },
+  {
+   "id": "d6_12",
+   "day": 6,
+   "v": 1,
+   "topic": "weather",
+   "q": "It's cold and white outside. It's ___.",
+   "opts": [
+    "snowy",
+    "sunny",
+    "hot"
+   ],
+   "a": 0,
+   "say": "It's cold and white outside. It's snowy.",
+   "tr": "Dışarısı soğuk ve beyaz. Hava karlı."
+  },
+  {
+   "id": "d6_13",
+   "day": 6,
+   "v": 1,
+   "topic": "future_will",
+   "q": "Don't worry. I ___ help you.",
+   "opts": [
+    "will",
+    "am",
+    "do"
+   ],
+   "a": 0,
+   "say": "Don't worry. I'll help you.",
+   "tr": "Merak etme. Sana yardım edeceğim."
+  },
+  {
+   "id": "d6_14",
+   "day": 6,
+   "v": 1,
+   "topic": "future_will",
+   "q": "The bus ___ come for forty minutes.",
+   "opts": [
+    "won't",
+    "willn't",
+    "doesn't will"
+   ],
+   "a": 0,
+   "say": "The bus won't come for forty minutes.",
+   "tr": "Otobüs kırk dakika gelmeyecek."
+  },
+  {
+   "id": "d6_15",
+   "day": 6,
+   "v": 1,
+   "topic": "going_to",
+   "q": "I'm ___ take a taxi.",
+   "opts": [
+    "going to",
+    "go to",
+    "going"
+   ],
+   "a": 0,
+   "say": "I'm going to take a taxi.",
+   "tr": "Taksiye bineceğim."
+  },
+  {
+   "id": "d6_16",
+   "day": 6,
+   "v": 1,
+   "topic": "going_to",
+   "q": "___ you going to walk home?",
+   "opts": [
+    "Are",
+    "Do",
+    "Is"
+   ],
+   "a": 0,
+   "say": "Are you going to walk home?",
+   "tr": "Eve yürüyecek misin?"
+  },
+  {
+   "id": "d6_17",
+   "day": 6,
+   "v": 1,
+   "topic": "asking_for_help",
+   "q": "Excuse me, ___ the bus broken?",
+   "opts": [
+    "is",
+    "does",
+    "are"
+   ],
+   "a": 0,
+   "say": "Excuse me, is the bus broken?",
+   "tr": "Affedersiniz, otobüs bozuk mu?"
+  },
+  {
+   "id": "d6_18",
+   "day": 6,
+   "v": 1,
+   "topic": "asking_for_help",
+   "q": "Could you ___ my dad, please?",
+   "opts": [
+    "call",
+    "calls",
+    "calling"
+   ],
+   "a": 0,
+   "say": "Could you call my dad, please?",
+   "tr": "Babamı arayabilir misiniz, lütfen?"
+  },
+  {
+   "id": "d6_19",
+   "day": 6,
+   "v": 1,
+   "topic": "suggestions",
+   "q": "How about ___ your family?",
+   "opts": [
+    "calling",
+    "call",
+    "to call"
+   ],
+   "a": 0,
+   "say": "How about calling your family?",
+   "tr": "Aileni aramaya ne dersin?"
+  },
+  {
+   "id": "d6_20",
+   "day": 6,
+   "v": 1,
+   "topic": "suggestions",
+   "q": "We ___ stay dry.",
+   "opts": [
+    "should",
+    "should to",
+    "shoulds"
+   ],
+   "a": 0,
+   "say": "We should stay dry.",
+   "tr": "Kuru kalmalıyız."
+  },
+  {
+   "id": "d6_21",
+   "day": 6,
+   "v": 2,
+   "topic": "weather",
+   "q": "I can hear thunder. It's ___!",
+   "opts": [
+    "stormy",
+    "sunny",
+    "warm"
+   ],
+   "a": 0,
+   "say": "I can hear thunder. It's stormy!",
+   "tr": "Gök gürültüsü duyuyorum. Hava fırtınalı!"
+  },
+  {
+   "id": "d6_22",
+   "day": 6,
+   "v": 2,
+   "topic": "weather",
+   "q": "It's ___ and hot. Let's go to the beach!",
+   "opts": [
+    "sunny",
+    "rainy",
+    "stormy"
+   ],
+   "a": 0,
+   "say": "It's sunny and hot. Let's go to the beach!",
+   "tr": "Hava güneşli ve sıcak. Hadi plaja gidelim!"
+  },
+  {
+   "id": "d6_23",
+   "day": 6,
+   "v": 2,
+   "topic": "future_will",
+   "q": "Mum ___ pick us up.",
+   "opts": [
+    "will",
+    "is",
+    "does"
+   ],
+   "a": 0,
+   "say": "Mum will pick us up.",
+   "tr": "Annem bizi alacak."
+  },
+  {
+   "id": "d6_24",
+   "day": 6,
+   "v": 2,
+   "topic": "future_will",
+   "q": "___ the storm stop soon?",
+   "opts": [
+    "Will",
+    "Does",
+    "Is"
+   ],
+   "a": 0,
+   "say": "Will the storm stop soon?",
+   "tr": "Fırtına yakında dinecek mi?"
+  },
+  {
+   "id": "d6_25",
+   "day": 6,
+   "v": 2,
+   "topic": "going_to",
+   "q": "They ___ going to walk in the rain.",
+   "opts": [
+    "aren't",
+    "isn't",
+    "not"
+   ],
+   "a": 0,
+   "say": "They aren't going to walk in the rain.",
+   "tr": "Yağmurda yürümeyecekler."
+  },
+  {
+   "id": "d6_26",
+   "day": 6,
+   "v": 2,
+   "topic": "going_to",
+   "q": "What ___ you going to do?",
+   "opts": [
+    "are",
+    "do",
+    "is"
+   ],
+   "a": 0,
+   "say": "What are you going to do?",
+   "tr": "Ne yapacaksın?"
+  },
+  {
+   "id": "d6_27",
+   "day": 6,
+   "v": 2,
+   "topic": "asking_for_help",
+   "q": "Can you help me? Yes, I ___.",
+   "opts": [
+    "can",
+    "do",
+    "am"
+   ],
+   "a": 0,
+   "say": "Can you help me? Yes, I can.",
+   "tr": "Bana yardım edebilir misin? Evet, edebilirim."
+  },
+  {
+   "id": "d6_28",
+   "day": 6,
+   "v": 2,
+   "topic": "asking_for_help",
+   "q": "How long ___ we have to wait?",
+   "opts": [
+    "do",
+    "does",
+    "are"
+   ],
+   "a": 0,
+   "say": "How long do we have to wait?",
+   "tr": "Ne kadar beklememiz gerekiyor?"
+  },
+  {
+   "id": "d6_29",
+   "day": 6,
+   "v": 2,
+   "topic": "suggestions",
+   "q": "Let's ___ walk. It's too far.",
+   "opts": [
+    "not",
+    "don't",
+    "no"
+   ],
+   "a": 0,
+   "say": "Let's not walk. It's too far.",
+   "tr": "Yürümeyelim. Çok uzak."
+  },
+  {
+   "id": "d6_30",
+   "day": 6,
+   "v": 2,
+   "topic": "suggestions",
+   "q": "You ___ walk in a storm.",
+   "opts": [
+    "shouldn't",
+    "should to",
+    "not should"
+   ],
+   "a": 0,
+   "say": "You shouldn't walk in a storm.",
+   "tr": "Fırtınada yürümemelisin."
   }
  ]
 }

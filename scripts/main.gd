@@ -1396,6 +1396,7 @@ func _continue_game() -> void:
 		_home_from_hospital()
 	elif App.came_from == "hospital_day2": get_tree().create_timer(1.2, false).timeout.connect(func(): Day2After.run(self, "bedroom"))   # v30.5
 	load("res://scripts/story/bedtime.gd").hook_bedroom(self)   # v31c (red): day-2 bedtime / day-3 morning
+	load("res://scripts/story/day5_routine.gd").attach(get_tree())   # v33 (blue): days 5-6 routine (resume on Continue)
 	_advance(false)
 
 func _to_main_menu() -> void:

@@ -1,0 +1,1083 @@
+{
+ "day": 5,
+ "test_key": "Day5Bed",
+ "bank_topics": [
+  "asking_for_help",
+  "clothes",
+  "describing_people",
+  "present_continuous",
+  "reassuring"
+ ],
+ "alarm_after": {
+  "who": "me",
+  "en": "Good morning! I'm going to the corner shop today.",
+  "tr": "Günaydın! Bugün köşedeki markete gidiyorum."
+ },
+ "bath": {
+  "obj": "sink",
+  "key": "routine",
+  "en": "Wash your face and brush your teeth.",
+  "tr": "Yüzünü yıka ve dişlerini fırçala.",
+  "done": {
+   "who": "me",
+   "en": "I feel fresh now.",
+   "tr": "Şimdi kendimi zinde hissediyorum."
+  }
+ },
+ "breakfast": [
+  {
+   "who": "fam0",
+   "en": "Morning! Did you sleep well?",
+   "tr": "Günaydın! İyi uyudun mu?"
+  },
+  {
+   "who": "me",
+   "en": "Yes, thanks. I slept really well.",
+   "tr": "Evet, teşekkürler. Çok iyi uyudum."
+  },
+  {
+   "who": "fam1",
+   "en": "We're out of milk and bread. Can you go to the corner shop today?",
+   "tr": "Süt ve ekmeğimiz bitti. Bugün köşedeki markete gidebilir misin?"
+  },
+  {
+   "who": "me",
+   "en": "Sure, no problem. I'll go after breakfast.",
+   "tr": "Tabii, sorun değil. Kahvaltıdan sonra giderim."
+  },
+  {
+   "who": "fam0",
+   "en": "Thanks! Here's a shopping bag.",
+   "tr": "Teşekkürler! Al, bir alışveriş çantası."
+  },
+  {
+   "review": true
+  }
+ ],
+ "review": [
+  {
+   "q": "Every morning I ___ breakfast with my family.",
+   "opts": [
+    "have",
+    "am having",
+    "had"
+   ],
+   "a": 0,
+   "say": "Every morning I have breakfast with my family.",
+   "tr": "Her sabah ailemle kahvaltı yaparım."
+  },
+  {
+   "q": "Look! The cat ___ my toast!",
+   "opts": [
+    "is eating",
+    "eats",
+    "ate"
+   ],
+   "a": 0,
+   "say": "Look! The cat is eating my toast!",
+   "tr": "Bak! Kedi tostumu yiyor!"
+  },
+  {
+   "q": "We're out of milk. I ___ go to the shop.",
+   "opts": [
+    "have to",
+    "has to",
+    "having to"
+   ],
+   "a": 0,
+   "say": "We're out of milk. I have to go to the shop.",
+   "tr": "Sütümüz bitti. Markete gitmem gerekiyor."
+  }
+ ],
+ "outing": {
+  "obj": "shop",
+  "en": "Walk to the corner shop.",
+  "tr": "Köşedeki markete yürü."
+ },
+ "event": [
+  {
+   "do": "child_appears"
+  },
+  {
+   "who": "narr",
+   "en": "Oh! A little boy is crying near the door.",
+   "tr": "Aa! Kapının yanında küçük bir çocuk ağlıyor."
+  },
+  {
+   "obj": "child",
+   "en": "Help the little boy.",
+   "tr": "Küçük çocuğa yardım et."
+  },
+  {
+   "choice": {
+    "prompt": "What do you say to the boy?",
+    "prompt_tr": "Çocuğa ne dersin?",
+    "opts": [
+     {
+      "en": "Hi! Are you OK?",
+      "tr": "Merhaba! İyi misin?",
+      "ok": true
+     },
+     {
+      "en": "Stop crying!",
+      "tr": "Ağlamayı kes!",
+      "ok": false,
+      "fb": "That isn't kind. He's scared.",
+      "fb_tr": "Bu nazik değil. Çok korkmuş."
+     },
+     {
+      "en": "Where's your phone?",
+      "tr": "Telefonun nerede?",
+      "ok": false,
+      "fb": "He's very young. Ask if he's OK first.",
+      "fb_tr": "O çok küçük. Önce iyi olup olmadığını sor."
+     }
+    ]
+   }
+  },
+  {
+   "who": "child",
+   "en": "No... I can't find my mum.",
+   "tr": "Hayır... Annemi bulamıyorum."
+  },
+  {
+   "who": "me",
+   "en": "Oh no. What's your name?",
+   "tr": "Olamaz. Adın ne?"
+  },
+  {
+   "who": "child",
+   "en": "I'm Leo.",
+   "tr": "Ben Leo."
+  },
+  {
+   "who": "me",
+   "en": "Hi, Leo. Don't worry. I'm going to help you.",
+   "tr": "Merhaba Leo. Merak etme. Sana yardım edeceğim."
+  },
+  {
+   "obj": "assistant",
+   "en": "Ask the shop assistant for help.",
+   "tr": "Mağaza görevlisinden yardım iste."
+  },
+  {
+   "do": "walk_to_assistant"
+  },
+  {
+   "choice": {
+    "prompt": "What do you say to the shop assistant?",
+    "prompt_tr": "Mağaza görevlisine ne dersin?",
+    "opts": [
+     {
+      "en": "Excuse me, can you help us? This boy is lost.",
+      "tr": "Affedersiniz, bize yardım edebilir misiniz? Bu çocuk kaybolmuş.",
+      "ok": true
+     },
+     {
+      "en": "Can I have a bag, please?",
+      "tr": "Bir poşet alabilir miyim, lütfen?",
+      "ok": false,
+      "fb": "That's not the problem right now. The boy is lost.",
+      "fb_tr": "Şu an sorun bu değil. Çocuk kaybolmuş."
+     },
+     {
+      "en": "How much is the bread?",
+      "tr": "Ekmek ne kadar?",
+      "ok": false,
+      "fb": "Not now! Tell the assistant about the lost boy.",
+      "fb_tr": "Şimdi değil! Görevliye kayıp çocuktan bahset."
+     }
+    ]
+   }
+  },
+  {
+   "who": "assistant",
+   "en": "Oh dear! Of course. I'm going to make an announcement. Can you describe him for me?",
+   "tr": "Aman! Tabii ki. Bir anons yapacağım. Onu bana tarif edebilir misin?"
+  },
+  {
+   "do": "look_at_child"
+  },
+  {
+   "choice": {
+    "prompt": "Describe the boy.",
+    "prompt_tr": "Çocuğu tarif et.",
+    "opts": [
+     {
+      "en": "He's about five. He's got short brown hair.",
+      "tr": "Yaklaşık beş yaşında. Kısa kahverengi saçları var.",
+      "ok": true
+     },
+     {
+      "en": "He's about five. He's got long blond hair.",
+      "tr": "Yaklaşık beş yaşında. Uzun sarı saçları var.",
+      "ok": false,
+      "fb": "Look again. His hair is short and brown.",
+      "fb_tr": "Tekrar bak. Saçı kısa ve kahverengi."
+     },
+     {
+      "en": "He's very old. He's got a big beard.",
+      "tr": "Çok yaşlı. Büyük bir sakalı var.",
+      "ok": false,
+      "fb": "No! He's a little boy.",
+      "fb_tr": "Hayır! O küçük bir çocuk."
+     }
+    ]
+   }
+  },
+  {
+   "who": "assistant",
+   "en": "Great. And what's he wearing?",
+   "tr": "Harika. Peki ne giyiyor?"
+  },
+  {
+   "choice": {
+    "prompt": "What's he wearing?",
+    "prompt_tr": "Ne giyiyor?",
+    "opts": [
+     {
+      "en": "He's wearing a yellow T-shirt.",
+      "tr": "Sarı bir tişört giyiyor.",
+      "ok": true
+     },
+     {
+      "en": "He's wearing a red coat.",
+      "tr": "Kırmızı bir mont giyiyor.",
+      "ok": false,
+      "fb": "Look again. His T-shirt is yellow.",
+      "fb_tr": "Tekrar bak. Tişörtü sarı."
+     },
+     {
+      "en": "He's wearing a green hat.",
+      "tr": "Yeşil bir şapka takıyor.",
+      "ok": false,
+      "fb": "Look again. He isn't wearing a hat.",
+      "fb_tr": "Tekrar bak. Şapka takmıyor."
+     }
+    ]
+   }
+  },
+  {
+   "do": "announce"
+  },
+  {
+   "who": "assistant",
+   "en": "Attention, please! We've got a little boy called Leo at the front of the shop. He's about five, and he's wearing a yellow T-shirt.",
+   "tr": "Dikkat lütfen! Mağazanın önünde Leo adında küçük bir çocuk var. Yaklaşık beş yaşında ve sarı bir tişört giyiyor."
+  },
+  {
+   "who": "child",
+   "en": "I'm scared.",
+   "tr": "Korkuyorum."
+  },
+  {
+   "obj": "child",
+   "en": "Help Leo feel better.",
+   "tr": "Leo'nun kendini daha iyi hissetmesine yardım et."
+  },
+  {
+   "choice": {
+    "prompt": "What do you say to Leo?",
+    "prompt_tr": "Leo'ya ne dersin?",
+    "opts": [
+     {
+      "en": "It's OK, Leo. Your mum's coming soon.",
+      "tr": "Sorun yok Leo. Annen birazdan gelir.",
+      "ok": true
+     },
+     {
+      "en": "I'm going home now. Bye!",
+      "tr": "Ben şimdi eve gidiyorum. Hoşça kal!",
+      "ok": false,
+      "fb": "Don't leave him alone! Stay with him.",
+      "fb_tr": "Onu yalnız bırakma! Yanında kal."
+     },
+     {
+      "en": "Your mum isn't coming.",
+      "tr": "Annen gelmiyor.",
+      "ok": false,
+      "fb": "That isn't kind. Say something nice.",
+      "fb_tr": "Bu nazik değil. Güzel bir şey söyle."
+     }
+    ]
+   }
+  },
+  {
+   "who": "child",
+   "en": "OK. Thank you.",
+   "tr": "Tamam. Teşekkür ederim."
+  },
+  {
+   "do": "mum_enters"
+  },
+  {
+   "who": "narr",
+   "en": "A woman is running into the shop.",
+   "tr": "Bir kadın koşarak markete giriyor."
+  },
+  {
+   "who": "mum",
+   "en": "Excuse me! I'm looking for my little boy!",
+   "tr": "Affedersiniz! Küçük oğlumu arıyorum!"
+  },
+  {
+   "obj": "mum",
+   "en": "Find Leo's mum.",
+   "tr": "Leo'nun annesini bul."
+  },
+  {
+   "choice": {
+    "prompt": "What do you ask her?",
+    "prompt_tr": "Ona ne sorarsın?",
+    "opts": [
+     {
+      "en": "What's his name?",
+      "tr": "Adı ne?",
+      "ok": true
+     },
+     {
+      "en": "What's your favourite colour?",
+      "tr": "En sevdiğin renk ne?",
+      "ok": false,
+      "fb": "That doesn't help. Ask about her son.",
+      "fb_tr": "Bu yardımcı olmaz. Oğlunu sor."
+     },
+     {
+      "en": "Do you like this shop?",
+      "tr": "Bu marketi seviyor musun?",
+      "ok": false,
+      "fb": "Not now! Ask about her son.",
+      "fb_tr": "Şimdi değil! Oğlunu sor."
+     }
+    ]
+   }
+  },
+  {
+   "who": "mum",
+   "en": "Leo. He's five, and he's wearing a yellow T-shirt.",
+   "tr": "Leo. Beş yaşında ve sarı bir tişört giyiyor."
+  },
+  {
+   "who": "me",
+   "en": "He's here! He's safe.",
+   "tr": "Burada! O güvende."
+  },
+  {
+   "do": "reunite"
+  },
+  {
+   "who": "child",
+   "en": "Mum!",
+   "tr": "Anne!"
+  },
+  {
+   "who": "mum",
+   "en": "Leo! There you are! I was so worried.",
+   "tr": "Leo! İşte buradasın! Çok endişelendim."
+  },
+  {
+   "who": "narr",
+   "en": "Leo is hugging his mum.",
+   "tr": "Leo annesine sarılıyor."
+  },
+  {
+   "do": "photo"
+  },
+  {
+   "who": "mum",
+   "en": "Thank you so much for helping him!",
+   "tr": "Ona yardım ettiğin için çok teşekkür ederim!"
+  },
+  {
+   "who": "me",
+   "en": "You're welcome. Bye, Leo!",
+   "tr": "Rica ederim. Hoşça kal, Leo!"
+  },
+  {
+   "who": "child",
+   "en": "Bye! Thank you!",
+   "tr": "Hoşça kal! Teşekkürler!"
+  },
+  {
+   "who": "assistant",
+   "en": "Well done. That was really kind of you.",
+   "tr": "Aferin. Çok nazik davrandın."
+  },
+  {
+   "who": "narr",
+   "en": "Well done! You helped Leo find his mum.",
+   "tr": "Aferin! Leo'nun annesini bulmasına yardım ettin."
+  },
+  {
+   "do": "npcs_leave"
+  }
+ ],
+ "couch": [
+  {
+   "who": "fam0",
+   "en": "You're back! How was the shop?",
+   "tr": "Döndün! Market nasıldı?"
+  },
+  {
+   "who": "me",
+   "en": "It was quite an adventure!",
+   "tr": "Tam bir maceraydı!"
+  },
+  {
+   "choice": {
+    "prompt": "Tell your family what happened.",
+    "prompt_tr": "Ailene ne olduğunu anlat.",
+    "opts": [
+     {
+      "en": "A little boy got lost in the shop.",
+      "tr": "Markette küçük bir çocuk kayboldu.",
+      "ok": true
+     },
+     {
+      "en": "A little boy gets lost in the shop.",
+      "tr": "Markette küçük bir çocuk kaybolur.",
+      "ok": false,
+      "fb": "It happened today, so use the past simple: got lost.",
+      "fb_tr": "Bugün oldu, o yüzden geçmiş zaman kullan: got lost."
+     },
+     {
+      "en": "A little boy is get lost in the shop.",
+      "tr": "Markette küçük bir çocuk kayboluyor.",
+      "ok": false,
+      "fb": "Use the past simple: got lost.",
+      "fb_tr": "Geçmiş zaman kullan: got lost."
+     }
+    ]
+   }
+  },
+  {
+   "who": "fam1",
+   "en": "Oh no! Is he OK?",
+   "tr": "Olamaz! O iyi mi?"
+  },
+  {
+   "choice": {
+    "prompt": "Answer your family.",
+    "prompt_tr": "Ailene cevap ver.",
+    "opts": [
+     {
+      "en": "Yes. We found his mum.",
+      "tr": "Evet. Annesini bulduk.",
+      "ok": true
+     },
+     {
+      "en": "Yes. We find his mum.",
+      "tr": "Evet. Annesini buluruz.",
+      "ok": false,
+      "fb": "Use the past simple: find becomes found.",
+      "fb_tr": "Geçmiş zaman kullan: find -> found."
+     },
+     {
+      "en": "Yes. We finded his mum.",
+      "tr": "Evet. Annesini bulduk.",
+      "ok": false,
+      "fb": "Find is irregular: found, not finded.",
+      "fb_tr": "Find düzensiz bir fiil: finded değil, found."
+     }
+    ]
+   }
+  },
+  {
+   "who": "fam0",
+   "en": "Well done! That was really kind of you.",
+   "tr": "Aferin! Çok nazik davrandın."
+  },
+  {
+   "who": "fam1",
+   "en": "Did you get the milk and bread?",
+   "tr": "Süt ve ekmeği aldın mı?"
+  },
+  {
+   "who": "me",
+   "en": "Yes, I did. They're in the kitchen.",
+   "tr": "Evet, aldım. Mutfaktalar."
+  },
+  {
+   "do": "photo"
+  },
+  {
+   "who": "fam0",
+   "en": "You must be tired. Time for bed!",
+   "tr": "Yorgun olmalısın. Yatma vakti!"
+  },
+  {
+   "who": "me",
+   "en": "Good night!",
+   "tr": "İyi geceler!"
+  }
+ ],
+ "recap": [
+  [
+   "d5_breakfast",
+   "I had breakfast with my family."
+  ],
+  [
+   "d5_shop",
+   "I helped a lost boy at the shop."
+  ],
+  [
+   "d5_couch",
+   "I talked to my family."
+  ]
+ ],
+ "recap_end": {
+  "who": "narr",
+  "en": "Helped, found, talked: this is the past simple.",
+  "tr": "Helped, found, talked: bu geçmiş zaman."
+ },
+ "quiz": [
+  {
+   "q": "He ___ short brown hair.",
+   "opts": [
+    "has got",
+    "have got",
+    "is got"
+   ],
+   "a": 0,
+   "say": "He's got short brown hair.",
+   "tr": "Kısa kahverengi saçları var.",
+   "topic": "describing_people"
+  },
+  {
+   "q": "What ___ she look like?",
+   "opts": [
+    "does",
+    "is",
+    "do"
+   ],
+   "a": 0,
+   "say": "What does she look like?",
+   "tr": "Neye benziyor?",
+   "topic": "describing_people"
+  },
+  {
+   "q": "He's ___ a yellow T-shirt.",
+   "opts": [
+    "wearing",
+    "wear",
+    "wears"
+   ],
+   "a": 0,
+   "say": "He's wearing a yellow T-shirt.",
+   "tr": "Sarı bir tişört giyiyor.",
+   "topic": "clothes"
+  },
+  {
+   "q": "Her shoes ___ red.",
+   "opts": [
+    "are",
+    "is",
+    "am"
+   ],
+   "a": 0,
+   "say": "Her shoes are red.",
+   "tr": "Ayakkabıları kırmızı.",
+   "topic": "clothes"
+  },
+  {
+   "q": "Excuse me, ___ you help me?",
+   "opts": [
+    "can",
+    "do",
+    "are"
+   ],
+   "a": 0,
+   "say": "Excuse me, can you help me?",
+   "tr": "Affedersiniz, bana yardım edebilir misiniz?",
+   "topic": "asking_for_help"
+  },
+  {
+   "q": "This boy ___ lost.",
+   "opts": [
+    "is",
+    "are",
+    "am"
+   ],
+   "a": 0,
+   "say": "This boy is lost.",
+   "tr": "Bu çocuk kaybolmuş.",
+   "topic": "asking_for_help"
+  },
+  {
+   "q": "Don't worry. ___ safe now.",
+   "opts": [
+    "You're",
+    "Your",
+    "You"
+   ],
+   "a": 0,
+   "say": "Don't worry. You're safe now.",
+   "tr": "Merak etme. Artık güvendesin.",
+   "topic": "reassuring"
+  },
+  {
+   "q": "It's OK. I'm ___.",
+   "opts": [
+    "here",
+    "hear",
+    "her"
+   ],
+   "a": 0,
+   "say": "It's OK. I'm here.",
+   "tr": "Sorun yok. Buradayım.",
+   "topic": "reassuring"
+  },
+  {
+   "q": "Leo ___ near the door.",
+   "opts": [
+    "is crying",
+    "cries",
+    "crying"
+   ],
+   "a": 0,
+   "say": "Leo's crying near the door.",
+   "tr": "Leo kapının yanında ağlıyor.",
+   "topic": "present_continuous"
+  },
+  {
+   "q": "We ___ for his mum.",
+   "opts": [
+    "are looking",
+    "is looking",
+    "looking"
+   ],
+   "a": 0,
+   "say": "We're looking for his mum.",
+   "tr": "Annesini arıyoruz.",
+   "topic": "present_continuous"
+  }
+ ],
+ "quiz_b": [
+  {
+   "q": "My sister ___ curly black hair.",
+   "opts": [
+    "has got",
+    "have got",
+    "is"
+   ],
+   "a": 0,
+   "say": "My sister's got curly black hair.",
+   "tr": "Kız kardeşimin kıvırcık siyah saçları var.",
+   "topic": "describing_people"
+  },
+  {
+   "q": "He ___ tall. He's short.",
+   "opts": [
+    "isn't",
+    "aren't",
+    "not"
+   ],
+   "a": 0,
+   "say": "He isn't tall. He's short.",
+   "tr": "Uzun boylu değil. Kısa boylu.",
+   "topic": "describing_people"
+  },
+  {
+   "q": "Look! The man ___ a red coat.",
+   "opts": [
+    "is wearing",
+    "wear",
+    "are wearing"
+   ],
+   "a": 0,
+   "say": "Look! The man's wearing a red coat.",
+   "tr": "Bak! Adam kırmızı bir mont giyiyor.",
+   "topic": "clothes"
+  },
+  {
+   "q": "She ___ wearing a hat.",
+   "opts": [
+    "isn't",
+    "aren't",
+    "don't"
+   ],
+   "a": 0,
+   "say": "She isn't wearing a hat.",
+   "tr": "Şapka takmıyor.",
+   "topic": "clothes"
+  },
+  {
+   "q": "Could you ___ me, please?",
+   "opts": [
+    "help",
+    "helps",
+    "helping"
+   ],
+   "a": 0,
+   "say": "Could you help me, please?",
+   "tr": "Bana yardım edebilir misiniz, lütfen?",
+   "topic": "asking_for_help"
+  },
+  {
+   "q": "I ___ find my mum.",
+   "opts": [
+    "can't",
+    "don't can",
+    "not can"
+   ],
+   "a": 0,
+   "say": "I can't find my mum.",
+   "tr": "Annemi bulamıyorum.",
+   "topic": "asking_for_help"
+  },
+  {
+   "q": "Don't cry. Your mum ___ coming.",
+   "opts": [
+    "is",
+    "are",
+    "am"
+   ],
+   "a": 0,
+   "say": "Don't cry. Your mum's coming.",
+   "tr": "Ağlama. Annen geliyor.",
+   "topic": "reassuring"
+  },
+  {
+   "q": "Don't ___ scared.",
+   "opts": [
+    "be",
+    "are",
+    "is"
+   ],
+   "a": 0,
+   "say": "Don't be scared.",
+   "tr": "Korkma.",
+   "topic": "reassuring"
+  },
+  {
+   "q": "I ___ wearing my blue jeans today.",
+   "opts": [
+    "am",
+    "is",
+    "are"
+   ],
+   "a": 0,
+   "say": "I'm wearing my blue jeans today.",
+   "tr": "Bugün mavi kotumu giyiyorum.",
+   "topic": "present_continuous"
+  },
+  {
+   "q": "What ___ you doing?",
+   "opts": [
+    "are",
+    "do",
+    "is"
+   ],
+   "a": 0,
+   "say": "What are you doing?",
+   "tr": "Ne yapıyorsun?",
+   "topic": "present_continuous"
+  }
+ ],
+ "quiz_c": [
+  {
+   "q": "They ___ got brown eyes.",
+   "opts": [
+    "have",
+    "has",
+    "is"
+   ],
+   "a": 0,
+   "say": "They've got brown eyes.",
+   "tr": "Kahverengi gözleri var.",
+   "topic": "describing_people"
+  },
+  {
+   "q": "How old ___ he?",
+   "opts": [
+    "is",
+    "are",
+    "has"
+   ],
+   "a": 0,
+   "say": "How old is he?",
+   "tr": "Kaç yaşında?",
+   "topic": "describing_people"
+  },
+  {
+   "q": "She ___ a green dress today.",
+   "opts": [
+    "is wearing",
+    "wearing",
+    "wear"
+   ],
+   "a": 0,
+   "say": "She's wearing a green dress today.",
+   "tr": "Bugün yeşil bir elbise giyiyor.",
+   "topic": "clothes"
+  },
+  {
+   "q": "His trousers ___ blue.",
+   "opts": [
+    "are",
+    "is",
+    "am"
+   ],
+   "a": 0,
+   "say": "His trousers are blue.",
+   "tr": "Pantolonu mavi.",
+   "topic": "clothes"
+  },
+  {
+   "q": "Excuse me, ___ the shop assistant?",
+   "opts": [
+    "where's",
+    "who's",
+    "what's"
+   ],
+   "a": 0,
+   "say": "Excuse me, where's the shop assistant?",
+   "tr": "Affedersiniz, mağaza görevlisi nerede?",
+   "topic": "asking_for_help"
+  },
+  {
+   "q": "___ I help you?",
+   "opts": [
+    "Can",
+    "Do",
+    "Am"
+   ],
+   "a": 0,
+   "say": "Can I help you?",
+   "tr": "Yardım edebilir miyim?",
+   "topic": "asking_for_help"
+  },
+  {
+   "q": "It's OK. Don't ___.",
+   "opts": [
+    "worry",
+    "worried",
+    "worries"
+   ],
+   "a": 0,
+   "say": "It's OK. Don't worry.",
+   "tr": "Sorun yok. Merak etme.",
+   "topic": "reassuring"
+  },
+  {
+   "q": "You're very ___.",
+   "opts": [
+    "brave",
+    "bravely",
+    "braves"
+   ],
+   "a": 0,
+   "say": "You're very brave.",
+   "tr": "Çok cesursun.",
+   "topic": "reassuring"
+  },
+  {
+   "q": "His mum ___ into the shop.",
+   "opts": [
+    "is running",
+    "runs",
+    "running"
+   ],
+   "a": 0,
+   "say": "His mum's running into the shop.",
+   "tr": "Annesi koşarak markete giriyor.",
+   "topic": "present_continuous"
+  },
+  {
+   "q": "They ___ crying now.",
+   "opts": [
+    "aren't",
+    "isn't",
+    "don't"
+   ],
+   "a": 0,
+   "say": "They aren't crying now.",
+   "tr": "Artık ağlamıyorlar.",
+   "topic": "present_continuous"
+  }
+ ],
+ "speakers": {
+  "child": [
+   "Boy",
+   "Çocuk",
+   "child_m"
+  ],
+  "mum": [
+   "Woman",
+   "Kadın",
+   "lessac"
+  ],
+  "assistant": [
+   "Shop assistant",
+   "Görevli",
+   "hfc_male"
+  ]
+ },
+ "lines": {
+  "It is a new day.": "Yeni bir gün.",
+  "My alarm is ringing.": "Alarmım çalıyor.",
+  "I am turning off the alarm.": "Alarmı kapatıyorum.",
+  "Turn off the alarm.": "Alarmı kapat.",
+  "Go to the bathroom.": "Banyoya git.",
+  "Go to the living room.": "Oturma odasına git.",
+  "Have breakfast with your family.": "Ailenle kahvaltı yap.",
+  "Have breakfast.": "Kahvaltı yap.",
+  "I am sitting at the table.": "Masada oturuyorum.",
+  "I am having breakfast.": "Kahvaltı yapıyorum.",
+  "Let's do a quick review at the table.": "Masada kısa bir tekrar yapalım.",
+  "Choose the right words.": "Doğru kelimeleri seç.",
+  "That is right!": "Doğru!",
+  "Not quite.": "Tam değil.",
+  "Breakfast is over.": "Kahvaltı bitti.",
+  "The table is clearing itself.": "Masa kendi kendine toplanıyor.",
+  "Go outside.": "Dışarı çık.",
+  "Go home.": "Eve git.",
+  "Go inside.": "İçeri gir.",
+  "Talk to your family.": "Ailenle konuş.",
+  "I am sitting on the sofa.": "Kanepede oturuyorum.",
+  "Go to bed.": "Yatmaya git.",
+  "I am going to bed.": "Yatmaya gidiyorum.",
+  "I am lying in bed.": "Yatakta yatıyorum.",
+  "Look at the photos of your day.": "Gününün fotoğraflarına bak.",
+  "I am dreaming about my day.": "Günümü rüyamda görüyorum.",
+  "Take the bedtime test.": "Yatmadan önce testi çöz.",
+  "Now the bedtime test. Ten questions.": "Şimdi yatmadan önceki test. On soru.",
+  "Good night!": "İyi geceler!",
+  "I am sleeping.": "Uyuyorum.",
+  "I had breakfast with my family.": "Ailemle kahvaltı yaptım.",
+  "I talked to my family.": "Ailemle konuştum.",
+  "Get a notebook and a pencil. Let's take notes.": "Bir defter ve kalem al. Hadi not alalım.",
+  "You should study the grammar again.": "Dilbilgisi konusunu tekrar çalışmalısın.",
+  "I am getting up.": "Kalkıyorum.",
+  "I feel fresh and clean.": "Kendimi temiz ve zinde hissediyorum.",
+  "Day 5": "5. Gün",
+  "Day 6": "6. Gün",
+  "Day 7": "7. Gün",
+  "Me": "Ben",
+  "Good morning! I'm going to the corner shop today.": "Günaydın! Bugün köşedeki markete gidiyorum.",
+  "I feel fresh now.": "Şimdi kendimi zinde hissediyorum.",
+  "Walk to the corner shop.": "Köşedeki markete yürü.",
+  "Helped, found, talked: this is the past simple.": "Helped, found, talked: bu geçmiş zaman.",
+  "Wash your face and brush your teeth.": "Yüzünü yıka ve dişlerini fırçala.",
+  "Morning! Did you sleep well?": "Günaydın! İyi uyudun mu?",
+  "Yes, thanks. I slept really well.": "Evet, teşekkürler. Çok iyi uyudum.",
+  "We're out of milk and bread. Can you go to the corner shop today?": "Süt ve ekmeğimiz bitti. Bugün köşedeki markete gidebilir misin?",
+  "Sure, no problem. I'll go after breakfast.": "Tabii, sorun değil. Kahvaltıdan sonra giderim.",
+  "Thanks! Here's a shopping bag.": "Teşekkürler! Al, bir alışveriş çantası.",
+  "Oh! A little boy is crying near the door.": "Aa! Kapının yanında küçük bir çocuk ağlıyor.",
+  "Help the little boy.": "Küçük çocuğa yardım et.",
+  "What do you say to the boy?": "Çocuğa ne dersin?",
+  "Hi! Are you OK?": "Merhaba! İyi misin?",
+  "Stop crying!": "Ağlamayı kes!",
+  "That isn't kind. He's scared.": "Bu nazik değil. Çok korkmuş.",
+  "Where's your phone?": "Telefonun nerede?",
+  "He's very young. Ask if he's OK first.": "O çok küçük. Önce iyi olup olmadığını sor.",
+  "No... I can't find my mum.": "Hayır... Annemi bulamıyorum.",
+  "Oh no. What's your name?": "Olamaz. Adın ne?",
+  "I'm Leo.": "Ben Leo.",
+  "Hi, Leo. Don't worry. I'm going to help you.": "Merhaba Leo. Merak etme. Sana yardım edeceğim.",
+  "Ask the shop assistant for help.": "Mağaza görevlisinden yardım iste.",
+  "What do you say to the shop assistant?": "Mağaza görevlisine ne dersin?",
+  "Excuse me, can you help us? This boy is lost.": "Affedersiniz, bize yardım edebilir misiniz? Bu çocuk kaybolmuş.",
+  "Can I have a bag, please?": "Bir poşet alabilir miyim, lütfen?",
+  "That's not the problem right now. The boy is lost.": "Şu an sorun bu değil. Çocuk kaybolmuş.",
+  "How much is the bread?": "Ekmek ne kadar?",
+  "Not now! Tell the assistant about the lost boy.": "Şimdi değil! Görevliye kayıp çocuktan bahset.",
+  "Oh dear! Of course. I'm going to make an announcement. Can you describe him for me?": "Aman! Tabii ki. Bir anons yapacağım. Onu bana tarif edebilir misin?",
+  "Describe the boy.": "Çocuğu tarif et.",
+  "He's about five. He's got short brown hair.": "Yaklaşık beş yaşında. Kısa kahverengi saçları var.",
+  "He's about five. He's got long blond hair.": "Yaklaşık beş yaşında. Uzun sarı saçları var.",
+  "Look again. His hair is short and brown.": "Tekrar bak. Saçı kısa ve kahverengi.",
+  "He's very old. He's got a big beard.": "Çok yaşlı. Büyük bir sakalı var.",
+  "No! He's a little boy.": "Hayır! O küçük bir çocuk.",
+  "Great. And what's he wearing?": "Harika. Peki ne giyiyor?",
+  "What's he wearing?": "Ne giyiyor?",
+  "He's wearing a yellow T-shirt.": "Sarı bir tişört giyiyor.",
+  "He's wearing a red coat.": "Kırmızı bir mont giyiyor.",
+  "Look again. His T-shirt is yellow.": "Tekrar bak. Tişörtü sarı.",
+  "He's wearing a green hat.": "Yeşil bir şapka takıyor.",
+  "Look again. He isn't wearing a hat.": "Tekrar bak. Şapka takmıyor.",
+  "Attention, please! We've got a little boy called Leo at the front of the shop. He's about five, and he's wearing a yellow T-shirt.": "Dikkat lütfen! Mağazanın önünde Leo adında küçük bir çocuk var. Yaklaşık beş yaşında ve sarı bir tişört giyiyor.",
+  "I'm scared.": "Korkuyorum.",
+  "Help Leo feel better.": "Leo'nun kendini daha iyi hissetmesine yardım et.",
+  "What do you say to Leo?": "Leo'ya ne dersin?",
+  "It's OK, Leo. Your mum's coming soon.": "Sorun yok Leo. Annen birazdan gelir.",
+  "I'm going home now. Bye!": "Ben şimdi eve gidiyorum. Hoşça kal!",
+  "Don't leave him alone! Stay with him.": "Onu yalnız bırakma! Yanında kal.",
+  "Your mum isn't coming.": "Annen gelmiyor.",
+  "That isn't kind. Say something nice.": "Bu nazik değil. Güzel bir şey söyle.",
+  "OK. Thank you.": "Tamam. Teşekkür ederim.",
+  "A woman is running into the shop.": "Bir kadın koşarak markete giriyor.",
+  "Excuse me! I'm looking for my little boy!": "Affedersiniz! Küçük oğlumu arıyorum!",
+  "Find Leo's mum.": "Leo'nun annesini bul.",
+  "What do you ask her?": "Ona ne sorarsın?",
+  "What's his name?": "Adı ne?",
+  "What's your favourite colour?": "En sevdiğin renk ne?",
+  "That doesn't help. Ask about her son.": "Bu yardımcı olmaz. Oğlunu sor.",
+  "Do you like this shop?": "Bu marketi seviyor musun?",
+  "Not now! Ask about her son.": "Şimdi değil! Oğlunu sor.",
+  "Leo. He's five, and he's wearing a yellow T-shirt.": "Leo. Beş yaşında ve sarı bir tişört giyiyor.",
+  "He's here! He's safe.": "Burada! O güvende.",
+  "Mum!": "Anne!",
+  "Leo! There you are! I was so worried.": "Leo! İşte buradasın! Çok endişelendim.",
+  "Leo is hugging his mum.": "Leo annesine sarılıyor.",
+  "Thank you so much for helping him!": "Ona yardım ettiğin için çok teşekkür ederim!",
+  "You're welcome. Bye, Leo!": "Rica ederim. Hoşça kal, Leo!",
+  "Bye! Thank you!": "Hoşça kal! Teşekkürler!",
+  "Well done. That was really kind of you.": "Aferin. Çok nazik davrandın.",
+  "Well done! You helped Leo find his mum.": "Aferin! Leo'nun annesini bulmasına yardım ettin.",
+  "You're back! How was the shop?": "Döndün! Market nasıldı?",
+  "It was quite an adventure!": "Tam bir maceraydı!",
+  "Tell your family what happened.": "Ailene ne olduğunu anlat.",
+  "A little boy got lost in the shop.": "Markette küçük bir çocuk kayboldu.",
+  "A little boy gets lost in the shop.": "Markette küçük bir çocuk kaybolur.",
+  "It happened today, so use the past simple: got lost.": "Bugün oldu, o yüzden geçmiş zaman kullan: got lost.",
+  "A little boy is get lost in the shop.": "Markette küçük bir çocuk kayboluyor.",
+  "Use the past simple: got lost.": "Geçmiş zaman kullan: got lost.",
+  "Oh no! Is he OK?": "Olamaz! O iyi mi?",
+  "Answer your family.": "Ailene cevap ver.",
+  "Yes. We found his mum.": "Evet. Annesini bulduk.",
+  "Yes. We find his mum.": "Evet. Annesini buluruz.",
+  "Use the past simple: find becomes found.": "Geçmiş zaman kullan: find -> found.",
+  "Yes. We finded his mum.": "Evet. Annesini bulduk.",
+  "Find is irregular: found, not finded.": "Find düzensiz bir fiil: finded değil, found.",
+  "Well done! That was really kind of you.": "Aferin! Çok nazik davrandın.",
+  "Did you get the milk and bread?": "Süt ve ekmeği aldın mı?",
+  "Yes, I did. They're in the kitchen.": "Evet, aldım. Mutfaktalar.",
+  "You must be tired. Time for bed!": "Yorgun olmalısın. Yatma vakti!",
+  "Every morning I have breakfast with my family.": "Her sabah ailemle kahvaltı yaparım.",
+  "Look! The cat is eating my toast!": "Bak! Kedi tostumu yiyor!",
+  "We're out of milk. I have to go to the shop.": "Sütümüz bitti. Markete gitmem gerekiyor.",
+  "I helped a lost boy at the shop.": "Markette kaybolmuş bir çocuğa yardım ettim.",
+  "I waited for the bus in the storm.": "Fırtınada otobüs bekledim.",
+  "He's got short brown hair.": "Kısa kahverengi saçları var.",
+  "What does she look like?": "Neye benziyor?",
+  "Her shoes are red.": "Ayakkabıları kırmızı.",
+  "Excuse me, can you help me?": "Affedersiniz, bana yardım edebilir misiniz?",
+  "This boy is lost.": "Bu çocuk kaybolmuş.",
+  "Don't worry. You're safe now.": "Merak etme. Artık güvendesin.",
+  "It's OK. I'm here.": "Sorun yok. Buradayım.",
+  "Leo's crying near the door.": "Leo kapının yanında ağlıyor.",
+  "We're looking for his mum.": "Annesini arıyoruz.",
+  "My sister's got curly black hair.": "Kız kardeşimin kıvırcık siyah saçları var.",
+  "He isn't tall. He's short.": "Uzun boylu değil. Kısa boylu.",
+  "Look! The man's wearing a red coat.": "Bak! Adam kırmızı bir mont giyiyor.",
+  "She isn't wearing a hat.": "Şapka takmıyor.",
+  "Could you help me, please?": "Bana yardım edebilir misiniz, lütfen?",
+  "I can't find my mum.": "Annemi bulamıyorum.",
+  "Don't cry. Your mum's coming.": "Ağlama. Annen geliyor.",
+  "Don't be scared.": "Korkma.",
+  "I'm wearing my blue jeans today.": "Bugün mavi kotumu giyiyorum.",
+  "What are you doing?": "Ne yapıyorsun?",
+  "They've got brown eyes.": "Kahverengi gözleri var.",
+  "How old is he?": "Kaç yaşında?",
+  "She's wearing a green dress today.": "Bugün yeşil bir elbise giyiyor.",
+  "His trousers are blue.": "Pantolonu mavi.",
+  "Excuse me, where's the shop assistant?": "Affedersiniz, mağaza görevlisi nerede?",
+  "Can I help you?": "Yardım edebilir miyim?",
+  "It's OK. Don't worry.": "Sorun yok. Merak etme.",
+  "You're very brave.": "Çok cesursun.",
+  "His mum's running into the shop.": "Annesi koşarak markete giriyor.",
+  "They aren't crying now.": "Artık ağlamıyorlar."
+ }
+}
