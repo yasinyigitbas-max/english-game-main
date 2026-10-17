@@ -1,0 +1,932 @@
+{
+ "day": 6,
+ "test_key": "Day6Bed",
+ "bank_topics": [
+  "weather",
+  "past_simple_irregular",
+  "going_to",
+  "should",
+  "asking_for_help"
+ ],
+ "alarm_after": {
+  "who": "me",
+  "en": "Good morning! I'm taking the bus into town today.",
+  "tr": "Günaydın! Bugün otobüsle şehre gidiyorum."
+ },
+ "bath": {
+  "obj": "bath",
+  "key": "takeshower",
+  "en": "Take a shower.",
+  "tr": "Duş al.",
+  "done": {
+   "who": "me",
+   "en": "I feel fresh and clean.",
+   "tr": "Kendimi temiz ve zinde hissediyorum."
+  }
+ },
+ "breakfast": [
+  {
+   "who": "fam0",
+   "en": "Morning! Look outside. It's really cloudy today.",
+   "tr": "Günaydın! Dışarı bak. Bugün hava çok bulutlu."
+  },
+  {
+   "who": "me",
+   "en": "Yeah. I'm taking the bus into town later.",
+   "tr": "Evet. Sonra otobüsle şehre gidiyorum."
+  },
+  {
+   "who": "fam1",
+   "en": "The forecast says there's going to be a storm this afternoon.",
+   "tr": "Hava durumu bu öğleden sonra fırtına olacağını söylüyor."
+  },
+  {
+   "who": "me",
+   "en": "Really? Then I'll take my umbrella.",
+   "tr": "Gerçekten mi? O zaman şemsiyemi alırım."
+  },
+  {
+   "who": "fam0",
+   "en": "Good idea. And call us if you need anything.",
+   "tr": "İyi fikir. Bir şeye ihtiyacın olursa bizi ara."
+  },
+  {
+   "review": true
+  }
+ ],
+ "review": [
+  {
+   "q": "Yesterday I ___ a lost boy at the shop.",
+   "opts": [
+    "helped",
+    "help",
+    "helping"
+   ],
+   "a": 0,
+   "say": "Yesterday I helped a lost boy at the shop.",
+   "tr": "Dün markette kaybolmuş bir çocuğa yardım ettim."
+  },
+  {
+   "q": "It's going to rain. You ___ take an umbrella.",
+   "opts": [
+    "should",
+    "shoulds",
+    "to should"
+   ],
+   "a": 0,
+   "say": "It's going to rain. You should take an umbrella.",
+   "tr": "Yağmur yağacak. Şemsiye almalısın."
+  },
+  {
+   "q": "Look at those dark clouds! It ___ rain.",
+   "opts": [
+    "is going to",
+    "going to",
+    "are going to"
+   ],
+   "a": 0,
+   "say": "Look at those dark clouds! It's going to rain.",
+   "tr": "Şu kara bulutlara bak! Yağmur yağacak."
+  }
+ ],
+ "outing": {
+  "obj": "stop",
+  "en": "Go to the bus stop.",
+  "tr": "Otobüs durağına git."
+ },
+ "event": [
+  {
+   "do": "storm_start"
+  },
+  {
+   "who": "narr",
+   "en": "The sky is getting dark.",
+   "tr": "Gökyüzü kararıyor."
+  },
+  {
+   "do": "thunder"
+  },
+  {
+   "who": "narr",
+   "en": "The wind is blowing, and it's starting to rain.",
+   "tr": "Rüzgar esiyor ve yağmur başlıyor."
+  },
+  {
+   "do": "woman_appears"
+  },
+  {
+   "who": "woman",
+   "en": "Wow, what terrible weather!",
+   "tr": "Vay, ne kötü bir hava!"
+  },
+  {
+   "obj": "woman",
+   "en": "Talk about the weather.",
+   "tr": "Hava hakkında konuş."
+  },
+  {
+   "choice": {
+    "prompt": "What do you say about the weather?",
+    "prompt_tr": "Hava hakkında ne dersin?",
+    "opts": [
+     {
+      "en": "I know! It's really windy, and it's raining hard.",
+      "tr": "Biliyorum! Çok rüzgarlı ve şiddetli yağmur yağıyor.",
+      "ok": true
+     },
+     {
+      "en": "Yes, it's sunny and hot today.",
+      "tr": "Evet, bugün hava güneşli ve sıcak.",
+      "ok": false,
+      "fb": "Look at the sky! It isn't sunny.",
+      "fb_tr": "Gökyüzüne bak! Hava güneşli değil."
+     },
+     {
+      "en": "It's snowing a lot.",
+      "tr": "Çok kar yağıyor.",
+      "ok": false,
+      "fb": "Look again. It's raining, not snowing.",
+      "fb_tr": "Tekrar bak. Kar değil, yağmur yağıyor."
+     }
+    ]
+   }
+  },
+  {
+   "who": "woman",
+   "en": "Good thing the bus is coming soon.",
+   "tr": "İyi ki otobüs birazdan geliyor."
+  },
+  {
+   "do": "bus_arrives"
+  },
+  {
+   "who": "narr",
+   "en": "The bus is coming.",
+   "tr": "Otobüs geliyor."
+  },
+  {
+   "do": "bus_breaks"
+  },
+  {
+   "who": "narr",
+   "en": "Oh no! The bus is making a strange noise.",
+   "tr": "Olamaz! Otobüs garip bir ses çıkarıyor."
+  },
+  {
+   "who": "driver",
+   "en": "Sorry, everyone! The bus has broken down. The engine isn't working.",
+   "tr": "Herkesten özür dilerim! Otobüs bozuldu. Motor çalışmıyor."
+  },
+  {
+   "obj": "driver",
+   "en": "Ask the driver for help.",
+   "tr": "Şoförden yardım iste."
+  },
+  {
+   "choice": {
+    "prompt": "What do you ask the driver?",
+    "prompt_tr": "Şoföre ne sorarsın?",
+    "opts": [
+     {
+      "en": "Excuse me, when's the next bus?",
+      "tr": "Affedersiniz, bir sonraki otobüs ne zaman?",
+      "ok": true
+     },
+     {
+      "en": "Can I drive the bus?",
+      "tr": "Otobüsü ben sürebilir miyim?",
+      "ok": false,
+      "fb": "No, you can't! Ask about the next bus.",
+      "fb_tr": "Hayır, süremezsin! Bir sonraki otobüsü sor."
+     },
+     {
+      "en": "Why is the sky grey?",
+      "tr": "Gökyüzü neden gri?",
+      "ok": false,
+      "fb": "That doesn't help. Ask the driver about the next bus.",
+      "fb_tr": "Bu yardımcı olmaz. Şoföre bir sonraki otobüsü sor."
+     }
+    ]
+   }
+  },
+  {
+   "who": "driver",
+   "en": "The next bus is coming in about forty minutes. I'm really sorry.",
+   "tr": "Bir sonraki otobüs yaklaşık kırk dakika sonra geliyor. Gerçekten üzgünüm."
+  },
+  {
+   "who": "me",
+   "en": "That's OK. It isn't your fault.",
+   "tr": "Sorun değil. Sizin suçunuz değil."
+  },
+  {
+   "obj": "shelter",
+   "en": "Wait under the bus shelter.",
+   "tr": "Otobüs durağının altında bekle."
+  },
+  {
+   "do": "wait"
+  },
+  {
+   "who": "narr",
+   "en": "I'm waiting at the bus stop. It's raining really hard.",
+   "tr": "Otobüs durağında bekliyorum. Çok şiddetli yağmur yağıyor."
+  },
+  {
+   "do": "time_skip"
+  },
+  {
+   "who": "narr",
+   "en": "Ten minutes later...",
+   "tr": "On dakika sonra..."
+  },
+  {
+   "who": "woman",
+   "en": "This is taking so long. What are you going to do?",
+   "tr": "Bu çok uzun sürüyor. Sen ne yapacaksın?"
+  },
+  {
+   "obj": "me",
+   "en": "Choose what to do.",
+   "tr": "Ne yapacağını seç."
+  },
+  {
+   "choice": {
+    "prompt": "What are you going to do?",
+    "prompt_tr": "Ne yapacaksın?",
+    "opts": [
+     {
+      "en": "I'm going to walk home.",
+      "tr": "Eve yürüyeceğim.",
+      "ok": false,
+      "fb": "Hmm, it's very windy and wet. Walking isn't a good idea right now.",
+      "fb_tr": "Hmm, hava çok rüzgarlı ve ıslak. Şu an yürümek iyi bir fikir değil."
+     },
+     {
+      "en": "I'm going to call a taxi.",
+      "tr": "Taksi çağıracağım.",
+      "ok": false,
+      "fb": "There aren't any taxis right now. Try something else.",
+      "fb_tr": "Şu an hiç taksi yok. Başka bir şey dene.",
+      "do": "taxi"
+     },
+     {
+      "en": "I'm going to call my family.",
+      "tr": "Ailemi arayacağım.",
+      "ok": true
+     }
+    ],
+    "remove_wrong": true
+   }
+  },
+  {
+   "do": "phone_out"
+  },
+  {
+   "who": "narr",
+   "en": "I'm calling my family.",
+   "tr": "Ailemi arıyorum."
+  },
+  {
+   "who": "famcall",
+   "en": "Hi! Is everything OK?",
+   "tr": "Merhaba! Her şey yolunda mı?"
+  },
+  {
+   "who": "me",
+   "en": "Not really. The bus broke down, and it's raining a lot. Can you pick me up?",
+   "tr": "Pek değil. Otobüs bozuldu ve çok yağmur yağıyor. Beni alabilir misin?"
+  },
+  {
+   "who": "famcall",
+   "en": "Of course! Stay at the bus stop. I'm coming right now.",
+   "tr": "Tabii ki! Otobüs durağında kal. Hemen geliyorum."
+  },
+  {
+   "who": "me",
+   "en": "Thanks! See you soon.",
+   "tr": "Teşekkürler! Görüşürüz."
+  },
+  {
+   "do": "phone_away"
+  },
+  {
+   "who": "woman",
+   "en": "Lucky you! I'm going to call my husband, too.",
+   "tr": "Ne şanslısın! Ben de kocamı arayacağım."
+  },
+  {
+   "do": "photo"
+  },
+  {
+   "who": "narr",
+   "en": "My family is coming to pick me up.",
+   "tr": "Ailem beni almaya geliyor."
+  },
+  {
+   "do": "ride_home"
+  },
+  {
+   "who": "me",
+   "en": "I'm home again. I'm wet, but I'm safe.",
+   "tr": "Yine evdeyim. Islağım ama güvendeyim."
+  }
+ ],
+ "taxi": [
+  {
+   "who": "narr",
+   "en": "I'm calling a taxi.",
+   "tr": "Taksi çağırıyorum."
+  },
+  {
+   "who": "taxi",
+   "en": "Sorry, all our taxis are busy because of the storm.",
+   "tr": "Üzgünüz, fırtına yüzünden bütün taksilerimiz dolu."
+  }
+ ],
+ "couch": [
+  {
+   "who": "fam0",
+   "en": "Come and sit down. You're still wet!",
+   "tr": "Gel otur. Hâlâ ıslaksın!"
+  },
+  {
+   "who": "me",
+   "en": "What a day!",
+   "tr": "Ne gün ama!"
+  },
+  {
+   "who": "fam1",
+   "en": "Tell us! What happened?",
+   "tr": "Anlat bize! Ne oldu?"
+  },
+  {
+   "choice": {
+    "prompt": "Tell your family what happened.",
+    "prompt_tr": "Ailene ne olduğunu anlat.",
+    "opts": [
+     {
+      "en": "The bus broke down in the storm.",
+      "tr": "Otobüs fırtınada bozuldu.",
+      "ok": true
+     },
+     {
+      "en": "The bus breaks down in the storm.",
+      "tr": "Otobüs fırtınada bozulur.",
+      "ok": false,
+      "fb": "It happened today. Use the past simple: broke down.",
+      "fb_tr": "Bugün oldu. Geçmiş zaman kullan: broke down."
+     },
+     {
+      "en": "The bus breaked down in the storm.",
+      "tr": "Otobüs fırtınada bozuldu.",
+      "ok": false,
+      "fb": "Break is irregular: broke, not breaked.",
+      "fb_tr": "Break düzensiz bir fiil: breaked değil, broke."
+     }
+    ]
+   }
+  },
+  {
+   "who": "fam0",
+   "en": "Oh no! Were you scared?",
+   "tr": "Olamaz! Korktun mu?"
+  },
+  {
+   "choice": {
+    "prompt": "Answer your family.",
+    "prompt_tr": "Ailene cevap ver.",
+    "opts": [
+     {
+      "en": "A little, but I was OK.",
+      "tr": "Biraz, ama iyiydim.",
+      "ok": true
+     },
+     {
+      "en": "A little, but I were OK.",
+      "tr": "Biraz, ama iyiydim.",
+      "ok": false,
+      "fb": "With I, we say was: I was OK.",
+      "fb_tr": "I ile was kullanırız: I was OK."
+     },
+     {
+      "en": "A little, but I am OK yesterday.",
+      "tr": "Biraz, ama dün iyiyim.",
+      "ok": false,
+      "fb": "Use was for the past: I was OK.",
+      "fb_tr": "Geçmiş için was kullan: I was OK."
+     }
+    ]
+   }
+  },
+  {
+   "who": "fam1",
+   "en": "You did the right thing. You called us.",
+   "tr": "Doğru olanı yaptın. Bizi aradın."
+  },
+  {
+   "do": "photo"
+  },
+  {
+   "who": "fam0",
+   "en": "Let's have some hot tea. Then it's time for bed.",
+   "tr": "Biraz sıcak çay içelim. Sonra yatma vakti."
+  },
+  {
+   "who": "me",
+   "en": "Good night!",
+   "tr": "İyi geceler!"
+  }
+ ],
+ "recap": [
+  [
+   "d6_breakfast",
+   "I had breakfast with my family."
+  ],
+  [
+   "d6_storm",
+   "I waited for the bus in the storm."
+  ],
+  [
+   "d6_couch",
+   "I talked to my family."
+  ]
+ ],
+ "recap_end": {
+  "who": "narr",
+  "en": "Broke, waited, called: this is the past simple.",
+  "tr": "Broke, waited, called: bu geçmiş zaman."
+ },
+ "quiz": [
+  {
+   "q": "It's ___ today. Take an umbrella.",
+   "opts": [
+    "rainy",
+    "sunny",
+    "hot"
+   ],
+   "a": 0,
+   "say": "It's rainy today. Take an umbrella.",
+   "tr": "Bugün hava yağmurlu. Şemsiye al."
+  },
+  {
+   "q": "Look at the clouds! It ___ rain.",
+   "opts": [
+    "is going to",
+    "going to",
+    "goes to"
+   ],
+   "a": 0,
+   "say": "Look at the clouds! It's going to rain.",
+   "tr": "Bulutlara bak! Yağmur yağacak."
+  },
+  {
+   "q": "The bus ___ down yesterday.",
+   "opts": [
+    "broke",
+    "breaked",
+    "breaks"
+   ],
+   "a": 0,
+   "say": "The bus broke down yesterday.",
+   "tr": "Otobüs dün bozuldu."
+  },
+  {
+   "q": "You ___ stay inside in a storm.",
+   "opts": [
+    "should",
+    "shoulds",
+    "to should"
+   ],
+   "a": 0,
+   "say": "You should stay inside in a storm.",
+   "tr": "Fırtınada içeride kalmalısın."
+  },
+  {
+   "q": "When ___ the next bus?",
+   "opts": [
+    "is",
+    "are",
+    "do"
+   ],
+   "a": 0,
+   "say": "When is the next bus?",
+   "tr": "Bir sonraki otobüs ne zaman?"
+  },
+  {
+   "q": "I ___ at the bus stop for forty minutes.",
+   "opts": [
+    "waited",
+    "waits",
+    "waiting"
+   ],
+   "a": 0,
+   "say": "I waited at the bus stop for forty minutes.",
+   "tr": "Otobüs durağında kırk dakika bekledim."
+  },
+  {
+   "q": "It's very ___. My umbrella is flying away!",
+   "opts": [
+    "windy",
+    "sunny",
+    "snowy"
+   ],
+   "a": 0,
+   "say": "It's very windy. My umbrella is flying away!",
+   "tr": "Hava çok rüzgarlı. Şemsiyem uçuyor!"
+  },
+  {
+   "q": "___ you pick me up, please?",
+   "opts": [
+    "Can",
+    "Do",
+    "Are"
+   ],
+   "a": 0,
+   "say": "Can you pick me up, please?",
+   "tr": "Beni alabilir misin, lütfen?"
+  },
+  {
+   "q": "Yesterday I ___ my family.",
+   "opts": [
+    "called",
+    "call",
+    "calls"
+   ],
+   "a": 0,
+   "say": "Yesterday I called my family.",
+   "tr": "Dün ailemi aradım."
+  },
+  {
+   "q": "We ___ wet, but we were safe.",
+   "opts": [
+    "were",
+    "was",
+    "are"
+   ],
+   "a": 0,
+   "say": "We were wet, but we were safe.",
+   "tr": "Islaktık ama güvendeydik."
+  }
+ ],
+ "quiz_b": [
+  {
+   "q": "It's cold and white outside. It's ___.",
+   "opts": [
+    "snowy",
+    "sunny",
+    "hot"
+   ],
+   "a": 0,
+   "say": "It's cold and white outside. It's snowy.",
+   "tr": "Dışarısı soğuk ve bembeyaz. Hava karlı."
+  },
+  {
+   "q": "I'm ___ take a taxi.",
+   "opts": [
+    "going to",
+    "go to",
+    "going"
+   ],
+   "a": 0,
+   "say": "I'm going to take a taxi.",
+   "tr": "Taksiye bineceğim."
+  },
+  {
+   "q": "The driver ___ sorry.",
+   "opts": [
+    "was",
+    "were",
+    "is"
+   ],
+   "a": 0,
+   "say": "The driver was sorry.",
+   "tr": "Şoför üzgündü."
+  },
+  {
+   "q": "It's raining. You ___ walk home.",
+   "opts": [
+    "shouldn't",
+    "should to",
+    "not should"
+   ],
+   "a": 0,
+   "say": "It's raining. You shouldn't walk home.",
+   "tr": "Yağmur yağıyor. Eve yürümemelisin."
+  },
+  {
+   "q": "Excuse me, ___ can I get a taxi?",
+   "opts": [
+    "where",
+    "who",
+    "what"
+   ],
+   "a": 0,
+   "say": "Excuse me, where can I get a taxi?",
+   "tr": "Affedersiniz, nereden taksi bulabilirim?"
+  },
+  {
+   "q": "My dad ___ me up in the car.",
+   "opts": [
+    "picked",
+    "pick",
+    "picks"
+   ],
+   "a": 0,
+   "say": "My dad picked me up in the car.",
+   "tr": "Babam beni arabayla aldı."
+  },
+  {
+   "q": "What's the weather ___ today?",
+   "opts": [
+    "like",
+    "likes",
+    "liking"
+   ],
+   "a": 0,
+   "say": "What's the weather like today?",
+   "tr": "Bugün hava nasıl?"
+  },
+  {
+   "q": "There ___ a big storm yesterday.",
+   "opts": [
+    "was",
+    "were",
+    "is"
+   ],
+   "a": 0,
+   "say": "There was a big storm yesterday.",
+   "tr": "Dün büyük bir fırtına vardı."
+  },
+  {
+   "q": "Don't worry. I ___ coming now.",
+   "opts": [
+    "am",
+    "is",
+    "are"
+   ],
+   "a": 0,
+   "say": "Don't worry. I am coming now.",
+   "tr": "Merak etme. Hemen geliyorum."
+  },
+  {
+   "q": "We ___ hot tea at home.",
+   "opts": [
+    "drank",
+    "drinked",
+    "drinks"
+   ],
+   "a": 0,
+   "say": "We drank hot tea at home.",
+   "tr": "Evde sıcak çay içtik."
+  }
+ ],
+ "quiz_c": [
+  {
+   "q": "It's ___ and hot. Let's go to the beach!",
+   "opts": [
+    "sunny",
+    "rainy",
+    "stormy"
+   ],
+   "a": 0,
+   "say": "It's sunny and hot. Let's go to the beach!",
+   "tr": "Hava güneşli ve sıcak. Hadi plaja gidelim!"
+  },
+  {
+   "q": "They ___ going to walk in the rain.",
+   "opts": [
+    "aren't",
+    "isn't",
+    "not"
+   ],
+   "a": 0,
+   "say": "They aren't going to walk in the rain.",
+   "tr": "Yağmurda yürümeyecekler."
+  },
+  {
+   "q": "The bus ___ working.",
+   "opts": [
+    "isn't",
+    "aren't",
+    "don't"
+   ],
+   "a": 0,
+   "say": "The bus isn't working.",
+   "tr": "Otobüs çalışmıyor."
+  },
+  {
+   "q": "You look cold. You ___ put on a coat.",
+   "opts": [
+    "should",
+    "shouldn't",
+    "can't"
+   ],
+   "a": 0,
+   "say": "You look cold. You should put on a coat.",
+   "tr": "Üşümüş görünüyorsun. Mont giymelisin."
+  },
+  {
+   "q": "How long ___ we have to wait?",
+   "opts": [
+    "do",
+    "does",
+    "are"
+   ],
+   "a": 0,
+   "say": "How long do we have to wait?",
+   "tr": "Ne kadar beklememiz gerekiyor?"
+  },
+  {
+   "q": "The woman ___ her husband yesterday.",
+   "opts": [
+    "called",
+    "calls",
+    "call"
+   ],
+   "a": 0,
+   "say": "The woman called her husband yesterday.",
+   "tr": "Kadın dün kocasını aradı."
+  },
+  {
+   "q": "I can hear thunder. It's ___!",
+   "opts": [
+    "stormy",
+    "sunny",
+    "warm"
+   ],
+   "a": 0,
+   "say": "I can hear thunder. It's stormy!",
+   "tr": "Gök gürültüsü duyuyorum. Hava fırtınalı!"
+  },
+  {
+   "q": "Can you help me? Yes, I ___.",
+   "opts": [
+    "can",
+    "do",
+    "am"
+   ],
+   "a": 0,
+   "say": "Can you help me? Yes, I can.",
+   "tr": "Bana yardım edebilir misin? Evet, edebilirim."
+  },
+  {
+   "q": "I ___ the bus home yesterday.",
+   "opts": [
+    "didn't take",
+    "don't took",
+    "not took"
+   ],
+   "a": 0,
+   "say": "I didn't take the bus home yesterday.",
+   "tr": "Dün eve otobüsle gitmedim."
+  },
+  {
+   "q": "The storm ___ very loud.",
+   "opts": [
+    "was",
+    "were",
+    "are"
+   ],
+   "a": 0,
+   "say": "The storm was very loud.",
+   "tr": "Fırtına çok gürültülüydü."
+  }
+ ],
+ "speakers": {
+  "woman": [
+   "Woman",
+   "Kadın",
+   "kristin"
+  ],
+  "driver": [
+   "Bus driver",
+   "Otobüs şoförü",
+   "joe_deep"
+  ],
+  "taxi": [
+   "Taxi",
+   "Taksi",
+   "amy"
+  ]
+ },
+ "lines": {
+  "It is a new day.": "Yeni bir gün.",
+  "My alarm is ringing.": "Alarmım çalıyor.",
+  "I am turning off the alarm.": "Alarmı kapatıyorum.",
+  "Turn off the alarm.": "Alarmı kapat.",
+  "Go to the bathroom.": "Banyoya git.",
+  "Go to the living room.": "Oturma odasına git.",
+  "Have breakfast with your family.": "Ailenle kahvaltı yap.",
+  "Have breakfast.": "Kahvaltı yap.",
+  "I am sitting at the table.": "Masada oturuyorum.",
+  "I am having breakfast.": "Kahvaltı yapıyorum.",
+  "Let's do a quick review at the table.": "Masada kısa bir tekrar yapalım.",
+  "Choose the right words.": "Doğru kelimeleri seç.",
+  "That is right!": "Doğru!",
+  "Not quite.": "Tam değil.",
+  "Breakfast is over.": "Kahvaltı bitti.",
+  "The table is clearing itself.": "Masa kendi kendine toplanıyor.",
+  "Go outside.": "Dışarı çık.",
+  "Go home.": "Eve git.",
+  "Go inside.": "İçeri gir.",
+  "Talk to your family.": "Ailenle konuş.",
+  "I am sitting on the sofa.": "Kanepede oturuyorum.",
+  "Go to bed.": "Yatmaya git.",
+  "I am going to bed.": "Yatmaya gidiyorum.",
+  "I am lying in bed.": "Yatakta yatıyorum.",
+  "Look at the photos of your day.": "Gününün fotoğraflarına bak.",
+  "I am dreaming about my day.": "Günümü rüyamda görüyorum.",
+  "Take the bedtime test.": "Yatmadan önce testi çöz.",
+  "Now the bedtime test. Ten questions.": "Şimdi yatmadan önceki test. On soru.",
+  "Good night!": "İyi geceler!",
+  "I am sleeping.": "Uyuyorum.",
+  "I had breakfast with my family.": "Ailemle kahvaltı yaptım.",
+  "I talked to my family.": "Ailemle konuştum.",
+  "Get a notebook and a pencil. Let's take notes.": "Bir defter ve kalem al. Hadi not alalım.",
+  "You should study the grammar again.": "Dilbilgisi konusunu tekrar çalışmalısın.",
+  "I am getting up.": "Kalkıyorum.",
+  "I feel fresh and clean.": "Kendimi temiz ve zinde hissediyorum.",
+  "Day 5": "5. Gün",
+  "Day 6": "6. Gün",
+  "Day 7": "7. Gün",
+  "Me": "Ben",
+  "Good morning! I'm taking the bus into town today.": "Günaydın! Bugün otobüsle şehre gidiyorum.",
+  "Go to the bus stop.": "Otobüs durağına git.",
+  "Broke, waited, called: this is the past simple.": "Broke, waited, called: bu geçmiş zaman.",
+  "Take a shower.": "Duş al.",
+  "Morning! Look outside. It's really cloudy today.": "Günaydın! Dışarı bak. Bugün hava çok bulutlu.",
+  "Yeah. I'm taking the bus into town later.": "Evet. Sonra otobüsle şehre gidiyorum.",
+  "The forecast says there's going to be a storm this afternoon.": "Hava durumu bu öğleden sonra fırtına olacağını söylüyor.",
+  "Really? Then I'll take my umbrella.": "Gerçekten mi? O zaman şemsiyemi alırım.",
+  "Good idea. And call us if you need anything.": "İyi fikir. Bir şeye ihtiyacın olursa bizi ara.",
+  "The sky is getting dark.": "Gökyüzü kararıyor.",
+  "The wind is blowing, and it's starting to rain.": "Rüzgar esiyor ve yağmur başlıyor.",
+  "Wow, what terrible weather!": "Vay, ne kötü bir hava!",
+  "Talk about the weather.": "Hava hakkında konuş.",
+  "What do you say about the weather?": "Hava hakkında ne dersin?",
+  "I know! It's really windy, and it's raining hard.": "Biliyorum! Çok rüzgarlı ve şiddetli yağmur yağıyor.",
+  "Yes, it's sunny and hot today.": "Evet, bugün hava güneşli ve sıcak.",
+  "Look at the sky! It isn't sunny.": "Gökyüzüne bak! Hava güneşli değil.",
+  "It's snowing a lot.": "Çok kar yağıyor.",
+  "Look again. It's raining, not snowing.": "Tekrar bak. Kar değil, yağmur yağıyor.",
+  "Good thing the bus is coming soon.": "İyi ki otobüs birazdan geliyor.",
+  "The bus is coming.": "Otobüs geliyor.",
+  "Oh no! The bus is making a strange noise.": "Olamaz! Otobüs garip bir ses çıkarıyor.",
+  "Sorry, everyone! The bus has broken down. The engine isn't working.": "Herkesten özür dilerim! Otobüs bozuldu. Motor çalışmıyor.",
+  "Ask the driver for help.": "Şoförden yardım iste.",
+  "What do you ask the driver?": "Şoföre ne sorarsın?",
+  "Excuse me, when's the next bus?": "Affedersiniz, bir sonraki otobüs ne zaman?",
+  "Can I drive the bus?": "Otobüsü ben sürebilir miyim?",
+  "No, you can't! Ask about the next bus.": "Hayır, süremezsin! Bir sonraki otobüsü sor.",
+  "Why is the sky grey?": "Gökyüzü neden gri?",
+  "That doesn't help. Ask the driver about the next bus.": "Bu yardımcı olmaz. Şoföre bir sonraki otobüsü sor.",
+  "The next bus is coming in about forty minutes. I'm really sorry.": "Bir sonraki otobüs yaklaşık kırk dakika sonra geliyor. Gerçekten üzgünüm.",
+  "That's OK. It isn't your fault.": "Sorun değil. Sizin suçunuz değil.",
+  "Wait under the bus shelter.": "Otobüs durağının altında bekle.",
+  "I'm waiting at the bus stop. It's raining really hard.": "Otobüs durağında bekliyorum. Çok şiddetli yağmur yağıyor.",
+  "Ten minutes later...": "On dakika sonra...",
+  "This is taking so long. What are you going to do?": "Bu çok uzun sürüyor. Sen ne yapacaksın?",
+  "Choose what to do.": "Ne yapacağını seç.",
+  "What are you going to do?": "Ne yapacaksın?",
+  "I'm going to walk home.": "Eve yürüyeceğim.",
+  "Hmm, it's very windy and wet. Walking isn't a good idea right now.": "Hmm, hava çok rüzgarlı ve ıslak. Şu an yürümek iyi bir fikir değil.",
+  "I'm going to call a taxi.": "Taksi çağıracağım.",
+  "There aren't any taxis right now. Try something else.": "Şu an hiç taksi yok. Başka bir şey dene.",
+  "I'm going to call my family.": "Ailemi arayacağım.",
+  "I'm calling my family.": "Ailemi arıyorum.",
+  "Hi! Is everything OK?": "Merhaba! Her şey yolunda mı?",
+  "Not really. The bus broke down, and it's raining a lot. Can you pick me up?": "Pek değil. Otobüs bozuldu ve çok yağmur yağıyor. Beni alabilir misin?",
+  "Of course! Stay at the bus stop. I'm coming right now.": "Tabii ki! Otobüs durağında kal. Hemen geliyorum.",
+  "Thanks! See you soon.": "Teşekkürler! Görüşürüz.",
+  "Lucky you! I'm going to call my husband, too.": "Ne şanslısın! Ben de kocamı arayacağım.",
+  "My family is coming to pick me up.": "Ailem beni almaya geliyor.",
+  "I'm home again. I'm wet, but I'm safe.": "Yine evdeyim. Islağım ama güvendeyim.",
+  "Come and sit down. You're still wet!": "Gel otur. Hâlâ ıslaksın!",
+  "What a day!": "Ne gün ama!",
+  "Tell us! What happened?": "Anlat bize! Ne oldu?",
+  "Tell your family what happened.": "Ailene ne olduğunu anlat.",
+  "The bus broke down in the storm.": "Otobüs fırtınada bozuldu.",
+  "The bus breaks down in the storm.": "Otobüs fırtınada bozulur.",
+  "It happened today. Use the past simple: broke down.": "Bugün oldu. Geçmiş zaman kullan: broke down.",
+  "The bus breaked down in the storm.": "Otobüs fırtınada bozuldu.",
+  "Break is irregular: broke, not breaked.": "Break düzensiz bir fiil: breaked değil, broke.",
+  "Oh no! Were you scared?": "Olamaz! Korktun mu?",
+  "Answer your family.": "Ailene cevap ver.",
+  "A little, but I was OK.": "Biraz, ama iyiydim.",
+  "A little, but I were OK.": "Biraz, ama iyiydim.",
+  "With I, we say was: I was OK.": "I ile was kullanırız: I was OK.",
+  "A little, but I am OK yesterday.": "Biraz, ama dün iyiyim.",
+  "Use was for the past: I was OK.": "Geçmiş için was kullan: I was OK.",
+  "You did the right thing. You called us.": "Doğru olanı yaptın. Bizi aradın.",
+  "Let's have some hot tea. Then it's time for bed.": "Biraz sıcak çay içelim. Sonra yatma vakti.",
+  "I'm calling a taxi.": "Taksi çağırıyorum.",
+  "Sorry, all our taxis are busy because of the storm.": "Üzgünüz, fırtına yüzünden bütün taksilerimiz dolu.",
+  "Yesterday I helped a lost boy at the shop.": "Dün markette kaybolmuş bir çocuğa yardım ettim.",
+  "It's going to rain. You should take an umbrella.": "Yağmur yağacak. Şemsiye almalısın.",
+  "Look at those dark clouds! It's going to rain.": "Şu kara bulutlara bak! Yağmur yağacak.",
+  "I waited for the bus in the storm.": "Fırtınada otobüs bekledim.",
+  "Helped, found, talked: this is the past simple.": "Helped, found, talked: bu geçmiş zaman.",
+  "I helped a lost boy at the shop.": "Markette kaybolmuş bir çocuğa yardım ettim."
+ }
+}
