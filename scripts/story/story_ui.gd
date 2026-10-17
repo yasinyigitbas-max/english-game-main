@@ -139,6 +139,12 @@ static func tr_button(b: Button, tr_text: String, fs := 18, tr_c := TR_COL_C) ->
 		fs -= 1; t.add_theme_font_size_override("font_size", fs)
 	b.custom_minimum_size.x = clampf(e.get_minimum_size().x + t.get_minimum_size().x + 44.0, b.custom_minimum_size.x, max_w)
 	b.set_meta("en", en); return t
+static var _quiz_tr: Dictionary = {}
+static func quiz_tr(en: String) -> String:
+	if _quiz_tr.is_empty():
+		var d = App.load_json("res://data/quiz_tr.json")
+		_quiz_tr = d if d is Dictionary else {"": ""}
+	return String(_quiz_tr.get(en, ""))
 static var _opt_tr: Dictionary = {}
 static func opt_tr(o: String) -> String:
 	if _opt_tr.is_empty():

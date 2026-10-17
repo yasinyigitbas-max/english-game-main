@@ -21,7 +21,7 @@ func _ready() -> void:
 	await w(6.0)
 	if OwLink.inst and is_instance_valid(OwLink.inst.live): get_tree().current_scene = OwLink.inst.live
 	P("LIVE " + (OwLink.inst.live_id if OwLink.inst else "-"))
-	if not ev in ["places", "fix", "fixb", "trburst", "d1", "ui", "hosp", "hosp2", "glass"]: Engine.time_scale = 2.5; AudioServer.playback_speed_scale = 2.5
+	if not ev in ["places", "fix", "fixb", "trburst", "d1", "ui", "hosp", "hosp2", "glass", "qc"]: Engine.time_scale = 2.5; AudioServer.playback_speed_scale = 2.5
 	Objectives.changed.connect(func():
 		for it in Objectives.items:
 			var s := String(it.en)
@@ -40,7 +40,7 @@ func _snap(n: String) -> void:
 	var caps := get_tree().root.find_children("*Caption*", "", true, false).filter(func(c): return c is CanvasItem and c.is_visible_in_tree())
 	P("SHOT %s scene=%s objs=%s caps=%d cam=%s" % [f, cs.name if cs else "-", JSON.stringify(Objectives.items.map(func(i): return i.en)), caps.size(), get_viewport().get_camera_3d().get_path() if get_viewport().get_camera_3d() else "none"])
 func _setup(pre := false) -> void:
-	var day := 6 if ev in ["d6", "d6b", "d6c", "places", "fix", "fixb", "trburst", "ui", "hosp", "glass"] else 7
+	var day := 6 if ev in ["d6", "d6b", "d6c", "places", "fix", "fixb", "trburst", "ui", "hosp", "glass", "qc"] else 7
 	if ev == "d1": day = 1
 	var st: Dictionary = {}
 	for k in ["d3", "d4", "d5"]: st[k] = "done"
@@ -52,6 +52,7 @@ func _setup(pre := false) -> void:
 	if ev in ["places", "fix", "fixb", "trburst", "ui", "hosp"]: st["d6"] = "done"; st["d7"] = "done"
 	if ev == "d1": st = {}; WorldState.flags.erase("story_accident")
 	if ev == "hosp": day = 1; st.erase("day1_done"); st.erase("day2_hospital_done"); WorldState.flags.erase("story_accident")
+	if ev == "d5": day = 5; st.erase("d5"); st.erase("d5_shop_done"); st["d5"] = "start"; st.erase("d6")
 	if ev == "hosp2": day = 2; st.erase("day2_hospital_done"); st["day2"] = "work"
 	var sv: Dictionary = App.load_save(); var state: Dictionary = (sv.get("state", {}) if sv.get("state", {}) is Dictionary else {}).duplicate()
 	state["family"] = [{"role": "mother", "name": "Ayse", "skin": 1, "hair": 0, "hcol": 1, "cloth": 0},
@@ -71,7 +72,7 @@ func _setup(pre := false) -> void:
 	await w(1.0)
 	if ev == "d7b": await OwLink.enter("livingroom", "bedroom"); await w(1.0); load("res://scripts/story/day4_routine.gd").start(get_tree())
 	if ev == "d6c": await OwLink.enter("livingroom", "bedroom"); await w(1.0); Day56Routine.attach(get_tree())
-	if ev in ["d6", "d6b"]: load("res://scripts/story/day5_routine.gd").start(get_tree())
+	if ev in ["d6", "d6b", "d5"]: load("res://scripts/story/day5_routine.gd").start(get_tree())
 	if ev == "d7": load("res://scripts/story/day4_routine.gd").start(get_tree())
 func _kind() -> String:
 	var cs = get_tree().current_scene
@@ -117,6 +118,7 @@ func run() -> void:
 	if ev == "hosp": await hosp33(); get_tree().quit(); return
 	if ev == "hosp2": await hosp33(true); get_tree().quit(); return
 	if ev == "glass": await glass33(); get_tree().quit(); return
+	if ev == "qc": await qc33(); get_tree().quit(); return
 	var stuck := 0
 	var limit := 3000
 	while _t() < limit:
@@ -128,6 +130,7 @@ func run() -> void:
 		var o: String = String(Objectives.items[0].en) if Objectives.items.size() >= 1 else ""
 		if _t() % 30 == 0: P("DIAG t=%d k=%s mode=%s obj=%s d6=%s d7=%s day=%d speaking=%s" % [_t(), k, str(s.get("mode")), o, Day56.stage(6), str(App.load_save().get("story", {}).get("d7", "")), App.day, Audio.is_speaking()]); await _snap("diag_" + k)
 		if ev in ["d6", "d6b", "d6c"] and Day56.stage(6) == "done" and App.day >= 7: await w(10.0); await _snap("end"); break
+		if ev == "d5" and Day56.stage(5) in ["home", "couch", "bed", "done"]: await w(4.0); await _snap("d5_after_shop"); P("D5 END stage=%s t=%d" % [Day56.stage(5), _t()]); break
 		if ev in ["d7", "d7b"] and str(App.load_save().get("story", {}).get("d7", "")) == "done": await w(10.0); await _snap("end"); break
 		if s.get("mode") != null and not String(s.mode) in ["play"]: continue
 		if Audio.is_speaking(): continue
@@ -153,6 +156,13 @@ func run() -> void:
 			["street", "Go inside."], ["street", "Go home."], ["street", "Go home and talk to my family."], ["street", "Go back home."]:
 				await w(3.0); await _snap("home_obj"); App.came_from = "outside"; await OwLink.enter("livingroom", "street")
 			["living", "Go to the shop."]: await w(3.0); await _snap("pre_out_shop"); await OwLink.to_street("front"); await w(5.0); await _snap("street_arrive_d7")
+			["shop", "Ask the shop assistant for help."]:
+				var asst = s.npcs.get("assistant") if s.get("npcs") is Dictionary else null
+				if asst:
+					var al: Vector3 = s.lp(asst); var dir := (-al * Vector3(1, 0, 1)).normalized()
+					var t_ask := _t()
+					s.player.global_position = s.gp(al + dir * 2.3); P("D5 ASK placed at 2.3 m from assistant t=%d" % t_ask); await w(2.0); await _snap("d5_ask_counter")
+			["street", "Walk to the corner shop."]: await w(2.0); await _snap("d5_walk_shop"); await OwLink.enter("shop", "street"); await w(4.0); await _snap("d5_shop_in")
 			["street", "Go to the shop."]:
 				await w(3.0); await _snap("shop_obj"); await OwLink.enter("shop", "street"); await w(5.0); await _snap("shop_in")
 			["shop", "Go outside."], ["shop", "Go home."]: await w(2.0); await OwLink.to_street("shop"); await w(3.0); await _snap("shop_out")
@@ -501,3 +511,13 @@ func glass33() -> void:
 	var wp = W.player; wp.global_position = tap + Vector3(-2.5, 0.1, -3.5); await w(2.0)
 	var c3 := get_viewport().get_camera_3d(); if c3: c3.global_position = tap + Vector3(-3, 1.8, -4); c3.look_at(tap + Vector3(0, 0.8, 0))
 	await w(0.5); await _snap("G1_tap_area")
+
+func qc33() -> void:
+	await OwLink.enter("livingroom", "bedroom"); await w(3.0)
+	var lr = OwLink.inst.live; var ph = lr.room_phone.phone; lr.mode = "busy"
+	for f in ["breakfast", "can_should"]:
+		ph.visible = true; ph.open(Rect2(), "home"); await w(1.0)
+		ph.start_set(App.load_json("res://data/%s.json" % f), "quiz"); await w(4.0)
+		var qt = ph.find_child("QuestionTR", true, false)
+		P("QC %s qtr=%s" % [f, (qt.text if qt else "?")]); await _snap("QC_" + f)
+		ph.close(true); await w(1.5)

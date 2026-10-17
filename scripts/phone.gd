@@ -789,17 +789,20 @@ var _suggested := false
 
 func _quiz() -> void:
 	_lesson_serial += 1; Audio.cancel_group("lesson")   # house.19: leaving a page stops its narration
-	var v := _clear(); v.alignment = BoxContainer.ALIGNMENT_CENTER; v.add_theme_constant_override("separation", 26)
+	var v := _clear(); v.alignment = BoxContainer.ALIGNMENT_BEGIN; v.add_theme_constant_override("separation", 12)
+	v.size_flags_vertical = Control.SIZE_EXPAND_FILL   # ui33: whole phone screen, no scroll, answers at the bottom (TestBank layout)
 	var Q: Array = _qz()
 	var q: Dictionary = Q[quiz_i]
 	var t := _l("Quick check %d / %d" % [quiz_i + 1, Q.size()], 20, true, MUTED); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(t)
 	var ql := _l(q.q, 48, true); ql.name = "Question"; ql.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(ql)
 	ql.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var qtr := String(q.get("tr", "")); if qtr == "": qtr = StoryUI.tr_of(String(q.get("say", "")))
-	StoryUI.tr_row(v, ql, qtr, 24)   # ui33: Turkish in the RIGHT column (always shown)
+	if qtr == "": qtr = StoryUI.quiz_tr(String(q.get("say", "")))   # ui33: data/quiz_tr.json (phone quick-check sentences) - never a blank column
+	StoryUI.tr_row(v, ql, qtr, 24).name = "QuestionTR"   # ui33: Turkish in the RIGHT column (always shown)
 	var il := _l("Tap the right word.", 17, false, MUTED); v.add_child(il); StoryUI.tr_row(v, il, "Doğru kelimeye dokun.", 17)
-	var row := HBoxContainer.new(); row.name = "Options"; row.alignment = BoxContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("separation", 20); v.add_child(row)
 	var fb := _l(" ", 24, true, GREEN); fb.name = "Feedback"; fb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(fb)
+	var gap := Control.new(); gap.name = "Gap"; gap.size_flags_vertical = Control.SIZE_EXPAND_FILL; gap.mouse_filter = Control.MOUSE_FILTER_IGNORE; v.add_child(gap)
+	var row := HBoxContainer.new(); row.name = "Options"; row.alignment = BoxContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("separation", 20); v.add_child(row)
 	for i in q.opts.size():
 		var b := _btn(q.opts[i], func(): pass, Vector2(220, 100), false, 36); b.name = "Opt%d" % i; row.add_child(b)   # v33: bigger answers on the full page
 		StoryUI.tr_button(b, StoryUI.opt_tr(String(q.opts[i])), 18)   # ui33
