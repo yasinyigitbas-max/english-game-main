@@ -1029,6 +1029,14 @@ func alarm_due() -> bool:
 	if int(App.load_save().get("alarm_off_day", 0)) >= d: return false
 	return WorldState.hour() < 12
 
+## the day is still at its wake-up step (nothing of the day's routine done yet): story.d<day> "" / "start" / "alarm"
+func at_wake_step() -> bool:
+	var d := maxi(WorldState.day, App.day)
+	var st = App.load_save().get("story", {})
+	var v := String(st.get("d%d" % d, "")) if st is Dictionary else ""
+	if d == 2 and st is Dictionary and String(st.get("day2", "")) not in ["", "bedroom"]: return false
+	return v in ["", "start", "alarm"]
+
 ## scripted morning alarm while lying in bed (wake-ups that are not the player's own): rings, then turned off from the bed
 func morning_alarm() -> void:
 	if not alarm_due(): return
@@ -1520,7 +1528,9 @@ func _continue_game() -> void:
 	hero.set_mannequin(false); _apply_character()
 	hero.position = saved_pos if saved_pos != Vector3.INF and _free(saved_pos, R) else STAND_BED
 	hero.rotation.y = 0.0; hero.model.rotation.y = 0.0; hero.play("idle", 0.0)
-	S.alarm = "ringing" if alarm_due() else ("off" if S.alarm == "ringing" else S.alarm)   # build 3.2 (Yasin 21:23): Continue in the morning re-arms the alarm
+	var app_c = get_node_or_null("/root/App")
+	var wake_continue: bool = app_c != null and bool(app_c.continue_requested) and String(app_c.came_from) == "" and at_wake_step()
+	S.alarm = "ringing" if wake_continue and alarm_due() else ("off" if S.alarm == "ringing" else S.alarm)   # build 3.2 (Yasin 21:23/21:40): only a Continue AT the wake step re-arms it (never a trip home / room entry)
 	if S.book == "hand": S.book = "shelf"
 	_apply_states(); mode = "play"; _update_hand()
 	if S.alarm == "ringing": Audio.sfx("alarm", -4.0); _set_mission("Turn off the alarm clock.")
