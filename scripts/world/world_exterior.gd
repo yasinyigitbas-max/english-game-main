@@ -14,6 +14,7 @@ var npc_pool: Array = []
 var npc_seed := 100
 var lamp_lights: Array = []
 var fade_mat: StandardMaterial3D
+const WallFade := preload("res://scripts/places/wall_fade_adapter.gd")
 var _lamp_t := 0.0
 const LAMP_E := 2.4
 
@@ -175,10 +176,9 @@ func _fade_buildings() -> void:
 		var hit: bool = (ab.get_center() - eye).dot(to_cam) > 0.0 and ab.grow(0.1).intersects_segment(cp, near_end)
 		# cutaway: swap the building for its open-top 1 m wall stub (no translucent haze)
 		var cut: MeshInstance3D = mi.get_meta("cut") if mi.has_meta("cut") else null
-		if cut and is_instance_valid(cut):
-			cut.visible = hit
-			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY if hit else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-		else: mi.material_override = fade_mat if hit else null
+		# v32 rule (blue): the building fades out / back gradually (was an instant swap); its open-top stub shows underneath
+		if cut and is_instance_valid(cut): cut.visible = hit
+		WallFade.step(mi, hit, get_process_delta_time())
 
 ## v31 QA (blue): "Walk to the street." was set on every visit but never completed (it stayed on the list all day).
 ## Done as soon as the player stands on the sidewalk / road ring of a block (outside the lots' inner square).

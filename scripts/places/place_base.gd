@@ -9,6 +9,7 @@ class_name PlaceBase
 extends UniversalScene
 
 const DATA := "res://data/cafe_shop.json"
+const WallFade := preload("res://scripts/places/wall_fade_adapter.gd")
 const FOOD := "res://props/places/food/"
 const PF := "res://props/places/furn/"
 var place_id := "cafe"
@@ -118,6 +119,9 @@ func speak(who: String, en: String) -> void:
 
 ## NPC line in the NPC's own Piper voice, on the same queue as the narrator (nothing is cut); caption with TR toggle
 func npc_line(npc: DemoCharacter, en: String) -> void:
+	# v32 rule: ONE bottom-centre caption box (the shared HUD caption, TR button inside). Wait for queued narrator lines so
+	# an NPC line never replaces one that is still pending
+	while _serving != _ticket and is_inside_tree(): await get_tree().process_frame
 	await voice_idle(0.1)
 	# v32 universal rule (Yasin): talking never changes the pose. The library "talk" clip is SEATED (standing NPCs sat down
 	# for the line and stood up again). Red's shared routine scripts/core/npc_talk.gd (turn + head nod, no clip change) is
@@ -445,9 +449,14 @@ func _process(dt: float) -> void:
 	if marker.visible: marker.global_position = _mark_target.focus + Vector3(0, 0.55 + sin(_t * 3.0) * 0.07, 0)
 	var c := get_viewport().get_camera_3d()
 	if c:
+		var hz := room.y / 2.0
+		var near_s: bool = player != null and player.global_position.z > hz - 1.8   # player close to the south wall
 		for w in walls:
 			var m: MeshInstance3D = w[0]; var n: Vector3 = w[1]
-			m.visible = (c.global_position - m.global_position).dot(n) < 0.3
+			var d: float = (c.global_position - m.global_position).dot(n)
+			if n.z > 0.5:   # v32 rule: south wall (+ door, trim, accent) fades gradually when the camera or the player is near
+				WallFade.step(m, d > -0.8 or near_s, dt)
+			else: m.visible = d < 0.3
 	lively(dt)
 
 func lively(_dt: float) -> void: pass   # override: ambient NPC motion
