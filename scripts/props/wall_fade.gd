@@ -330,12 +330,13 @@ class CamAvoid extends RefCounted:
 		return out
 	## camera -> player chest / head line cut by a blocker (walls behind the player or touching it don't count)
 	static func blocked(cp: Vector3, target: Vector3, boxes: Array) -> bool:
-		for ab in boxes:
-			var gb: AABB = (ab as AABB).grow(0.15)
+		for abv in boxes:
+			var ab: AABB = abv
+			var gb: AABB = ab.grow(0.15)
 			if gb.has_point(cp): return true
 			for h in [0.0, 0.5]:
 				var p: Vector3 = target + Vector3(0, h, 0); var d := cp - p; var l := d.length()
 				if l < 0.1: continue
-				if ((ab as AABB).get_center() - p).dot(d) <= 0.0: continue
+				if (ab.get_center() - p).dot(d) <= 0.0: continue
 				if gb.intersects_segment(cp, p + d / l * minf(0.4, l)): return true
 		return false
