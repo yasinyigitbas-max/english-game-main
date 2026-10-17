@@ -116,15 +116,19 @@ func _do_task(i: int) -> void:
 	var t: Array = C.tasks[i]
 	marker.visible = false; mode = "busy"; player.busy = true
 	var npc: DemoCharacter = people[int(t[5])] if int(t[5]) >= 0 and int(t[5]) < people.size() else null
-	if npc: _face(npc, player.global_position)
+	if npc and not NpcTalk.is_seated(npc): _face(npc, player.global_position)   # v32-npc-pose: a seated person is not spun on the chair (NpcTalk turns the head)
 	var anim := String(t[4])
+	var pst := {}   # v32-npc-pose: player talk state (NpcTalk)
 	if anim == "run": await _lap()
+	elif anim == NpcTalk.TALK_CLIP:   # v32-npc-pose: the "talk" clip is SEATED; the player keeps the current clip, turns + nods only
+		pst = NpcTalk.begin(player.hero, npc.global_position if npc else (stations[i] as Interactable).focus)
 	else:
 		player.hero.play(anim, 0.25)
 		if anim in ["pick_up", "open_door"]: _sfx_for(anim)
 	if cid == "nature" and t[0] == "Water the plants": Audio.sfx("water", -4.0)
 	await say_line(t[2])
-	if anim not in ["typing", "crouch_idle", "sit_idle", "phone_call"]: player.hero.play("idle", 0.3)
+	if not pst.is_empty(): NpcTalk.end(player.hero, pst)   # v32-npc-pose: pose untouched
+	elif anim not in ["typing", "crouch_idle", "sit_idle", "phone_call"]: player.hero.play("idle", 0.3)
 	if npc and t[6] != "":
 		await _npc_line(npc, t[6])
 	player.hero.play("idle", 0.3)
@@ -137,17 +141,17 @@ func _sfx_for(anim: String) -> void:
 	else: Audio.sfx("metalClick", -6.0)
 
 ## a colleague / customer / pupil answers in their own Piper voice (same queue as the narrator: nothing is cut)
+const NpcTalk := preload("res://scripts/core/npc_talk.gd")   # v32-npc-pose: shared talk routine (keeps the pose)
 func _npc_line(npc: DemoCharacter, en: String) -> void:
 	await voice_idle(0.1)
-	var pose: String = npc.get_meta("pose", "idle")
-	if pose == "idle": npc.play("talk", 0.25)
+	var st: Dictionary = NpcTalk.begin(npc, player.global_position)   # v32-npc-pose: was npc.play("talk") = a SEATED clip; now turn + nod only (meta "scripted_pose" opts in)
 	_mute_next = true; hud.caption(en, maxf(4.5, Voice.clip_len("v_%s %s" % [npc.get_meta("voice"), Audio.norm(en)]) + 1.0)); _mute_next = false
 	if S.get("voice", true):
 		Audio.say_as(en, String(npc.get_meta("voice")))
 		await get_tree().create_timer(0.2).timeout
 		await voice_idle(0.2)
 	else: await get_tree().create_timer(2.0).timeout
-	npc.play(pose, 0.3)
+	NpcTalk.end(npc, st)   # v32-npc-pose: pose untouched (only a scripted_pose is undone)
 	if room_phone: room_phone.S.tr = hud.show_tr
 
 func _face(who: Node3D, at: Vector3) -> void:
