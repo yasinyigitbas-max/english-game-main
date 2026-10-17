@@ -97,6 +97,11 @@ func _process(_dt: float) -> void:
 	var renv = n.get("env") if n else null
 	var rsun = n.get("sun") if n else null
 	var house := id in OwLink.ROOM_PATH
+	if n and (id in OwLink.ROOM_PATH or n.is_in_group("world_places") or id in ["cafe", "shop"]):   # fix33: ONE environment - the live room's / place's own WorldEnvironment is switched off (its Environment
+		# object stays the source we derive from); two active WorldEnvironments flip-flopped between visits
+		for wv in n.find_children("*", "WorldEnvironment", true, false):
+			var wn := wv as WorldEnvironment
+			if wn != we and wn.environment != null and not (wn.get_viewport() is SubViewport): wn.environment = null
 	if key != _cur:
 		_cur = key
 		if _room_sun and is_instance_valid(_room_sun): _room_sun.visible = false; _room_sun = null
