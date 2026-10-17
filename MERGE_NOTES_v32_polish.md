@@ -77,3 +77,11 @@ Shelf tops measured from props/furniture/bookcaseOpen.glb: y = 0.13 / 0.37 / 0.6
 
 ## 11. Breakfast table clears silently
 - scripts/story/day2_morning.gd:90: the "The table is clearing itself." caption and voice are removed. The day-1 `_clear_table` (livingroom.gd) never announced it.
+
+## 12. Day 2: hospital and work back to back (no trip home in between)
+The day-2 car (scripts/world/street_object.gd car_destinations/_drive) offers whichever of work / hospital is not done yet. Work runs work_summary.gd; the hospital runs HospitalScene.start_day2_visit -> scenes/hospital_day2.tscn. The flags are story.day2_work_done and story.day2_hospital_done (+ hospital_day2_done).
+- scripts/story/work_summary.gd:52: after work, if the hospital is not done (day 2): "Now I'm going to the hospital." in the one standard caption box (StoryUI, layer 121 above the black summary), then straight to the day-2 hospital visit (its own scripted flow as when it starts from the car). Otherwise home as before.
+- scripts/story/hospital_day2.gd:85: after the hospital, if work is not done (day 2): "Now I'm going to work." (StoryUI box), then the same work flow the car starts (work_summary.play). That flow sends the player home with both done, so Day2After takes over ("Talk to your family."). Otherwise next_scene (home) as before.
+- data/extra_lines.json: "Now I'm going to the hospital." = "Şimdi hastaneye gidiyorum.", "Now I'm going to work." = "Şimdi işe gidiyorum."
+- Voice clips needed (narrator/player voice): "Now I'm going to the hospital.", "Now I'm going to work."
+- Not run in Godot: the lock was held by another agent's run (black v32int) at 14:06, so the run was skipped.

@@ -82,6 +82,12 @@ func _run() -> void:
 	visit_finished.emit(res[0], res[1])
 	await _set_blur(0.0, 1.0, 1.2)
 	App.came_from = "hospital_day2"; App.continue_requested = true
+	# v32-polish: day 2, hospital first -> straight on to work (the same work flow the car starts); hospital second -> home as before
+	var sv = App.load_save().get("story", {})
+	if not (sv is Dictionary and bool(sv.get("day2_work_done", false))) and maxi(WorldState.day, App.day) == 2:
+		await ui.line("Now I'm going to work.")
+		load("res://scripts/story/work_summary.gd").play(get_tree())
+		return
 	if next_scene != "": get_tree().change_scene_to_file(next_scene)
 
 ## ---- third-person camera + body-part close-ups on the PLAYER's skeleton
