@@ -46,7 +46,7 @@ static func go(dest, yaw := INF, fallback_scene := "", fallback_spawn := "") -> 
 			if yaw == INF: yaw = d.global_rotation.y
 		else:
 			var W = load("res://scripts/core/world.gd") if ResourceLoader.exists("res://scripts/core/world.gd") else null
-			if W and W.get_world() != null and W.spot(dest) != Vector3.ZERO:   # black's World door / spot ids (OPENWORLD_PLAN.md)
+			if W and W.get_world() != null and W.spot(dest) != Vector3.ZERO and W.spot(dest) != Vector3.INF:   # black's World door / spot ids (OPENWORLD_PLAN.md)
 				pos = W.spot(dest)
 				var hn = W.hero_node()
 				if hn: pos.y = float(hn.floor_y)

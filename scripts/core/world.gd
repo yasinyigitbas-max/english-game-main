@@ -480,12 +480,19 @@ static func pan(at: Vector3, secs := 2.6) -> void:
 	tmp.queue_free()
 
 ## world position (+ yaw) of a spot / door / place id
+const ALIAS := {"lot:home": "front", "front_door": "front", "lot:cafe": "cafe", "cafe_door": "cafe", "lot:corner_shop": "shop", "shop_door": "shop", "work_door": "work"}
 static func spot(id: String) -> Vector3:
 	if inst == null: return Vector3.ZERO
+	if ALIAS.has(id) and inst.doors.has(ALIAS[id]):   # street-side of that door, 1.5 m out
+		var dr: WorldDoor = inst.doors[ALIAS[id]]; var c := dr.center()
+		var inside: String = dr.a
+		var ic: Vector3 = (inst.regions[inside] as AABB).get_center() if inst.regions.has(inside) else c
+		var out := Vector3(c.x - ic.x, 0, c.z - ic.z); out = out.normalized() if out.length() > 0.05 else Vector3(0, 0, 1)
+		return c + out * 1.5
 	if inst.spots.has(id): return inst.spots[id][0]
 	if inst.doors.has(id): return (inst.doors[id] as WorldDoor).center()
-	if inst.places.has(id): return (inst.regions[id] as AABB).get_center()
-	return Vector3.ZERO
+	if inst.places.has(id) and inst.regions.has(id): return (inst.regions[id] as AABB).get_center()
+	return Vector3.INF   # unknown id: place_at leaves the hero where he is
 static func spot_yaw(id: String) -> float: return float(inst.spots[id][1]) if inst and inst.spots.has(id) else INF
 
 ## Game.go_to shim (temporary, until red's port drops the scene paths): old scene path -> World walk / skip_travel

@@ -83,6 +83,7 @@ func move_to(p: Vector3, yaw := INF) -> void:
 func place_at(id: String) -> void:
 	var w = load("res://scripts/core/world.gd")
 	var p: Vector3 = w.spot(id)
+	if p == Vector3.INF: push_warning("place_at: unknown spot " + id); return
 	var wd = w.get_world()
 	if wd: floor_y = 0.07 if wd.region_at(p) == "street" else p.y
 	global_position = Vector3(p.x, floor_y, p.z)
