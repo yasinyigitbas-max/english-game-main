@@ -90,6 +90,7 @@ static func _swap(from: Node, target: Node) -> void:
 ## the room left: everything stays exactly as it is, it only stops running and drawing its own UI / camera / lights
 static func _sleep(r: Node) -> void:
 	r.set_meta(DORMANT, true)
+	if r.has_method("_wh_sleep"): r.call("_wh_sleep")   # black 3.2: the room puts its own fades back to solid
 	var all: Array = []; _walk(r, all)
 	for c in all:
 		if c is CanvasLayer: c.set_meta("wh_cl", c.visible); c.visible = false

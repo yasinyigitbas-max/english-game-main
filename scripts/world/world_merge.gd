@@ -181,17 +181,23 @@ static func merge_root(root: Node3D, range_end := 0.0, range_margin := 4.0, prot
 			if (mesh is ArrayMesh and (mesh as ArrayMesh).surface_get_primitive_type(s) != Mesh.PRIMITIVE_TRIANGLES) or not _opaque_ok(mt): ok = false
 			mats.append(mt)
 		if not ok: continue
+		if fade_group:   # black 3.2: a wall-fade group fades its merged mesh with ONE material_override (a copy of surface 0) on every
+			var all_plain := true   # surface: a textured / vertex-colour / emissive surface merged in there turned flat WHITE while faded
+			for mt in mats: if not _plain(mt): all_plain = false
+			if not all_plain: continue   # -> only plain (baked-colour) surfaces merge in a fade group; the rest stay their own meshes
 		var xf := inv * gi.global_transform
 		var gab: AABB = gi.global_transform * gi.get_aabb()
 		var cell := "big"
 		if gab.size.length() < SMALL or mm:
 			var cc := gab.get_center(); cell = "%d_%d" % [floori(cc.x / CELL), floori(cc.z / CELL)]
+		var ns := "~ns" if gi.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF else ""   # black 3.2: keep the source's shadow setting
+		cell += ns
 		if mm:
 			var n := mm.visible_instance_count if mm.visible_instance_count >= 0 else mm.instance_count
 			for k in n:
 				var it := mm.get_instance_transform(k)
 				var wc := gi.global_transform * it.origin
-				_append(buckets, mesh, mats, xf * it, mm.get_instance_color(k) if mm.use_colors else Color.WHITE, st, "%d_%d" % [floori(wc.x / CELL), floori(wc.z / CELL)])
+				_append(buckets, mesh, mats, xf * it, mm.get_instance_color(k) if mm.use_colors else Color.WHITE, st, "%d_%d" % [floori(wc.x / CELL), floori(wc.z / CELL)] + ns)
 		else: _append(buckets, mesh, mats, xf, Color.WHITE, st, cell)
 		used.append(gi)
 	if used.size() < 2:
@@ -214,7 +220,11 @@ static func merge_root(root: Node3D, range_end := 0.0, range_margin := 4.0, prot
 			st.surfaces_out += 1
 		if am.get_surface_count() == 0: continue
 		var out := MeshInstance3D.new(); out.name = "OWMerged_" + String(cell); out.mesh = am; out.set_meta("no_merge", true); out.set_meta("ow_merged_mesh", true)
-		if cell != "big":
+		# black 3.2: sources with cast_shadow OFF (WorldFacades' awning / valance / sign boxes...) get their own chunk that casts
+		# no shadow either. Before, a 6 m valance merged into a shadow-casting "big" chunk and threw an aliased stripe of shadow
+		# across the café / shop fronts (the "smeared window lettering")
+		if String(cell).ends_with("~ns"): out.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if String(cell).trim_suffix("~ns") != "big":
 			if range_end > 0.0: out.visibility_range_end = range_end; out.visibility_range_end_margin = range_margin
 			out.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF   # small things: no sun-shadow pass (draw calls)
 			if not _indoor(root): out.layers = NO_LAMP_LAYER   # street small chunks: lit by the sun only (no lamp passes)

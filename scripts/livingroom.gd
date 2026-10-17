@@ -188,7 +188,21 @@ func _live_ready() -> void:   # v32wh: the v32 _ready (also run when this room's
 
 ## v33town (one persistent house): the living room was live before and slept; the family, the table, the TV, the
 ## breakfast... stay exactly as they were. Re-entry runs only the room-entry steps (TR, look, _intro: caption / story).
+## black 3.2 (House._sleep): the room left - its own fades go back to solid (a sleeping room no longer runs _fade_walls,
+## so whatever was faded at the moment the hero left stayed see-through: door frame / coat rack white from the street)
+func _wh_sleep() -> void:
+	front_alpha = 1.0
+	for w in N.get("front_meshes", []):
+		var fm = w.material_override
+		if fm is StandardMaterial3D:
+			fm.albedo_color.a = 0.4 if w.has_meta("glass") else 1.0
+			fm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS if w.has_meta("glass") else BaseMaterial3D.TRANSPARENCY_DISABLED
+	for w in wall_alpha:
+		if is_instance_valid(w) and w.material_override is StandardMaterial3D:
+			wall_alpha[w] = 1.0; w.material_override.albedo_color.a = 1.0; w.material_override.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
+
 func _wh_resume() -> void:
+	_leaving = false
 	S.tr = App.tr_saved(); call_deferred("_refresh_text")
 	_apply_character(); _apply_states()
 	mode = "play"; _update_hand()
@@ -1229,6 +1243,12 @@ func do_verb(id: String, v: Array) -> void:
 			else: await gesture("reach", id, func(): S.picture = "straight"; Audio.sfx("metalClick", -2.0, 0.8)); _living_save()
 		"front":
 			if key == "go":
+				if OwLink.active() and World.inst and World.inst.has_method("street_objective"):   # black 3.2: 'Walk to the street.' from the first step out (no 'Turn on the TV.' at the doorway)
+					World.inst.street_objective("front"); _leaving = true
+					var shc = get_tree().root.get_node_or_null("ShoulderCam")   # black 3.2: swing the shoulder camera behind the hero, facing the door (it looked across the open door leaf and lost him)
+					if shc and bool(shc.get("enabled")):
+						var y0: float = float(shc.yaw); var y1: float = (hero.get_parent() as Node3D).global_rotation.y + PI
+						create_tween().tween_method(func(t: float): shc.yaw = lerp_angle(y0, y1, t); shc.set("_manual", 0.0), 0.0, 1.0, 0.7).set_trans(Tween.TRANS_SINE)
 				if S.lock == "locked": S.lock = "unlocked"; Audio.sfx("keys", -4.0); Audio.sfx("metalClick", 0.0, 0.7); await wait(0.4)
 				if S.front == "closed":
 					S.front = "open"; _apply_states(true); Audio.sfx("doorOpen_1", 0.0, 0.85); Audio.sfx("creak1", -8.0, 0.8); await wait(0.6)
@@ -1616,6 +1636,7 @@ func _fade_walls(dt: float) -> void:
 	if N.has("front_meshes"):
 		var fab := AABB(Vector3(DOOR_FRONT.x - 1.0, 0, 2.0), Vector3(DOOR_FRONT.y - DOOR_FRONT.x + 2.4, WALL_H, 1.15))
 		var hide_fd: bool = fab.intersects_segment(cam.position, eye) or fab.intersects_segment(cam.position, hero.position + Vector3(0, 0.3, 0))
+		if House.SHOULDER_CAM and cam.position.z < 3.05: hide_fd = false   # black 3.2: the shoulder camera behind a hero walking out sits INSIDE the hall: the door frame / coat rack never hide (they went to alpha-hash 0.15 and stayed so once the room slept = the white silhouettes from the street)
 		front_alpha = move_toward(front_alpha, 0.15 if hide_fd else 1.0, dt * 3.0)
 		for w in N.front_meshes:
 			var fm: StandardMaterial3D = w.material_override
@@ -1689,6 +1710,7 @@ func _go_outside_guide() -> void:
 	_set_mission("Go outside.")
 
 func _advance() -> void:
+	if _leaving: return   # black 3.2: walking out of the front door: the street objective stays
 	var newly := false
 	for m in MISSIONS:
 		if not done_missions.has(m) and _mission_done(m): done_missions[m] = true; newly = true
@@ -1865,8 +1887,11 @@ func caption(t: String, speak := true) -> void:
 	_refresh_text()
 	if t != "" and S.voice and speak: Audio.say(t)
 
+var _leaving := false   # black 3.2: the front-door 'Go outside' verb is running: the street owns the objective from the first step
 func _set_mission(t: String) -> void:
+	if _leaving: return
 	mission = t; _refresh_text()
+	if House.dormant(self) or (OwLink.active() and OwLink.inst.live != self): return   # black 3.2: a room the hero has left never sets the objective (the front-door verb's _after -> _advance put "Turn on the TV." back over the street's "Walk to the street.")
 	if t == "": Objectives.clear()
 	else:
 		var trs: String = String(TR.get(t, XTR.get(t, "Dışarı çık." if t == "Go outside." else "")))
@@ -2271,8 +2296,8 @@ func _south_wall(x0: float, x1: float, g0: float, g1: float, z: float, c: Color)
 		var w: float = seg[1] - seg[0]
 		if w <= 0.01: continue
 		var cx: float = (seg[0] + seg[1]) / 2
-		var lo := box(Vector3(w, SOUTH_LOW, 0.1), Vector3(cx, SOUTH_LOW / 2, z), c.darkened(0.06)); (lo.material_override as StandardMaterial3D).shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		var lo := box(Vector3(w, SOUTH_LOW, 0.1), Vector3(cx, SOUTH_LOW / 2, z), c.darkened(0.06)); if not House.SHOULDER_CAM: (lo.material_override as StandardMaterial3D).shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED   # black 3.2: shaded with the shoulder camera (seen from inside, the unshaded wall was one flat grey sheet at the front-door exit)
 		walls_s.append(box(Vector3(w, WALL_H - SOUTH_LOW, 0.1), Vector3(cx, (WALL_H + SOUTH_LOW) / 2, z), c.darkened(0.06)))
-	for w2 in walls_s: (w2.material_override as StandardMaterial3D).shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	if not House.SHOULDER_CAM: for w2 in walls_s: (w2.material_override as StandardMaterial3D).shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	walls_s.append(box(Vector3(g1 - g0, WALL_H - 2.12, 0.1), Vector3((g0 + g1) / 2, (WALL_H + 2.12) / 2, z), c.darkened(0.06)))
-	(walls_s[-1].material_override as StandardMaterial3D).shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	if not House.SHOULDER_CAM: (walls_s[-1].material_override as StandardMaterial3D).shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED

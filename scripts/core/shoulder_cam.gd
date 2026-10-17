@@ -175,7 +175,10 @@ func _aim_point(c: Camera3D) -> Vector3:
 ## real walls only: thin and tall visible boxes of the house rooms (room-local cache) + group cam_occluder
 func _blockers(sc: Node, chest: Vector3) -> Array:
 	var out := []
-	for r in get_tree().root.get_children():
+	var rooms: Array = get_tree().root.get_children()
+	if World.inst and is_instance_valid(World.inst) and World.inst.get("places") is Dictionary:   # black 3.2: open world: the house rooms live under World (not root children), so their walls never blocked the street camera (front-door exit: camera inside the hall wall)
+		for r2 in (World.inst.places as Dictionary).values(): if is_instance_valid(r2) and not rooms.has(r2): rooms.append(r2)
+	for r in rooms:
 		if not House.is_room(String(r.scene_file_path)) or r.has_meta("house_dead"): continue
 		if not _walls.has(r.get_instance_id()): _walls[r.get_instance_id()] = _scan(r)
 		for e in _walls[r.get_instance_id()]:

@@ -145,6 +145,7 @@ static func step(g: GeometryInstance3D, hidden: bool, dt: float, speed := SPEED)
 
 static func step_to(g: GeometryInstance3D, to: float, dt: float, speed := SPEED, shadows := true) -> void:
 	if g == null or not is_instance_valid(g): return
+	if g.has_meta("ow_merged_src"): return   # black 3.2: a mesh WorldMerge baked into a chunk stays hidden (fading it set visible = true: the original came back on top of its merged copy)
 	var a: float = float(g.get_meta("wf_a", 1.0))
 	if is_equal_approx(a, to) and g.has_meta("wf_a"): return
 	a = move_toward(a, to, dt * speed); g.set_meta("wf_a", a)

@@ -263,7 +263,7 @@ func _process(_dt: float) -> void:
 	_save_t -= _dt
 	if _save_t <= 0.0:
 		_save_t = 10.0
-		var busy_story := Game.busy or (is_instance_valid(live) and String(live.get("mode")) == "busy")
+		var busy_story := Game.busy or (is_instance_valid(live) and str(live.get("mode")) == "busy")   # black 3.2: str() (hospital etc. have no mode: String(null) errored)
 		if not busy_story: _remember(true)
 	# the WorldPlayer body follows the hero while a room drives him (World region / door / culling use its position)
 	if is_instance_valid(live) and ROOM_PATH.has(live_id):
