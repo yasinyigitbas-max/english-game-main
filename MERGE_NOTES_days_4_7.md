@@ -295,10 +295,14 @@ the step's window, a spoken line (clip or Piper), exactly ONE bottom-centre capt
 and NO caption box on the test screen. Also: seated NPC pose while lines play, 10 unique test questions, the test screen
 (no scroll, answers low), the power-cut brightness, the shop checkout flag, polaroids, the day change.
 
-Result (final run): day 4 -> 5 and day 7 -> 8 all PASS (14 + 14 objective steps, ~130 spoken lines each, 0 caption
-problems, 0 pose problems, test 10/10 unique, power cut mean luminance 0.10-0.14 dark / 0.29-0.36 candles, no script
-errors in the new files). The only engine ERRORs in the log are the box's missing TTS synth at startup and "2 resources
-still in use at exit" (not from these files).
+Results of the last real runs (16:46 day 7, 16:48 Istanbul time day 4): day 7 -> 8: 15/15 PASS. Day 4 -> 5: all PASS except one step:
+the day-5 placeholder "Go to the living room." had no pan. That is fixed now (day4_bedtime.gd fallback guide_to) but not re-run.
+Each run: 14 objective steps, about 130 spoken lines, 0 caption-box problems, 0 pose problems, 10/10 unique test
+questions, test screen with no scroll and low answer buttons, power cut mean luminance 0.10-0.14 dark and 0.29-0.36 with
+candles, no script errors from these files. The only engine ERRORs are the box's missing TTS synth at startup and "2
+resources still in use at exit". On Yasin's instruction there was NO Godot run after these last edits: the day-7 reveal camera +
+cake position, the breakfast controls hide, the day-5 fallback pan. They were parse-checked only (gdtoolkit) and wait
+for the combined final test.
 
 Fixed in this pass:
 - day3_morning.gd:261 parse error under 4.7.2 (`var pan :=` could not infer the type) -> broke Day3Morning AND
