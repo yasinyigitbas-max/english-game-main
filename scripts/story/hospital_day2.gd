@@ -85,11 +85,9 @@ func _run() -> void:
 	# v32-polish: day 2, hospital first -> straight on to work (the same work flow the car starts); hospital second -> home as before
 	var sv = App.load_save().get("story", {})
 	if not (sv is Dictionary and bool(sv.get("day2_work_done", false))) and maxi(WorldState.day, App.day) == 2:
-		await ui.line("Now I'm going to work.")
-		if ChildDrive.active(): ChildDrive.trip(get_tree(), "hospital", "work"); return   # v33 child-drive
+		await ui.line(ChildDrive.drive_line(ChildDrive.place_of("work")) if ChildDrive.active() else "Now I'm going to work.")   # v33 child drive: same flow as adults, only the line
 		load("res://scripts/story/work_summary.gd").play(get_tree())
 		return
-	if maxi(WorldState.day, App.day) == 2 and ChildDrive.active(): ChildDrive.trip(get_tree(), "hospital", "home"); return   # v33 child-drive
 	if maxi(WorldState.day, App.day) == 2:   # v32-polish: both visits done -> outside beside the car on the home lot (not inside the house)
 		App.came_from = "outside"; Game.go_to(Game.WORLD_SCENE, "home_car"); return
 	if next_scene != "": get_tree().change_scene_to_file(next_scene)

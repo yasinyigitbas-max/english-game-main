@@ -76,7 +76,11 @@ static func voice_on() -> bool: return bool(CharacterHook.state().get("voice", t
 ## the player's line, in the player's OWN narrator voice (never another voice)
 static func speak_child(en: String) -> void:
 	if not voice_on(): return
-	Audio.say(en)   # v33 (red): universal narrator (pack, voice_own, voice_drive - the chosen voice only)
+	var alt := Audio.narrator_alt(en)
+	if alt: Audio.say_stream(alt, en); return
+	var own := _own_clip(en, Audio.narrator)
+	if own: Audio.say_stream(own, en); return
+	if Audio.narrator == "f": Voice.say(en)
 ## a parent line in the parent's own voice
 static func speak_parent(en: String, v: String) -> void:
 	if not voice_on(): return
