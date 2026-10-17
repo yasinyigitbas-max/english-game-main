@@ -14,6 +14,11 @@ static func due() -> void:
 	var d := _day()
 	if d >= 3 and d <= 7 and int(App.load_save().get("work_done_day", 0)) != d: App.patch_save({"work_due_day": d})
 
+## the hero is out on the street (open world: no live room / place; current_scene can lag behind there)
+static func _on_street(w: Node) -> bool:
+	if OwLink.active(): return OwLink.inst.live == null or not is_instance_valid(OwLink.inst.live)
+	return w.get_tree().current_scene == w
+
 static func pending() -> bool:
 	var sv := App.load_save(); var d := _day()
 	return d >= 3 and d <= 7 and int(sv.get("work_due_day", 0)) == d and int(sv.get("work_done_day", 0)) != d
@@ -47,11 +52,11 @@ static func gate(w: Node) -> bool:
 		var side := (cp - hp).cross(Vector3.UP); side.y = 0
 		if side.length() < 0.05: side = Vector3(1, 0, 0)
 		await Life.guide_to({"pos": mid + side.normalized() * span * 1.15 + Vector3(0, span * 0.55 + 1.2, 0), "at": mid}, g[0], {"tr": g[1]})
-		while is_instance_valid(w) and is_instance_valid(car) and tree.current_scene == w:
+		while is_instance_valid(w) and is_instance_valid(car) and _on_street(w):
 			var a: Vector3 = w.player.global_position; var b: Vector3 = car.global_position; a.y = 0; b.y = 0
 			if a.distance_to(b) < NEAR: break
 			await tree.process_frame
-		if not is_instance_valid(w) or tree.current_scene != w: return false
+		if not is_instance_valid(w) or not _on_street(w): return false
 	else:
 		await Life.guide_to(null, g[0], {"tr": g[1]})
 	if "mode" in w: w.mode = "busy"

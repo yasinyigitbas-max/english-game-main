@@ -932,9 +932,13 @@ func _bone_w(bn: String) -> Vector3:
 	var sk := hero.skeleton; var i := sk.find_bone(bn)
 	return sk.global_transform * sk.get_bone_global_pose(i).origin if i >= 0 else hero.global_position
 func _feet_w() -> Vector3: return (_bone_w("Foot.L") + _bone_w("Foot.R")) * 0.5
-func sleep_pose() -> void:
+func sleep_pose(fade := 0.0) -> void:
 	if sleep_clip or not hero.player.has_animation("sleep"): return
 	var h0 := _bone_w("Head"); var f0 := _feet_w(); var p0 := _bone_w("Hips")
+	var g0: Transform3D = hero.model.global_transform
+	var prev := String(hero.player.current_animation); var prev_t := hero.player.current_animation_position if prev != "" else 0.0
+	var prev_sp := hero.player.speed_scale
+	var offs: Dictionary = hero.bone_offsets.duplicate(true)
 	hero.bone_offsets.clear()
 	hero.model.rotation = Vector3(0, hero.model.rotation.y, 0); hero.model.position = Vector3.ZERO
 	hero.player.speed_scale = SLEEP_SPEED; hero.player.play("sleep", 0.0); hero.player.seek(SLEEP_A, true)
@@ -944,11 +948,28 @@ func sleep_pose() -> void:
 	var m0 := (h0 + f0) * 0.5; var m1 := (_bone_w("Head") + _feet_w()) * 0.5
 	hero.global_position += Vector3(m0.x - m1.x, p0.y - _bone_w("Hips").y, m0.z - m1.z)
 	sleep_clip = true; breathing = true
+	if fade > 0.0 and prev != "" and prev != "sleep":
+		# build 3.2 (Yasin 21:33): seamless crossfade into the sleep clip - the bones blend from the lie-down pose (AnimationPlayer
+		# blend) while the body root glides from where it lay to the aligned sleep transform (no pop)
+		hero.player.play(prev, 0.0); hero.player.seek(prev_t, true)
+		hero.player.speed_scale = SLEEP_SPEED; hero.player.play("sleep", fade); hero.player.seek(SLEEP_A, false)
+		var m_to: Transform3D = hero.model.transform
+		hero.model.global_transform = g0
+		var m_from: Transform3D = hero.model.transform
+		for k in offs: hero.bone_offsets[k] = offs[k]
+		var tw := create_tween()
+		tw.tween_method(func(t: float):
+			if not is_instance_valid(hero): return
+			hero.model.transform = m_from.interpolate_with(m_to, t)
+			for k in offs:
+				var v: Array = offs[k]; hero.bone_offsets[k] = [v[0], float(v[1]) * (1.0 - t)], 0.0, 1.0, fade).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tw.tween_callback(func():
+			for k in offs: hero.bone_offsets.erase(k))
 ## Yasin 17:58 SLEEP STANDARD: the ONE lie-down on a bed (player verb, day-1..7 bedtimes): sit, lie, and straight into
 ## the real sleep pose the moment the body is down (no flat idle frame in between).
 func lie_down() -> void:
 	await sit_on_bed(); await edge_to_bedsit(); await bedsit_to_lie()
-	sleep_pose()
+	sleep_pose(0.9)   # crossfade into the sleeping / breathing clip
 
 func end_sleep_pose() -> void:
 	if sleep_clip: _pose_sleep()
@@ -986,17 +1007,20 @@ func sit_on_bed() -> void:
 	hero.position = SIT_ROOT; hero.player.play("sit_idle", 0.0); hero.player.advance(0.0)
 
 func edge_to_bedsit() -> void:  # exact reverse of bedsit_to_edge
-	hero.player.play("wake_up", 0.9); hero.player.seek(0.0, true); hero.player.speed_scale = 0.0
-	var tw := create_tween()
-	tw.tween_property(hero, "position", Vector3(SIT_ROOT.x, M, SIT_ROOT.z - 0.12), 0.9).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tw.tween_property(hero, "position", LIE_ROOT, 0.6).set_trans(Tween.TRANS_SINE)
-	tw.tween_property(hero, "rotation:y", PI / 2, 1.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	await wait(2.6)
+	# build 3.2 (Yasin 21:33): one continuous, eased move - the body scoots back onto the mattress WHILE it turns and the legs
+	# swing up (pose crossfade 1.3 s), instead of three separate rigid steps
+	hero.player.play("wake_up", 1.3); hero.player.seek(0.0, true); hero.player.speed_scale = 0.0
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(hero, "position", Vector3(SIT_ROOT.x, M, SIT_ROOT.z - 0.12), 0.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(hero, "position", LIE_ROOT, 0.8).set_delay(0.7).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(hero, "rotation:y", PI / 2, 1.4).set_delay(0.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	await wait(1.65)
 
 func bedsit_to_lie() -> void:
-	hero.player.speed_scale = 1.0; hero.player.play("idle", 1.4, 0.0); hero.player.seek(0.0, true)
-	create_tween().tween_method(_lie_blend, 0.0, 1.0, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	await wait(1.6); hero.player.speed_scale = 0.0; breathing = true
+	# build 3.2 (Yasin 21:33): the torso leans back slowly (eased 1.8 s) while the long-sit pose relaxes into the lying pose
+	hero.player.speed_scale = 1.0; hero.player.play("idle", 1.8, 0.0); hero.player.seek(0.0, true)
+	create_tween().tween_method(_lie_blend, 0.0, 1.0, 1.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	await wait(1.85); hero.player.speed_scale = 0.0; breathing = true
 
 ## build 3.2 (Yasin 21:23): the alarm rings EVERY morning (days 1-7). True while today's alarm has not been turned off yet
 ## (mornings only: before 12:00 on the shared clock).
