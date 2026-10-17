@@ -99,7 +99,7 @@ static func _append(buckets: Dictionary, mesh: Mesh, mats: Array, xf: Transform3
 		var base_c: Color = ((mt as StandardMaterial3D).albedo_color if plain and mt != null else Color.WHITE) * tint
 		var vc = arr[Mesh.ARRAY_COLOR]
 		var col := PackedColorArray(); col.resize(verts.size())
-		if plain and vc is PackedColorArray and (vc as PackedColorArray).size() == verts.size() and mt != null and (mt as StandardMaterial3D).vertex_color_use_as_albedo:
+		if not plain and vc is PackedColorArray and (vc as PackedColorArray).size() == verts.size():   # black 3.1: keep the mesh's own vertex colours (MeshKit street blocks: vcol materials are never "plain", their COLOR was overwritten with white = the white street)
 			for k in verts.size(): col[k] = (vc as PackedColorArray)[k] * base_c
 		else: col.fill(base_c)
 		b.c.append_array(col)

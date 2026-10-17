@@ -204,6 +204,7 @@ func _to_street(door: String) -> void:
 ## world_exterior._ready story hooks, run on every arrival on the street (World is current_scene)
 func _street_hooks(door: String) -> void:
 	world.hud.visible = true
+	if world.has_method("street_objective"): world.street_objective(door)   # black 3.1: no stale room mission on the street
 	var lot = world.grid.find_lot("home")
 	if load("res://scripts/story/story_accident.gd").should_run():   # house.25: day-1 story starts the moment the hero is outside
 		var st = load("res://scripts/story/story_accident.gd").new(); st.w = world; world.add_child(st); st.run()

@@ -76,10 +76,10 @@ func _ready() -> void:
 	cam = (load("res://ui/shared/camera_rig.tscn") as PackedScene).instantiate(); cam.far = FAR; add_child(cam)
 	hud.camera = cam; player.attach_camera(cam, 8.0, 0.82)
 	setup_universal("Home", "Ev")
-	hud.set_mission("Walk anywhere: open world preview.")
+	hud.set_mission("")
 	for l in find_children("*", "OmniLight3D", true, false) + find_children("*", "SpotLight3D", true, false): _lights.append(l)
 	_cull_setup()
-	var _bo: Dictionary = preload("res://scripts/world/world_blue.gd").install(self, {"culling": false, "work": true})   # blue: wall fade, cafe/shop fronts, merge, door no_fade
+	var _bo: Dictionary = preload("res://scripts/world/world_blue.gd").install(self, {"culling": false, "work": true, "merge": not "--ow-no-merge" in OS.get_cmdline_user_args()})   # blue: wall fade, cafe/shop fronts, merge, door no_fade
 	# blue's WorldCulling with the 19:03 draw-distance limits (~28 m; buildings / merged blocks bigger than 30 m stay on, cut by far + fog)
 	var wc: Node = load("res://scripts/world/world_culling.gd").new(); wc.set("host", self)
 	for kv in [["prop_range", 18.0], ["interior_range", 26.0], ["mid_range", VIS_END], ["far_range", VIS_END + 4.0], ["big_size", 30.0], ["light_range", LIGHT_NEAR], ["shadow_range", 8.0], ["sun_shadow", 24.0]]: wc.set(kv[0], kv[1])
@@ -91,7 +91,9 @@ func _ready() -> void:
 func _fog(e: Environment) -> void:
 	if e == null or e.has_meta("ow_fog"): return
 	e.set_meta("ow_fog", true)
-	e.fog_enabled = true; e.fog_mode = Environment.FOG_MODE_DEPTH
+	e.fog_enabled = false   # build 3.1 (Yasin 19:22): no fog at all, it washed the street + hero white; hard 35 m far plane + ranges only
+	return
+	e.fog_mode = Environment.FOG_MODE_DEPTH
 	e.fog_depth_begin = FOG_BEGIN; e.fog_depth_end = FAR - 1.0; e.fog_depth_curve = 1.0
 	e.fog_light_color = e.background_color if e.background_mode == Environment.BG_COLOR else Color(0.72, 0.82, 0.92)
 	e.fog_light_energy = 1.0; e.fog_sun_scatter = 0.0; e.fog_sky_affect = 1.0; e.fog_density = 1.0
@@ -343,6 +345,7 @@ func _process(dt: float) -> void:
 	_t = 0.2
 	var hp := hero_pos()
 	if WorldState.day != _day: _fences_for_day()
+	_street_check(hp)
 	indoor_vis = _indoor_visible(region_at(hp))
 	for id in places:
 		if not regions.has(id): continue
@@ -403,6 +406,30 @@ func _limit_camera() -> void:
 	var we := get_viewport().find_world_3d()
 	if we and we.environment: _fog(we.environment)
 	if c and c.environment: _fog(c.environment)
+
+## street arrival (OwLink._street_hooks): the street's own objective like v33 world_exterior._ready (rooms' missions such
+## as "Turn on the TV." must not stay on the HUD outside). Not after a café / shop visit or a car arrival, nor while a
+## day-3..7 director owns the list.
+func street_objective(door: String) -> void:
+	if door in ["cafe", "shop", "cafe_door", "shop_door", "lot:cafe", "lot:corner_shop", "home_car"] or _story_obj_active(): return
+	var keep: Array = []
+	for it in Objectives.items: if it is Dictionary and String(it.get("id", "")) == "charge": keep.append(it)
+	Objectives.set_list(["Walk to the street."] + keep)
+	if hud and hud.has_method("set_mission"): hud.set_mission("Walk to the street.")
+
+func _story_obj_active() -> bool:
+	for n in ["Day3Morning", "Day4Routine", "Day7Routine", "Day56Routine"]:
+		if get_tree().root.has_node(n): return true
+	var st = App.load_save().get("story", {})
+	var d := maxi(WorldState.day, App.day)
+	return st is Dictionary and d >= 3 and d <= 7 and not String(st.get("d%d" % d, "")) in ["", "done"]
+
+func _street_check(hp: Vector3) -> void:
+	if not Objectives.has("Walk to the street.") or region_at(hp) != "street": return
+	var lp := hp - grid.cell_center(grid.cell_of(hp))
+	if absf(lp.x) > CityBlock.INNER or absf(lp.z) > CityBlock.INNER:
+		Objectives.complete("Walk to the street.")
+		if hud and hud.has_method("set_mission") and Objectives.items.is_empty(): hud.set_mission("")
 
 ## the ONE hero's world position (in a house room red's OwLink lends the hero to the room: the WorldPlayer body stays behind)
 func hero_pos() -> Vector3:
