@@ -148,7 +148,27 @@ func _trg_restore() -> int:
 		for m in ["trg_orig", "trg_new", "trg_hid"]: if nd.has_meta(m): nd.remove_meta(m)
 		nd.remove_from_group("trg_mod"); k += 1
 	return k
+## fix33 (black) J: learning screens (tests, lessons, choice / quiz / word-order panels) show their Turkish ALWAYS (v33.1,
+## Yasin 17:41). The guard used to strip / hide those glosses every 0.4 s while the screen's own code re-showed them every
+## frame -> the panel re-laid out twice per tick and the white choice / answer boxes flashed (TR off only). The guard now
+## leaves learning screens alone: group "test_screen" (phone lesson / quiz / score, puzzles) or "tr_always" / meta
+## "tr_always". Any other label the guard hid that its owner shows again (the same per-frame pattern) is a learning gloss
+## too: it is restored and exempted for good instead of being fought.
+static func _tr_always(nd: Node) -> bool:
+	return nd.is_in_group("test_screen") or nd.is_in_group("tr_always") or nd.has_meta("tr_always")
+func _trg_unmod(nd: Node) -> void:
+	if nd.has_meta("trg_orig") and String(nd.text) == String(nd.get_meta("trg_new", nd.text)): nd.text = String(nd.get_meta("trg_orig"))
+	for m in ["trg_orig", "trg_new", "trg_hid"]: if nd.has_meta(m): nd.remove_meta(m)
+	if nd.is_in_group("trg_mod"): nd.remove_from_group("trg_mod")
+func _trg_free(nd: Node) -> void:   # a learning screen appeared: give back what the guard took from it earlier
+	if nd.is_in_group("trg_mod"):
+		var hid := nd.has_meta("trg_hid"); _trg_unmod(nd)
+		if hid and nd is CanvasItem: (nd as CanvasItem).visible = true
+	for c in nd.get_children(): _trg_free(c)
 func _trg_walk(nd: Node, n: Array) -> void:
+	if _tr_always(nd): _trg_free(nd); return
+	if nd.has_meta("trg_hid") and nd is CanvasItem and nd.visible:   # its owner re-showed a gloss the guard hid
+		nd.set_meta("tr_always", true); _trg_unmod(nd); return
 	if nd is CanvasItem and not nd.visible: return
 	if nd is Label or nd is Button or nd is Label3D:
 		var t: String = nd.text

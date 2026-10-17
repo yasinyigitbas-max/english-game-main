@@ -212,7 +212,7 @@ func choice(c: Dictionary) -> Dictionary:
 	# lower half, above the caption box: the faces of the people talking stay visible
 	box.anchor_left = 0.5; box.anchor_right = 0.5; box.anchor_top = 1.0; box.anchor_bottom = 1.0; box.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	box.offset_left = -400; box.offset_right = 400; box.offset_top = -420; box.offset_bottom = -96; cl.add_child(box)
-	Objectives.ovl_register(box, 5)
+	Objectives.ovl_register(box, 5); box.add_to_group("tr_always")   # fix33 (black) J: learning panel, the TR guard leaves its Turkish alone (no flashing)
 	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 10); box.add_child(v)
 	var trs: Array = []
 	var pl := Label.new(); pl.text = String(c.prompt); pl.add_theme_font_size_override("font_size", 28); pl.add_theme_color_override("font_color", Color(0.12, 0.15, 0.25))

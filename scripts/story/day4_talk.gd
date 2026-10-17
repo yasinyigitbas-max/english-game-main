@@ -56,7 +56,7 @@ static func _panel(lr: Node, nm: String, top := -190.0, bottom := 70.0) -> Array
 	var cl := CanvasLayer.new(); cl.layer = 30; lr.add_child(cl)
 	var box := PanelContainer.new(); box.name = nm; var sb := StyleBoxFlat.new(); sb.bg_color = Color(1, 1, 1, 0.95); sb.set_corner_radius_all(20); sb.set_content_margin_all(18); box.add_theme_stylebox_override("panel", sb)
 	box.anchor_left = 0.5; box.anchor_right = 0.5; box.anchor_top = 0.5; box.anchor_bottom = 0.5; box.offset_left = -400; box.offset_right = 400; box.offset_top = top; box.offset_bottom = bottom; cl.add_child(box)
-	Objectives.ovl_register(box, 5)
+	Objectives.ovl_register(box, 5); box.add_to_group("tr_always")   # fix33 (black) J: learning panel, the TR guard leaves its Turkish alone
 	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 12); box.add_child(v)
 	return [cl, v]
 

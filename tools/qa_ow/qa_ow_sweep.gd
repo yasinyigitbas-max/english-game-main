@@ -21,7 +21,7 @@ func _ready() -> void:
 	await w(6.0)
 	if OwLink.inst and is_instance_valid(OwLink.inst.live): get_tree().current_scene = OwLink.inst.live
 	P("LIVE " + (OwLink.inst.live_id if OwLink.inst else "-"))
-	if not ev in ["places", "fix", "fixb", "d1"]: Engine.time_scale = 2.5; AudioServer.playback_speed_scale = 2.5
+	if not ev in ["places", "fix", "fixb", "trburst", "d1"]: Engine.time_scale = 2.5; AudioServer.playback_speed_scale = 2.5
 	Objectives.changed.connect(func():
 		for it in Objectives.items:
 			var s := String(it.en)
@@ -40,7 +40,7 @@ func _snap(n: String) -> void:
 	var caps := get_tree().root.find_children("*Caption*", "", true, false).filter(func(c): return c is CanvasItem and c.is_visible_in_tree())
 	P("SHOT %s scene=%s objs=%s caps=%d cam=%s" % [f, cs.name if cs else "-", JSON.stringify(Objectives.items.map(func(i): return i.en)), caps.size(), get_viewport().get_camera_3d().get_path() if get_viewport().get_camera_3d() else "none"])
 func _setup(pre := false) -> void:
-	var day := 6 if ev in ["d6", "d6b", "d6c", "places", "fix", "fixb"] else 7
+	var day := 6 if ev in ["d6", "d6b", "d6c", "places", "fix", "fixb", "trburst"] else 7
 	if ev == "d1": day = 1
 	var st: Dictionary = {}
 	for k in ["d3", "d4", "d5"]: st[k] = "done"
@@ -49,7 +49,7 @@ func _setup(pre := false) -> void:
 	if ev == "d6c": st["d6"] = "home"; st["d6_storm_done"] = true
 	if ev == "d7": st["d6"] = "done"; st["d7"] = "start"
 	if ev == "d7b": st["d6"] = "done"; st["d7"] = "home"; st["d7_shop"] = true
-	if ev in ["places", "fix", "fixb"]: st["d6"] = "done"; st["d7"] = "done"
+	if ev in ["places", "fix", "fixb", "trburst"]: st["d6"] = "done"; st["d7"] = "done"
 	if ev == "d1": st = {}; WorldState.flags.erase("story_accident")
 	var sv: Dictionary = App.load_save(); var state: Dictionary = (sv.get("state", {}) if sv.get("state", {}) is Dictionary else {}).duplicate()
 	state["family"] = [{"role": "mother", "name": "Ayse", "skin": 1, "hair": 0, "hcol": 1, "cloth": 0},
@@ -109,6 +109,7 @@ func run() -> void:
 	if ev == "places": await places(); get_tree().quit(); return
 	if ev == "fix": await fix(); get_tree().quit(); return
 	if ev == "fixb": await fixb(); get_tree().quit(); return
+	if ev == "trburst": await trburst(); get_tree().quit(); return
 	if ev == "d1": await d1(); get_tree().quit(); return
 	var stuck := 0
 	var limit := 3000
@@ -328,3 +329,63 @@ func fixb() -> void:
 				if fence_hit: hits += 1
 				else: gaps.append(str(seg[1]))
 		P("FENCE day=%d visible=%s rays=%d fence_hits=%d gaps=%s" % [day, str(W.fences.visible), tot, hits, str(gaps)])
+
+## J: TR-off flashing check: per-frame monitor (TR label visibility + panel rect) and a burst of 8 shots 0.1 s apart
+func _monitor(root: Control, secs: float) -> Dictionary:
+	var last := ""; var changes := 0; var frames := 0; var t0m := Time.get_ticks_msec()
+	while Time.get_ticks_msec() - t0m < int(secs * 1000) and is_instance_valid(root):
+		await RenderingServer.frame_post_draw
+		var sig := str(root.get_global_rect())
+		for l in root.find_children("*", "Label", true, false):
+			if Objectives.has_tr((l as Label).text) or l.has_meta("trg_orig"): sig += "|%s:%s" % [l.name, str(l.is_visible_in_tree())]
+		for b in root.find_children("Opt*", "Button", true, false) + root.find_children("D56Opt*", "Button", true, false): sig += "|" + str((b as Control).get_global_rect())
+		if last != "" and sig != last: changes += 1
+		last = sig; frames += 1
+	var trv := 0; var trn := 0
+	if is_instance_valid(root):
+		for l in root.find_children("*", "Label", true, false):
+			if Objectives.has_tr(String(l.get_meta("trg_orig", (l as Label).text))): trn += 1; trv += int(l.is_visible_in_tree())
+	return {"frames": frames, "changes": changes, "tr_labels": trn, "tr_visible": trv}
+func _burst(tag: String) -> void:
+	for i in 8:
+		await _snap("%s_burst%d" % [tag, i]); await w(0.1)
+func trburst() -> void:
+	var tr_on := false
+	for a in OS.get_cmdline_user_args(): if a == "--qa-tr=1": tr_on = true
+	App._trf = 1 if tr_on else 0
+	P("TR on=%s App.tr_on=%s" % [str(tr_on), str(App.tr_on())])
+	var tag := "tr1" if tr_on else "tr0"
+	await OwLink.enter("livingroom", "bedroom"); await w(4.0)
+	var lr = get_tree().current_scene
+	lr.mode = "busy"
+	# 1) dialogue choice panel (Day56.choice)
+	var d = load("res://scripts/story/day5_common.gd").new(); d.name = "QAChoice"; lr.add_child(d)
+	d.choice({"prompt": "What do you say to the driver?", "prompt_tr": "Şoföre ne dersin?", "speak": "What do you say to the driver?",
+		"opts": [{"en": "Can you help me, please?", "tr": "Bana yardım eder misiniz, lütfen?", "ok": true, "fb": "Good!", "fb_tr": "Güzel!"},
+			{"en": "I am a bus.", "tr": "Ben bir otobüsüm.", "ok": false, "fb": "Not quite.", "fb_tr": "Tam değil."},
+			{"en": "Goodbye, kitchen.", "tr": "Hoşça kal, mutfak.", "ok": false, "fb": "Not quite.", "fb_tr": "Tam değil."}]})
+	await w(1.0)
+	var box: Control = get_tree().root.find_child("D56Choice", true, false)
+	var t1 := Time.get_ticks_msec()
+	while box and Time.get_ticks_msec() - t1 < 16000 and (box.find_child("D56Opt0", true, false) as Button).disabled: await w(0.2)
+	await w(0.6)
+	if box:
+		var m: Dictionary = await _monitor(box, 3.0); P("CHOICE %s monitor=%s" % [tag, str(m)])
+		await _burst(tag + "_choice")
+		for b in box.find_children("D56Opt*", "Button", true, false): if bool(b.get_meta("ok", false)): b.pressed.emit()
+	await w(4.0)
+	# 2) quiz screen (phone TestBank)
+	await OwLink.enter("bedroom", "livingroom"); await w(3.0)
+	var bd = get_tree().current_scene; bd.mode = "busy"
+	var ph = bd.get("phone")
+	load("res://scripts/story/test_bank.gd").run_test(bd, ph, 6, {"n": 3, "key": "QA_trburst"})
+	await w(1.5)
+	var t2 := Time.get_ticks_msec()
+	var o0: Button = null
+	while Time.get_ticks_msec() - t2 < 20000:
+		o0 = ph.find_child("Opt0", true, false) as Button
+		if o0 and not o0.disabled: break
+		await w(0.2)
+	await w(0.6)
+	var m2: Dictionary = await _monitor(ph, 3.0); P("QUIZ %s monitor=%s" % [tag, str(m2)])
+	await _burst(tag + "_quiz")
