@@ -85,6 +85,7 @@ func build() -> void:
 	_garland(Vector3(-4.9, 2.86, -3.7), Vector3(-4.9, 2.86, 3.7), Vector3(-1, 0, 0))
 	_garland(Vector3(4.9, 2.86, -3.7), Vector3(4.9, 2.86, 3.7), Vector3(1, 0, 0))
 	var omni := OmniLight3D.new(); omni.position = Vector3(-0.8, 2.3, -1.5); omni.omni_range = 7.0; omni.light_energy = 0.7; omni.light_color = Color(1, 0.85, 0.65); omni.light_specular = 0.0; add_child(omni)
+	omni.add_to_group("ow_no_ceiling")   # Yasin 00:12: no bright centre / ceiling light in any room (World hides them every frame)
 	# steam over the coffee machine (shown while it brews)
 	steam = CPUParticles3D.new(); steam.amount = 24; steam.lifetime = 1.2; steam.emitting = false; steam.position = Vector3(-1.6, 1.5, -3.55)
 	steam.direction = Vector3(0, 1, 0); steam.spread = 12; steam.initial_velocity_min = 0.15; steam.initial_velocity_max = 0.3; steam.gravity = Vector3(0, 0.05, 0)

@@ -645,6 +645,7 @@ func _build_lights() -> void:
 	box(Vector3(0.01, 0.1, 0.01), Vector3(0.0, WALL_H - 0.03, -0.2), DARK)
 	N.ceil_glow = box(Vector3(0.12, 0.03, 0.12), Vector3(0.0, WALL_H - 0.25, -0.2), Color(1, 0.95, 0.85), self, 3.0)
 	N.ceil_light = OmniLight3D.new(); N.ceil_light.position = Vector3(0.0, WALL_H - 0.4, -0.2); N.ceil_light.omni_range = 5.0
+	N.ceil_light.add_to_group("ow_no_ceiling")   # Yasin 00:12: no bright centre / ceiling light in any room (World hides them every frame)
 	N.ceil_light.light_energy = 0.8; N.ceil_light.light_color = Color(1, 0.96, 0.9); add_child(N.ceil_light)
 
 func _build_decor() -> void:

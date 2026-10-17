@@ -137,6 +137,7 @@ func _enter(id: String, from: String) -> void:
 	var r: Node = world.places.get(id) if ROOM_PATH.has(id) else _extra(id)   # an extra's _ready borrows the hero (after the sleep)
 	if r == null: push_warning("OwLink: no place " + id); return
 	if not ROOM_PATH.has(id):
+		if r is Node3D: (r as Node3D).visible = true   # fix33: an extra entered again (hidden when it was left)
 		if h.has_meta("wh_hv"): h.remove_meta("wh_hv")
 		h.visible = true
 	var p := world.player as Node3D
@@ -199,6 +200,9 @@ func _sleep_live() -> void:
 		for c in live.find_children("*", "Camera3D", true, false): if not (c.get_viewport() is SubViewport): (c as Camera3D).current = false
 		var we := live.find_children("*", "WorldEnvironment", true, false)
 		for c in we: (c as WorldEnvironment).environment = null
+		# fix33 (blue, Yasin 00:01 "brighter each time"): a left extra (hospital / school / work set) kept its sun + lamps
+		# ON for the rest of the game: one more light source per visit. It is hidden as a whole until entered again.
+		if live is Node3D: (live as Node3D).visible = false
 	live = null; live_id = ""
 
 ## back on the street at the hero's current spot (or at door id `door`)

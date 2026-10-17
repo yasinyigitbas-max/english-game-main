@@ -98,6 +98,7 @@ func build() -> void:
 		box(Vector3(0.26, 0.03, room.y - 0.6), Vector3(x, 2.905, 0), Color(1.0, 0.98, 0.92), false, 0.0, 0.8)
 	for z in [AISLE_Z, 2.47]: box(Vector3(room.x - 0.14, 0.06, 0.06), Vector3(0, 3.03, z), Color(0.32, 0.33, 0.35), false)
 	var omni := OmniLight3D.new(); omni.position = Vector3(0, 2.9, 0); omni.omni_range = 10.0; omni.light_energy = 0.35; omni.light_specular = 0.0; add_child(omni)
+	omni.add_to_group("ow_no_ceiling")   # Yasin 00:12: no bright centre / ceiling light in any room (World hides them every frame)
 	label("FRESH MARKET", Vector3(0, 2.6, hz - 0.1), 90, Color(0.3, 0.6, 0.35), PI)
 	for p in [Vector3(-hx + 0.4, 0, hz - 0.4), Vector3(hx - 0.4, 0, hz - 0.4)]: furn("pottedPlant", p, 0, 1.1, 0.0, true)
 	box(Vector3(2.4, 0.9, 0.04), Vector3(-hx + 0.08, 1.7, -1.0), Color(1.0, 0.85, 0.3), false, PI / 2)

@@ -913,6 +913,7 @@ func _build_lights() -> void:
 	N.pendant = prop("lampSquareCeiling", Vector3(0.85, 2.18, 0.0), 0, 0.36)
 	box(Vector3(0.01, 0.4, 0.01), Vector3(0.85, 2.45, 0.0), Color(0.2, 0.2, 0.2))
 	N.ceil_light = OmniLight3D.new(); N.ceil_light.position = Vector3(0.85, 2.05, 0.0); N.ceil_light.omni_range = 6.5
+	N.ceil_light.add_to_group("ow_no_ceiling")   # Yasin 00:12: no bright centre / ceiling light in any room (World hides them every frame)
 	N.ceil_light.light_energy = 0.8; N.ceil_light.light_color = Color(1, 0.96, 0.9); add_child(N.ceil_light)
 	N.ceil_glow = box(Vector3(0.16, 0.04, 0.16), Vector3(0.85, 2.19, 0.0), Color(1, 0.95, 0.85), self, 3.0)
 	var fx := Vector3(-2.3, 0, -2.6)
@@ -1015,6 +1016,7 @@ func _build_dining() -> void:
 	box(Vector3(0.01, 0.4, 0.01), c + Vector3(0, 2.45, 0), Color(0.2, 0.2, 0.2))
 	N.ceil_glow2 = box(Vector3(0.16, 0.04, 0.16), c + Vector3(0, 2.19, 0), Color(1, 0.95, 0.85), self, 3.0)
 	N.ceil_light2 = OmniLight3D.new(); N.ceil_light2.position = c + Vector3(0, 2.0, 0); N.ceil_light2.omni_range = 5.0
+	N.ceil_light2.add_to_group("ow_no_ceiling")   # Yasin 00:12: no bright centre / ceiling light in any room (World hides them every frame)
 	N.ceil_light2.light_energy = 0.6; N.ceil_light2.light_color = Color(1, 0.96, 0.9); add_child(N.ceil_light2)
 	# sideboard on the north wall between the doors' + a plant in the north-east corner
 	var sbx := 3.9

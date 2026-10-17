@@ -26,6 +26,7 @@ func _ready() -> void:
 	e.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR; e.ambient_light_color = Color(1, 1, 1); e.ambient_light_energy = 0.7; env.environment = e; add_child(env)
 	var sun := DirectionalLight3D.new(); sun.rotation_degrees = Vector3(-50, 30, 0); sun.light_energy = 0.8; add_child(sun)
 	var lamp := OmniLight3D.new(); lamp.position = Vector3(0, 2.6, 0); lamp.omni_range = 7.0; lamp.light_energy = 0.7; lamp.light_specular = 0.0; add_child(lamp)
+	lamp.add_to_group("ow_no_ceiling")   # Yasin 00:12: no bright centre / ceiling light in any room (World hides them every frame)
 	_room()
 	cam = Camera3D.new(); add_child(cam); cam.fov = 65.0
 	cam.position = Vector3(0, 0.95, -1.6); cam.look_at(to_global(Vector3(0, 1.3, 1.5))); cam.current = true
