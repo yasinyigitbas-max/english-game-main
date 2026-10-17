@@ -861,12 +861,48 @@ func _lie_blend(t: float) -> void:
 	hero.position.y += (lerpf(M + 0.1, M + 0.16, t) - hy) * sin(t * PI)
 
 func _pose_sleep() -> void:
+	sleep_clip = false
 	hero.rotation.y = PI / 2; _lie_blend(1.0)
 	hero.bone_offsets.clear(); hero.player.speed_scale = 1.0
 	hero.player.play("idle", 0.0); hero.player.seek(0.0, true); hero.player.speed_scale = 0.0
 	breathing = true
 
+## v33 (red): REAL sleep after "I am sleeping." (bedtime.gd) / "I am tired. I should rest." (story_home.gd day 1): the library
+## "sleep" clip (side-lying, knees bent, its own breathing) instead of the rigid idle frame tipped flat. The clip lies on the
+## floor along its own axis, so it is fitted onto the flat pose it replaces: same head->feet direction, same head/feet
+## midpoint on the mattress, same hips height (works for every body: man, woman, boy, girl - child scale included).
+## The clip's calm part (SLEEP_A..SLEEP_B, no tossing that would roll off the bed) ping-pongs slowly; Chest breathing on top.
+## end_sleep_pose() puts the flat lying pose back (under the black fade) so the morning get-up flow is unchanged.
+const SLEEP_A := 1.9
+const SLEEP_B := 5.4
+const SLEEP_SPEED := 0.55
+var sleep_clip := false
+func _bone_w(bn: String) -> Vector3:
+	var sk := hero.skeleton; var i := sk.find_bone(bn)
+	return sk.global_transform * sk.get_bone_global_pose(i).origin if i >= 0 else hero.global_position
+func _feet_w() -> Vector3: return (_bone_w("Foot.L") + _bone_w("Foot.R")) * 0.5
+func sleep_pose() -> void:
+	if sleep_clip or not hero.player.has_animation("sleep"): return
+	var h0 := _bone_w("Head"); var f0 := _feet_w(); var p0 := _bone_w("Hips")
+	hero.bone_offsets.clear()
+	hero.model.rotation = Vector3(0, hero.model.rotation.y, 0); hero.model.position = Vector3.ZERO
+	hero.player.speed_scale = SLEEP_SPEED; hero.player.play("sleep", 0.0); hero.player.seek(SLEEP_A, true)
+	var d0 := h0 - f0; d0.y = 0.0
+	var d1 := _bone_w("Head") - _feet_w(); d1.y = 0.0
+	if d0.length() > 0.1 and d1.length() > 0.1: hero.rotation.y += d1.signed_angle_to(d0, Vector3.UP)
+	var m0 := (h0 + f0) * 0.5; var m1 := (_bone_w("Head") + _feet_w()) * 0.5
+	hero.global_position += Vector3(m0.x - m1.x, p0.y - _bone_w("Hips").y, m0.z - m1.z)
+	sleep_clip = true; breathing = true
+func end_sleep_pose() -> void:
+	if sleep_clip: _pose_sleep()
+func _sleep_pingpong() -> void:
+	if not sleep_clip or hero.player.current_animation != "sleep": return
+	var p := hero.player.current_animation_position
+	if p >= SLEEP_B and hero.player.speed_scale > 0.0: hero.player.speed_scale = -SLEEP_SPEED
+	elif p <= SLEEP_A and hero.player.speed_scale < 0.0: hero.player.speed_scale = SLEEP_SPEED
+
 func bedsit_up() -> void:     # lying -> sitting up in bed (legs stay where they are)
+	end_sleep_pose()
 	breathing = false; hero.bone_offsets.clear()
 	_tw_offset("UpperLeg.L", Vector3.RIGHT, LEG_FIX, 2.0); _tw_offset("UpperLeg.R", Vector3.RIGHT, LEG_FIX, 2.0)
 	hero.player.speed_scale = 1.0; hero.player.play("wake_up", 2.0, 0.0)   # v11: slower, softer sit-up
@@ -1057,6 +1093,7 @@ func _process(dt: float) -> void:
 		var ph: float = fmod(hero.player.current_animation_position / hero.anim_length(hero.player.current_animation) * 2.0, 1.0)
 		if ph < last_step_ph: Audio.sfx("footstep0%d" % randi_range(0, 3), -10.0, randf_range(0.9, 1.1))
 		last_step_ph = ph
+	_sleep_pingpong()   # v33 (red)
 	if breathing:
 		var b := sin(Time.get_ticks_msec() * 0.0025) * 0.025
 		hero.bone_offsets["Chest"] = [Vector3.RIGHT, b * 0.6]
@@ -1273,7 +1310,7 @@ func _apply_character() -> void:
 	if hero.gender != S.gender:
 		var p := hero.position; var r := hero.rotation; var mr := hero.model.rotation.y; var an := hero.player.current_animation
 		hero.setup(S.gender); hero.position = p; hero.rotation = r; hero.model.rotation.y = mr
-		if breathing: _lie_blend(1.0)
+		if breathing and not sleep_clip: _lie_blend(1.0)
 		if an != "": hero.player.play(an, 0.0)
 	hero.apply_creator(S)   # house.18: shared creator -> player function (character.gd), same in every room
 	Audio.voice_player.volume_db = 0.0 if S.voice else -80.0
@@ -1374,7 +1411,7 @@ func load_game() -> bool:
 var saved_pos := Vector3.INF
 func _continue_game() -> void:
 	started = true; menu.visible = false; hud.visible = true
-	breathing = false; hero.bone_offsets.clear(); hero.player.speed_scale = 1.0; hero.model.rotation.x = 0.0; hero.model.position = Vector3.ZERO
+	sleep_clip = false; breathing = false; hero.bone_offsets.clear(); hero.player.speed_scale = 1.0; hero.model.rotation.x = 0.0; hero.model.position = Vector3.ZERO
 	hero.set_mannequin(false); _apply_character()
 	hero.position = saved_pos if saved_pos != Vector3.INF and _free(saved_pos, R) else STAND_BED
 	hero.rotation.y = 0.0; hero.model.rotation.y = 0.0; hero.play("idle", 0.0)
@@ -1869,6 +1906,14 @@ func _story_str(k: String) -> String:
 	var sv = App.load_save().get("story", {})
 	return String(sv.get(k, "")) if sv is Dictionary else ""
 
+## v33 (red): day-2 / day-3 evening: the couch talk is done and bedtime.gd has not run yet (story.d2_bed_pending / d3_bed_pending)
+func _bed_pending() -> bool:
+	var sv = App.load_save().get("story", {})
+	if not sv is Dictionary: return false
+	var d := maxi(WorldState.day, App.day)
+	return (d == 2 and bool(sv.get("d2_bed_pending", false)) and not bool(sv.get("d2_bedtime_done", false))) \
+		or (d == 3 and bool(sv.get("d3_bed_pending", false)) and not bool(sv.get("d3_bedtime_done", false)))
+
 ## v32 (red): story.d3 ("shower" -> "living" -> "outside" -> "done"), only on day 3+
 func _day3_stage() -> String:
 	if maxi(WorldState.day, App.day) < 3: return ""
@@ -1903,6 +1948,7 @@ func objective() -> Array:
 	if S.family.is_empty(): return ["Add your family.", "family"]
 	if not S.calendar_seen: return ["Open the Calendar.", "calendar"]
 	var d2 := _day2_stage()
+	if _bed_pending(): return ["Go to bed.", ""]   # v33 (red): evening after the couch talk -> bedtime.gd; never the stale "Go to the living room."
 	if d2 == "living": return ["Go to the living room.", ""]   # v31: day-2 morning
 	if d2 == "car": return ["Go outside to the car.", ""]
 	if _day3_stage() == "shower": return ["Take a shower.", ""]   # v32 (red): day-3 morning: the shower first, the living room only after it (Day3Morning)

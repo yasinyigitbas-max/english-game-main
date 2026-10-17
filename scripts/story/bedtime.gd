@@ -39,7 +39,7 @@ static func hook_bedroom(main: Node) -> void:
 func _w(t: float) -> void: await get_tree().create_timer(t, false).timeout
 
 func _process(_d: float) -> void:
-	if bed_lock and m and is_instance_valid(m.hero):
+	if bed_lock and m and is_instance_valid(m.hero) and not m.get("sleep_clip"):   # v33 (red): not while the sleep clip plays (it moves the body on purpose)
 		if not m.breathing or m.hero.player.speed_scale != 0.0 or m.hero.transform.origin.distance_to(_bed_xf.origin) > 0.05 or not m.hero.visible:
 			m.hero.transform = _bed_xf; m.hero.visible = true; m._pose_sleep(); bed_fixes += 1
 
@@ -161,10 +161,19 @@ func _sleep() -> void:
 	m.cam_shot = {"pos": m.OBJ.bed.focus + Vector3(0.9, 1.3, 0.9), "at": m.OBJ.bed.focus + Vector3(-0.4, -0.15, 0)}
 	await _dline("Good night!")
 	m.S.lamp = "off"; m.S.ceiling = "off"; m.S.desklamp = "off"; m._apply_states(); Audio.sfx("metalClick", -6.0)
-	await _dline("I am sleeping.")
+	# v33 (red): the real sleep clip starts RIGHT AFTER "I am sleeping." (main.gd sleep_pose; bed_lock off while it plays)
+	await Audio.wait_idle(15.0)
+	ui.en_l.text = "I am sleeping."; ui.tr_l.text = _tr_line("I am sleeping."); ui.tr_l.visible = ui.tr_l.text != ""; ui.panel.visible = true
+	m.cap_panel.visible = false
+	Audio.say("I am sleeping.")
+	await _w(0.2); await Audio.wait_idle(15.0)
+	bed_lock = false; m.sleep_pose()
+	await _w(0.9)
 	ui.hide_caption()
 	var black := ColorRect.new(); black.color = Color(0.05, 0.05, 0.12, 0.0); black.set_anchors_preset(Control.PRESET_FULL_RECT); cl.add_child(black)
 	var tw := create_tween(); tw.tween_property(black, "color:a", 1.0, 2.0); await tw.finished
+	await _w(0.6)
+	m.end_sleep_pose(); _bed_xf = m.hero.transform; bed_lock = true   # under the black: the flat pose back for the morning get-up flow
 	if night == 3: await _sleep_to_day4(black); return   # v32c (red)
 	_flag("d2_bedtime_done", true); _flag("d2_bed_pending", false); _flag("d3", "shower")
 	load("res://scripts/story/day2_morning.gd").set_stage("day3")
