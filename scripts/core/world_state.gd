@@ -7,7 +7,7 @@ signal time_of_day_changed(phase: String)    # "morning" | "afternoon" | "evenin
 
 var SAVE_PATH: String = SavePath.P()   # = App.SAVE_PATH (shared with the house), key "world"
 var _loaded := false
-const VERSION := 1
+const VERSION := 2   # v2 (open world, red): place + hero_pos/yaw in world.tscn coordinates
 var minutes := 7.0 * 60.0       # minutes since midnight of `day`
 var day := 1
 var time_scale := 0.1           # house.29: event-driven clock; between story events time only creeps (6 game min per real min)
@@ -15,6 +15,9 @@ var paused := false
 var creep := 0.0                ## v29.1: no free-running time between events (time_scale still drives the traffic schedule)
 var scene := ""                 # current top-level scene path
 var player_pos := Vector3.ZERO  # last exterior position (world coordinates)
+var place := ""                 # v2 open world: live place id (bedroom/livingroom/bathroom/street/cafe/shop/hospital/...)
+var hero_pos = null             # v2: hero world position [x, y, z] or null (= the place's door / spawn)
+var hero_yaw := 0.0
 var flags := {}                 # free-form story flags, e.g. {"bedroom_done": true}
 var _last_hour := -1
 
@@ -43,6 +46,7 @@ func daylight() -> float: return clampf(sin((minutes / 1440.0 - 0.25) * TAU) * 1
 func to_dict() -> Dictionary:
 	return {"version": VERSION, "minutes": minutes, "day": day, "scene": scene, "flags": flags,
 		"player_pos": [player_pos.x, player_pos.y, player_pos.z],
+		"place": place, "hero_pos": hero_pos, "hero_yaw": hero_yaw,
 		"economy": Economy.to_dict(), "transit": Transit.to_dict()}
 
 ## shared save: the house's user://save.json (App.SAVE_PATH), key "world" (the house keeps "state", "day", ...)
@@ -58,6 +62,8 @@ func load_game() -> bool:
 	if not d is Dictionary: return false
 	minutes = float(d.get("minutes", minutes)); day = int(d.get("day", 1)); scene = str(d.get("scene", ""))
 	flags = d.get("flags", {})
+	place = str(d.get("place", "")); hero_pos = d.get("hero_pos", null); hero_yaw = float(d.get("hero_yaw", 0.0))
+	if not (hero_pos is Array and hero_pos.size() == 3): hero_pos = null
 	var p: Array = d.get("player_pos", [0, 0, 0]); player_pos = Vector3(p[0], p[1], p[2])
 	Economy.from_dict(d.get("economy", {})); Transit.from_dict(d.get("transit", {}))
 	return true

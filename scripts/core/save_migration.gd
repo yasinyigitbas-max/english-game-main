@@ -5,7 +5,7 @@
 class_name SaveMigration
 extends RefCounted
 
-const TARGET := 1
+const TARGET := 2   # ON: v1 (v33 scene saves) -> v2 open world
 
 static func migrate(d: Dictionary) -> Dictionary:
 	var v := int(d.get("version", 1))
@@ -14,8 +14,12 @@ static func migrate(d: Dictionary) -> Dictionary:
 
 static func _v1_to_v2(d: Dictionary) -> Dictionary:
 	var o := d.duplicate(true)
-	o["place"] = StoryNav.place_of(String(d.get("scene", "")))
-	o["door"] = "front_door" if o.place in ["bedroom", "livingroom", "bathroom"] else ""   # resume at a known door
-	o["hero_pos"] = null   # v1 player_pos was exterior-local; world.tscn decides from place/door
+	var pl := StoryNav.place_of(String(d.get("scene", "")))
+	pl = {"town": "street", "world_exterior": "street", "work": "street", "child_drive_stop": "street", "hospital_day2": "hospital"}.get(pl, pl)
+	if pl == "hospital": pl = "bedroom"   # a v33 hospital scene restarts its story from its own done flags; resume safely at home
+	if pl == "": pl = "bedroom"
+	o["place"] = pl
+	o["door"] = "front" if pl == "street" else ""   # street: resume at the home front door
+	o["hero_pos"] = null; o["hero_yaw"] = 0.0   # v1 player_pos was exterior-local; world.tscn decides from place/door
 	o["version"] = 2
 	return o
