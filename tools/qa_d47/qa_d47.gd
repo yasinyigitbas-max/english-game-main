@@ -287,7 +287,7 @@ func run() -> void:
 				if bool(sv.get("d%d_shop" % day, false)): await snap("shop_exit"); s.qa_use("exit"); await w(3.0)
 				else: did = false
 			["world_exterior.tscn", "Go back home."]: await go(Game.HOUSE_FRONT_DOOR_SCENE, "outside")
-			["livingroom.tscn", "Talk to my family."]: s.hero.position = Vector3(s.SOFA_X - 1.2, 0, 0.3)   # room-local (the room is off the origin in the world)
+			["livingroom.tscn", "Talk to my family."]: s.hero.global_position = s.to_global(Vector3(s.SOFA_X - 1.2, 0, 0.3))   # room-local (the room is off the origin in the world)
 			["livingroom.tscn", "Go to bed."]: await go("res://main.tscn", "livingroom")
 			_: did = false
 		if did: acted[key] = gt; print("D47QA ACT t=%.1f %s" % [gt, key])
