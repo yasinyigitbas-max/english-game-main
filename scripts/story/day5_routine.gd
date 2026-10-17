@@ -64,7 +64,7 @@ func _kind(s: Node) -> String:
 	return "other"
 
 func _process(dt: float) -> void:
-	if bed_lock and m and is_instance_valid(m) and is_instance_valid(m.hero):
+	if bed_lock and m and is_instance_valid(m) and is_instance_valid(m.hero) and not m.get("sleep_clip"):   # build 3.2 (v33.1): the sleep clip moves the body on purpose (the lock killed it: no sleep anim on days 5-6)
 		if not m.breathing or m.hero.transform.origin.distance_to(_bed_xf.origin) > 0.05 or not m.hero.visible:
 			m.hero.transform = _bed_xf; m.hero.visible = true; m._pose_sleep()
 	_t += dt
@@ -235,7 +235,7 @@ func _alarm(b: Node) -> void:
 	Life.event("wake")
 	b.S.alarm = "ringing"; b._apply_states(); Audio.sfx("alarm", -4.0)
 	await speak(b, "", "", "My alarm is ringing.", "Alarmım çalıyor.")
-	await _guide(b, _obj_shot(b, "alarm"), "Turn off the alarm.", "Alarmı kapat.")
+	await _guide(b, _obj_shot(b, "alarm"), "Turn off the alarm clock.", "Çalar saati kapat.")
 	if lying or "--qa-d56" in OS.get_cmdline_user_args():
 		b.S.alarm = "off"; b._apply_states(); Audio.sfx("metalClick")
 		await speak(b, "", "", "I am turning off the alarm.", "Alarmı kapatıyorum.")
@@ -246,7 +246,7 @@ func _alarm(b: Node) -> void:
 		await Audio.wait_idle(8.0)
 	if not is_instance_valid(b): return
 	flag("d56_lying", false)
-	Objectives.complete("Turn off the alarm.")
+	Objectives.complete("Turn off the alarm clock.")
 	b.mode = "busy"
 	var a: Dictionary = D.alarm_after
 	await say("me", String(a.en), String(a.tr))
@@ -449,10 +449,13 @@ func _sleep(b: Node, cl: CanvasLayer) -> void:
 	b.cam_shot = {"pos": b.OBJ.bed.focus + Vector3(0.9, 1.3, 0.9), "at": b.OBJ.bed.focus + Vector3(-0.4, -0.15, 0)}
 	await speak(b, "", "", "Good night!", "İyi geceler!")
 	b.S.lamp = "off"; b.S.ceiling = "off"; b.S.desklamp = "off"; b._apply_states(); Audio.sfx("metalClick", -6.0)
+	bed_lock = false; b.sleep_pose()   # build 3.2 (v33.1): the real sleep clip at the day-5 / day-6 bedtime too
 	await speak(b, "", "", "I am sleeping.", "Uyuyorum.")
+	await _w(2.5)
 	b.cap_panel.visible = false
 	var black := ColorRect.new(); black.color = Color(0.05, 0.05, 0.12, 0.0); black.set_anchors_preset(Control.PRESET_FULL_RECT); cl.add_child(black)
 	var tw := create_tween(); tw.tween_property(black, "color:a", 1.0, 2.0); await tw.finished
+	b.end_sleep_pose(); _bed_xf = b.hero.transform; bed_lock = true
 	set_stage(day, "done")
 	var nxt := day + 1
 	Life.advance_day(true)

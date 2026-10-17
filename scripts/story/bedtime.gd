@@ -219,9 +219,10 @@ func _sleep_to_day4(black: ColorRect) -> void:
 
 ## main.gd get_up_sequence() without its extra lines: "I'm waking up." -> sit up -> edge -> "I'm getting up." -> stand
 func _wake_simple() -> void:
-	Life.event("wake")
 	m.mode = "busy"; m._hide_chips(); m._update_hand()
 	await Audio.wait_idle(8.0)
+	await m.morning_alarm()   # build 3.2 (Yasin 21:23): the alarm rings every morning
+	Life.event("wake")
 	m.caption("I'm waking up.")
 	m.hero.player.speed_scale = 0.0
 	await m.bedsit_up()

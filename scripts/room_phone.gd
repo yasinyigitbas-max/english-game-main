@@ -133,7 +133,7 @@ func phone_event(p: String) -> void:
 		"calendar": caption("I am looking at my calendar.")
 
 func todo() -> Array:
-	return [["Turn off the alarm.", true], ["Look in the mirror.", S.created], ] + ([] if is_child() else [["Choose a job.", S.job != ""]]) + [
+	return [["Turn off the alarm clock.", true], ["Look in the mirror.", S.created], ] + ([] if is_child() else [["Choose a job.", S.job != ""]]) + [
 		["Learn he, she and it.", S.lesson_done], ["Add your family.", _family_ok()], ["Open the Calendar.", S.calendar_seen],
 		["Open the door.", S.door_opened], ["Explore the house.", false]] + \
 		(phone.tasks(S.job).map(func(t): return [t.do, false]) if S.job != "" else [])

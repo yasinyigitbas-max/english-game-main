@@ -127,7 +127,7 @@ const TR := {
 	"I am adding a family member.": "Bir aile üyesi ekliyorum.", "I am looking at my calendar.": "Takvimime bakıyorum.",
 	"I have a new message on my phone.": "Telefonumda yeni bir mesaj var.", "This is my family.": "Bu benim ailem.",
 	"The door is locked. Add your family on your phone first.": "Kapı kilitli. Önce telefonunda aileni ekle.",
-	"Turn off the alarm.": "Alarmı kapat.", "Choose a job.": "Bir meslek seç.", "Explore the house.": "Evi keşfet.",
+	"Choose a job.": "Bir meslek seç.", "Explore the house.": "Evi keşfet.",
 	"Teacher. I am a teacher. I work at a school.": "Öğretmen. Ben öğretmenim. Okulda çalışırım.",
 	"Doctor. I am a doctor. I work at a hospital.": "Doktor. Ben doktorum. Hastanede çalışırım.",
 	"Nurse. I am a nurse. I help sick people.": "Hemşire. Ben hemşireyim. Hasta insanlara yardım ederim.",
@@ -656,8 +656,11 @@ func _set_curtains(open: bool, anim := false) -> void:
 	_to(N.curtL, "scale:x", w, anim, 1.0); _to(N.curtR, "scale:x", w, anim, 1.0)
 	_to(N.curtL, "position", Vector3(0.25 + w * 0.5, 1.5, -2.88), anim, 1.0); _to(N.curtR, "position", Vector3(2.35 - w * 0.5, 1.5, -2.88), anim, 1.0)
 
+var _alarm_was := ""
 func _set_alarm_visual() -> void:
 	var st: String = S.alarm
+	if st == "off" and _alarm_was == "ringing": App.patch_save({"alarm_off_day": maxi(WorldState.day, App.day)})   # build 3.2: this morning's alarm is done (Continue re-arms it otherwise)
+	_alarm_was = st
 	N.ring.visible = st == "ringing"
 	N.alarm_txt.modulate = {"ringing": Color(1, 0.3, 0.3), "set": Color(0.4, 1, 0.6), "off": Color(0.7, 0.7, 0.7)}[st]
 	N.alarm_txt.text = "7:00" if st != "set" else "7:00 •"
@@ -995,7 +998,25 @@ func bedsit_to_lie() -> void:
 	create_tween().tween_method(_lie_blend, 0.0, 1.0, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	await wait(1.6); hero.player.speed_scale = 0.0; breathing = true
 
+## build 3.2 (Yasin 21:23): the alarm rings EVERY morning (days 1-7). True while today's alarm has not been turned off yet
+## (mornings only: before 12:00 on the shared clock).
+func alarm_due() -> bool:
+	var d := maxi(WorldState.day, App.day)
+	if int(App.load_save().get("alarm_off_day", 0)) >= d: return false
+	return WorldState.hour() < 12
+
+## scripted morning alarm while lying in bed (wake-ups that are not the player's own): rings, then turned off from the bed
+func morning_alarm() -> void:
+	if not alarm_due(): return
+	S.alarm = "ringing"; _apply_states(); Audio.sfx("alarm", -4.0)
+	_set_mission("Turn off the alarm clock.")
+	var t0 := Time.get_ticks_msec(); caption("My alarm is ringing."); await _readable(t0)
+	S.alarm = "off"; _apply_states(); Audio.sfx("metalClick")
+	Objectives.complete("Turn off the alarm clock.")
+	t0 = Time.get_ticks_msec(); caption("I am turning off the alarm clock."); await _readable(t0)
+
 func get_up_sequence(opening := false) -> void:
+	if not opening and S.alarm != "ringing": await morning_alarm()
 	Life.event("wake")   # house.29: event clock
 	mode = "busy"; _hide_chips(); _update_hand()
 	# v32-polish: every wake-up shows exactly "I'm waking up." then "I'm getting up.", each readable (>= 2 s and until the
@@ -1475,9 +1496,10 @@ func _continue_game() -> void:
 	hero.set_mannequin(false); _apply_character()
 	hero.position = saved_pos if saved_pos != Vector3.INF and _free(saved_pos, R) else STAND_BED
 	hero.rotation.y = 0.0; hero.model.rotation.y = 0.0; hero.play("idle", 0.0)
-	if S.alarm == "ringing": S.alarm = "off"
+	S.alarm = "ringing" if alarm_due() else ("off" if S.alarm == "ringing" else S.alarm)   # build 3.2 (Yasin 21:23): Continue in the morning re-arms the alarm
 	if S.book == "hand": S.book = "shelf"
 	_apply_states(); mode = "play"; _update_hand()
+	if S.alarm == "ringing": Audio.sfx("alarm", -4.0); _set_mission("Turn off the alarm clock.")
 	cam_focus = hero.position
 	if App.came_from == "": caption("My name is %s." % S.name, false); Audio.say_name(S.name)   # house.17: no name line on room re-entry
 	else: get_tree().create_timer(0.6, false).timeout.connect(func(): caption("I'm in the bedroom now.", false))   # house.17: silent room caption
@@ -2013,7 +2035,7 @@ func objective() -> Array:
 	if not S.lesson_done: return ["Learn he, she and it.", "family"]
 	if not _family_ok(): return ["Add your family.", "family"]
 	if not S.calendar_seen: return ["Open the Calendar.", "calendar"]
-	if WorldState.day >= 2 and S.alarm == "ringing": return ["Turn off the alarm.", ""]   # build 3.2 (black #26): never "Take a shower." under a ringing alarm
+	if WorldState.day >= 2 and S.alarm == "ringing": return ["Turn off the alarm clock.", ""]   # build 3.2 (black #26): never "Take a shower." under a ringing alarm
 	var d2 := _day2_stage()
 	if _bed_pending(): return ["Go to bed.", ""]   # v33 (red): evening after the couch talk -> bedtime.gd; never the stale "Go to the living room."
 	if Objectives.d2_chat_done(): return ["Go to bed.", ""]   # Yasin 17:58: never "Go to the living room." after the day-2 family chat
@@ -2053,7 +2075,7 @@ func notify(app: String) -> void:
 	if phone.visible and phone.page == "home": phone.show_page("home", false)
 
 func todo() -> Array:
-	return [["Turn off the alarm.", S.alarm != "ringing" and started], ["Look in the mirror.", S.created], ] + ([] if is_child() else [["Choose a job.", S.job != ""]]) + [
+	return [["Turn off the alarm clock.", S.alarm != "ringing" and started], ["Look in the mirror.", S.created], ] + ([] if is_child() else [["Choose a job.", S.job != ""]]) + [
 		["Learn he, she and it.", S.lesson_done], ["Add your family.", _family_ok()], ["Open the Calendar.", S.calendar_seen],
 		["Open the door.", S.door_opened], ["Explore the house.", false]] + \
 		(phone.tasks(S.job).map(func(t): return [t.do, false]) if S.job != "" else [])

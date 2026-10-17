@@ -196,6 +196,7 @@ static func to_street(door := "") -> void:
 	if active(): await inst._to_street(door)
 
 func _to_street(door: String) -> void:
+	if live_id in PLACES: Objectives.clear()   # build 3.2 (v33.1): the shop / cafe list ("Take a basket." ...) never follows the hero onto the street
 	if world.has_method("street_objective"): world.street_objective(door)   # black 3.1: the street objective from the first step out
 	var h := the_hero()
 	var p := world.player as Node3D

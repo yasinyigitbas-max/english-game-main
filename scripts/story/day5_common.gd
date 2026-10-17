@@ -9,6 +9,7 @@
 ##    {choice} choice panel with EN feedback + TR, {do} scripted actions, {review} breakfast review. See tools/days56/days56_content.py.
 class_name Day56
 extends Node
+const NpcTalk := preload("res://scripts/core/npc_talk.gd")
 
 const VOICE_IDX := "res://data/day56_voice_index.json"
 const SHE_ROLES := ["mother", "sister", "grandmother", "wife", "daughter", "aunt"]
