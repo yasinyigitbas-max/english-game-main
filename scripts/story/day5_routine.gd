@@ -64,7 +64,10 @@ func _process(dt: float) -> void:
 	if _t < 0.4: return
 	_t = 0.0
 	ensure_voice()   # the narrator setting may have reloaded the packs
-	if _busy: return
+	if _busy:
+		# a step awaiting in a scene that got freed (player left mid-step) must not lock the director forever
+		if not is_instance_valid(_sc) and get_tree().current_scene != null: _busy = false; _sc = null
+		else: return
 	var st := stage(day)
 	if st in ["", "done"]: queue_free(); return
 	var s := get_tree().current_scene
