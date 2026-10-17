@@ -226,7 +226,8 @@ func _intro() -> void:
 	# stage -> it got the day-1 breakfast, which ends without the car prompt. Day 2+ with no stage = the day-2 morning.
 	if maxi(WorldState.day, App.day) >= 2 and D2.stage() == "" and not breakfast_done: D2.set_stage("living")
 	if Day2After.pending() != "": await wait(1.0); await Day2After.run(self, "living"); return   # v30.5: back from work / hospital
-	if D2.stage() == "living" and maxi(WorldState.day, App.day) >= 2:   # v31-fixes: day 2+ only; v31: day-2 morning scripted breakfast (scripts/story/day2_morning.gd)
+	if D2.stage() == "living" and maxi(WorldState.day, App.day) == 2:   # build 3.2 (red): day 2 only (a stale stage ran the day-2 breakfast over the day-4 one)
+		# v31: day-2 morning scripted breakfast (scripts/story/day2_morning.gd)
 		await wait(1.2); var d2 = D2.new(); d2.lr = self; add_child(d2); await d2.run(); _advance(); return
 	load("res://scripts/story/day3_evening.gd").start(get_tree())   # v32c (red): day-3 evening couch talk (after the cafe + the shop) / "Go to bed."
 	if breakfast_pending(): await wait(2.0); breakfast_call()

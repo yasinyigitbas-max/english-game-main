@@ -8,6 +8,7 @@ func _ready() -> void:
 	await _t(6.0)
 	var day: int = {"bk1": 1, "bk2": 2, "couch2": 2, "d4cut": 4, "d7party": 7, "hosp2": 2, "cafe": 3, "mirror2": 2, "hosp1": 1, "street": 1, "towel": 1, "d4bk": 4}.get(ev, 1)
 	var st: Dictionary = App.load_save().get("story", {}).duplicate() if App.load_save().get("story", {}) is Dictionary else {}
+	if day >= 3: st["day2"] = "done"
 	match ev:
 		"bk2": st["day2"] = "living"
 		"couch2": st.merge({"day2": "done", "day2_work_done": true, "day2_hospital_done": true, "d2_couch_done": false}, true)
@@ -56,6 +57,10 @@ func _t(s: float) -> void: await get_tree().create_timer(s).timeout
 func _shot(i: int) -> void:
 	get_viewport().get_texture().get_image().save_png("/workspace/red_ow_shots/fix/%s_%d.png" % [ev, i])
 	var cs = get_tree().current_scene; print("RED_SHOT ", ev, " ", i, " ", cs.name if cs else "-", " cam=", get_viewport().get_camera_3d().get_path() if get_viewport().get_camera_3d() else "none", " obj=", Objectives.items)
+	if cs: print("RED_STATE mode=", cs.get("mode"), " speaking=", Audio.is_speaking(), " cam_shot=", cs.get("cam_shot"), " hero_l=", (cs as Node3D).to_local(OwLink.the_hero().global_position) if cs is Node3D else "")
+	if cs and cs.get("hero"): print("RED_HERO par=", cs.hero.get_parent().get_path(), " pos=", cs.hero.position, " same=", cs.hero == OwLink.the_hero(), " canproc=", cs.can_process(), " dt=", cs.get_process_delta_time(), " paused=", get_tree().paused, " anim=", cs.hero.get("current") if true else "")
+	for n in get_tree().root.get_children():
+		if String(n.name).begins_with("Day"): print("RED_DIR ", n.name, " busy=", n.get("_busy"), " dbg=", n.get("_dbg"))
 	if ev == "street" and OwLink.active():
 		var wk = OwLink.inst.world
 		for c in wk.get_children().slice(-6): if c is Node3D: print("RED_W ", c.name, " ", (c as Node3D).global_position, " vis=", (c as Node3D).is_visible_in_tree())
