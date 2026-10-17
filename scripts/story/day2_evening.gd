@@ -96,7 +96,7 @@ func run() -> void:
 	await _line("Put the words in the right order.")
 	var told: Array = []
 	for s in day_sentences():
-		await _puzzle(String(s[0]))
+		await _puzzle(String(s[0]), String(s[1]))
 		await lr._say_me(String(s[0]), String(s[1]))
 		told.append(s[0])
 	set_flag("d2_couch_told", told)
@@ -139,7 +139,7 @@ func _snap_couch() -> void:
 	Life.snap_from("d2_couch", Transform3D(Basis.looking_at(at - eye, Vector3.UP), eye), 45.0)
 
 ## word-order puzzle (story_home.gd _puzzle style): tap the shuffled words in the right order
-func _puzzle(sentence: String) -> void:
+func _puzzle(sentence: String, tr_line := "") -> void:
 	var cl := CanvasLayer.new(); cl.layer = 30; add_child(cl)
 	var words := sentence.trim_suffix(".").split(" "); var target := Array(words)
 	var pool := target.duplicate(); while pool == target and pool.size() > 1: pool.shuffle()
@@ -149,7 +149,7 @@ func _puzzle(sentence: String) -> void:
 	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 14); box.add_child(v)
 	var ask := Label.new(); ask.text = "Put the words in the right order."; ask.add_theme_font_size_override("font_size", 18); ask.add_theme_color_override("font_color", Color(0.4, 0.45, 0.6)); ask.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(ask)
 	var askt := Label.new(); askt.text = "Kelimeleri doğru sıraya koy."; askt.add_theme_font_size_override("font_size", 15); askt.add_theme_color_override("font_color", Color(0.35, 0.5, 0.8)); askt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; askt.visible = App.tr_on(); v.add_child(askt)
-	var ans := Label.new(); ans.text = "..."; ans.add_theme_font_size_override("font_size", 30); ans.add_theme_color_override("font_color", Color(0.12, 0.15, 0.25)); ans.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(ans)
+	var ans := Label.new(); ans.text = "..."; ans.add_theme_font_size_override("font_size", 30); ans.add_theme_color_override("font_color", Color(0.12, 0.15, 0.25)); ans.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ans.visible = false; v.add_child(ans)   # v32-polish: the built sentence shows in the standard caption box (lr.caption_live), not here
 	var row := HFlowContainer.new(); row.alignment = FlowContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("h_separation", 10); v.add_child(row)
 	var got: Array = []
 	var done := [false]
@@ -160,6 +160,7 @@ func _puzzle(sentence: String) -> void:
 			if wd == target[got.size()]:
 				Audio.click(); got.append(wd); b.disabled = true; ans.text = " ".join(got)
 				if got.size() == target.size(): ans.text += "."; done[0] = true
+				lr.caption_live("Me: " + ans.text, ("Ben: " + tr_line) if done[0] and tr_line != "" else "")
 			else: Audio.bad())
 	while not done[0]:
 		askt.visible = App.tr_on()

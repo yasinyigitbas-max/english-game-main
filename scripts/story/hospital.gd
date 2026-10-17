@@ -59,11 +59,8 @@ func _ready() -> void:
 ## v30.5: the standard TR toggle (top right) on the shared persisted flag; lesson pages update live
 var tr_btn: Button
 func _add_tr_toggle() -> void:
-	var l := CanvasLayer.new(); l.layer = 40; add_child(l)
-	tr_btn = Button.new(); tr_btn.name = "TRToggle"; tr_btn.text = "TR"; tr_btn.focus_mode = Control.FOCUS_NONE
-	tr_btn.custom_minimum_size = Vector2(76, 56); tr_btn.add_theme_font_size_override("font_size", 22)
-	tr_btn.set_anchors_preset(Control.PRESET_BOTTOM_LEFT); tr_btn.offset_left = 24; tr_btn.offset_right = 100; tr_btn.offset_top = -80; tr_btn.offset_bottom = -24
-	tr_btn.pressed.connect(func(): Audio.click(); toggle_tr(not App.tr_on())); l.add_child(tr_btn); _style_tr()
+	# v32-polish: the TR button lives INSIDE the one standard caption box (StoryUI), not bottom-left on its own layer
+	tr_btn = ui.tr_btn; _style_tr()
 func _style_tr() -> void:
 	var on := App.tr_on()
 	var sb := StyleBoxFlat.new(); sb.bg_color = Color(0.31, 0.42, 0.93) if on else Color(1, 1, 1, 0.94); sb.set_corner_radius_all(18)
@@ -78,7 +75,7 @@ func toggle_tr(on: bool) -> void:
 
 # ---- host API used by phone.gd
 func caption(t: String, _speak := true) -> void:
-	if ui: ui.en_l.text = t; ui.tr_l.text = StoryUI.tr_of(t); ui.panel.visible = t != ""
+	if ui: ui.en_l.text = t; ui.tr_l.text = StoryUI.tr_of(t); ui._sync_tr(); ui.panel.visible = t != ""   # v32-polish: same box, claim() via visibility
 func phone_event(_a: String) -> void: pass
 func extra_tr(_t: String) -> String: return ""
 func is_child() -> bool: return String(App.load_save().get("state", {}).get("age", "adult")) == "child"

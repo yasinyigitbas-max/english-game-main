@@ -126,7 +126,7 @@ func _is_tr_line(l: String) -> bool:
 	var x := l.strip_edges()
 	return x != "" and (has_tr(x) or _tr_vals.has(x))
 func tr_guard() -> int:
-	if App.tr_on(): return 0
+	if App.tr_on(): return _trg_restore()   # v32-polish: undo every strip/hide the guard made while TR was off
 	var sc := get_tree().current_scene
 	if sc == null or String(sc.scene_file_path).contains("menu"): return 0   # menu language is separate
 	if _tr_vals.is_empty():
@@ -138,10 +138,21 @@ func tr_guard() -> int:
 	var n := [0]
 	_trg_walk(get_tree().root, n)
 	return n[0]
+## v32-polish: restore what tr_guard stripped (text it shortened, labels it hid), only if the code has not set new text since
+func _trg_restore() -> int:
+	var k := 0
+	for nd in get_tree().get_nodes_in_group("trg_mod"):
+		if not is_instance_valid(nd): continue
+		if String(nd.text) == String(nd.get_meta("trg_new", nd.text)) and nd.has_meta("trg_orig"): nd.text = String(nd.get_meta("trg_orig"))
+		if nd.has_meta("trg_hid"): nd.visible = true
+		for m in ["trg_orig", "trg_new", "trg_hid"]: if nd.has_meta(m): nd.remove_meta(m)
+		nd.remove_from_group("trg_mod"); k += 1
+	return k
 func _trg_walk(nd: Node, n: Array) -> void:
 	if nd is CanvasItem and not nd.visible: return
 	if nd is Label or nd is Button or nd is Label3D:
 		var t: String = nd.text
+		var t0 := t
 		if t != "" and (has_tr(t) or _is_tr_line(t)):
 			var rx := RegEx.create_from_string("\\s*\\([^)]*[çğıöşüÇĞİÖŞÜ][^)]*\\)")
 			t = rx.sub(t, "", true)
@@ -157,8 +168,16 @@ func _trg_walk(nd: Node, n: Array) -> void:
 			for w in ["Gün", "Şarj", "Pil", "şarj oluyor"]:
 				if not App.tr_on(): nt = nt.replace(w + " ", ("Day " if w == "Gün" else "Battery ") if w != "şarj oluyor" else "").replace("(" + w + ")", "")
 			nt = nt.replace("Pil", "Battery") if nt.begins_with("Pil") else nt
-			if nt.strip_edges() == "": nd.visible = false
+			# v32-polish ROOT CAUSE FIX: the guard used to overwrite the text / hide the node for good, so every TR gloss it
+			# touched while TR was off (phone tiles, chips, lesson rows, captions) stayed missing after TR was turned on.
+			# It now remembers the original text and _trg_restore() puts it back as soon as TR is on.
+			if not nd.has_meta("trg_orig") or String(nd.get_meta("trg_new", "")) != t0: nd.set_meta("trg_orig", t0)
+			nd.add_to_group("trg_mod")
+			if nt.strip_edges() == "":
+				if not nd.has_meta("trg_hid"): nd.set_meta("trg_hid", true)
+				nd.visible = false
 			else: nd.text = nt
+			nd.set_meta("trg_new", nd.text)
 			n[0] += 1
 	for c in nd.get_children(): _trg_walk(c, n)
 	# hide over open phone UI; stay clear of Life clock (y≈128) and top-right phone button

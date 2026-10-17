@@ -22,6 +22,7 @@ func run() -> void:
 	var fam: Dictionary = App.load_json("res://data/family.json"); var bk: Dictionary = App.load_json("res://data/breakfast.json"); var cs: Dictionary = App.load_json("res://data/can_should.json")
 	var review := {"label": "Review", "quiz_after": false, "lesson": fam.lesson + bk.lesson + cs.lesson, "quiz": []}
 	await ui.line("Let's review the lessons.")
+	ui.hide_caption(); m.caption("", false)   # v32-polish: the narrator box goes right before the review screen shows
 	var ph = m.phone
 	ph.visible = true; ph.open(Rect2(), "home"); await get_tree().create_timer(0.5).timeout
 	ph.start_set(review, "lesson")
@@ -35,6 +36,7 @@ func run() -> void:
 	for k in ["quiz", "quiz_b", "quiz_c"]:   # house.26: three versions of the 10-question test
 		var qs: Array = fam.get(k, fam.quiz) + bk.get(k, bk.quiz) + cs.get(k, cs.quiz); qs.shuffle(); test[k] = qs.slice(0, 10)
 	await ui.line("Now the big test. Ten questions.")
+	ui.hide_caption()   # v32-polish: one caption box; the test page shows without the stacked narrator box
 	ph.start_set(test, "quiz")
 	var res = await ph.quiz_done
 	_story_save("test_score", [res[0], res[1]])
@@ -177,7 +179,7 @@ func _call_screen(who: String) -> void:
 	var sub := Label.new(); sub.text = "mobile  ·  cep"; sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; sub.add_theme_font_size_override("font_size", 18); sub.add_theme_color_override("font_color", Color(0.6, 0.65, 0.75)); v.add_child(sub)
 	var pulse := create_tween().set_loops(); pulse.tween_property(ring, "scale", Vector2(1.12, 1.12), 0.6); pulse.parallel().tween_property(ring, "modulate:a", 0.3, 0.6); pulse.tween_property(ring, "scale", Vector2.ONE, 0.01); pulse.parallel().tween_property(ring, "modulate:a", 1.0, 0.01)
 	# answer / decline buttons
-	var bar := HBoxContainer.new(); bar.anchor_left = 0.5; bar.anchor_right = 0.5; bar.anchor_top = 1; bar.anchor_bottom = 1; bar.offset_left = -200; bar.offset_right = 200; bar.offset_top = -300; bar.offset_bottom = -170
+	var bar := HBoxContainer.new(); bar.anchor_left = 0.5; bar.anchor_right = 0.5; bar.anchor_top = 1; bar.anchor_bottom = 1; bar.offset_left = -200; bar.offset_right = 200; bar.offset_top = -360; bar.offset_bottom = -220   # v32-polish: kept clear of the standard caption box (StoryUI, bottom-centre, up to ~170 px tall)
 	bar.alignment = BoxContainer.ALIGNMENT_CENTER; bar.add_theme_constant_override("separation", 140); scr.add_child(bar)
 	var mk := func(col: Color, sym: String, cap: String) -> Button:
 		var c := VBoxContainer.new(); c.add_theme_constant_override("separation", 6); bar.add_child(c)
@@ -244,7 +246,7 @@ func _puzzle(sentence: String) -> void:
 	var box := PanelContainer.new(); var sb := StyleBoxFlat.new(); sb.bg_color = Color(1, 1, 1, 0.95); sb.set_corner_radius_all(20); sb.set_content_margin_all(18); box.add_theme_stylebox_override("panel", sb)
 	box.anchor_left = 0.5; box.anchor_right = 0.5; box.anchor_top = 0.5; box.anchor_bottom = 0.5; box.offset_left = -380; box.offset_right = 380; box.offset_top = -150; box.offset_bottom = 90; cl.add_child(box)
 	var v := VBoxContainer.new(); v.add_theme_constant_override("separation", 14); box.add_child(v)
-	var ans := Label.new(); ans.text = "..."; ans.add_theme_font_size_override("font_size", 30); ans.add_theme_color_override("font_color", Color(0.12, 0.15, 0.25)); ans.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; v.add_child(ans)
+	var ans := Label.new(); ans.text = "..."; ans.add_theme_font_size_override("font_size", 30); ans.add_theme_color_override("font_color", Color(0.12, 0.15, 0.25)); ans.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; ans.visible = false; v.add_child(ans)   # v32-polish: built sentence -> the standard caption box (ui.live)
 	var row := HFlowContainer.new(); row.alignment = FlowContainer.ALIGNMENT_CENTER; row.add_theme_constant_override("h_separation", 10); v.add_child(row)
 	var got: Array = []
 	var done := [false]
@@ -255,6 +257,7 @@ func _puzzle(sentence: String) -> void:
 			if wd == target[got.size()]:
 				Audio.click(); got.append(wd); b.disabled = true; ans.text = " ".join(got)
 				if got.size() == target.size(): ans.text += "."; done[0] = true
+				ui.live("Me: " + ans.text, StoryUI.tr_of(sentence) if done[0] else "")
 			else: Audio.bad())
 	while not done[0]: await get_tree().process_frame
 	Audio.good()

@@ -114,6 +114,13 @@ var cam_yaw_s := 0.0
 var cam_pitch_s := 0.9025
 var walls_l: Array = []
 var walls_r: Array = []
+var walls_s: Array = []   # v32-polish: south (camera-side) wall pieces, faded by the shared helper
+const WallFade := preload("res://scripts/props/wall_fade.gd")
+var wall_fade: Node
+func _wall_fade_setup() -> void:
+	if wall_fade: return
+	wall_fade = WallFade.attach(self, func(): return cam.global_position if is_instance_valid(cam) else Vector3.INF, func(): return hero.global_position if is_instance_valid(hero) else Vector3.INF)
+	for w in walls_s: wall_fade.register(w)
 var wall_alpha := {}
 var was_walking := false
 var last_step_ph := 1.0
@@ -386,8 +393,8 @@ func _build_room() -> void:
 	# south (camera-side) wall: low cut wall (0.35 m, white cap) either side of the living-room door
 	for seg in [[LX - 0.1, SD.x - 0.025], [SD.y + 0.025, RX + 0.1]]:
 		var w: float = seg[1] - seg[0]
-		box(Vector3(w, 0.35, 0.1), Vector3(seg[0] + w / 2, 0.175, FZ + 0.05), TILE)
-		box(Vector3(w, 0.03, 0.12), Vector3(seg[0] + w / 2, 0.365, FZ + 0.05), Color(1, 1, 1))
+		walls_s.append(box(Vector3(w, 0.35, 0.1), Vector3(seg[0] + w / 2, 0.175, FZ + 0.05), TILE))   # v32-polish: south walls -> WallFade
+		walls_s.append(box(Vector3(w, 0.03, 0.12), Vector3(seg[0] + w / 2, 0.365, FZ + 0.05), Color(1, 1, 1)))
 	# invisible roof + front wall: shadows only (same as bedroom)
 	for bx in [[Vector3(4.9, 0.1, 3.9), Vector3(0, WALL_H + 0.05, 0), Color(0.97, 0.97, 0.96)]]:
 		box(bx[0], bx[1], bx[2]).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
@@ -585,6 +592,8 @@ func _build_door() -> void:
 	# (2) south (camera-side) wall -> living room: low cut wall + full frame + frosted sliding door
 	var sf := Node3D.new(); sf.position = Vector3((SD.x + SD.y) / 2, 0, FZ + 0.05); add_child(sf)
 	N.door = _door_frame(sf, true, -0.08)
+	walls_s.append(sf)   # v32-polish: the south door frame + frosted door fade with the south wall (WallFade)
+	_wall_fade_setup.call_deferred()
 	box(Vector3(0.9, 0.012, 0.5), Vector3((SD.x + SD.y) / 2, 0.006, FZ - 0.3), SAGE.lightened(0.15))
 	# light switch next to the living-room door (south wall, inner face)
 	box(Vector3(0.08, 0.12, 0.02), Vector3(SD.y + 0.2, 1.2, FZ - 0.0), Color(1, 1, 1))
@@ -1422,6 +1431,7 @@ func _build_ui() -> void:
 	hud.tr_func = func(en: String) -> String: return TR.get(en, TR_EXTRA.get(en, room_phone.extra_tr(en) if room_phone else ""))
 	hud.voice_func = func(en: String) -> void: if S.voice and not _mute_next and not voice_busy(): say(en)
 	S.tr = App.tr_saved(); hud.set_tr(S.tr); hud.set_place("Bathroom", "Banyo")
+	S.door_bed = "closed"; S.door = "closed"; _apply_states.call_deferred()   # v32-polish: both doors start closed on every day (day 2 started with the bedroom door open)
 	# house.16: the bedroom's phone (scripts/phone.gd) + pocket sequence on the HUD phone button; hud's own phone unused
 	room_phone = load("res://scripts/room_phone.gd").new(); add_child(room_phone)
 	room_phone.setup(self, hud.phone.get_parent(), hud.phone_btn)

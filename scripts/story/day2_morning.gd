@@ -39,8 +39,10 @@ func run() -> void:
 	Life.event("breakfast")
 	var hs: Array = lr.humans()
 	var bk := "Have breakfast with your family." if not hs.is_empty() else "Have breakfast."
-	lr._set_mission(bk); Objectives.set_list([bk])
 	lr.mode = "busy"; lr._hide_chips(); lr.hand3d.visible = false; lr.stick = Vector2.ZERO
+	if lr.wall_fade: lr.wall_fade.force_fade(true)   # v32-polish: the south wall never blocks the day-2 breakfast pan / camera
+	# v32-polish: the objective gets the same Life.guide_to camera pan to the table as the day-1 breakfast
+	await Life.guide_to({"pos": lr.DINE_C + Vector3(0.2, 2.0, 2.2), "at": lr.DINE_C + Vector3(0, 0.9, 0)}, bk)
 	await Audio.wait_idle(12.0)
 	# ---- walk to the free chair by itself, breakfast camera (day-1 framing)
 	var n: int = hs.size(); var seat := ""
@@ -85,10 +87,11 @@ func run() -> void:
 	if lr.S.seat != "":
 		for bn in ["UpperArm.R", "LowerArm.R", "UpperArm.L", "LowerArm.L", "Neck"]: lr.hero.bone_offsets.erase(bn)
 		await lr.stand_up()
-	lr.caption("The table is clearing itself.")
+	# v32-polish: the table clears silently (no "The table is clearing itself." caption / voice)
 	lr._clear_table(true)
 	await _w(0.8); await Audio.wait_idle(12.0)
 	lr.cam_shot = {}
+	if lr.wall_fade: lr.wall_fade.force_fade(false)   # v32-polish
 	if not hs.is_empty(): await lr.family_to_tv()   # the family sits down at the TV before control comes back
 	await car_prompt()
 	lr.mode = "play"; lr._update_hand()

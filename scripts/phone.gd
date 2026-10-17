@@ -208,6 +208,7 @@ func _l(t: String, fs: int, bold := false, c := INK) -> Label:
 	var l := Label.new(); l.text = t; l.add_theme_font_size_override("font_size", fs); l.add_theme_color_override("font_color", c)
 	if bold and main: l.add_theme_font_override("font", main.font_b)
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if c == TR_C and t != "": _trl(l)   # v32-polish ROOT CAUSE FIX: every TR gloss (TR_C) follows the one TR flag, live, everywhere in the phone
 	return l
 
 func _wrap(t: String, fs: int, w: float, bold := false, c := INK) -> Label:
@@ -456,7 +457,7 @@ func _tile(nm: String, icon: String, en: String, tr: String, isz: float, sz: Vec
 	var bv := _inner(b); bv.alignment = BoxContainer.ALIGNMENT_CENTER; bv.add_theme_constant_override("separation", 4)
 	var ic := _icon(icon, isz); ic.size_flags_horizontal = Control.SIZE_SHRINK_CENTER; bv.add_child(ic)
 	var l := _l(en, fs, true); l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; bv.add_child(l)
-	var t := _l(tr, 15, false, TR_C); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; bv.add_child(t)
+	var t := _trl(_l(tr, 15, false, TR_C)); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; bv.add_child(t)   # v32-polish: TR gloss follows the TR flag
 	return b
 
 func _grid_page(cols: int) -> GridContainer:
@@ -566,7 +567,8 @@ func _lesson() -> void:
 	var top := HBoxContainer.new(); v.add_child(top)
 	var tv := VBoxContainer.new(); tv.add_theme_constant_override("separation", 4); tv.size_flags_horizontal = Control.SIZE_EXPAND_FILL; top.add_child(tv)
 	tv.add_child(_l("%s · Lesson %d / %d" % [_les().get("label", "Family"), lesson_i + 1, L.size()], 17, true, MUTED))
-	tv.add_child(_l(String(st.get("title_tr", st.title)) if _tr_now() else st.title, 34, true)); tv.add_child(_trl(_l(st.tr, 16, false, TR_C)))   # v31: TR only with the TR toggle
+	tv.add_child(_l(st.title, 34, true)); tv.add_child(_trl(_l(String(st.get("title_tr", "")) if String(st.get("title_tr", "")) != st.title and st.get("title_tr", "") != "" else st.tr, 16, false, TR_C)))   # v32-polish: EN title always; TR line under it (title_tr, else tr) follows the TR flag live
+	if st.get("title_tr", "") != "" and String(st.title_tr) != st.title and st.get("tr", "") != "": tv.add_child(_l(st.tr, 15, false, TR_C))
 	var dots := HBoxContainer.new(); dots.add_theme_constant_override("separation", 8); dots.size_flags_vertical = Control.SIZE_SHRINK_CENTER; top.add_child(dots)
 	for i in L.size() + 1:
 		var d := Panel.new(); d.custom_minimum_size = Vector2(14, 14)
@@ -576,7 +578,9 @@ func _lesson() -> void:
 	grid.add_theme_constant_override("h_separation", 12); grid.add_theme_constant_override("v_separation", 10); sc.add_child(grid)
 	var fam := les.is_empty()
 	var two := lesson_i == 2 and fam
+	var row_i := -1
 	for row in st.rows:
+		row_i += 1
 		for k in 2:
 			var txt: String = row[k]
 			var b := _card_btn("Row", 54)
@@ -585,6 +589,14 @@ func _lesson() -> void:
 			var lb := _l(txt, 25 if (k == 0 or two) else 20, k == 0 or two, INK if (k == 0 or two) else (TR_C if (lesson_i in [0, 3] or not fam) else Color(0.25, 0.28, 0.36)))
 			lb.set_anchors_preset(Control.PRESET_FULL_RECT); lb.offset_left = 20; lb.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 			lb.clip_text = true; lb.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; b.add_child(lb)
+			# v32-polish: every EN cell without its own TR column gets a TR gloss under the EN (rows_tr in the lesson data,
+			# else data/extra_lines.json), shown only while TR is on (practice buttons he/she/it, am/is/are, examples)
+			var is_tr_col := k == 1 and not two and (lesson_i in [0, 3] or not fam)
+			var gl := _cell_tr(st, row_i, k, txt) if not is_tr_col else ""
+			if gl != "":
+				b.custom_minimum_size.y = 72; lb.offset_bottom = -20
+				var gt := _l(gl, 14, false, TR_C); gt.set_anchors_preset(Control.PRESET_BOTTOM_WIDE); gt.offset_left = 20; gt.offset_top = -24; gt.offset_bottom = -4
+				gt.clip_text = true; gt.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; b.add_child(gt)
 			if k == 1 and not two and (lesson_i in [0, 3] or not fam): _trl(lb)   # v31: TR column only with the TR toggle
 			var say := txt if (k == 0 or two) else (txt.split(": ")[1] if txt.contains(": ") else "")
 			if lesson_i == 1 and k == 0 and fam: say = ""
@@ -597,6 +609,16 @@ func _lesson() -> void:
 	var nb := _btn("Next" if lesson_i < L.size() - 1 else "Check", _lesson_next, Vector2(180, 56), true)
 	nb.name = "LessonNext"; bar.add_child(nb)
 	_say_all(st.say)
+
+## v32-polish: TR gloss for a lesson cell: rows_tr[row][k] in the lesson step, else the extra_lines.json value of the EN text
+func _cell_tr(st: Dictionary, r: int, k: int, en: String) -> String:
+	var rt = st.get("rows_tr")
+	if rt is Array and r < rt.size() and rt[r] is Array and k < rt[r].size(): return String(rt[r][k])
+	if Objectives.has_tr(en): return ""
+	if App._xl.is_empty():
+		var d = App.load_json("res://data/extra_lines.json"); App._xl = d if d is Dictionary else {"_": ""}
+	var v := String(App._xl.get(en, ""))
+	return v if v != en else ""
 
 func _lesson_next() -> void:
 	Audio.click()
@@ -939,7 +961,7 @@ func _chip(g: Control, nm: String, en: String, tr: String, on: bool, cb: Callabl
 	var bv := _inner(b)
 	var l := _l(en, 19, true, BLUE if on else INK); l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; bv.add_child(l)
 	if tr != "":
-		var t := _l(tr, 13, false, TR_C); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; t.clip_text = true; t.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; bv.add_child(t)
+		var t := _trl(_l(tr, 13, false, TR_C)); t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; t.clip_text = true; t.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS; bv.add_child(t)
 	b.pressed.connect(cb); g.add_child(b); return b
 
 func _swatches(v: Control, key: String, cols: Array, labels := true) -> void:
@@ -1114,9 +1136,15 @@ func _process(dt: float) -> void:
 	_capgap_t -= dt
 	if _capgap_t <= 0.0: _capgap_t = 0.15; _update_capgap()
 	_lock_tick()
-	if visible and not _tr_lbls.is_empty() and _tr_now() != _tr_last:
-		_tr_last = _tr_now(); _tr_lbls = _tr_lbls.filter(func(x): return is_instance_valid(x))
-		for l in _tr_lbls: l.visible = _tr_last
+	# v32-polish ROOT CAUSE FIX (lesson / tile / chip TR): re-assert every TR label each frame, also while the phone is
+	# hidden or being rebuilt, so nothing (Objectives.tr_guard, a rebuild while TR was off, an early return) can leave a
+	# gloss hidden while TR is on. Was: only on a flag change and only while `visible`.
+	if not _tr_lbls.is_empty():
+		var on := _tr_now()
+		if on != _tr_last: _tr_lbls = _tr_lbls.filter(func(x): return is_instance_valid(x))
+		_tr_last = on
+		for l in _tr_lbls:
+			if is_instance_valid(l) and l.visible != on and (l as Label).text != "": l.visible = on
 	if preview_char and is_visible_in_tree(): preview_char.rotation.y = 0.35 + sin(Time.get_ticks_msec() * 0.0008) * 0.5
 
 # ------------------------------------------------------------ calendar

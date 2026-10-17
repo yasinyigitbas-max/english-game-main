@@ -118,7 +118,8 @@ func phone_event(p: String) -> void:
 		"me": pass   # house.17: "I am looking at my phone." only once per open (said on open)
 		"lesson":
 			if phone.les.is_empty(): caption("I am learning about he, she and it.")   # house.17: not for the breakfast lesson
-		"quiz": caption("I am answering a question.")
+		"quiz":   # v32-polish: no player-action box over a scripted test's narrator line
+			if phone.les.is_empty(): caption("I am answering a question.")
 		"family": caption("I am adding my family.")
 		"member": caption("I am adding a family member.")
 		"calendar": caption("I am looking at my calendar.")

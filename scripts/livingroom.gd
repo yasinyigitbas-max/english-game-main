@@ -235,6 +235,12 @@ func voice_of(b: Dictionary) -> String:
 	return ""
 
 ## the player's own line in a conversation (narrator voice), "Me:" caption
+## v32-polish SCRAMBLE RULE: the sentence the player is building shows in the ONE standard caption box ("Me: ..."),
+## TR inside once complete; _say_me() then speaks the same line in the same box, so it shows once (no second panel)
+func caption_live(line: String, tr_line := "") -> void:
+	if tr_line != "": XTR[line] = tr_line
+	cap_text = line; cap_serial += 1; cap_panel.visible = line != ""; _refresh_text()
+
 func _say_me(en: String, tr_line: String) -> void:
 	var line := "Me: " + en; XTR[line] = "Ben: " + tr_line
 	await Audio.wait_idle(12.0); caption(line, false); Audio.say(en)
@@ -251,6 +257,7 @@ func breakfast_call() -> void:
 	var h: Dictionary = humans()[0]
 	var nm: String = String(room_phone.S.get("name", "")) if room_phone and room_phone.S.get("name", "") != "" else "friend"
 	mode = "busy"; _hide_chips(); hand3d.visible = false; stick = Vector2.ZERO
+	if wall_fade: wall_fade.force_fade(true)   # v32-polish: the south wall never blocks the breakfast pan / camera
 	await Life.guide_to({"pos": DINE_C + Vector3(0.2, 2.0, 2.2), "at": DINE_C + Vector3(0, 0.9, 0)}, "Have breakfast with your family.")
 	await Audio.wait_idle(12.0)
 	var who := "%s (my %s)" % [String(h.data.get("name", "")), String(h.data.get("role", ""))]
@@ -331,6 +338,7 @@ func start_breakfast() -> void:
 		for bn in ["UpperArm.R", "LowerArm.R", "UpperArm.L", "LowerArm.L", "Neck"]: hero.bone_offsets.erase(bn)
 		await stand_up()
 	cam_shot = {}
+	if wall_fade: wall_fade.force_fade(false)   # v32-polish
 	_clear_table(true)
 	mode = "play"; _advance(); _update_hand()
 	await family_to_tv()
@@ -626,6 +634,7 @@ func _build_room() -> void:
 	for bx in [[Vector3(12.1, 0.1, 6.4), Vector3(RCX, WALL_H + 0.05, 0), Color(0.97, 0.97, 0.96)], [Vector3(12.1, WALL_H, 0.1), Vector3(RCX, WALL_H / 2, 3.1), C_WALL]]:
 		var sbx := box(bx[0], bx[1], bx[2]); sbx.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY; N.closed.append(sbx)
 	_south_wall(RCX - 6.0, RCX + 6.0, DOOR_FRONT.x, DOOR_FRONT.y, 2.97, C_WALL)   # v30.5
+	_wall_fade_setup()
 	box(Vector3(0.02, 0.08, 6.0), Vector3(-3.49, 0.04, 0), C_WHITE)
 	box(Vector3(0.02, 0.08, 6.0), Vector3(EX - 0.01, 0.04, 0), C_WHITE)
 	_build_window()
@@ -851,10 +860,10 @@ func _ball(r: float, p: Vector3, col: Color) -> MeshInstance3D:
 func _build_shelf() -> void:
 	N.shelf = prop("bookcaseOpen", Vector3(-2.95, 0, -2.75), 0, 1.85)
 	block(N.shelf)
-	for i in 3: prop("books", Vector3(-3.05 + (i % 2) * 0.12, 0.44 + i * 0.49, -2.75), 0, 0.0, 0.34)
+	for i in 3: prop("books", Vector3(-3.05 + (i % 2) * 0.12, (0.13 + i * 0.24) * 1.85 / 0.88, -2.75), 0, 0.0, 0.34)   # v32-polish: seated on the boards (were 0.17 m above)
 	_spl(prop("plantSmall1", Vector3(-2.8, 1.36, -2.75), 0, 0.22))
 	_spl(prop("plantSmall3", Vector3(-2.95, 1.86, -2.75), 0, 0.28))
-	N.shelf_book = box(Vector3(0.05, 0.24, 0.17), Vector3(-2.72, 0.56, -2.72), Color(0.85, 0.3, 0.3))
+	N.shelf_book = box(Vector3(0.05, 0.24, 0.17), Vector3(-2.72, 0.13 * 1.85 / 0.88 + 0.122, -2.72), Color(0.85, 0.3, 0.3))   # v32-polish: on the bottom board
 	box(Vector3(0.05, 0.22, 0.16), Vector3(-2.66, 0.55, -2.72), C_BLUE)
 	reg("books", "bookcase", Vector3(-2.95, 1.2, -2.75), Vector3(-2.85, 0, -2.0), Vector3(0, 0, -1))
 
@@ -1581,7 +1590,7 @@ func _fade_walls(dt: float) -> void:
 			var fm: StandardMaterial3D = w.material_override
 			fm.albedo_color.a = front_alpha * (0.4 if w.has_meta("glass") else 1.0)
 			fm.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED if front_alpha > 0.99 and not w.has_meta("glass") else (BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS if w.has_meta("glass") else BaseMaterial3D.TRANSPARENCY_ALPHA_HASH)
-	for group in [[walls_l, cam.position.x < -3.5], [walls_r, cam.position.x > EX], [walls_s, false]]:
+	for group in [[walls_l, cam.position.x < -3.5], [walls_r, cam.position.x > EX]]:   # v32-polish: south walls -> WallFade
 		var occl: bool = group[1]
 		for w in group[0]:
 			var ab: AABB = (w as MeshInstance3D).get_aabb(); ab.position += w.position
@@ -1710,6 +1719,7 @@ func _build_ui() -> void:
 	room_phone.setup(self, hud, phone_btn, func(shot: Dictionary): cam_shot = shot)
 	phone_btn.visible = App.has_phone   # v29.1: only after the bedroom pickup
 	cap_panel = PanelContainer.new(); cap_panel.name = "Caption"; cap_panel.add_theme_stylebox_override("panel", _sb(Color(0.08, 0.10, 0.16, 0.72), 22, 12))
+	cap_panel.add_to_group("caption_box"); cap_panel.visibility_changed.connect(func(): if cap_panel.visible: StoryUI.claim(cap_panel))   # v32-polish: ONE caption box on screen (StoryUI.claim)
 	hud.add_child(cap_panel)
 	var ch := HBoxContainer.new(); ch.add_theme_constant_override("separation", 16); cap_panel.add_child(ch)
 	var cv := VBoxContainer.new(); cv.add_theme_constant_override("separation", 2); ch.add_child(cv)
@@ -2213,6 +2223,12 @@ func _tea_arm(p: Array, t: float) -> void:
 ## v30.5: visible south (camera-side) wall: a solid low part (0..LOW) with the door gap, the upper part + lintel fade like
 ## the side walls when they hide the player (walls_s). The shadow-only N.closed box stays as before (daylight / cine shots).
 var walls_s: Array = []
+const WallFade := preload("res://scripts/props/wall_fade.gd")   # v32-polish: shared wall-fade helper
+var wall_fade: Node
+## v32-polish: south walls fade through the shared helper; force_fade(true) during both breakfasts (day 1 here, day 2 in day2_morning.gd)
+func _wall_fade_setup() -> void:
+	wall_fade = WallFade.attach(self, func(): return cam.global_position if is_instance_valid(cam) else Vector3.INF, func(): return hero.global_position if is_instance_valid(hero) else Vector3.INF)
+	for w in walls_s: wall_fade.register(w)
 const SOUTH_LOW := 0.9
 func _south_wall(x0: float, x1: float, g0: float, g1: float, z: float, c: Color) -> void:
 	for seg in [[x0, g0], [g1, x1]]:
