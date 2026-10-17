@@ -168,6 +168,7 @@ func _ready() -> void:
 	hand3d = Sprite3D.new(); hand3d.texture = load("res://ui/hand.png"); hand3d.pixel_size = 0.0013
 	hand3d.billboard = BaseMaterial3D.BILLBOARD_ENABLED; hand3d.no_depth_test = true; hand3d.render_priority = 10; hand3d.visible = false; add_child(hand3d)
 	_load_voice(); _build_ui(); _apply_states()
+	_stable_lights()   # v304: final omni settings from frame 0 (no shadow/variant switch 0.5 s in, right before the mirror pan)
 	if (S.face_done and S.teeth_done) or WorldState.day >= 2:
 		_set_mission("Go to the living room.")
 	else:
@@ -316,7 +317,7 @@ func _build_env() -> void:
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR; env.ambient_light_color = Color(1.0, 0.97, 0.93)
 	env.ambient_light_energy = 0.6; env.tonemap_mode = Environment.TONE_MAPPER_FILMIC; env.tonemap_exposure = 0.95
 	we.environment = env; add_child(we)
-	sun = DirectionalLight3D.new(); sun.shadow_enabled = true; sun.light_color = Color(1.0, 0.95, 0.85); sun.light_specular = 0.25; get_tree().create_timer(0.5).timeout.connect(_stable_lights)
+	sun = DirectionalLight3D.new(); sun.shadow_enabled = true; sun.light_color = Color(1.0, 0.95, 0.85); sun.light_specular = 0.25
 	add_child(sun); sun.look_at_from_position(Vector3(1.5, 9, -9), Vector3(0, 0, 0)); sun.light_energy = 1.3 * WorldState.daylight()
 	sun.directional_shadow_max_distance = 40.0; sun.directional_shadow_fade_start = 1.0; sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
 	sun.shadow_blur = 2.5; sun.shadow_bias = 0.04; sun.shadow_normal_bias = 1.2
@@ -1517,6 +1518,9 @@ func _mirror_prompt(todo: Array) -> void:
 	await get_tree().create_timer(0.8, false).timeout
 	if mode != "play": return
 	var sx: float = OBJ.sink.focus.x
-	await Life.guide_to({"pos": Vector3(sx + 1.4, 1.85, BZ + 2.3), "at": Vector3(sx, 1.35, BZ + 0.05)}, "Go to the mirror.",
+	# v304 (red): frame the player AND the mirror (the old fixed close-up left the player out of frame / behind the camera)
+	var at := Vector3(sx, 1.35, BZ + 0.05).lerp(hero.position + Vector3(0, 0.9, 0), 0.6)
+	var pos := Vector3(clampf(at.x + 1.3, LX + 0.5, RX - 0.5), 2.45, clampf(maxf(hero.position.z, at.z) + 1.5, BZ + 1.2, FZ - 0.25))
+	await Life.guide_to({"pos": pos, "at": at}, "Go to the mirror.",
 		{"tr": "Aynaya git.", "list": [{"id": "Go to the mirror.", "en": "Go to the mirror.", "tr": "Aynaya git."}] + todo})
 	_set_mission("Go to the mirror.")
