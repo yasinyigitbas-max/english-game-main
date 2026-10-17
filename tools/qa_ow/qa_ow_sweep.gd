@@ -21,7 +21,7 @@ func _ready() -> void:
 	await w(6.0)
 	if OwLink.inst and is_instance_valid(OwLink.inst.live): get_tree().current_scene = OwLink.inst.live
 	P("LIVE " + (OwLink.inst.live_id if OwLink.inst else "-"))
-	if not ev in ["places", "fix", "fixb", "trburst", "d1", "ui", "hosp", "hosp2", "glass", "qc"]: Engine.time_scale = 2.5; AudioServer.playback_speed_scale = 2.5
+	if not ev in ["places", "fix", "fixb", "trburst", "d1", "ui", "hosp", "hosp2", "glass", "qc", "pane"]: Engine.time_scale = 2.5; AudioServer.playback_speed_scale = 2.5
 	Objectives.changed.connect(func():
 		for it in Objectives.items:
 			var s := String(it.en)
@@ -40,7 +40,7 @@ func _snap(n: String) -> void:
 	var caps := get_tree().root.find_children("*Caption*", "", true, false).filter(func(c): return c is CanvasItem and c.is_visible_in_tree())
 	P("SHOT %s scene=%s objs=%s caps=%d cam=%s" % [f, cs.name if cs else "-", JSON.stringify(Objectives.items.map(func(i): return i.en)), caps.size(), get_viewport().get_camera_3d().get_path() if get_viewport().get_camera_3d() else "none"])
 func _setup(pre := false) -> void:
-	var day := 6 if ev in ["d6", "d6b", "d6c", "places", "fix", "fixb", "trburst", "ui", "hosp", "glass", "qc"] else 7
+	var day := 6 if ev in ["d6", "d6b", "d6c", "places", "fix", "fixb", "trburst", "ui", "hosp", "glass", "qc", "pane"] else 7
 	if ev == "d1": day = 1
 	var st: Dictionary = {}
 	for k in ["d3", "d4", "d5"]: st[k] = "done"
@@ -119,6 +119,7 @@ func run() -> void:
 	if ev == "hosp2": await hosp33(true); get_tree().quit(); return
 	if ev == "glass": await glass33(); get_tree().quit(); return
 	if ev == "qc": await qc33(); get_tree().quit(); return
+	if ev == "pane": await pane33(); get_tree().quit(); return
 	var stuck := 0
 	var limit := 3000
 	while _t() < limit:
@@ -164,8 +165,16 @@ func run() -> void:
 				if asst:
 					var al: Vector3 = s.lp(asst); var dir := (-al * Vector3(1, 0, 1)).normalized()
 					var t_ask := _t()
-					s.player.global_position = s.gp(al + dir * 2.3); P("D5 ASK placed at 2.3 m from assistant t=%d" % t_ask); await w(2.0); await _snap("d5_ask_counter")
-			["street", "Walk to the corner shop."]: await w(2.0); await _snap("d5_walk_shop"); await OwLink.enter("shop", "street"); await w(4.0); await _snap("d5_shop_in")
+					await s.player.move_to(s.gp(al + dir * 2.3)); P("D5 ASK walked to 2.3 m from assistant t=%d" % t_ask); await w(2.0); await _snap("d5_ask_counter")
+			["street", "Walk to the corner shop."]:
+				await w(2.0); await _snap("d5_walk_shop")
+				var W5 = OwLink.inst.world; var wp5 = W5.player
+				wp5.place_at("shop"); await w(1.5); await _snap("d5_at_shop_door"); P("D5 at shop door pos=%s region=%s" % [str(wp5.global_position), W5.region_at(wp5.global_position)])
+				var dc: Vector3 = W5.doors["shop"].center() if W5.doors.has("shop") else wp5.global_position
+				var rc: Vector3 = W5.regions["shop"].get_center() if W5.regions.has("shop") else dc
+				await wp5.move_to(dc); P("D5 at door centre region=%s live=%s" % [W5.region_at(wp5.global_position), OwLink.inst.live_id])
+				await wp5.move_to(dc.lerp(rc, 0.5)); await w(4.0)
+				P("D5 walked in region=%s live=%s" % [W5.region_at(wp5.global_position), OwLink.inst.live_id]); await _snap("d5_walked_in")
 			["street", "Go to the shop."]:
 				await w(3.0); await _snap("shop_obj"); await OwLink.enter("shop", "street"); await w(5.0); await _snap("shop_in")
 			["shop", "Go outside."], ["shop", "Go home."]: await w(2.0); await OwLink.to_street("shop"); await w(3.0); await _snap("shop_out")
@@ -524,3 +533,44 @@ func qc33() -> void:
 		var qt = ph.find_child("QuestionTR", true, false)
 		P("QC %s qtr=%s" % [f, (qt.text if qt else "?")]); await _snap("QC_" + f)
 		ph.close(true); await w(1.5)
+
+func _mat_info(m) -> String:
+	if m == null: return ""
+	if m is BaseMaterial3D: return "%s tr=%d a=%.2f col=%s" % [m.get_class(), m.transparency, m.albedo_color.a, str(m.albedo_color)]
+	if m is ShaderMaterial:
+		var o := "Shader %s" % (m.shader.resource_path if m.shader else "?")
+		for k in ["albedo", "color", "alpha", "fade", "tint", "opacity"]:
+			var v = m.get_shader_parameter(k)
+			if v != null: o += " %s=%s" % [k, str(v)]
+		return o
+	return m.get_class()
+func pane33() -> void:
+	OwLink.to_street("front"); await w(10.0)
+	var W = OwLink.inst.world; var all: Array = []; _walk_all(get_tree().root, all)
+	var car := Vector3(6, 0, 6.5)
+	for c in all:
+		if str(c.name) == "MyCar" and c is Node3D: car = (c as Node3D).global_position
+	P("CAR at %s" % str(car))
+	for c in all:
+		if not (c is GeometryInstance3D) or not (c as Node3D).is_visible_in_tree(): continue
+		var g := c as GeometryInstance3D
+		var ab: AABB = g.global_transform * g.get_aabb()
+		if not ab.grow(0.5).intersects(AABB(car - Vector3(9, 1, 9), Vector3(18, 6, 18))): continue
+		var infos: Array = []
+		var ov := _mat_info(g.material_override); if ov != "": infos.append("ovr:" + ov)
+		var ol := _mat_info(g.material_overlay); if ol != "": infos.append("ovl:" + ol)
+		if g is MeshInstance3D and g.mesh:
+			for i in g.mesh.get_surface_count():
+				var so := _mat_info(g.get_surface_override_material(i)); if so != "": infos.append("so%d:%s" % [i, so])
+				var sm := _mat_info(g.mesh.surface_get_material(i)); if sm != "": infos.append("sm%d:%s" % [i, sm])
+		var txt := " | ".join(infos)
+		var transp := g.transparency > 0.0 or txt.contains("Shader") or txt.contains(" tr=1") or txt.contains(" tr=2") or txt.contains(" tr=3") or txt.contains(" tr=4") or (txt.contains(" a=") and not txt.contains(" a=1.00"))
+		if g is CPUParticles3D or g is GPUParticles3D or g is Label3D or g is Sprite3D: transp = true
+		var blue := false
+		for mm in [g.material_override] + ([g.get_active_material(0)] if g is MeshInstance3D and g.mesh and g.mesh.get_surface_count() > 0 else []):
+			if mm is BaseMaterial3D and mm.albedo_color.b > 0.8 and mm.albedo_color.r < 0.8 and mm.albedo_color.g > 0.6: blue = true
+		if blue: P("BLUE %s ab=%s..%s %s" % [str(c.get_path()).right(120), str(ab.position), str(ab.end), txt.left(200)])
+		if transp: P("PANE? %s cls=%s ab=%s..%s gtr=%.2f %s" % [str(c.get_path()).right(120), c.get_class(), str(ab.position), str(ab.end), g.transparency, txt.left(300)])
+	var c3 := get_viewport().get_camera_3d()
+	if c3: c3.global_position = car + Vector3(-9.0, 3.2, -9.5); c3.look_at(car + Vector3(-2.5, 0.5, 0))
+	await w(0.3); await _snap("P1_pane_area")

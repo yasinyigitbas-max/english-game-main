@@ -758,7 +758,8 @@ func do_verb(id: String, v: Array) -> void:
 		"alarm":
 			await gesture("mid", id, func(): Audio.sfx("metalClick"); S.alarm = {"off": "off", "set": "set", "check": S.alarm}.get(key, "off") if key != "set" else "set")
 			if key == "off":
-				if S.created: _set_mission("Explore your bedroom.")
+				if S.created:
+					if App.day <= 1 and not get_tree().root.has_node("Day56Routine"): _set_mission("Explore your bedroom.")   # ui33: day-1 mission only (it flashed after the day-5/6 alarm)
 				else:
 					Objectives.set_list(["Look in the mirror."]); _set_mission("Look in the mirror.")
 					await _cine_mirror(); hint_t = 0.0; get_tree().create_timer(0.2, false).timeout.connect(_mirror_hint)
