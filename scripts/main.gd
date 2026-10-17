@@ -901,7 +901,7 @@ func _lie_blend(t: float) -> void:
 	hero.model.position = pivot - Basis(Vector3.RIGHT, ang) * pivot
 	hero.position = LIE_ROOT.lerp(LIE_FLAT - Vector3(h, h, 0), t)
 	# the pose crossfade (standing idle <-> sitting) moves the hips inside the model: keep them on the mattress mid-way
-	var hy: float = (sk.global_transform * sk.get_bone_global_pose(sk.find_bone("Hips")).origin).y
+	var hy: float = to_local(sk.global_transform * sk.get_bone_global_pose(sk.find_bone("Hips")).origin).y   # open world: room-local like M
 	hero.position.y += (lerpf(M + 0.1, M + 0.16, t) - hy) * sin(t * PI)
 
 func _pose_sleep() -> void:

@@ -586,7 +586,7 @@ const CENTRE := Vector3(1.5, 0, 0)
 var _spl_n := 0
 func _spl(n: Node3D) -> Node3D:
 	_spl_n += 1; var id := "splant%d" % _spl_n
-	var p: Vector3 = n.global_position if n.is_inside_tree() else n.position
+	var p: Vector3 = to_local(n.global_position) if n.is_inside_tree() else n.position   # open world: room-local spot
 	var d := Vector3(CENTRE.x - p.x, 0, CENTRE.z - p.z); d = d.normalized() if d.length() > 0.01 else Vector3(0, 0, 1)
 	reg(id, "plant", p + Vector3(0, 0.12, 0), Vector3(p.x, 0, p.z) + d * 0.75, -d)
 	if not S.has(id): S[id] = "dry"
@@ -1285,7 +1285,7 @@ func sit_spot(seat: String) -> Vector3:
 const HIP_ABOVE_SEAT := 0.10
 func _hips(ch: DemoCharacter) -> Vector3:
 	var sk := ch.skeleton
-	return sk.global_transform * sk.get_bone_global_pose(sk.find_bone("Hips")).origin
+	return to_local(sk.global_transform * sk.get_bone_global_pose(sk.find_bone("Hips")).origin)   # open world: room-local (SEATS / ch.position)
 
 ## root position that puts the hips of `anim` at time t onto the seat
 func _pose_fix(ch: DemoCharacter, anim: String, t: float, seat: String) -> Vector3:
@@ -1305,7 +1305,7 @@ func _anim_hips(ch: DemoCharacter, anim: String, t: float) -> Vector3:
 			local = a.position_track_interpolate(ti, t)
 	var par := sk.get_bone_parent(hi)
 	var pxf := sk.get_bone_global_rest(par) if par >= 0 else Transform3D.IDENTITY
-	return sk.global_transform * (pxf * local)
+	return to_local(sk.global_transform * (pxf * local))   # open world: room-local, like SEATS and ch.position
 
 func sit_down(ch: DemoCharacter, seat: String, animate: bool) -> void:
 	ch.rotation.y = SEATS[seat].yaw

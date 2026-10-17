@@ -289,7 +289,7 @@ func _breakfast(lr: Node) -> void:
 	await speak(lr, "", "", "I am having breakfast.", "Kahvaltı yapıyorum.")
 	if lr.eat_tw: lr.eat_tw.kill()
 	lr.eat_tw = lr._breakfast_loop(lr.hero, lr.SEATS[seat].yaw if seat != "" else 0.0, 0)
-	await snap("d%d_breakfast" % day, lr.DINE_C + Vector3(-2.2, 1.6, 1.6), lr.DINE_C + Vector3(0, 0.7, 0), 50.0)
+	await snap("d%d_breakfast" % day, lr.to_global(lr.DINE_C + Vector3(-2.2, 1.6, 1.6)), lr.to_global(lr.DINE_C + Vector3(0, 0.7, 0)), 50.0)   # open world: room-local -> world
 	await run_steps(D.breakfast)
 	flag("d%d_breakfast_done" % day, true)
 	Life.satisfy(["hunger", "thirst"])

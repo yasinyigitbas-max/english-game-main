@@ -4,8 +4,10 @@
 ## (spawn home_car), where the parent drives into the home driveway. Only ever entered from ChildDrive (children).
 extends Node3D
 
-const DOOR := Vector3(0, 0, 8.0)
-const PARK := Vector3(0, 0.07, 2.6)
+const DOOR0 := Vector3(0, 0, 8.0)
+const PARK0 := Vector3(0, 0.07, 2.6)
+var DOOR := DOOR0   # open world: world positions of the stop's door / parking spot (set in _ready from its reserved slot)
+var PARK := PARK0
 const CAM_OFF := Vector3(2.5, 7.5, -8.5)
 
 var mode := "busy"            # Life.guide_to reads it
@@ -20,6 +22,7 @@ var focus_on: Node3D
 var _focus := Vector3.ZERO
 
 func _ready() -> void:
+	DOOR = to_global(DOOR0); PARK = to_global(PARK0)
 	var plan: Dictionary = ChildDrive.plan.duplicate()
 	if plan.is_empty(): plan = {"mode": "arrive", "from": "home", "to": "hospital"}   # QA / direct load
 	_build()
