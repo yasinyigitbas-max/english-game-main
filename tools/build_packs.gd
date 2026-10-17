@@ -16,6 +16,10 @@ func _add_dir(pk: PCKPacker, dir: String, cnt: Array) -> void:
 			pk.add_file(p, p); cnt[0] += 1
 	for d in DirAccess.get_directories_at(dir): _add_dir(pk, dir + "/" + d, cnt)
 func _init() -> void:
+	# v32-voices: speech.pck carries every narrator's TTS model (tools/fetch_tts_models.sh); never ship it without them
+	for f in ["en_US-ljspeech-medium.onnx", "en_US-joe-medium.onnx", "tokens.txt", "tokens_joe.txt", "kokoro/model.onnx", "kokoro/voices.bin", "kokoro/tokens.txt"]:
+		if not FileAccess.file_exists("res://tts/" + f):
+			printerr("build_packs: res://tts/%s missing - run tools/fetch_tts_models.sh" % f); quit(1); return
 	DirAccess.make_dir_recursive_absolute(OUT)
 	for pair in [["voice.pck", ["res://voice"]], ["speech.pck", ["res://tts"]], ["narrator.pck", ["res://voice_m", "res://voice_c", "res://voice_g"]]]:
 		var pk := PCKPacker.new(); pk.pck_start(OUT + pair[0])

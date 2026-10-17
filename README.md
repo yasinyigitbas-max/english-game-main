@@ -48,3 +48,5 @@ This tree was rebuilt from the shipped `english_game_house_v31.1.apk` (build-v31
 - Fresh clone: `tools/setup_android_build.sh` (restores the template libs), then `godot --headless --import`.
 - Ship: `tools/black_ship31.sh <ver> <packs-tag> [--reuse-packs] [--upload]`. It is a dry run unless you pass `--upload`.
 - `android/build` contains the SherpaTts on-device TTS plugin. It was rebuilt from the APK; don't reinstall the build template over it.
+
+- v32-voices: every narrator speaks typed names / runtime lines in its OWN pack model on device (SherpaTts initNarrator/generateNarrator + VoiceFx pitch chain). Models are not in git: run `tools/fetch_tts_models.sh` before `tools/build_packs.gd` (speech.pck ~481 MB).
