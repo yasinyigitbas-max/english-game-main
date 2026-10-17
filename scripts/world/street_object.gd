@@ -272,7 +272,7 @@ func _drive(d: Dictionary) -> void:
 	if w.player: w.player.busy = true
 	await w.say_line("I am getting in my car.")
 	var to := "to school" if d.place == "school" else (("to " + String(d.place)) if d.place in ["the mall", "the hospital", "the shop"] else "to work")
-	await w.say_line("I am driving %s." % to)
+	await w.say_line(ChildDrive.child_line("I am driving %s." % to))   # a child: "My mom/dad is driving me to ..."
 	if w.player: w.player.busy = false
 	match String(d.get("day2", "")):   # v31 day 2
 		"work":

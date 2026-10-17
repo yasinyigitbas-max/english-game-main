@@ -753,7 +753,7 @@ func do_verb(id: String, v: Array) -> void:
 				await sit_on_bed(); action_peak.emit(id); await wait(2.0)
 				caption("I am standing up."); await stand_from_bed()
 			elif key == "lie":
-				await sit_on_bed(); await edge_to_bedsit(); await bedsit_to_lie(); S.bed = "unmade"; _apply_states()
+				await lie_down(); S.bed = "unmade"; _apply_states()
 				action_peak.emit(id); mode = "lying"; _update_hand(); action_done.emit(id); return
 		"alarm":
 			await gesture("mid", id, func(): Audio.sfx("metalClick"); S.alarm = {"off": "off", "set": "set", "check": S.alarm}.get(key, "off") if key != "set" else "set")
@@ -937,6 +937,12 @@ func sleep_pose() -> void:
 	var m0 := (h0 + f0) * 0.5; var m1 := (_bone_w("Head") + _feet_w()) * 0.5
 	hero.global_position += Vector3(m0.x - m1.x, p0.y - _bone_w("Hips").y, m0.z - m1.z)
 	sleep_clip = true; breathing = true
+## Yasin 17:58 SLEEP STANDARD: the ONE lie-down on a bed (player verb, day-1..7 bedtimes): sit, lie, and straight into
+## the real sleep pose the moment the body is down (no flat idle frame in between).
+func lie_down() -> void:
+	await sit_on_bed(); await edge_to_bedsit(); await bedsit_to_lie()
+	sleep_pose()
+
 func end_sleep_pose() -> void:
 	if sleep_clip: _pose_sleep()
 func _sleep_pingpong() -> void:
@@ -1384,6 +1390,7 @@ func caption(t: String, speak := true) -> void:
 	if t != "" and S.voice and speak: Audio.say(t)
 
 func _set_mission(t: String) -> void:
+	if Objectives.stale(t): return   # Yasin 17:58
 	mission = t; _refresh_text()
 	if t == "": Objectives.clear()
 	else:
@@ -2003,6 +2010,7 @@ func objective() -> Array:
 	if not S.calendar_seen: return ["Open the Calendar.", "calendar"]
 	var d2 := _day2_stage()
 	if _bed_pending(): return ["Go to bed.", ""]   # v33 (red): evening after the couch talk -> bedtime.gd; never the stale "Go to the living room."
+	if Objectives.d2_chat_done(): return ["Go to bed.", ""]   # Yasin 17:58: never "Go to the living room." after the day-2 family chat
 	if d2 == "living": return ["Go to the living room.", ""]   # v31: day-2 morning
 	if d2 == "car": return ["Go outside to the car.", ""]
 	if _day3_stage() == "shower": return ["Take a shower.", ""]   # v32 (red): day-3 morning: the shower first, the living room only after it (Day3Morning)

@@ -179,6 +179,7 @@ func _dim_sun(sc: Node) -> void:
 ## target: Node3D | Vector3 | Dictionary {pos, at[, h]} | null (objective+sound only).
 ## text: EN objective. opts: id, tr, list (Array replaces Objectives), speak, sound.
 func guide_to(target, text: String, opts := {}) -> void:
+	if Objectives.stale(text): return   # Yasin 17:58: no "Go to the living room." after the day-2 family chat
 	var sc := RoutineScope.current(get_tree())
 	var id := String(opts.get("id", text))
 	var tr := String(opts.get("tr", ""))

@@ -191,6 +191,7 @@ func _dup(what: String, v := "") -> bool:
 func say(text: String, interrupt := true) -> void:
 	if text.strip_edges() == "":
 		return
+	if Objectives.stale(text): return   # Yasin 17:58: never after the day-2 family chat
 	if _dup(text): return
 	# house.17: global voice queue - a new line NEVER cuts the current one (interrupt is ignored)
 	var key := norm(text)
@@ -385,6 +386,15 @@ func _tts_wait(serial: int, text: String) -> void:
 	_next()
 
 ## house.17: rooms with their own voice banks queue their clips here too (one queue for the whole game)
+## UNIVERSAL NARRATOR (Yasin 17:53): the ONE way to play a PLAYER line. The chosen pack's clip first; a caller's own
+## bank clip (bathroom / outdoor ljspeech) only when the chosen narrator IS that default voice (f); otherwise say()
+## = the chosen narrator's own model (Kokoro for c/g, Piper joe for m) or caption-only. Never another voice.
+func say_player(text: String, f_bank: AudioStream = null) -> void:
+	var alt := narrator_alt(text)
+	if alt: say_stream(alt, text); return
+	if narrator == "f" and f_bank: say_stream(f_bank, text); return
+	say(text)
+
 func say_stream(st: AudioStream, what: String) -> void:
 	if st == null or _dup(what): return
 	queue.append({"stream": st, "what": what}); stats.clip += 1; spoke.emit(what); _kick()

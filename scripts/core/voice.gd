@@ -13,13 +13,9 @@ func has_clip(en: String) -> bool: return Audio.has_clip(en) or ResourceLoader.e
 func say(en: String) -> void:
 	if not enabled or en.strip_edges() == "": return
 	if Audio.has_clip(en): Audio.say(en); return
-	var alt := Audio.narrator_alt(en)   # v31: selected narrator pack before the default outdoor clip
-	if alt: Audio.say_stream(alt, en); return
 	var p := clip_path(en)
-	if ResourceLoader.exists(p):
-		var st = load(p)   # blue v29: a broken / stale-import clip is skipped (caption still shows)
-		if st is AudioStream: Audio.say_stream(st, en)
-		else: push_warning("Voice: could not load " + p)
+	var st = load(p) if ResourceLoader.exists(p) else null   # the default (f) outdoor clip: only for the f narrator
+	Audio.say_player(en, st as AudioStream)
 
 func clip_len(en: String) -> float:
 	var p := clip_path(en)

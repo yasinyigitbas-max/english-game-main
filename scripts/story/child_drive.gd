@@ -76,11 +76,9 @@ static func voice_on() -> bool: return bool(CharacterHook.state().get("voice", t
 ## the player's line, in the player's OWN narrator voice (never another voice)
 static func speak_child(en: String) -> void:
 	if not voice_on(): return
-	var alt := Audio.narrator_alt(en)
-	if alt: Audio.say_stream(alt, en); return
-	var own := _own_clip(en, Audio.narrator)
-	if own: Audio.say_stream(own, en); return
-	if Audio.narrator == "f": Voice.say(en)
+	var own := _own_clip(en, Audio.narrator)   # this narrator's own drive clip (same model/speaker as its pack)
+	if own and not Audio.narrator_alt(en): Audio.say_stream(own, en); return
+	Audio.say_player(en)   # universal narrator
 ## a parent line in the parent's own voice
 static func speak_parent(en: String, v: String) -> void:
 	if not voice_on(): return
@@ -114,7 +112,9 @@ static func escort(w: Node) -> void:
 	cd.following = true
 
 ## street_object.gd _drive: true when the child flow took over (the adult code below the hook is skipped)
-static func wants_drive(d: Dictionary) -> bool: return String(d.get("day2", "")) != "" and active()
+## Yasin 17:58: driving / arrival is NEVER shown, for a child either -> the adult path (fade summary) runs; the child's
+## line is "My mom/dad is driving me to ..." (child_line in street_object). Kept as a hook that always says no.
+static func wants_drive(_d: Dictionary) -> bool: return false
 static func depart(car: Node3D, d: Dictionary) -> void:
 	var w := RoutineScope.current(car.get_tree())
 	var cd: ChildDrive = w.get_node_or_null("ChildDrive")
@@ -125,13 +125,20 @@ static func depart(car: Node3D, d: Dictionary) -> void:
 ## hospital_day2.gd / work_summary.gd: leave `from`, drive to `to` (hospital / work / home). covered = a black overlay
 ## already hides the screen (work_summary), so the scene can switch without another fade.
 static func trip(tree: SceneTree, from: String, to: String, covered := false) -> void:
-	plan = {"mode": "leave", "from": from, "to": to}
-	print("CHILD_DRIVE trip ", from, " -> ", to)
-	if covered: StoryNav.travel(tree, STOP_SCENE, "", true)
-	else: StoryNav.travel(tree, STOP_SCENE)
+	plan = {}
+	print("CHILD_DRIVE trip (off-screen) ", from, " -> ", to)
+	var host := tree.current_scene
+	if host:   # the line in the ONE standard box, the child's own narrator voice; then the same travel as adults
+		var ui := StoryUI.new(); ui.layer = 121; host.add_child(ui)
+		await ui.line(drive_line(place_of(to)))
+		ui.queue_free()
+	match to:
+		"hospital": HospitalScene.start_day2_visit(tree)
+		"home": App.came_from = "outside"; StoryNav.travel(tree, Game.WORLD_SCENE, "home_car", covered)
+		_: load("res://scripts/story/work_summary.gd").play(tree)
 
 ## world_exterior with spawn home_car: the parent drives into the home driveway
-static func arriving_home() -> bool: return String(plan.get("mode", "")) == "home" and active()
+static func arriving_home() -> bool: return false   # Yasin 17:58: no visible arrival drive (the hero is placed at the door)
 static func arrive_home(w: Node, lot: Node) -> void:
 	plan = {}
 	var cd := _make(w)
