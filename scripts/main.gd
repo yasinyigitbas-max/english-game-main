@@ -940,13 +940,11 @@ var blanket: MeshInstance3D
 func _blanket(on: bool, t := 0.8) -> void:
 	if on and blanket == null:
 		blanket = MeshInstance3D.new(); blanket.name = "SleepBlanket"
-		var bm := BoxMesh.new(); bm.size = Vector3(1.40, 0.22, 1.02); blanket.mesh = bm
+		blanket.mesh = _drape_mesh()
 		var mat := StandardMaterial3D.new(); mat.albedo_color = Color(0.36, 0.62, 0.95); mat.roughness = 0.95
+		mat.cull_mode = BaseMaterial3D.CULL_DISABLED; mat.vertex_color_use_as_albedo = true
 		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS; blanket.material_override = mat
-		var fold := MeshInstance3D.new(); var fm := BoxMesh.new(); fm.size = Vector3(0.16, 0.235, 1.03); fold.mesh = fm
-		var fmat := StandardMaterial3D.new(); fmat.albedo_color = Color(0.97, 0.97, 0.95); fold.material_override = fmat
-		fold.position = Vector3(-0.64, 0.004, 0); blanket.add_child(fold)
-		blanket.position = Vector3(B.x + 0.37, M + 0.11, B.z)   # head at -x (pillow), feet toward +x (LIE_FLAT)
+		blanket.position = Vector3(B.x + 0.47, M, B.z)   # head at -x (pillow), feet toward +x (LIE_FLAT)
 		add_child(blanket)
 	elif on: return   # already covered (bed locks re-pose every frame: no re-fade)
 	if blanket == null: return
@@ -957,6 +955,38 @@ func _blanket(on: bool, t := 0.8) -> void:
 	else:
 		var b := blanket; blanket = null
 		var tw := create_tween(); tw.tween_property(mt, "albedo_color:a", 0.0, t); tw.tween_callback(b.queue_free)
+
+## a quilt draped over the sleeper: a soft mound along the body (high enough for the bent knee of the sleep clip), flat
+## on the mattress at the sides, hanging down over both bed edges; folded-back white hem at the chest
+func _drape_mesh() -> ArrayMesh:
+	var st := SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	const NX := 28; const NZ := 22; const L := 1.42; const HW := 0.52; const DROP := 0.26
+	var pts: Array = []
+	for i in NX + 1:
+		var row: Array = []
+		var x := -L / 2.0 + L * float(i) / NX
+		var u := float(i) / NX
+		var mound := 0.34 * (0.6 + 0.4 * sin(clampf(u * 1.25, 0.0, 1.0) * PI))   # high to the foot end (the sleep clip lifts a knee / foot)
+		for j in NZ + 1:
+			var v := -1.0 + 2.0 * float(j) / NZ          # -1..1 across, the outer parts hang over the edges
+			var z := v * (HW + DROP * 0.6)
+			var y: float
+			if absf(z) <= HW:
+				var g := exp(-pow(absf(z + 0.04) / 0.40, 4.0))   # a broad raised plateau over the whole body (knees / feet of the sleep clip stay under)
+				y = 0.035 + mound * g + 0.03 * (1.0 - g)
+			else:
+				var k := (absf(z) - HW) / (DROP * 0.6)
+				y = 0.05 - DROP * smoothstep(0.0, 1.0, k); z = signf(z) * (HW + 0.03 + 0.02 * k)
+			row.append(Vector3(x, y, z))
+		pts.append(row)
+	for i in NX:
+		for j in NZ:
+			var a: Vector3 = pts[i][j]; var b: Vector3 = pts[i + 1][j]; var c: Vector3 = pts[i + 1][j + 1]; var d: Vector3 = pts[i][j + 1]
+			for q in [a, b, c, a, c, d]:
+				st.set_color(Color(0.97, 0.97, 0.95) if (q as Vector3).x < -L / 2.0 + 0.14 else Color(1, 1, 1))
+				st.add_vertex(q)
+	st.generate_normals()
+	return st.commit()
 
 func sleep_pose(fade := 0.0) -> void:
 	if sleep_clip or not hero.player.has_animation("sleep"): return
@@ -969,6 +999,8 @@ func sleep_pose(fade := 0.0) -> void:
 	hero.bone_offsets.clear()
 	hero.model.rotation = Vector3(0, hero.model.rotation.y, 0); hero.model.position = Vector3.ZERO
 	hero.player.speed_scale = SLEEP_SPEED; hero.player.play("sleep", 0.0); hero.player.seek(SLEEP_A, true)
+	hero.player.advance(0.0)
+	if hero.skeleton.has_method("force_update_all_bone_transforms"): hero.skeleton.force_update_all_bone_transforms()   # build 3.2: no frame with the new root and the old (standing) pose
 	var d0 := h0 - f0; d0.y = 0.0
 	var d1 := _bone_w("Head") - _feet_w(); d1.y = 0.0
 	if d0.length() > 0.1 and d1.length() > 0.1: hero.rotation.y += d1.signed_angle_to(d0, Vector3.UP)

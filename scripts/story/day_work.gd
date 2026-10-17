@@ -21,6 +21,9 @@ static func _on_street(w: Node) -> bool:
 
 static func pending() -> bool:
 	var sv := App.load_save(); var d := _day()
+	# QA jump harnesses (blue / black) that start past breakfast: the work step never blocks them
+	for a in OS.get_cmdline_user_args():
+		if String(a).begins_with("--qa") and String(a) != "--qa-ow=work4": return false
 	return d >= 3 and d <= 7 and int(sv.get("work_due_day", 0)) == d and int(sv.get("work_done_day", 0)) != d
 
 static func goal() -> Array:

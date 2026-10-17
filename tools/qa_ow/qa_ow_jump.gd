@@ -49,9 +49,9 @@ func _ready() -> void:
 			bm.cam_shot = {"pos": bm.OBJ.bed.focus + Vector3(1.9, 1.5, 1.7), "at": bm.OBJ.bed.focus + Vector3(0, 0.3, 0)}
 			await bm.walk_to(bm.OBJ.bed.spot, 0.0); await _t(1.0)
 			bm.lie_down()
-			for i in 16:
-				await _t(0.5); _shot(i)
-			await _t(3.0); _shot(16)
+			for i in 26:
+				await _t(0.25 if i > 0 else 1.5); _shot(i)
+			await _t(3.0); _shot(26)
 			get_tree().quit(); return
 		"work4":
 			App.patch_save({"work_due_day": 4, "work_done_day": 0})
