@@ -24,7 +24,7 @@ func _ready() -> void:
 	sub = Label.new(); sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; sub.add_theme_font_size_override("font_size", 24)
 	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; v.add_child(sub)
 	btns = HBoxContainer.new(); btns.alignment = BoxContainer.ALIGNMENT_CENTER; btns.add_theme_constant_override("separation", 24); v.add_child(btns)
-	http = HTTPRequest.new(); http.timeout = 30.0; http.use_threads = true; add_child(http)
+	http = HTTPRequest.new(); http.timeout = 0.0; http.use_threads = true; add_child(http)
 	http.request_completed.connect(_on_done)
 	_fetch_manifest()
 
@@ -40,6 +40,7 @@ func _fetch_manifest() -> void:
 	_buttons([]); _status("Checking for lessons… (Kontrol ediliyor…)")
 	cur = {}
 	http.download_file = ""
+	http.timeout = 30.0
 	if http.request(Packs.MANIFEST_URL) != OK: _offline()
 
 func _offline() -> void:
@@ -108,6 +109,7 @@ func _start(p: Dictionary) -> void:
 	cur = p
 	_status("%s (%.0f MB)" % [String(p.file), int(p.size) / 1048576.0])
 	http.download_file = Packs.DIR + "/" + Packs.local_name(p) + ".part"
+	http.timeout = 0.0
 	if http.request(String(p.url)) != OK: _retry_pack()
 
 func _process(_dt: float) -> void:
