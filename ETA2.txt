@@ -1,0 +1,44 @@
+v33 "one surface" (Yasin 17:04 change) - realistic ETA          written Sat 2026-10-17 17:08, updated 17:10 (Istanbul, UTC+3)
+NOTE 17:06: parent re-paused Godot until normal v33 ships (~19:30); code is written meanwhile, all times below assume Godot from ~19:30.
+
+(a) HOUSE truly one surface (bedroom + bathroom + living room: each room built once and never freed/rebuilt, one hero,
+    one camera, one visible UI; doors = walk through, no fade, no respawn; alarm/lights/doors/props keep state;
+    far rooms process-disabled, not reset), tested (every door both ways, alarm persists, mirrors live, breakfast,
+    New game from pause twice, days 1-3 house flows, FPS/memory vs wholehouse), APK built:
+      ETA  Sun 2026-10-18 ~01:30 (Istanbul, UTC+3)   (range 00:00 - 03:00; depends on the Godot lock queue)
+      First testable APK without the full day 1-3 regression: ~Sat 22:30 (Istanbul).
+
+(b) WHOLE TOWN one surface (street + cafe + shop + hospital + work/school sharing that same hero/camera/HUD):
+      ETA  Mon 2026-10-19 ~20:00 (Istanbul, UTC+3) at the earliest - NOT realistic for v33.
+      Reason: the street/cafe/shop use a different player (WorldPlayer, CharacterBody3D + HUD), the rooms drive a
+      DemoCharacter from each room script; one shared hero across both systems is a controller rewrite, and the
+      hospital/work scenes are first-person / cutscene scenes with no door in the street.
+
+The earlier "shell + promote" town code (commit 77d8b31 on v33-wholetown-black, rebased on origin/v33) is NOT the
+target any more; it stays out of the build.
+
+PROGRESS 17:20 (Istanbul): one-surface house code written (no Godot run yet), local commit 7fd1a5b on v33-wholetown-black
+(base origin/v33 b57e269); QA harness /tmp/v33town/harness_one (door continuity / no fade / same instance / state persistence).
+Next, once v33 ships: compile check + QA batch under the lock, fixes, export. ETAs above unchanged.
+(The shell+promote code now lives only on local branch v33-town-shellpromote, 77d8b31.)
+
+PREVIEW ETA (Yasin 17:22, written 17:23 Istanbul): preview APK build-v33town-preview (one-surface house; town only if it merges cleanly)
+  ~18:30 Istanbul (UTC+3) if the Godot lock frees by ~17:50; otherwise lock-free time + ~40 min.
+DONE 17:31 Istanbul: preview released (build-v33town-preview, 661a9a3, vc46). Full QA (doors via living room, breakfast, New game x2, days 1-3, perf) still to do.
+BLACK-OUTSIDE FIX ETA (17:33 Istanbul): fixed preview APK re-uploaded ~18:05 Istanbul (UTC+3).
+SHOULDER CAMERA ETA (17:34 Istanbul): GoW-style shoulder camera in the preview, APK re-uploaded ~18:15 Istanbul (UTC+3).
+17:39 Istanbul: camera work handed to blue (WIP on v33-town-cam-wip 8f33bf8). Interim APK from v33-wholetown-black 661a9a3 re-uploaded to build-v33town-preview.
+17:57 Istanbul: GoW shoulder cam (blue e062f1a) merged ff, cc ok, APK re-uploaded to build-v33town-preview (untested).
+
+OPEN WORLD (Yasin 18:09), written 18:10 Istanbul (UTC+3):
+  Phase 1 skeleton (scenes/world.tscn: every place built once at fixed world positions, one hero, one shoulder camera,
+  swinging doors, walk bedroom -> street -> cafe/shop with no load; OPENWORLD_PLAN.md; pushed to `openworld`):
+      ~19:45 Istanbul (range 19:30 - 20:30); preview APK build-openworld-preview right after (~20:00).
+  First PLAYABLE open-world APK (day-1 story running in the single world: room logic attached to the fixed rooms, story
+  moving the one hero; needs red's story port + blue's camera/interiors): Sun 2026-10-18 ~22:00 Istanbul at the earliest;
+  days 1-7 complete: Tue 2026-10-20 or later.
+18:27 Istanbul: open-world skeleton (house rooms + exterior + street + cafe + shop, one hero/cam, swinging doors) - APK built 18:27, upload + report ETA 18:40 Istanbul.
+18:36 Istanbul - openworld part 2 ETAs: (1) hospital/school/work places + doors + fixed ids 19:10; (2) day-8 fences 19:20; (3) World.skip_travel 19:25; (4) API real + Game.go_to shim + docs 19:40; report with screenshots ~19:50.
+18:38 Istanbul: part 2 (hospital/school/work + doors/spots, fences, skip_travel, API+shim) push ~18:50; then integrator: merge red/blue as they land, export vc48 + upload ~19:20.
+18:50 Istanbul: build 3 (day-1 walkable fix, dedupe hospital/work, cafe/shop doors at load, blue mesh merge) ETA 19:30.
+19:03 Istanbul: build 3 + draw-distance limit (far 35 m + fog, vis ranges 28 m, indoor room visibility, light/shadow limits) ETA 19:35.

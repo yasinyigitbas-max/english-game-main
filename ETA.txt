@@ -1,0 +1,7 @@
+v33 whole-town (branch v33-wholetown-black) - ETA estimate
+Written: Sat 2026-10-17 16:37 (Istanbul, UTC+3)
+Updated: Sat 2026-10-17 17:05 (Istanbul, UTC+3) - parent paused all Godot runs until normal v33 ships (~19:30)
+ETA: Sat 2026-10-17 ~23:30 (Istanbul, UTC+3) for build + QA report
+     = v33 ship (~19:30) + rebase onto v33 + ~3.5-4 h of Godot time (import, QA tours on town + baseline, export)
+     May slip if the Godot lock queue is long after v33 ships.
+Code + QA harness are written (no Godot needed); runs start when the lock is free after v33.
