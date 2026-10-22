@@ -113,13 +113,14 @@ const PARTS := {   # word: [TR, bone candidates, close-up distance, side offset]
 const FRAME := {
 	"legs": [1.0, 0.8, 0.45], "arms": [0.8, 0.3, 0.9], "chest": [0.75, 0.2, 0.3], "ears": [0.5, 0.08, 1.0], "eyes": [0.45, 0.08, 0.25],
 	"head": [0.6, 0.35, 0.3], "neck": [0.55, 0.08, 0.35], "shoulders": [0.8, 0.5, 0.35], "back": [0.85, 0.4, 0.35],
-	"stomach": [0.75, 0.75, 0.3], "hands and fingers": [0.6, 0.7, 0.4], "knees": [0.75, 0.65, 0.35], "feet": [0.85, 0.85, 0.35],
+	"stomach": [0.75, 0.75, 0.3], "hands and fingers": [0.6, 0.7, 0.4], "knees": [0.75, 0.3, 0.0], "feet": [0.85, 0.12, 0.0],   # v33: straight in front, low - the bed rail / mattress edge hid them from above (child legs hang higher)
+	
 	"mouth and teeth": [0.45, 0.0, 0.2], "nose": [0.45, 0.06, 0.3]}
 ## v33 (red): pixel-safe close-ups - the arrow tip sits on the part at the frame centre, and the camera distance is the
 ## smallest that keeps every point of the part's FIT set inside the safe area (below the part label, above the caption box)
 const FIT := {   # word: [[bone, up offset in m at scale 1], ...]
-	"head": [["Head", 0.0], ["Head", 0.3]], "neck": [["Neck", -0.05], ["Head", 0.3]], "ears": [["Head", 0.0], ["Head", 0.22]],
-	"eyes": [["Head", 0.04], ["Head", 0.2]], "nose": [["Head", 0.02], ["Head", 0.18]], "mouth and teeth": [["Head", -0.02], ["Head", 0.14]],
+	"head": [["Head", -0.02], ["Head", 0.42]], "neck": [["Neck", -0.06], ["Head", 0.42]], "ears": [["Head", 0.0], ["Head", 0.34]],
+	"eyes": [["Head", 0.02], ["Head", 0.34]], "nose": [["Head", 0.0], ["Head", 0.3]], "mouth and teeth": [["Head", -0.03], ["Head", 0.26]],
 	"shoulders": [["UpperArm.L", 0.05], ["UpperArm.R", 0.05], ["Neck", 0.0]], "chest": [["Chest", 0.0], ["UpperArm.L", 0.0], ["UpperArm.R", 0.0]],
 	"back": [["Chest", 0.1], ["Hips", 0.0]], "stomach": [["Abdomen", 0.0], ["Hips", 0.0], ["Torso", 0.0]],
 	"hands and fingers": [["Hand.L", -0.08], ["Hand.L", 0.08], ["LowerArm.L", 0.0]], "arms": [["UpperArm.L", 0.0], ["Hand.L", 0.0]],
@@ -139,8 +140,8 @@ func _fit_dist(word: String, p: Vector3, dir: Vector3, d: float) -> float:
 		var q = _bone_pos(String(e[0]))
 		if q == null: continue
 		var o: Vector3 = (q as Vector3) + Vector3(0, float(e[1]) * _k(), 0) - p
-		# safe area: 58 % of the half height (part label on top, caption box at the bottom), 75 % of the half width
-		need = maxf(need, o.dot(z) + absf(o.dot(y)) / (tv * 0.58) + 0.02)
+		# safe area: 50 % of the half height (part label on top, caption box at the bottom), 75 % of the half width
+		need = maxf(need, o.dot(z) + absf(o.dot(y)) / (tv * 0.5) + 0.02)
 		need = maxf(need, o.dot(z) + absf(o.dot(x)) / (th * 0.75) + 0.02)
 	return minf(need, d * 2.5)
 func _yaw_between(from: Vector3, to: Vector3) -> float: return atan2(to.x - from.x, to.z - from.z) + MODEL_YAW
